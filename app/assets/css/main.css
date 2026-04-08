@@ -1,0 +1,99 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+@import "./theme.css";
+
+:root {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+body {
+  font-family: var(--font-sans);
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+}
+
+/* Prevent iOS (and some Android) zoom on input focus — requires font-size >= 16px */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea,
+  [contenteditable="true"] {
+    font-size: 16px !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  input::placeholder,
+  select::placeholder,
+  textarea::placeholder,
+  [contenteditable="true"]::placeholder {
+    font-size: 14px !important;
+  }
+}
+
+.page-content-height {
+  @apply min-h-[calc(100vh-246px)];
+}
+
+.sidebar-nav [data-active] {
+  @apply bg-primary text-white;
+}
+
+.sidebar-nav [data-active] * {
+  @apply text-white;
+}
+
+.sidebar-nav ul ul {
+  @apply ml-[18px] pl-2 space-y-1 border-l border-sidebar-border;
+}
+
+/* Hide scrollbar for tabs while maintaining scroll functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Tab transition animations */
+.tab-fade-enter-active,
+.tab-fade-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tab-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.tab-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.tab-fade-enter-to,
+.tab-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Slideover transition (transaction/payment view panels) */
+.slideover-enter-active,
+.slideover-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.slideover-enter-active .slideover-panel,
+.slideover-leave-active .slideover-panel {
+  transition: transform 0.25s ease;
+}
+
+.slideover-enter-from,
+.slideover-leave-to {
+  opacity: 0;
+}
+
+.slideover-enter-from .slideover-panel,
+.slideover-leave-to .slideover-panel {
+  transform: translateX(100%);
+}
