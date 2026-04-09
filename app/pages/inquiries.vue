@@ -264,6 +264,7 @@ onMounted(() => {
           <base-button
             v-if="can(PERMISSIONS_INQUIRIES.SEARCH)"
             :loading="loading"
+            variant="outline"
             class="flex-1 sm:flex-none"
             :leading-icon="ICONS.SEARCH"
             @click="handleSearch"

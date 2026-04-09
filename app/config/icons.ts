@@ -12,6 +12,8 @@ export const ICONS = {
   SHIELD_CHECK: "i-ph-shield-check",
   CONFIGURATION: "i-ph-gear",
   REPORTS: "i-ph-chart-bar",
+  BRIEFCASE: "i-ph-briefcase",
+  DUMBELL: "i-ph-dumbbell",
 
   // Actions
   EYE: "i-ph-eye",

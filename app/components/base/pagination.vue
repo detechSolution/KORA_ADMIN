@@ -28,7 +28,7 @@ function onPageChange(value: number): void {
       :disabled="props.disabled"
       variant="outline"
       color="neutral"
-      active-color="primary"
+      active-color="secondary"
       active-variant="solid"
       size="sm"
       :sibling-count="2"

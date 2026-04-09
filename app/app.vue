@@ -5,8 +5,8 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
 
 useSeoMeta({
-  title: "Baha | System",
-  description: "System",
+  title: "Kora | Administration",
+  description: "Kora",
 });
 
 const authStore = useAuthStore();

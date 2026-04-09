@@ -10,7 +10,6 @@ import {
   PERMISSIONS,
   PERMISSIONS_ADMINS,
   PERMISSIONS_COMMUNITIES,
-  PERMISSIONS_CONFIGURATION,
   PERMISSIONS_TRANSACTIONS,
 } from "~/config/permissions";
 import { useAuthStore } from "~/stores/auth";
@@ -77,7 +76,7 @@ function filterByPermission(items: NavItemWithPermission[]): NavigationMenuItem[
         const childActive = filteredChildren.some(
           c => isPathActive((c as { to?: string }).to),
         );
-        if (childActive && sidebarCollapsed.value)
+        if (childActive)
           (out as NavigationMenuItem & { active?: boolean }).active = true;
       }
       return out;
@@ -90,49 +89,45 @@ const rawItems: NavItemWithPermission[] = [{
   to: "/",
   // No permission: always visible for authenticated users
 }, {
-  label: "Administrators",
-  icon: ICONS.SHIELD_CHECK,
+  label: "Offerings",
+  icon: ICONS.BRIEFCASE,
   defaultOpen: true,
   children: [
-    { label: "Roles & Permissions", to: "/system-admin/roles-permissions", permission: PERMISSIONS_ADMINS.ROLES_PERMISSIONS },
-    { label: "List", to: "/system-admin/admins", permission: PERMISSIONS_ADMINS.LIST },
+    { label: "Sessions", to: "/system-admin/roles-permissions", icon: ICONS.CALENDAR, permission: PERMISSIONS_ADMINS.ROLES_PERMISSIONS },
+    { label: "Services", to: "/system-admin/admins", icon: ICONS.DUMBELL, permission: PERMISSIONS_ADMINS.LIST },
   ],
 }, {
-  label: "Inquiries",
+  label: "Bookings",
   icon: ICONS.INQUIRIES,
   to: "/inquiries",
   permission: PERMISSIONS.INQUIRIES,
 }, {
-  label: "Communities",
+  label: "Members",
   icon: ICONS.COMMUNITIES,
   defaultOpen: true,
   children: [
-    { label: "Create", to: "/communities/create", permission: PERMISSIONS_COMMUNITIES.CREATE },
-    { label: "List", to: "/communities/list", permission: PERMISSIONS_COMMUNITIES.VIEW },
+    { label: "Members & Guests", to: "/communities/create", icon: ICONS.USERS, permission: PERMISSIONS_COMMUNITIES.CREATE },
+    { label: "Membership Plans", to: "/communities/list", icon: ICONS.CHECK_CIRCLE, permission: PERMISSIONS_COMMUNITIES.VIEW },
   ],
 }, {
-  label: "Transactions",
+  label: "Access Logs",
+  icon: ICONS.COMMUNITIES,
+  defaultOpen: true,
+}, {
+  label: "Financial",
   icon: ICONS.BILLING,
   defaultOpen: true,
   children: [
-    { label: "Create", to: "/transaction/create", permission: PERMISSIONS_TRANSACTIONS.CREATE },
-    { label: "List", to: "/transaction/list", permission: PERMISSIONS_TRANSACTIONS.LIST },
-    { label: "Payment", to: "/transaction/payment", permission: PERMISSIONS_TRANSACTIONS.PAYMENT },
+    { label: "Payments", to: "/transaction/create", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_TRANSACTIONS.CREATE },
+    { label: "Refunds", to: "/transaction/list", icon: ICONS.BILLING, permission: PERMISSIONS_TRANSACTIONS.LIST },
   ],
 }, {
-  label: "Reports",
-  icon: ICONS.REPORTS,
-  to: "/reports",
-  permission: PERMISSIONS.REPORTS,
-}, {
-  label: "Configurations",
-  icon: ICONS.CONFIGURATION,
+  label: "Administration",
+  icon: ICONS.BILLING,
   defaultOpen: true,
   children: [
-    { label: "Subscription Plans", to: "/configuration/subscription-plans", permission: PERMISSIONS_CONFIGURATION.PLANS },
-    { label: "Billable Items", to: "/configuration/billable-items", permission: PERMISSIONS_CONFIGURATION.BILLABLE_ITEMS },
-    { label: "Discount Coupons", to: "/configuration/coupons", permission: PERMISSIONS_CONFIGURATION.COUPONS },
-    { label: "Payment Methods", to: "/configuration/payment-methods", permission: PERMISSIONS_CONFIGURATION.PAYMENT_METHODS },
+    { label: "Roles & Permissions", to: "/transaction/create", icon: ICONS.SHIELD_CHECK, permission: PERMISSIONS_TRANSACTIONS.CREATE },
+    { label: "Admins", to: "/transaction/list", icon: ICONS.USERS, permission: PERMISSIONS_TRANSACTIONS.LIST },
   ],
 }];
 
@@ -145,7 +140,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
     v-model:collapsed="sidebarCollapsed"
     collapsible
     toggle-side="right"
-    :ui="{ header: 'pr-2 sm:px-4 h-(--size-navbar)', content: 'overflow-hidden max-w-(--size-sidebar-mobile)', body: 'p-2 sm:p-2', root: 'border-0 min-w-(--size-sidebar-mini) min-h-(calc(100vh-1rem))', footer: 'p-2 sm:p-2' }"
+    :ui="{ header: 'pr-2 sm:px-4 h-(--size-navbar)', content: 'overflow-hidden max-w-(--size-sidebar-mobile)', body: 'p-2 sm:p-2 ', root: 'border-0 min-w-(--size-sidebar-mini) min-h-(calc(100vh-1rem)) bg-background', footer: 'border rounded border-border p-2 sm:p-2' }"
   >
     <template #toggle>
       <UDashboardSidebarToggle variant="subtle" />
@@ -153,27 +148,24 @@ const items = computed(() => [filterByPermission([...rawItems])]);
     <template #header="{ collapsed }">
       <div class="flex items-center gap-3 w-full">
         <img
-          src="/logo.png"
+          :src="collapsed ? '/logo/black_icon_logo.svg' : '/logo/kora_black_logo.svg'"
           alt="Baha Connect"
-          class="w-5 h-5"
+          class="w-28 h-28 transition-all duration-100 ease"
         >
-        <h1 v-if="!collapsed" class="text-md font-medium">
-          Baha Connect
-        </h1>
       </div>
     </template>
     <template #default="{ collapsed }">
       <UNavigationMenu
-        class="sidebar-nav"
+        class="sidebar-nav "
         :collapsed="collapsed"
         :items="items[0]"
         orientation="vertical"
         tooltip
         :ui="{
-          list: 'flex flex-col gap-1',
-          link: 'px-2 gap-3 text-foreground rounded-md hover:bg-primary/10 transition-colors',
-          linkLeadingIcon: 'text-foreground',
-          linkTrailingIcon: 'text-foreground',
+          list: 'flex flex-col gap-2',
+          link: 'px-2 gap-3 text-foreground rounded-md transition-colors',
+          linkLeadingIcon: 'text-foreground ',
+          linkTrailingIcon: 'text-foreground ',
         }"
       />
     </template>
@@ -191,8 +183,8 @@ const items = computed(() => [filterByPermission([...rawItems])]);
               fallback: 'text-white!',
             }"
           />
-          <div v-if="!collapsed" class="flex justify-between w-full items-center gap-3">
-            <div class="flex flex-col gap-0">
+          <div v-if="!collapsed" class="flex justify-between w-full items-start gap-3">
+            <div class="flex flex-col gap-0 ">
               <span class="text-sm font-medium">
                 {{ authStore.user.name || 'N/A' }}
               </span>

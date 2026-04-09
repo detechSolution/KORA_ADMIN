@@ -32,9 +32,9 @@ const getStyles = computed(() => {
   if (props.color === "primary") {
     switch (props.variant) {
       case "solid":
-        return "bg-primary hover:bg-primary/75 text-white";
+        return "bg-secondary dark:bg-secondary hover:bg-secondary/75 active:bg-secondary/75 text-white";
       case "outline":
-        return "text-primary border-primary hover:bg-primary/10";
+        return "text-secondary bg-white border-stone-300 hover:bg-stone-50";
       case "ghost":
         return "text-foreground hover:bg-primary/10";
       case "link":

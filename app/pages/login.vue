@@ -102,13 +102,13 @@ async function handleLogin(): Promise<void> {
 <template>
   <div class="min-h-dvh flex flex-col lg:flex-row overflow-x-hidden relative">
     <!-- Theme switcher: top-right, visible on all breakpoints -->
-    <div
+    <!-- <div
       class="fixed z-20"
       style="top: max(1rem, env(safe-area-inset-top)); right: max(1rem, env(safe-area-inset-right));"
       aria-label="Theme"
     >
       <UColorModeSwitch :ui="{ thumb: 'bg-background', icon: 'bg-foreground' }" />
-    </div>
+    </div> -->
 
     <!-- Left: hero panel (desktop only) -->
     <aside

@@ -2,7 +2,7 @@ export default defineNuxtConfig({
   ssr: false,
   app: {
     head: {
-      title: "Baha | System",
+      title: "Kora | Admin",
       meta: [
         { name: "description", content: "System" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },

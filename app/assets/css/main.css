@@ -37,15 +37,37 @@ body {
 }
 
 .sidebar-nav [data-active] {
-  @apply bg-primary text-white;
+  @apply bg-primary-50 text-primary;
 }
 
 .sidebar-nav [data-active] * {
-  @apply text-white;
+  @apply text-primary;
+}
+
+/* Nested child active: only text color, no background */
+.sidebar-nav ul ul [data-active] {
+  @apply bg-background text-primary;
+}
+
+/* Style the parent toggle row when any nested child is active */
+.sidebar-nav li:has(li [data-active]) > button,
+.sidebar-nav li:has(li [data-active]) > a,
+.sidebar-nav li:has(li [data-active]) > div > button,
+.sidebar-nav li:has(li [data-active]) > div > a {
+  color: var(--primary) !important;
+  background-color: var(--primary-50);
+  border-radius: 0.375rem;
+}
+
+.sidebar-nav li:has(li [data-active]) > button *,
+.sidebar-nav li:has(li [data-active]) > a *,
+.sidebar-nav li:has(li [data-active]) > div > button *,
+.sidebar-nav li:has(li [data-active]) > div > a * {
+  color: var(--primary) !important;
 }
 
 .sidebar-nav ul ul {
-  @apply ml-[18px] pl-2 space-y-1 border-l border-sidebar-border;
+  @apply ml-[18px] pl-2 space-y-2 border-l border-sidebar-border;
 }
 
 /* Hide scrollbar for tabs while maintaining scroll functionality */
