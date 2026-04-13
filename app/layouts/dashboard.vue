@@ -3,10 +3,10 @@ import { ICONS } from "~/config/icons";
 </script>
 
 <template>
-  <main class="min-h-dvh bg-secondary">
+  <main class="min-h-dvh">
     <UDashboardGroup unit="rem" class="p-2 gap-2">
       <LayoutSidebar />
-      <div class="w-full bg-background rounded-lg min-w-0">
+      <div class="w-full bg-white dark:bg-background rounded-lg min-w-0">
         <UDashboardPanel
           id="default"
           :ui="{
