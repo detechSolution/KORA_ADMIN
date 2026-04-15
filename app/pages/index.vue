@@ -58,17 +58,17 @@ const recentInquiries = computed(() => inquiriesStore.inquiries.data);
 const recentInquiriesColumns = [
   {
     accessorKey: "company_name",
-    header: "Company",
+    header: "Booking ID",
     cell: ({ row }: { row: any }) => row.original.company_name || "—",
   },
   {
     accessorKey: "contact_name",
-    header: "Contact",
+    header: "Client",
     cell: ({ row }: { row: any }) => row.original.contact_name || "—",
   },
   {
     accessorKey: "status_name",
-    header: "Status",
+    header: "Session/Service",
     cell: ({ row }: { row: any }) => {
       const inquiry = row.original;
       const statusId = Number(inquiry.status_id ?? 0);
@@ -79,7 +79,17 @@ const recentInquiriesColumns = [
   },
   {
     accessorKey: "created_at",
-    header: "Created",
+    header: "Type",
+    cell: ({ row }: { row: any }) => formatDateTime(row.original.created_at),
+  },
+  {
+    accessorKey: "created_at",
+    header: "Booked Date",
+    cell: ({ row }: { row: any }) => formatDateTime(row.original.created_at),
+  },
+  {
+    accessorKey: "created_at",
+    header: "Status",
     cell: ({ row }: { row: any }) => formatDateTime(row.original.created_at),
   },
 ];
@@ -118,13 +128,13 @@ const kpiData = computed(() => [
 </script>
 
 <template>
-  <div class="w-full flex flex-col">
+  <div class="w-full gap-6 flex flex-col">
     <base-page-header>
       <template #title>
         Dashboard
       </template>
       <template #description>
-        Overview of your system and recent activity.
+        Overview of today's activity and recent bookings
       </template>
     </base-page-header>
 
@@ -157,17 +167,17 @@ const kpiData = computed(() => [
           <div>
             <h3 class="text-sm font-semibold text-foreground flex items-center gap-2">
               <UIcon :name="ICONS.INQUIRIES" class="h-4 w-4 text-muted-foreground" />
-              Recent Inquiries
+              Recent Bookings
             </h3>
             <p class="text-xs text-muted-foreground mt-0.5">
-              Latest inquiries from your funnel.
+              Latest bookings from today.
             </p>
           </div>
           <NuxtLink to="/inquiries" class="shrink-0">
             <base-button
               variant="outline"
               size="sm"
-              trailing-icon="i-lucide-arrow-right"
+              :leading-icon="ICONS.ARROW_LEFT"
             >
               View all
             </base-button>
