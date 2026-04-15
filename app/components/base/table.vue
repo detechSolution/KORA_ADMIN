@@ -35,7 +35,7 @@ const showSkeleton = computed(() => props.loading);
     >
       <table class="min-w-full w-full border-separate border-spacing-0 table-auto">
         <thead>
-          <tr class="bg-muted">
+          <tr class="bg-stone-50">
             <th
               v-for="colIndex in skeletonColumnCount"
               :key="`table-skeleton-header-${colIndex}`"

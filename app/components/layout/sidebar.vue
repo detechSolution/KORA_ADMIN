@@ -107,27 +107,35 @@ const rawItems: NavItemWithPermission[] = [{
   defaultOpen: true,
   children: [
     { label: "Members & Guests", to: "/communities/create", icon: ICONS.USERS, permission: PERMISSIONS_COMMUNITIES.CREATE },
-    { label: "Membership Plans", to: "/communities/list", icon: ICONS.CHECK_CIRCLE, permission: PERMISSIONS_COMMUNITIES.VIEW },
+    { label: "Membership Plans", to: "/communities/list", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_COMMUNITIES.VIEW },
   ],
-}, {
-  label: "Access Logs",
-  icon: ICONS.COMMUNITIES,
-  defaultOpen: true,
 }, {
   label: "Financial",
   icon: ICONS.BILLING,
   defaultOpen: true,
   children: [
     { label: "Payments", to: "/transaction/create", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_TRANSACTIONS.CREATE },
-    { label: "Refunds", to: "/transaction/list", icon: ICONS.BILLING, permission: PERMISSIONS_TRANSACTIONS.LIST },
+    { label: "Refunds", to: "/transaction/list", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_TRANSACTIONS.LIST },
   ],
 }, {
+  label: "Access Logs",
+  icon: ICONS.DOOR_LOCK,
+  defaultOpen: true,
+}, {
+  label: "Promo Code",
+  icon: ICONS.BADGE_PERCENT,
+  defaultOpen: true,
+}, {
+  label: "Send Email",
+  icon: ICONS.MAILS,
+  defaultOpen: true,
+}, {
   label: "Administration",
-  icon: ICONS.BILLING,
+  icon: ICONS.SHIELD_CHECK,
   defaultOpen: true,
   children: [
-    { label: "Roles & Permissions", to: "/transaction/create", icon: ICONS.SHIELD_CHECK, permission: PERMISSIONS_TRANSACTIONS.CREATE },
-    { label: "Admins", to: "/transaction/list", icon: ICONS.USERS, permission: PERMISSIONS_TRANSACTIONS.LIST },
+    { label: "Roles & Permissions", to: "/transaction/create", icon: ICONS.SETTINGS, permission: PERMISSIONS_TRANSACTIONS.CREATE },
+    { label: "Admins", to: "/transaction/list", icon: ICONS.USER_COG, permission: PERMISSIONS_TRANSACTIONS.LIST },
   ],
 }];
 
@@ -140,7 +148,14 @@ const items = computed(() => [filterByPermission([...rawItems])]);
     v-model:collapsed="sidebarCollapsed"
     collapsible
     toggle-side="right"
-    :ui="{ header: 'pr-2 sm:px-4 h-(--size-navbar)', content: 'overflow-hidden max-w-(--size-sidebar-mobile)', body: 'p-2 sm:p-2 ', root: 'border-0 min-w-(--size-sidebar-mini) min-h-(calc(100vh-1rem)) bg-background', footer: 'border rounded border-border p-2 sm:p-2' }"
+    :ui="{
+      header: 'pr-2 sm:px-4 h-(--size-navbar)',
+      content: 'overflow-hidden max-w-(--size-sidebar-mobile)',
+      body: 'p-2',
+      root: 'border-stone-200 border-r min-w-(--size-sidebar-mini) min-h-(calc(100vh-1rem)) bg-white',
+      footer: 'p-2 sm:p-2',
+
+    }"
   >
     <template #toggle>
       <UDashboardSidebarToggle variant="subtle" />
@@ -148,7 +163,14 @@ const items = computed(() => [filterByPermission([...rawItems])]);
     <template #header="{ collapsed }">
       <div class="flex items-center gap-3 w-full">
         <img
-          :src="collapsed ? '/logo/black_icon_logo.svg' : '/logo/kora_black_logo.svg'"
+          v-if="collapsed"
+          src="/logo/black_icon_logo.svg"
+          alt="Baha Connect"
+          class="w-28 h-28 transition-all duration-100 ease"
+        >
+        <img
+          v-else
+          src="/logo/kora_black_logo.svg"
           alt="Baha Connect"
           class="w-28 h-28 transition-all duration-100 ease"
         >
@@ -156,7 +178,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
     </template>
     <template #default="{ collapsed }">
       <UNavigationMenu
-        class="sidebar-nav "
+        class="sidebar-nav"
         :collapsed="collapsed"
         :items="items[0]"
         orientation="vertical"
@@ -166,6 +188,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
           link: 'px-2 gap-3 text-foreground rounded-md transition-colors',
           linkLeadingIcon: 'text-foreground ',
           linkTrailingIcon: 'text-foreground ',
+          item: 'flex flex-col gap-2',
         }"
       />
     </template>
@@ -175,7 +198,14 @@ const items = computed(() => [filterByPermission([...rawItems])]);
         dismissible
         :popper="{ placement: collapsed ? 'right-start' : 'top-end' }"
       >
-        <div class="flex items-center w-full gap-3 cursor-pointer">
+        <div
+          class="flex items-center w-full gap-3 mb-2 cursor-pointer"
+          :class="[
+            collapsed
+              ? 'p-0 border-0'
+              : 'p-2 border rounded border-stone-200',
+          ]"
+        >
           <UAvatar
             :text="getFirstLetter(authStore.user.name)"
             :ui="{
@@ -192,7 +222,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
                 {{ authStore.user.email || 'N/A' }}
               </span>
             </div>
-            <UIcon :name="ICONS.ELLIPSIS_VERTICAL" />
+            <!-- <UIcon :name="ICONS.ELLIPSIS_VERTICAL" /> -->
           </div>
         </div>
         <template #content>
