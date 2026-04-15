@@ -21,19 +21,15 @@ function handleSettingsClick() {
           }"
         >
           <template #header>
-            <UDashboardNavbar :ui="{ root: 'bg-white h-(--size-navbar)  border-b border-border' }">
+            <UDashboardNavbar :ui="{ root: 'bg-white h-(--size-navbar) border-b border-border' }">
               <template #leading>
-                <div class="flex items-center gap-3 ">
+                <div class="flex items-center gap-3">
                   <UDashboardSidebarCollapse :icon="ICONS.PANEL_RIGHT" />
                 </div>
               </template>
               <template #toggle>
                 <UDashboardSidebarToggle :icon="ICONS.PANEL_RIGHT" />
               </template>
-
-              <!-- <template #right>
-                <UIcon name="i-lucide-bell" class="size-5" />
-              </template> -->
 
               <template #right>
                 <div class="flex gap-3">
