@@ -1,12 +1,12 @@
 <script setup lang="ts">
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<DashboardSessionCardProps>(), {
   title: "",
   date: "",
   time: "",
   capacity: "",
 });
 
-type Props = {
+type DashboardSessionCardProps = {
   title: string;
   date: string;
   time: string;

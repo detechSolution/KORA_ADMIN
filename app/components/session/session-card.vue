@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ICONS } from "~/config/icons";
 
-defineProps<Props>();
+defineProps<SessionCardProps>();
 
-type Props = {
+type SessionCardProps = {
   title: string;
   type: string;
   trainer: string;

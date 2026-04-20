@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 
 import { ICONS } from "~/config/icons";
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<KPICardProps>(), {
   subtitle: "",
   icon: ICONS.DASHBOARD,
   link: undefined,
@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const router = useRouter();
 
-type Props = {
+type KPICardProps = {
   title: string;
   value: string | number;
   subtitle?: string;
