@@ -45,19 +45,23 @@ const isCreateModalOpen = ref(false);
 const columns = ref([
   {
     accessorKey: "company_name",
-    header: "Company Name",
+    header: "Booking ID",
   },
   {
     accessorKey: "contact_name",
-    header: "Contact Person",
+    header: "Client",
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: "Session/Service",
   },
   {
     accessorKey: "phone",
-    header: "Phone",
+    header: "Type",
+  },
+  {
+    accessorKey: "phone",
+    header: "Booked Date",
   },
   {
     accessorKey: "status_name",
@@ -209,69 +213,83 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col gap-6">
     <base-page-header>
       <template #title>
-        Inquiries
+        Bookings
       </template>
       <template #description>
-        View and manage inquiries.
+        View bookings, their status, & method, and create manual bookings
       </template>
       <template #actions>
         <base-button
           v-if="can(PERMISSIONS_INQUIRIES.CREATE)"
-          variant="outline"
+          variant="solid"
           size="md"
-          :trailing-icon="ICONS.PLUS"
+          :leading-icon="ICONS.PLUS"
           @click="isCreateModalOpen = true"
         >
-          Create Inquiry
+          Manual Booking
         </base-button>
       </template>
     </base-page-header>
-    <div class="bg-card border-x border-b border-border rounded-b-xl shadow-sm p-6 flex flex-col gap-4 page-content-height">
-      <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
-        <base-input
-          v-model="state.search"
-          name="search"
-          placeholder="Search"
-          class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
-        />
-        <base-select
-          v-model="state.status"
-          name="status"
-          placeholder="All statuses"
-          :options="statusOptions"
-          class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
-        />
-        <base-date-picker
-          v-model="state.dateRange"
-          name="dateRange"
-          placeholder="Select date range"
-          range
-          :no-of-months="2"
-          class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
-        />
-        <div class="flex gap-2 w-full sm:w-auto">
-          <base-button
-            v-if="state.search || state.status || state.dateRange?.start || state.dateRange?.end"
-            variant="outline"
-            class="flex-1 sm:flex-none"
-            @click="clearFilters"
-          >
-            Clear Filters
-          </base-button>
-          <base-button
-            v-if="can(PERMISSIONS_INQUIRIES.SEARCH)"
-            :loading="loading"
-            variant="outline"
-            class="flex-1 sm:flex-none"
-            :leading-icon="ICONS.SEARCH"
-            @click="handleSearch"
-          >
-            Search
-          </base-button>
+
+    <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 page-content-height">
+      <h2 class="text-base font-semibold">
+        Bookings List
+      </h2>
+      <div class="flex flex-col sm:flex-row justify-between gap-4">
+        <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
+          <base-input
+            v-model="state.search"
+            name="search"
+            placeholder="Search"
+            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+          />
+
+          <base-date-picker
+            v-model="state.dateRange"
+            name="dateRange"
+            placeholder="Select date range"
+            range
+            :no-of-months="2"
+            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+          />
+          <base-select
+            v-model="state.status"
+            name="status"
+            placeholder="All statuses"
+            :options="statusOptions"
+            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+          />
+          <div class="flex gap-2 w-full sm:w-auto">
+            <base-button
+              v-if="state.search || state.status || state.dateRange?.start || state.dateRange?.end"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="clearFilters"
+            >
+              Clear Filters
+            </base-button>
+            <base-button
+              v-if="can(PERMISSIONS_INQUIRIES.SEARCH)"
+              :loading="loading"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              :leading-icon="ICONS.SEARCH"
+              @click="handleSearch"
+            >
+              Search
+            </base-button>
+          </div>
         </div>
+
+        <base-button
+          variant="ghost"
+          :leading-icon="ICONS.DOWNLOAD"
+        >
+          Export
+        </base-button>
       </div>
       <base-table
         :data="inquiriesStore.inquiries.data"

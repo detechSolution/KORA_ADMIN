@@ -9,6 +9,33 @@ import { useInquiriesStore } from "~/stores/inquiries";
 import { formatDateTime } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
+const todaySessions = [
+  {
+    title: "Session 1",
+    date: "2022-01-01",
+    time: "10:00 AM",
+    capacity: "2/10",
+  },
+  {
+    title: "Session 2",
+    date: "2022-01-02",
+    time: "11:00 AM",
+    capacity: "18/20",
+  },
+  {
+    title: "Session 3",
+    date: "2022-01-03",
+    time: "12:00 PM",
+    capacity: "26/30",
+  },
+  {
+    title: "Session 3",
+    date: "2022-01-03",
+    time: "12:00 PM",
+    capacity: "12/30",
+  },
+];
+
 definePageMeta({
   auth: true,
   layout: "dashboard",
@@ -97,31 +124,27 @@ const recentInquiriesColumns = [
 // Computed KPI data from store
 const kpiData = computed(() => [
   {
-    title: "Total Communities",
-    icon: ICONS.BUILDING,
+    title: "Today's Bookings",
+    icon: ICONS.INQUIRIES,
     value: analyticsStore.analyticsStats.community_total_count,
-    subtitle: "Communities currently managed in the system",
     link: { path: "/communities/list" },
   },
   {
-    title: "Total Inquiries",
-    icon: ICONS.INQUIRIES,
+    title: "Today's Sessions",
+    icon: ICONS.CALENDAR,
     value: analyticsStore.analyticsStats.inquiry_total_count,
-    subtitle: "Leads and inquiries received across all channels",
     link: { path: "/inquiries" },
   },
   {
-    title: "Total Invoiced",
-    icon: ICONS.BILLING,
+    title: "Total Members",
+    icon: ICONS.USERS,
     value: analyticsStore.analyticsStats.total_invoiced,
-    subtitle: "Total amount invoiced to all communities",
     link: { path: "/transaction/list" },
   },
   {
-    title: "Total Paid",
-    icon: ICONS.CHECK_CIRCLE,
+    title: "Today's Revenue",
+    icon: ICONS.CHART_LINE,
     value: analyticsStore.analyticsStats.total_paid,
-    subtitle: "Payments successfully received from communities",
     link: { path: "/transaction/payment" },
   },
 ]);
@@ -138,7 +161,7 @@ const kpiData = computed(() => [
       </template>
     </base-page-header>
 
-    <div class="page-content-height bg-card border-x border-b border-border rounded-b-xl shadow-sm p-6 space-y-6">
+    <div class="page-content-height bg-card  rounded-xl shadow-sm p-6 space-y-6">
       <div v-if="analyticsLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
         <div
           v-for="i in 4"
@@ -150,26 +173,31 @@ const kpiData = computed(() => [
           <div class="h-3 bg-muted rounded w-40" />
         </div>
       </div>
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div v-else class="grid bg-stone-50 rounded border border-border py-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-y-6 md:gap-y-8 gap-x-0">
         <dashboard-kpi-card
           v-for="(kpi, index) in kpiData"
           :key="index"
+          class="px-6 border-border"
+          :class="[
+            index % 2 === 0 ? 'md:border-r' : 'md:border-r-0',
+            index !== 3 ? 'xl:border-r' : 'xl:border-r-0',
+          ]"
           :title="kpi.title"
           :value="kpi.value"
-          :subtitle="kpi.subtitle"
           :icon="kpi.icon"
           :link="kpi.link"
         />
       </div>
 
-      <div class="border-t border-border pt-4">
+      <!-- Recent Bookings -->
+      <div>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div>
-            <h3 class="text-sm font-semibold text-foreground flex items-center gap-2">
-              <UIcon :name="ICONS.INQUIRIES" class="h-4 w-4 text-muted-foreground" />
+            <h3 class="text-base font-semibold text-secondary flex items-center gap-2">
+              <UIcon :name="ICONS.INQUIRIES" class="h-4 w-4 text-primary-700" />
               Recent Bookings
             </h3>
-            <p class="text-xs text-muted-foreground mt-0.5">
+            <p class="text-xs font-normal text-secondary-300 mt-0.5">
               Latest bookings from today.
             </p>
           </div>
@@ -190,6 +218,64 @@ const kpiData = computed(() => [
           :skeleton-rows="5"
           empty-title="No inquiries yet"
           empty-description="New inquiries will appear here once created."
+        />
+      </div>
+
+      <!-- Consistent Members -->
+      <div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div>
+            <h3 class="text-base font-semibold text-secondary flex items-center gap-2">
+              <UIcon :name="ICONS.USERS" class="h-4 w-4 text-primary-700" />
+              Consistent Members
+            </h3>
+            <p class="text-xs font-normal text-secondary-300 mt-0.5">
+              Top consistent members
+            </p>
+          </div>
+        </div>
+
+        <base-table
+          :data="recentInquiries"
+          :columns="recentInquiriesColumns"
+          :loading="inquiriesLoading"
+          :skeleton-rows="5"
+          empty-title="No inquiries yet"
+          empty-description="New inquiries will appear here once created."
+        />
+      </div>
+    </div>
+
+    <div class="bg-card  rounded-xl shadow-sm p-6 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <div>
+          <h3 class="text-base font-semibold text-secondary flex items-center gap-2">
+            <UIcon :name="ICONS.CALENDAR" class="h-4 w-4 text-primary-700" />
+            Today's Sessions
+          </h3>
+          <p class="text-xs font-normal text-secondary-300 mt-0.5">
+            Active sessions scheduled for today
+          </p>
+        </div>
+        <NuxtLink to="/inquiries" class="shrink-0">
+          <base-button
+            variant="outline"
+            size="sm"
+            :leading-icon="ICONS.ARROW_LEFT"
+          >
+            View all
+          </base-button>
+        </NuxtLink>
+      </div>
+
+      <div class="border-t border-border py-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-2">
+        <dashboard-session-card
+          v-for="(session, index) in todaySessions"
+          :key="index"
+          :title="session.title"
+          :date="session.date"
+          :time="session.time"
+          :capacity="session.capacity"
         />
       </div>
     </div>
