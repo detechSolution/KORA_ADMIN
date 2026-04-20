@@ -9,6 +9,7 @@ export const ICONS = {
   INQUIRIES: "i-lucide-book-open",
   COMMUNITIES: "i-lucide-award",
   USERS: "i-lucide-users",
+  USER: "i-lucide-user",
   SHIELD_CHECK: "i-lucide-shield-check",
   CONFIGURATION: "i-lucide-gear",
   REPORTS: "i-lucide-chart-bar",
@@ -23,7 +24,9 @@ export const ICONS = {
   EYE: "i-lucide-eye",
   EYE_OFF: "i-lucide-eye-slash",
   PLUS: "i-lucide-plus",
-  EDIT: "i-lucide-pencil-simple",
+  EDIT: "i-lucide-pencil",
+  COPY: "i-lucide-copy",
+  CLIPBOARD_CHECK: "i-lucide-clipboard-check",
   SETTINGS: "i-lucide-settings",
   LOGOUT: "i-lucide-log-out",
   LOCK: "i-lucide-lock",
@@ -35,6 +38,8 @@ export const ICONS = {
   BAN: "i-lucide-prohibit",
   X_OCTAGON: "i-lucide-octagon",
   ALERT_CIRCLE: "i-lucide-warning-circle",
+  PEN_LINE: "i-lucide-pen-line",
+  DOWNLOAD: "i-lucide-download",
 
   // UI Elements
   ELLIPSIS_VERTICAL: "i-lucide-dots-three-vertical",
@@ -48,7 +53,7 @@ export const ICONS = {
   MAP_PIN: "i-lucide-map-pin",
   BUILDING: "i-lucide-buildings",
   CLOCK: "i-lucide-clock",
-  SEARCH: "i-lucide-magnifying-glass",
+  SEARCH: "i-lucide-search",
   SUBSCRIPTIONS: "i-lucide-currency-dollar",
   CREDIT_CARD: "i-lucide-credit-card",
   COUPONS: "i-lucide-ticket",
@@ -58,6 +63,11 @@ export const ICONS = {
   UPLOAD: "i-lucide-upload",
   REFRESH_CW: "i-lucide-refresh-ccw",
   NOTIFICATION: "i-lucide-bell",
+  CHART_LINE: "i-lucide-chart-line",
+  LOCATION: "i-lucide-map-pin",
+  PRICE: "i-lucide-dollar-sign",
+  CAPACITY: "i-lucide-users",
+  REGISTERED: "i-lucide-user-check",
 
   // arrow
   ARROW_LEFT: "i-lucide-arrow-left",

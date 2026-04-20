@@ -93,49 +93,52 @@ const rawItems: NavItemWithPermission[] = [{
   icon: ICONS.BRIEFCASE,
   defaultOpen: true,
   children: [
-    { label: "Sessions", to: "/system-admin/roles-permissions", icon: ICONS.CALENDAR, permission: PERMISSIONS_ADMINS.ROLES_PERMISSIONS },
-    { label: "Services", to: "/system-admin/admins", icon: ICONS.DUMBELL, permission: PERMISSIONS_ADMINS.LIST },
+    { label: "Sessions", to: "/offerings/session", icon: ICONS.CALENDAR, permission: PERMISSIONS_ADMINS.ROLES_PERMISSIONS },
+    { label: "Services", to: "/offerings/service", icon: ICONS.DUMBELL, permission: PERMISSIONS_ADMINS.LIST },
   ],
 }, {
   label: "Bookings",
   icon: ICONS.INQUIRIES,
-  to: "/inquiries",
+  to: "/booking",
   permission: PERMISSIONS.INQUIRIES,
 }, {
   label: "Members",
   icon: ICONS.COMMUNITIES,
   defaultOpen: true,
   children: [
-    { label: "Members & Guests", to: "/communities/create", icon: ICONS.USERS, permission: PERMISSIONS_COMMUNITIES.CREATE },
-    { label: "Membership Plans", to: "/communities/list", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_COMMUNITIES.VIEW },
+    { label: "Members & Guests", to: "/members/guest", icon: ICONS.USERS, permission: PERMISSIONS_COMMUNITIES.CREATE },
+    { label: "Membership Plans", to: "/members/plan", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_COMMUNITIES.VIEW },
   ],
 }, {
   label: "Financial",
   icon: ICONS.BILLING,
   defaultOpen: true,
   children: [
-    { label: "Payments", to: "/transaction/create", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_TRANSACTIONS.CREATE },
-    { label: "Refunds", to: "/transaction/list", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_TRANSACTIONS.LIST },
+    { label: "Payments", to: "/financial/payment", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_TRANSACTIONS.CREATE },
+    { label: "Refunds", to: "/financial/refund", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_TRANSACTIONS.LIST },
   ],
 }, {
   label: "Access Logs",
   icon: ICONS.DOOR_LOCK,
+  to: "/access-log",
   defaultOpen: true,
 }, {
   label: "Promo Code",
   icon: ICONS.BADGE_PERCENT,
+  to: "/promo-code",
   defaultOpen: true,
 }, {
   label: "Send Email",
   icon: ICONS.MAILS,
+  to: "/send-mail",
   defaultOpen: true,
 }, {
   label: "Administration",
   icon: ICONS.SHIELD_CHECK,
   defaultOpen: true,
   children: [
-    { label: "Roles & Permissions", to: "/transaction/create", icon: ICONS.SETTINGS, permission: PERMISSIONS_TRANSACTIONS.CREATE },
-    { label: "Admins", to: "/transaction/list", icon: ICONS.USER_COG, permission: PERMISSIONS_TRANSACTIONS.LIST },
+    { label: "Roles & Permissions", to: "/administration/roles", icon: ICONS.SETTINGS, permission: PERMISSIONS_TRANSACTIONS.CREATE },
+    { label: "Admins", to: "/administration/admins", icon: ICONS.USER_COG, permission: PERMISSIONS_TRANSACTIONS.LIST },
   ],
 }];
 
