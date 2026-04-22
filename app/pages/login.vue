@@ -12,6 +12,7 @@ definePageMeta({
 const authStore = useAuthStore();
 const toast = useNotification();
 const router = useRouter();
+const rememberMe = ref(false);
 
 const loading = ref(false);
 const apiError = ref<string | null>(null);
@@ -37,27 +38,27 @@ const state = reactive<Partial<Schema>>({
   password: "",
 });
 
-const heroGradientLight = `
-  linear-gradient(160deg,
-    color-mix(in oklch, var(--color-background) 30%, var(--color-primary)) 0%,
-    color-mix(in oklch, var(--color-background) 18%, var(--color-primary)) 50%,
-    color-mix(in oklch, var(--color-background) 28%, var(--color-muted)) 100%
-  )
-`;
+// const heroGradientLight = `
+//   linear-gradient(160deg,
+//     color-mix(in oklch, var(--color-background) 30%, var(--color-primary)) 0%,
+//     color-mix(in oklch, var(--color-background) 18%, var(--color-primary)) 50%,
+//     color-mix(in oklch, var(--color-background) 28%, var(--color-muted)) 100%
+//   )
+// `;
 
-const formPanelGradientLight = `
-  linear-gradient(to right,
-    color-mix(in oklch, var(--color-card) 88%, var(--color-primary)) 0%,
-    color-mix(in oklch, var(--color-card) 96%, var(--color-primary)) 12%,
-    var(--color-card) 100%
-  )
-`;
+// const formPanelGradientLight = `
+//   linear-gradient(to right,
+//     color-mix(in oklch, var(--color-card) 88%, var(--color-primary)) 0%,
+//     color-mix(in oklch, var(--color-card) 96%, var(--color-primary)) 12%,
+//     var(--color-card) 100%
+//   )
+// `;
 
-const linePatternImage = `
-  repeating-linear-gradient(45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
-  repeating-linear-gradient(-45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
-  repeating-linear-gradient(90deg, transparent, transparent 48px, currentColor 48px, currentColor 49px)
-`;
+// const linePatternImage = `
+//   repeating-linear-gradient(45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
+//   repeating-linear-gradient(-45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
+//   repeating-linear-gradient(90deg, transparent, transparent 48px, currentColor 48px, currentColor 49px)
+// `;
 
 function setApiError(error: string): void {
   apiError.value = error;
@@ -116,45 +117,40 @@ async function handleLogin(): Promise<void> {
       aria-hidden="true"
     >
       <div
-        class="absolute inset-0 pointer-events-none"
-        :style="{ background: heroGradientLight }"
-      />
-      <div
-        class="absolute inset-0 pointer-events-none hidden dark:block bg-background"
+        class="absolute inset-0 pointer-events-none bg-[length:100%_auto] bg-repeat"
+        :style="{ backgroundImage: 'url(/image/login-bg.svg)' }"
         aria-hidden="true"
       />
+      <!-- Gradient overlay over the SVG -->
       <div
-        class="absolute inset-0 pointer-events-none opacity-[0.1] text-white/50 dark:text-muted-foreground dark:opacity-[0.05]"
-        :style="{ backgroundImage: linePatternImage }"
+        class="absolute inset-0 pointer-events-none bg-gradient-to-br from-black/20 via-black/40 to-black/60"
         aria-hidden="true"
       />
-      <div class="relative z-10">
+
+      <div class="relative z-10 h-1/2 flex flex-col justify-between">
         <div class="flex items-center gap-2.5">
           <img
-            src="/logo.png"
+            src="/logo/kora_white_logo.svg"
             alt="Baha Connect"
-            class="h-9 w-9 shrink-0 object-contain brightness-0 invert"
+            class="h-16 w-32 shrink-0 object-contain"
           >
-          <span class="text-xl font-semibold text-white tracking-tight">Baha Connect</span>
         </div>
-        <h2 class="mt-14 text-3xl xl:text-4xl font-bold text-white tracking-tight leading-tight">
-          Hello Baha Administrator!
-          <span class="inline-block ml-1" aria-hidden="true">👋</span>
-        </h2>
-        <p class="mt-6 max-w-sm text-base text-white leading-relaxed">
-          Manage communities, subscriptions, and inquiries in one place. Get more done with less effort.
-        </p>
+
+        <div class="space-y-3">
+          <h2 class="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-tight">
+            Welcome Back!
+          </h2>
+          <p class="text-base max-w-2xl text-white leading-relaxed">
+            View bookings, create sessions, and manage payments in a seamless environment built for clarity, balance, and control.
+          </p>
+        </div>
       </div>
-      <p class="relative z-10 text-sm text-white/80">
-        © {{ new Date().getFullYear() }} Baha Connect. All rights reserved.
-      </p>
     </aside>
 
     <!-- Right: form panel -->
     <main
       class="flex-1 flex flex-col min-h-dvh lg:min-h-0 lg:flex lg:items-center lg:justify-center relative"
       aria-label="Sign in"
-      :style="{ background: formPanelGradientLight }"
     >
       <div
         class="absolute inset-0 pointer-events-none hidden dark:block bg-background"
@@ -163,21 +159,20 @@ async function handleLogin(): Promise<void> {
       <!-- Mobile: brand header (same height as auth navbar, no border) -->
       <div class="lg:hidden relative z-10 flex items-center gap-2.5 px-5 h-[var(--size-navbar-auth)] min-h-[4rem] shrink-0">
         <img
-          src="/logo.png"
+          src="/logo/kora_black_logo.svg"
           alt="Baha Connect"
-          class="h-8 w-8 shrink-0 object-contain"
+          class="h-16 w-32 shrink-0 object-contain"
         >
-        <span class="text-lg font-semibold text-foreground tracking-tight">Baha Connect</span>
       </div>
 
       <div
-        class="relative z-10 flex-1 flex flex-col justify-center min-h-0 w-full max-w-[480px] mx-auto px-5 py-8 sm:px-8 sm:py-10 lg:py-12 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto"
+        class="relative z-10 flex-1 flex flex-col justify-center min-h-0 w-full max-w-2xl mx-auto px-5 py-8 sm:px-8 sm:py-10 lg:py-12 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto"
       >
-        <h1 class="mt-0 lg:mt-4 text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-          Welcome Back!
+        <h1 class="mt-0 lg:mt-4 text-[28px] font-bold text-foreground tracking-tight">
+          Welcome Back
         </h1>
-        <p class="mt-2 text-sm text-muted-foreground leading-relaxed">
-          Enter your credentials to access your account.
+        <p class="mt-2 text-sm text-gray-500 leading-relaxed">
+          Sign in to access your account and continue your experience.
         </p>
 
         <UForm
@@ -185,35 +180,45 @@ async function handleLogin(): Promise<void> {
           :state="state"
           :schema="schema"
           :validate-on="['input', 'change', 'blur']"
-          class="mt-8 w-full space-y-5"
+          class="mt-8 w-full space-y-4"
         >
           <base-input
             v-model="state.email"
             name="email"
             label="Email"
-            placeholder="name@example.com"
+            placeholder="Enter Your Email"
           />
           <base-input
             v-model="state.password"
             name="password"
             label="Password"
-            placeholder="Enter your password"
+            placeholder="Enter Your Passsword"
             type="password"
             @input="clearApiError"
           />
+
+          <div class="flex items-center justify-between pt-2 pb-1">
+            <UCheckbox
+              v-model="rememberMe"
+              name="rememberMe"
+              label="Remember me"
+            />
+            <NuxtLink
+              to="/forgot-password"
+              class="text-sm font-medium text-[#B68A55] hover:text-[#B68A55]/90 shrink-0"
+            >
+              Forgot Password?
+            </NuxtLink>
+          </div>
           <base-button
             type="submit"
-            class="w-full"
+            class="w-full mt-2"
             :loading="loading"
             @click="handleLogin"
           >
             Log in
           </base-button>
         </UForm>
-
-        <p class="mt-6 pt-5 text-xs text-muted-foreground leading-relaxed border-t border-border/80 max-w-[36rem]">
-          By signing in, you agree to our terms of use, community guidelines, and privacy policy.
-        </p>
       </div>
     </main>
   </div>

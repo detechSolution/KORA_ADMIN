@@ -9,7 +9,6 @@ import { useAuthStore } from "~/stores/auth";
  */
 export function usePermission() {
   const authStore = useAuthStore();
-
   const permissions = computed(() => authStore.permissions);
 
   /** Check if the current user has the given permission. */

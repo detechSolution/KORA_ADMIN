@@ -4,8 +4,6 @@ import { computed, h, onMounted, ref, resolveComponent } from "vue";
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { getInquiryStatusColor } from "~/config/inquiry-status";
-import { useAnalyticsStore } from "~/stores/analytics";
-import { useInquiriesStore } from "~/stores/inquiries";
 import { formatDateTime } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -42,15 +40,11 @@ definePageMeta({
 });
 
 const { error: showError } = useNotification();
-const analyticsStore = useAnalyticsStore();
-const inquiriesStore = useInquiriesStore();
 const inquiriesLoading = ref(false);
 const analyticsLoading = ref(false);
-
 async function getInquiriesData() {
   try {
     inquiriesLoading.value = true;
-    await inquiriesStore.getInquiries({ page: 1, limit: 5 });
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to load inquiries") });
@@ -63,7 +57,6 @@ async function getInquiriesData() {
 async function getAnalyticsData() {
   try {
     analyticsLoading.value = true;
-    await analyticsStore.getAnalyticsStats();
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to load analytics") });
@@ -79,8 +72,6 @@ onMounted(() => {
     getInquiriesData(),
   ]);
 });
-
-const recentInquiries = computed(() => inquiriesStore.inquiries.data);
 
 const recentInquiriesColumns = [
   {
@@ -126,25 +117,25 @@ const kpiData = computed(() => [
   {
     title: "Today's Bookings",
     icon: ICONS.INQUIRIES,
-    value: analyticsStore.analyticsStats.community_total_count,
+    value: 10,
     link: { path: "/communities/list" },
   },
   {
     title: "Today's Sessions",
     icon: ICONS.CALENDAR,
-    value: analyticsStore.analyticsStats.inquiry_total_count,
+    value: 10,
     link: { path: "/inquiries" },
   },
   {
     title: "Total Members",
     icon: ICONS.USERS,
-    value: analyticsStore.analyticsStats.total_invoiced,
+    value: 10,
     link: { path: "/transaction/list" },
   },
   {
     title: "Today's Revenue",
     icon: ICONS.CHART_LINE,
-    value: analyticsStore.analyticsStats.total_paid,
+    value: 10,
     link: { path: "/transaction/payment" },
   },
 ]);

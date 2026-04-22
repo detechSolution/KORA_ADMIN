@@ -4,7 +4,7 @@ import { ICONS } from "~/config/icons";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "REPORTS",
+  permission: "administration.admins.view",
 });
 </script>
 

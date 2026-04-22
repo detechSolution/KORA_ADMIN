@@ -20,7 +20,7 @@ withDefaults(defineProps<Props>(), {
               class="w-6 h-6 text-primary"
             />
           </div>
-          <h1 class="text-2xl font-bold text-foreground uppercase">
+          <h1 class="text-2xl font-bold text-foreground">
             <slot name="title" />
           </h1>
         </div>

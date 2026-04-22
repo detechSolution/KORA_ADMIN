@@ -129,20 +129,19 @@ export const useAuthStore = defineStore("auth", () => {
     isCheckingAuth.value = true;
     try {
       const response = await http.get(API_ENDPOINTS.AUTH.ME) as { success?: boolean; code?: string; data?: { user?: Record<string, unknown>; permissions?: string[] } };
-      const payload = response?.data;
-      if (payload?.user) {
-        const u = payload.user as Record<string, unknown>;
+      const payload = response;
+      if (payload) {
+        const u = payload as Record<string, unknown>;
         isAuthenticated.value = true;
         user.value.id = (u.id as number) ?? null;
         user.value.email = (u.email as string) ?? "";
-        user.value.name = (u.name as string) ?? "";
-        user.value.phone = (u.phone as string) ?? "";
-        user.value.avatar = (u.avatar as string) ?? "";
-        user.value.is_active = u.is_active as boolean | undefined;
-        user.value.role_id = (u.role_id as number | null) ?? null;
-        user.value.last_login_at = (u.last_login_at as string | null) ?? null;
-        permissions.value = Array.isArray(payload.permissions) ? payload.permissions : [];
-
+        user.value.name = (u.fullName as string) ?? "";
+        // user.value.phone = (u.phone as string) ?? "";
+        // user.value.avatar = (u.avatar as string) ?? "";
+        // user.value.is_active = u.is_active as boolean | undefined;
+        user.value.role_id = (u?.adminRole?.id as number | null) ?? null;
+        // user.value.last_login_at = (u.last_login_at as string | null) ?? null;
+        permissions.value = Array.isArray(u?.permissions) ? u.permissions : [];
         saveUserToStorage();
         lastAuthCheck.value = now;
       }
@@ -172,9 +171,10 @@ export const useAuthStore = defineStore("auth", () => {
   const login = async (payload: { email: string; password: string }): Promise<void> => {
     try {
       unAuthorizedError.value = false;
-      const { data } = await http.post(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password }) as any;
-      if (data.access_token && data.refresh_token) {
-        storage.setTokens(data.access_token, data.refresh_token);
+      const { accessToken, refreshToken } = await http.post(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password }) as any;
+      if (accessToken && refreshToken) {
+        storage.setTokens(accessToken, refreshToken);
+        isAuthenticated.value = true;
         // After login, immediately check auth to get user data
         await checkAuth(true);
       }

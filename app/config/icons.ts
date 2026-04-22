@@ -19,7 +19,7 @@ export const ICONS = {
   MAILS: "i-lucide-mails",
   BADGE_PERCENT: "i-lucide-badge-percent",
   USER_COG: "i-lucide-user-cog",
-
+  INFO: "i-lucide-info",
   // Actions
   EYE: "i-lucide-eye",
   EYE_OFF: "i-lucide-eye-slash",
@@ -40,6 +40,7 @@ export const ICONS = {
   ALERT_CIRCLE: "i-lucide-warning-circle",
   PEN_LINE: "i-lucide-pen-line",
   DOWNLOAD: "i-lucide-download",
+  WARNING: "i-lucide-triangle-alert",
 
   // UI Elements
   ELLIPSIS_VERTICAL: "i-lucide-dots-three-vertical",
@@ -68,6 +69,7 @@ export const ICONS = {
   PRICE: "i-lucide-dollar-sign",
   CAPACITY: "i-lucide-users",
   REGISTERED: "i-lucide-user-check",
+  SAVE: "i-lucide-save",
 
   // arrow
   ARROW_LEFT: "i-lucide-arrow-left",
