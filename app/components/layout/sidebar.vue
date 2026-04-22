@@ -7,15 +7,11 @@ import { computed, ref, watch } from "vue";
 import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
 import {
-  DASHBOARD,
-  PERMISSIONS,
-  PERMISSIONS_ADMINS,
   PERMISSIONS_BOOKINGS,
   PERMISSIONS_MEMBERSHIP_PLANS,
-  PERMISSIONS_NAV,
+  PERMISSIONS_PAYMENTS,
   PERMISSIONS_SERVICES,
   PERMISSIONS_SESSIONS,
-  PERMISSIONS_PAYMENTS,
 } from "~/config/permissions";
 import { useAuthStore } from "~/stores/auth";
 

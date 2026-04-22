@@ -129,7 +129,7 @@ export const useAuthStore = defineStore("auth", () => {
     isCheckingAuth.value = true;
     try {
       const response = await http.get(API_ENDPOINTS.AUTH.ME) as { success?: boolean; code?: string; data?: { user?: Record<string, unknown>; permissions?: string[] } };
-      const payload = response
+      const payload = response;
       if (payload) {
         const u = payload as Record<string, unknown>;
         isAuthenticated.value = true;

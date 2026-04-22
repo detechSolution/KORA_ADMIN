@@ -1,4 +1,104 @@
+<script setup lang="ts">
+import { reactive, ref } from "vue";
+import * as z from "zod";
 
+import { useAuthStore } from "~/stores/auth";
+import { getApiErrorMessage } from "~/utils/error";
+
+definePageMeta({
+  auth: false,
+});
+
+const authStore = useAuthStore();
+const toast = useNotification();
+const router = useRouter();
+const rememberMe = ref(false);
+
+const loading = ref(false);
+const apiError = ref<string | null>(null);
+const formRef = ref<InstanceType<typeof UForm> | null>(null);
+
+const schema = z.object({
+  email: z.string().min(1, "Email is required").email("Invalid email"),
+  password: z.string().min(1, "Password is required"),
+}).superRefine((data, ctx) => {
+  if (apiError.value) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["password"],
+      message: apiError.value,
+    });
+  }
+});
+
+type Schema = z.output<typeof schema>;
+
+const state = reactive<Partial<Schema>>({
+  email: "",
+  password: "",
+});
+
+// const heroGradientLight = `
+//   linear-gradient(160deg,
+//     color-mix(in oklch, var(--color-background) 30%, var(--color-primary)) 0%,
+//     color-mix(in oklch, var(--color-background) 18%, var(--color-primary)) 50%,
+//     color-mix(in oklch, var(--color-background) 28%, var(--color-muted)) 100%
+//   )
+// `;
+
+const formPanelGradientLight = `
+  linear-gradient(to right,
+    color-mix(in oklch, var(--color-card) 88%, var(--color-primary)) 0%,
+    color-mix(in oklch, var(--color-card) 96%, var(--color-primary)) 12%,
+    var(--color-card) 100%
+  )
+`;
+
+// const linePatternImage = `
+//   repeating-linear-gradient(45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
+//   repeating-linear-gradient(-45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
+//   repeating-linear-gradient(90deg, transparent, transparent 48px, currentColor 48px, currentColor 49px)
+// `;
+
+function setApiError(error: string): void {
+  apiError.value = error;
+}
+
+function clearApiError(): void {
+  apiError.value = null;
+}
+
+async function handleLogin(): Promise<void> {
+  try {
+    await formRef.value?.validate();
+  }
+  catch {
+    return;
+  }
+  try {
+    loading.value = true;
+    clearApiError();
+    const payload = {
+      email: state.email,
+      password: state.password,
+    };
+    await authStore.login(payload as { email: string; password: string });
+    router.push({ name: "index" });
+  }
+  catch (error: unknown) {
+    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
+    if (message !== "Something went wrong. Please try again.") {
+      setApiError(message);
+      formRef.value?.validate();
+      return;
+    }
+    toast.error({ message });
+  }
+  finally {
+    loading.value = false;
+  }
+};
+</script>
 
 <template>
   <div class="min-h-dvh flex flex-col lg:flex-row overflow-x-hidden relative">
@@ -122,105 +222,3 @@
     </main>
   </div>
 </template>
-
-<script setup lang="ts">
-import { reactive, ref } from "vue";
-import * as z from "zod";
-
-import { useAuthStore } from "~/stores/auth";
-import { getApiErrorMessage } from "~/utils/error";
-
-definePageMeta({
-  auth: false,
-});
-
-const authStore = useAuthStore();
-const toast = useNotification();
-const router = useRouter();
-const rememberMe = ref(false);
-
-const loading = ref(false);
-const apiError = ref<string | null>(null);
-const formRef = ref<InstanceType<typeof UForm> | null>(null);
-
-const schema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email"),
-  password: z.string().min(1, "Password is required"),
-}).superRefine((data, ctx) => {
-  if (apiError.value) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["password"],
-      message: apiError.value,
-    });
-  }
-});
-
-type Schema = z.output<typeof schema>;
-
-const state = reactive<Partial<Schema>>({
-  email: "",
-  password: "",
-});
-
-const heroGradientLight = `
-  linear-gradient(160deg,
-    color-mix(in oklch, var(--color-background) 30%, var(--color-primary)) 0%,
-    color-mix(in oklch, var(--color-background) 18%, var(--color-primary)) 50%,
-    color-mix(in oklch, var(--color-background) 28%, var(--color-muted)) 100%
-  )
-`;
-
-const formPanelGradientLight = `
-  linear-gradient(to right,
-    color-mix(in oklch, var(--color-card) 88%, var(--color-primary)) 0%,
-    color-mix(in oklch, var(--color-card) 96%, var(--color-primary)) 12%,
-    var(--color-card) 100%
-  )
-`;
-
-const linePatternImage = `
-  repeating-linear-gradient(45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
-  repeating-linear-gradient(-45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
-  repeating-linear-gradient(90deg, transparent, transparent 48px, currentColor 48px, currentColor 49px)
-`;
-
-function setApiError(error: string): void {
-  apiError.value = error;
-}
-
-function clearApiError(): void {
-  apiError.value = null;
-}
-
-async function handleLogin(): Promise<void> {
-  try {
-    await formRef.value?.validate();
-  }
-  catch {
-    return;
-  }
-  try {
-    loading.value = true;
-    clearApiError();
-    const payload = {
-      email: state.email,
-      password: state.password,
-    };
-    await authStore.login(payload as { email: string; password: string });
-    router.push({ name: "index" });
-  }
-  catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
-  }
-  finally {
-    loading.value = false;
-  }
-};
-</script>

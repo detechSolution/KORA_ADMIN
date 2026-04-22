@@ -112,6 +112,6 @@ export const PERMISSIONS_NAV = {
 
 type Permission = string;
 
-export function hasPermission (userPermissions: Permission[], key: Permission) {
-  return userPermissions.includes(key)
+export function hasPermission(userPermissions: Permission[], key: Permission) {
+  return userPermissions.includes(key);
 }
