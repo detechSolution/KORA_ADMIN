@@ -46,13 +46,13 @@ const state = reactive<Partial<Schema>>({
 //   )
 // `;
 
-const formPanelGradientLight = `
-  linear-gradient(to right,
-    color-mix(in oklch, var(--color-card) 88%, var(--color-primary)) 0%,
-    color-mix(in oklch, var(--color-card) 96%, var(--color-primary)) 12%,
-    var(--color-card) 100%
-  )
-`;
+// const formPanelGradientLight = `
+//   linear-gradient(to right,
+//     color-mix(in oklch, var(--color-card) 88%, var(--color-primary)) 0%,
+//     color-mix(in oklch, var(--color-card) 96%, var(--color-primary)) 12%,
+//     var(--color-card) 100%
+//   )
+// `;
 
 // const linePatternImage = `
 //   repeating-linear-gradient(45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
@@ -116,21 +116,18 @@ async function handleLogin(): Promise<void> {
       class="hidden lg:flex lg:flex-1 lg:min-w-0 flex-col justify-between relative overflow-hidden px-10 py-12 xl:px-16 xl:py-20"
       aria-hidden="true"
     >
-      <!-- <div
-        class="absolute inset-0 pointer-events-none"
-        :style="{ background: heroGradientLight }"
-      /> -->
-      <!-- <div
-        class="absolute inset-0 pointer-events-none hidden dark:block bg-background"
-        aria-hidden="true"
-      /> -->
       <div
-        class="absolute inset-0 pointer-events-none"
+        class="absolute inset-0 pointer-events-none bg-[length:100%_auto] bg-repeat"
         :style="{ backgroundImage: 'url(/image/login-bg.svg)' }"
         aria-hidden="true"
       />
+      <!-- Gradient overlay over the SVG -->
+      <div
+        class="absolute inset-0 pointer-events-none bg-gradient-to-br from-black/20 via-black/40 to-black/60"
+        aria-hidden="true"
+      />
 
-      <div class="relative z-10">
+      <div class="relative z-10 h-1/2 flex flex-col justify-between">
         <div class="flex items-center gap-2.5">
           <img
             src="/logo/kora_white_logo.svg"
@@ -138,12 +135,15 @@ async function handleLogin(): Promise<void> {
             class="h-16 w-32 shrink-0 object-contain"
           >
         </div>
-        <h2 class="mt-14 text-3xl xl:text-4xl font-bold text-white tracking-tight leading-tight">
-          Welcome Back!
-        </h2>
-        <p class="mt-6 max-w-sm text-base text-white leading-relaxed">
-          View bookings, create sessions, and manage payments in a seamless environment built for clarity, balance, and control.
-        </p>
+
+        <div class="space-y-3">
+          <h2 class="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-tight">
+            Welcome Back!
+          </h2>
+          <p class="text-base max-w-2xl text-white leading-relaxed">
+            View bookings, create sessions, and manage payments in a seamless environment built for clarity, balance, and control.
+          </p>
+        </div>
       </div>
     </aside>
 
@@ -151,7 +151,6 @@ async function handleLogin(): Promise<void> {
     <main
       class="flex-1 flex flex-col min-h-dvh lg:min-h-0 lg:flex lg:items-center lg:justify-center relative"
       aria-label="Sign in"
-      :style="{ background: formPanelGradientLight }"
     >
       <div
         class="absolute inset-0 pointer-events-none hidden dark:block bg-background"
@@ -167,12 +166,12 @@ async function handleLogin(): Promise<void> {
       </div>
 
       <div
-        class="relative z-10 flex-1 flex flex-col justify-center min-h-0 w-full mx-auto px-5 py-8 sm:px-8 sm:py-10 lg:py-12 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto"
+        class="relative z-10 flex-1 flex flex-col justify-center min-h-0 w-full max-w-2xl mx-auto px-5 py-8 sm:px-8 sm:py-10 lg:py-12 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto"
       >
-        <h1 class="mt-0 lg:mt-4 text-xl sm:text-2xl font-bold text-foreground tracking-tight">
-          Welcome Back!
+        <h1 class="mt-0 lg:mt-4 text-[28px] font-bold text-foreground tracking-tight">
+          Welcome Back
         </h1>
-        <p class="mt-2 text-sm text-muted-foreground leading-relaxed">
+        <p class="mt-2 text-sm text-gray-500 leading-relaxed">
           Sign in to access your account and continue your experience.
         </p>
 
@@ -181,37 +180,39 @@ async function handleLogin(): Promise<void> {
           :state="state"
           :schema="schema"
           :validate-on="['input', 'change', 'blur']"
-          class="mt-8 w-full space-y-5"
+          class="mt-8 w-full space-y-4"
         >
           <base-input
             v-model="state.email"
             name="email"
             label="Email"
-            placeholder="name@example.com"
+            placeholder="Enter Your Email"
           />
           <base-input
             v-model="state.password"
             name="password"
             label="Password"
-            placeholder="Enter your password"
+            placeholder="Enter Your Passsword"
             type="password"
             @input="clearApiError"
           />
 
-          <div class="flex items-center justify-between">
-            <base-checkbox
+          <div class="flex items-center justify-between pt-2 pb-1">
+            <UCheckbox
               v-model="rememberMe"
               name="rememberMe"
               label="Remember me"
             />
-            <base-link
+            <NuxtLink
               to="/forgot-password"
-              label="Forgot password?"
-            />
+              class="text-sm font-medium text-[#B68A55] hover:text-[#B68A55]/90 shrink-0"
+            >
+              Forgot Password?
+            </NuxtLink>
           </div>
           <base-button
             type="submit"
-            class="w-full"
+            class="w-full mt-2"
             :loading="loading"
             @click="handleLogin"
           >
