@@ -34,11 +34,20 @@ export const useAdminStore = defineStore("admin", () => {
       console.error("Failed to fetch roles catalog:", error);
     }
   };
+  const createRole = async (payload: { name: string; description: string; permissions: string[] }): Promise<void> => {
+    try {
+      await http.post(API_ENDPOINTS.SYSTEM_ADMIN.ROLES.CREATE_ROLE, payload);
+    }
+    catch (error) {
+      console.error("Failed to create role:", error);
+    }
+  };
 
   return {
     roles,
     rolesCatalog,
     fetchRoles,
     fetchRolesCatalog,
+    createRole,
   };
 });

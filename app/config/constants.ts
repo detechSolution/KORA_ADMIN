@@ -59,6 +59,7 @@ export const API_ENDPOINTS = {
       GET_ROLES: "/api/v1/administration/roles",
       GET_ROLES_CATALOG: "/api/v1/administration/roles/catalog",
       UPDATE_MODULES: "/api/v1/system-admins/roles/updateModules",
+      CREATE_ROLE: "/api/v1/administration/roles",
     },
     ADMINS: {
       BASE: "/api/v1/system-admins",
