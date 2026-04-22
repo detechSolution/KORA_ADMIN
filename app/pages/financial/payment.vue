@@ -4,7 +4,7 @@ import { ICONS } from "~/config/icons";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "INQUIRIES",
+  permission: "payments.view",
 });
 
 const kpiCards = [

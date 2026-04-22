@@ -7,10 +7,15 @@ import { computed, ref, watch } from "vue";
 import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
 import {
+  DASHBOARD,
   PERMISSIONS,
   PERMISSIONS_ADMINS,
-  PERMISSIONS_COMMUNITIES,
-  PERMISSIONS_TRANSACTIONS,
+  PERMISSIONS_BOOKINGS,
+  PERMISSIONS_MEMBERSHIP_PLANS,
+  PERMISSIONS_NAV,
+  PERMISSIONS_SERVICES,
+  PERMISSIONS_SESSIONS,
+  PERMISSIONS_PAYMENTS,
 } from "~/config/permissions";
 import { useAuthStore } from "~/stores/auth";
 
@@ -93,29 +98,29 @@ const rawItems: NavItemWithPermission[] = [{
   icon: ICONS.BRIEFCASE,
   defaultOpen: true,
   children: [
-    { label: "Sessions", to: "/offerings/session", icon: ICONS.CALENDAR, permission: PERMISSIONS_ADMINS.ROLES_PERMISSIONS },
-    { label: "Services", to: "/offerings/service", icon: ICONS.DUMBELL, permission: PERMISSIONS_ADMINS.LIST },
+    { label: "Sessions", to: "/offerings/session", icon: ICONS.CALENDAR, permission: PERMISSIONS_SESSIONS.VIEW },
+    { label: "Services", to: "/offerings/service", icon: ICONS.DUMBELL, permission: PERMISSIONS_SERVICES.VIEW },
   ],
 }, {
   label: "Bookings",
   icon: ICONS.INQUIRIES,
   to: "/booking",
-  permission: PERMISSIONS.INQUIRIES,
+  permission: PERMISSIONS_BOOKINGS.VIEW,
 }, {
   label: "Members",
   icon: ICONS.COMMUNITIES,
   defaultOpen: true,
   children: [
-    { label: "Members & Guests", to: "/members/guest", icon: ICONS.USERS, permission: PERMISSIONS_COMMUNITIES.CREATE },
-    { label: "Membership Plans", to: "/members/plan", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_COMMUNITIES.VIEW },
+    { label: "Members & Guests", to: "/members/guest", icon: ICONS.USERS, permission: PERMISSIONS_MEMBERSHIP_PLANS.CREATE },
+    { label: "Membership Plans", to: "/members/plan", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_MEMBERSHIP_PLANS.VIEW },
   ],
 }, {
   label: "Financial",
   icon: ICONS.BILLING,
   defaultOpen: true,
   children: [
-    { label: "Payments", to: "/financial/payment", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_TRANSACTIONS.CREATE },
-    { label: "Refunds", to: "/financial/refund", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_TRANSACTIONS.LIST },
+    { label: "Payments", to: "/financial/payment", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_PAYMENTS.VIEW },
+    { label: "Refunds", to: "/financial/refund", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_PAYMENTS.VIEW },
   ],
 }, {
   label: "Access Logs",
@@ -137,8 +142,8 @@ const rawItems: NavItemWithPermission[] = [{
   icon: ICONS.SHIELD_CHECK,
   defaultOpen: true,
   children: [
-    { label: "Roles & Permissions", to: "/administration/roles", icon: ICONS.SETTINGS, permission: PERMISSIONS_TRANSACTIONS.CREATE },
-    { label: "Admins", to: "/administration/admins", icon: ICONS.USER_COG, permission: PERMISSIONS_TRANSACTIONS.LIST },
+    { label: "Roles & Permissions", to: "/administration/roles", icon: ICONS.SETTINGS, permission: PERMISSIONS_PAYMENTS.VIEW },
+    { label: "Admins", to: "/administration/admins", icon: ICONS.USER_COG, permission: PERMISSIONS_PAYMENTS.VIEW },
   ],
 }];
 

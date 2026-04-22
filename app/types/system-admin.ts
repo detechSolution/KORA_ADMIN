@@ -7,6 +7,31 @@ export type SystemAdminRole = {
   name: string;
   created_at: string;
   updated_at: string;
+  description: string;
+  permissions: string[];
+  isActive: boolean;
+  users: {
+    id: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+    fullName: string;
+    email: string;
+    phoneNumber: string | null;
+    role: string;
+    adminRoleId: number;
+    isActive: boolean;
+    lastLoginAt: string;
+  }[];
+};
+
+export type RolesCatalog = Record<string, string[]>;
+
+export type ModuleTreeItem = {
+  label: string;
+  id: number;
+  children?: ModuleTreeItem[];
+  defaultExpanded?: boolean;
 };
 
 export type SystemAdminAdmin = {

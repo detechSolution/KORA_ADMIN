@@ -4,7 +4,7 @@ import { ICONS } from "~/config/icons";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "COMMUNITIES.CREATE",
+  permission: "offerings.services.view",
 });
 
 const state = ref({
