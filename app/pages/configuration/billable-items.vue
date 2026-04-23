@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { h, onMounted, ref, resolveComponent } from "vue";
 
-import { usePagination } from "~/composables/use-pagination";
-import { usePermission } from "~/composables/use-permission";
+import { API_ENDPOINTS } from "~/config/constants";
 import { ICONS } from "~/config/icons";
-import { PERMISSIONS_CONFIGURATION } from "~/config/permissions";
 import { useBillableItemsStore } from "~/stores/billable-items";
 import { formatDateTime, formatNumber } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
@@ -84,7 +82,7 @@ const columns = ref([
     cell: ({ row }: { row: any }) => {
       const item = row.original;
       const items = [];
-      if (can(PERMISSIONS_CONFIGURATION.BILLABLE_ITEMS_UPDATE)) {
+      if (can(API_ENDPOINTS.CONFIGURATION.BILLABLE_ITEMS_UPDATE)) {
         items.push({
           label: "Update details",
           onSelect: () => {
@@ -183,7 +181,7 @@ onMounted(() => {
       </template>
       <template #actions>
         <base-button
-          v-if="can(PERMISSIONS_CONFIGURATION.BILLABLE_ITEMS_ADD)"
+          v-if="can(API_ENDPOINTS.CONFIGURATION.BILLABLE_ITEMS_ADD)"
           variant="outline"
           size="md"
           :trailing-icon="ICONS.PLUS"

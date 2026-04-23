@@ -6,6 +6,14 @@ export const API_ENDPOINTS = {
   ANALYTICS: {
     GET_STATS: "/api/v1/analytics/getSummary",
   },
+  SPA: {
+    GET_SPA: "/api/v1/spa",
+    UPDATE_SPA: "/api/v1/spa",
+    POST_SUB_TYPE: "/api/v1/spa/sub-types",
+    UPDATE_SUB_TYPE: (id: number) => `/api/v1/spa/sub-types/${id}`,
+    DELETE_SUB_TYPE: (id: number) => `/api/v1/spa/sub-types/${id}`,
+    GET_SUB_TYPE: (id: number) => `/api/v1/spa/sub-types/${id}`,
+  },
   COMMUNITIES: {
     CREATE: "/api/v1/communities",
     GET_LIST: "/api/v1/communities/getList",
