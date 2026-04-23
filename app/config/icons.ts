@@ -43,7 +43,7 @@ export const ICONS = {
   WARNING: "i-lucide-triangle-alert",
 
   // UI Elements
-  ELLIPSIS_VERTICAL: "i-lucide-dots-three-vertical",
+  ELLIPSIS_VERTICAL: "i-lucide-ellipsis-vertical",
   PANEL_RIGHT: "i-lucide-panel-right",
   SIDEBAR_TOGGLE: "i-lucide-list",
   CALENDAR: "i-lucide-calendar",
