@@ -4,7 +4,6 @@ import * as z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
 import { usePermission } from "~/composables/use-permission";
-import { PERMISSIONS_CONFIGURATION } from "~/config/permissions";
 import { useSubscriptionsStore } from "~/stores/subscriptions";
 import { formatDateTime } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";

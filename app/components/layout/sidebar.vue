@@ -3,6 +3,7 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 import type { RouteLocationRaw } from "vue-router";
 
 import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
@@ -95,7 +96,7 @@ const rawItems: NavItemWithPermission[] = [{
   defaultOpen: true,
   children: [
     { label: "Sessions", to: "/offerings/session", icon: ICONS.CALENDAR, permission: PERMISSIONS_SESSIONS.VIEW },
-    { label: "Services", to: "/offerings/service", icon: ICONS.DUMBELL, permission: PERMISSIONS_SERVICES.VIEW },
+    { label: "Spa", to: "/offerings/spa", icon: ICONS.FLOWER, permission: PERMISSIONS_SERVICES.VIEW },
   ],
 }, {
   label: "Bookings",

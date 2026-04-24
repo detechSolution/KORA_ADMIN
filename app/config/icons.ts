@@ -39,6 +39,7 @@ export const ICONS = {
   X_OCTAGON: "i-lucide-octagon",
   ALERT_CIRCLE: "i-lucide-warning-circle",
   PEN_LINE: "i-lucide-pen-line",
+  TRASH_2: "i-lucide-trash-2",
   DOWNLOAD: "i-lucide-download",
   WARNING: "i-lucide-triangle-alert",
 
@@ -70,7 +71,7 @@ export const ICONS = {
   CAPACITY: "i-lucide-users",
   REGISTERED: "i-lucide-user-check",
   SAVE: "i-lucide-save",
-
+  FLOWER: "i-lucide-flower",
   // arrow
   ARROW_LEFT: "i-lucide-arrow-left",
   ARROW_RIGHT: "i-lucide-arrow-right",
