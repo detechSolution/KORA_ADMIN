@@ -257,14 +257,14 @@ onMounted(() => {
   <div class="flex flex-col gap-6">
     <base-page-header>
       <template #title>
-        Roles & Permissions
+        Create New Role
       </template>
       <template #description>
-        Create and manage roles & permissions
+        Create and manage roles
       </template>
 
       <template #actions>
-        <NuxtLink to="/communities/create">
+        <NuxtLink to="/administration/create-role">
           <base-button
             variant="solid"
             size="md"

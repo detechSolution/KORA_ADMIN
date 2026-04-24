@@ -38,28 +38,6 @@ const state = reactive<Partial<Schema>>({
   password: "",
 });
 
-// const heroGradientLight = `
-//   linear-gradient(160deg,
-//     color-mix(in oklch, var(--color-background) 30%, var(--color-primary)) 0%,
-//     color-mix(in oklch, var(--color-background) 18%, var(--color-primary)) 50%,
-//     color-mix(in oklch, var(--color-background) 28%, var(--color-muted)) 100%
-//   )
-// `;
-
-// const formPanelGradientLight = `
-//   linear-gradient(to right,
-//     color-mix(in oklch, var(--color-card) 88%, var(--color-primary)) 0%,
-//     color-mix(in oklch, var(--color-card) 96%, var(--color-primary)) 12%,
-//     var(--color-card) 100%
-//   )
-// `;
-
-// const linePatternImage = `
-//   repeating-linear-gradient(45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
-//   repeating-linear-gradient(-45deg, transparent, transparent 24px, currentColor 24px, currentColor 25px),
-//   repeating-linear-gradient(90deg, transparent, transparent 48px, currentColor 48px, currentColor 49px)
-// `;
-
 function setApiError(error: string): void {
   apiError.value = error;
 }
@@ -117,7 +95,7 @@ async function handleLogin(): Promise<void> {
       aria-hidden="true"
     >
       <div
-        class="absolute inset-0 pointer-events-none bg-[length:100%_auto] bg-repeat"
+        class="absolute inset-0 pointer-events-none bg-cover"
         :style="{ backgroundImage: 'url(/image/login-bg.svg)' }"
         aria-hidden="true"
       />

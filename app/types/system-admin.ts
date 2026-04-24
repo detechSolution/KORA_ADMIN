@@ -34,7 +34,7 @@ export type ModuleTreeItem = {
   defaultExpanded?: boolean;
 };
 
-export type SystemAdminAdmin = {
+export type SystemAdmin = {
   id: number;
   role_id: number | null;
   email: string;
