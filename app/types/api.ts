@@ -25,3 +25,12 @@ export type ApiError = Error & {
   statusText: string;
   data?: ApiErrorData;
 };
+
+export type ApiResponse<T = unknown> = {
+  data: T;
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+};

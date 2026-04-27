@@ -82,7 +82,8 @@ export const useSystemAdminStore = defineStore("system-admin", () => {
 
   const updateAdmin = async (payload: UpdateAdminPayload): Promise<void> => {
     try {
-      await http.post(API_ENDPOINTS.SYSTEM_ADMIN.ADMINS.UPDATE, payload);
+      const { admin_id, ...data } = payload;
+      await http.patch(API_ENDPOINTS.SYSTEM_ADMIN.ADMINS.UPDATE(admin_id), data);
     }
     catch (error: unknown) {
       console.error(error, "Update Admin Error");

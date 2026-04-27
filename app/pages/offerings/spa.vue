@@ -149,6 +149,11 @@ function formatTime(time: string): string {
   const displayHour = parsedHour % 12 || 12;
   return `${String(displayHour).padStart(2, "0")}:${minutes}`;
 }
+
+function clearFilters(): void {
+  state.value.referenceNumber = "";
+  fetchSpaData();
+}
 </script>
 
 <template>
@@ -184,15 +189,25 @@ function formatTime(time: string): string {
           class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
           @keyup.enter="fetchSpaData"
         />
-        <base-button
-          variant="outline"
-          size="md"
-          :leading-icon="ICONS.SEARCH"
-          :loading="loading"
-          @click="fetchSpaData"
-        >
-          Search
-        </base-button>
+        <div class="flex gap-2 w-full sm:w-auto">
+          <base-button
+            v-if="state.referenceNumber !== ''"
+            variant="outline"
+            class="flex-1 sm:flex-none"
+            @click="clearFilters"
+          >
+            Clear Filters
+          </base-button>
+          <base-button
+            variant="outline"
+            size="md"
+            :leading-icon="ICONS.SEARCH"
+            :loading="loading"
+            @click="fetchSpaData"
+          >
+            Search
+          </base-button>
+        </div>
       </div>
 
       <div
@@ -278,7 +293,7 @@ function formatTime(time: string): string {
       />
     </div>
 
-    <OfferingsSpaEditDrawer
+    <OfferingsSpaSubtypeEditDrawer
       :open="isEditDrawerOpen"
       :service-id="selectedServiceId"
       @close="closeEditDrawer"
@@ -292,7 +307,7 @@ function formatTime(time: string): string {
       @updated="handleSpaUpdated"
     />
 
-    <OfferingsSpaDeleteSubtypeModal
+    <OfferingsSpaSubtypeDeleteModal
       :open="isDeleteModalOpen"
       :service-name="selectedService?.name"
       :loading="deleting"

@@ -83,6 +83,17 @@ async function handleCreateRole() {
       <template #description>
         Create and manage admins
       </template>
+
+      <template #actions>
+        <NuxtLink to="/administration/roles">
+          <base-button
+            variant="outline"
+            :leading-icon="ICONS.ARROW_LEFT"
+          >
+            Back to list
+          </base-button>
+        </NuxtLink>
+      </template>
     </base-page-header>
 
     <div class="flex flex-col gap-6 p-6 bg-white rounded-lg">

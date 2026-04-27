@@ -190,7 +190,7 @@ async function fetchRoles(): Promise<void> {
     loadingRoles.value = true;
     await adminStore.fetchRoles();
 
-    if (selectedRoleId.value == null && roles.value.length > 0) {
+    if (selectedRoleId.value == null && roles.value?.length > 0) {
       selectedRoleId.value = roles.value[0].id;
     }
   }
