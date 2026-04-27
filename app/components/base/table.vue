@@ -67,7 +67,10 @@ const showSkeleton = computed(() => props.loading);
       :data="props.data"
       :loading="props.loading"
     >
-      <template #empty>
+      <template v-for="(_, name) in $slots" #[name]="slotData">
+        <slot :name="name" v-bind="slotData || {}" />
+      </template>
+      <template v-if="!$slots.empty" #empty>
         <slot name="empty-state">
           <div class="py-8 text-center text-sm text-muted-foreground">
             <UEmpty
@@ -79,7 +82,6 @@ const showSkeleton = computed(() => props.loading);
           </div>
         </slot>
       </template>
-      <slot />
     </UTable>
   </div>
 </template>

@@ -20,6 +20,8 @@ export const ICONS = {
   BADGE_PERCENT: "i-lucide-badge-percent",
   USER_COG: "i-lucide-user-cog",
   INFO: "i-lucide-info",
+  THREE_VERTICAL_DOTS: "i-lucide-ellipsis-vertical",
+
   // Actions
   EYE: "i-lucide-eye",
   EYE_OFF: "i-lucide-eye-slash",

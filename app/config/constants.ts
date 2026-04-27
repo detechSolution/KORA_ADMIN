@@ -72,7 +72,7 @@ export const API_ENDPOINTS = {
     ADMINS: {
       GET_ADMINS: "/api/v1/administration/admins",
       CREATE_ADMIN: "/api/v1/administration/admins",
-      UPDATE: `/api/v1/administration/admins/update`,
+      UPDATE: (id: number) => `/api/v1/administration/admins/${id}`,
     },
     MODULES: {
       GET_LIST: "/api/v1/system-admins/modules/getList",

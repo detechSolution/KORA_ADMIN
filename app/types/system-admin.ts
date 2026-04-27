@@ -36,13 +36,15 @@ export type ModuleTreeItem = {
 
 export type SystemAdmin = {
   id: number;
-  role_id: number | null;
+  adminRoleId: number | null;
   email: string;
-  name: string;
-  phone: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  fullName?: string;
+  name?: string;
+  phoneNumber?: string | null;
+  phone?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
   role_name: string;
 };
 
@@ -61,9 +63,14 @@ export type CreateAdminPayload = {
 
 export type UpdateAdminPayload = {
   admin_id: number;
-  role_id: number | null;
-  phone: string | null;
-  is_active: boolean;
+  fullName?: string;
+  phoneNumber?: string;
+  email?: string;
+  adminRoleId?: number | null;
+  isActive?: boolean;
+  role_id?: number | null;
+  phone?: string | null;
+  is_active?: boolean;
 };
 
 /** Role module (privilege) from modules/getList */

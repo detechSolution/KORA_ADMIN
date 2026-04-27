@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { computed, h, onMounted, reactive, ref, resolveComponent } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
+
+import type { SystemAdmin } from "~/types/system-admin";
 
 import { ICONS } from "~/config/icons";
 import { useAdminStore } from "~/stores/admin";
@@ -12,93 +14,78 @@ definePageMeta({
   permission: "administration.admins.view",
 });
 
-// options for filter
 const statusOptions = [
   { label: "Active", value: "active" },
   { label: "Inactive", value: "inactive" },
 ];
 
-// columns for admins table
-const columns = computed(() => [
-  {
-    header: "Client",
-    cell: ({ row }: { row: any }) => {
-      return h("div", { class: "flex items-center gap-2" }, [
-        h("div", { class: "w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center" }, h("span", { class: "text-sm  font-medium text-secondary" }, row.original.fullName?.charAt(0).toUpperCase() ?? "—")),
-        h("div", { class: "flex flex-col gap-1" }, [
-          h("span", { class: "text-sm  font-medium text-secondary" }, row.original.fullName ?? "—"),
-          h("span", { class: "text-xs font-normal text-secondary-500" }, row.original.email ?? "—"),
-        ]),
-      ]);
-    },
-  },
-  {
-    header: "Phone",
-    cell: ({ row }: { row: any }) => row.original.phoneNumber ?? "—",
-  },
-  {
-    header: "Status",
-    cell: ({ row }: { row: any }) => {
-      const isActive = row.original.isActive === true;
-      const color = isActive ? "emerald" : "red";
-      const label = isActive ? "Active" : "Inactive";
-      return h(
-        resolveComponent("base-badge"),
-        { color },
-        () => label,
-      );
-    },
-  },
-  {
-    header: "Created Date",
-    cell: ({ row }: { row: any }) => formatDate(row.original.createdAt) ?? "—",
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }: { row: any }) => {
-      const isInactive = row.original.is_active !== true;
-      const showActions = isInactive;
-      if (!showActions)
-        return null;
-      return h("div", { class: "text-left" }, h(
-        resolveComponent("UDropdownMenu"),
-        {
-          content: {
-            align: "end",
-          },
-          ui: { content: "min-w-[150px]", itemLeadingIcon: "hidden" },
-          items: [
-            {
-              label: "Edit profile",
-              click: () => {
-              },
-            },
-          ],
-        },
-        () =>
-          h(resolveComponent("UButton"), {
-            icon: ICONS.ELLIPSIS_VERTICAL,
-            color: "neutral",
-            variant: "ghost",
-          }),
-      ));
-    },
-  },
-]);
-
 const adminStore = useAdminStore();
 const { error: showError } = useNotification();
 const { pagination } = usePagination();
 
+type DateRangeFilter = {
+  start: string | null;
+  end?: string | null;
+};
+
 const state = reactive({
   search: "",
-  dateRange: "",
+  dateRange: { start: null, end: null } as DateRangeFilter,
   status: "",
 });
 
 const loadingAdmins = ref(false);
 const admins = computed(() => adminStore.admins);
+const isAdminDrawerOpen = ref(false);
+const selectedAdmin = ref<SystemAdmin | null>(null);
+
+function openAdminDrawer(admin: SystemAdmin): void {
+  selectedAdmin.value = admin;
+  isAdminDrawerOpen.value = true;
+}
+
+function closeAdminDrawer(): void {
+  isAdminDrawerOpen.value = false;
+  selectedAdmin.value = null;
+}
+
+async function handleAdminUpdated(): Promise<void> {
+  closeAdminDrawer();
+  await fetchAdmins();
+}
+
+const columns = [
+  {
+    id: "fullName",
+    header: "Client",
+    accessorKey: "fullName",
+  },
+  {
+    id: "phoneNumber",
+    header: "Phone",
+    accessorKey: "phoneNumber",
+  },
+  {
+    id: "role",
+    header: "Role",
+    accessorKey: "role",
+  },
+  {
+    id: "status",
+    header: "Status",
+    accessorKey: "isActive",
+  },
+  {
+    id: "createdAt",
+    header: "Created Date",
+    accessorKey: "createdAt",
+  },
+  {
+    id: "actions",
+    header: "Actions",
+  },
+
+];
 
 async function fetchAdmins(): Promise<void> {
   try {
@@ -125,11 +112,11 @@ function handleSearchClick(): void {
   fetchAdmins();
 }
 
-// function to clear filters
 function clearFilters(): void {
   state.status = "";
   state.search = "";
-  state.dateRange = "";
+  state.dateRange = { start: null, end: null };
+  handleSearchClick();
 }
 
 onMounted(() => {
@@ -175,6 +162,7 @@ onMounted(() => {
             placeholder="Search"
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
             :leading-icon="ICONS.SEARCH"
+            @keyup.enter="handleSearchClick"
           />
 
           <base-date-picker
@@ -194,7 +182,7 @@ onMounted(() => {
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
-              v-if="state.status !== '' || state.search !== '' || state.dateRange !== ''"
+              v-if="state.status !== '' || state.search !== '' || state.dateRange.start || state.dateRange.end"
               variant="outline"
               class="flex-1 sm:flex-none"
               @click="clearFilters"
@@ -214,12 +202,73 @@ onMounted(() => {
       </div>
 
       <base-table
-        :data="admins"
+        :data="admins.data"
         :columns="columns"
         :loading="loadingAdmins"
         empty-title="No communities found"
         empty-description="It looks like you haven't added any communities. Create one to get started."
+      >
+        <template #fullName-cell="{ row }">
+          <div class="flex flex-col gap-1">
+            <span class="text-sm font-medium text-secondary">
+              {{ row.original.fullName || "-" }}
+            </span>
+            <span class="text-xs text-secondary-400">
+              {{ row.original.email || "-" }}
+            </span>
+          </div>
+        </template>
+
+        <template #phoneNumber-cell="{ row }">
+          {{ row.original.phoneNumber || "-" }}
+        </template>
+
+        <template #status-cell="{ row }">
+          <base-badge :color="row.original.isActive ? 'emerald' : 'red'">
+            {{ row.original.isActive ? "Active" : "Inactive" }}
+          </base-badge>
+        </template>
+
+        <template #createdAt-cell="{ row }">
+          {{ formatDate(row.original.createdAt) || "-" }}
+        </template>
+
+        <template #actions-cell="{ row }">
+          <div class="text-left">
+            <UDropdownMenu
+              :content="{ align: 'end' }"
+              :ui="{ content: 'min-w-[180px]', itemLeadingIcon: 'hidden' }"
+              :items="[
+                {
+                  label: 'Edit Profile',
+                  onSelect: () => openAdminDrawer(row.original),
+                },
+              ]"
+            >
+              <UButton
+                :icon="ICONS.ELLIPSIS_VERTICAL"
+                color="neutral"
+                variant="ghost"
+                class="ml-auto"
+              />
+            </UDropdownMenu>
+          </div>
+        </template>
+      </base-table>
+
+      <base-pagination
+        :page="admins.pagination.page"
+        :total="admins.pagination.total"
+        :items-per-page="admins.pagination.itemsPerPage"
+        :disabled="loadingAdmins"
       />
     </div>
+
+    <AdminEditAdmin
+      :open="isAdminDrawerOpen"
+      :admin="selectedAdmin"
+      @close="closeAdminDrawer"
+      @updated="handleAdminUpdated"
+    />
   </div>
 </template>

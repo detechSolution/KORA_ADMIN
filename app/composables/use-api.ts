@@ -6,24 +6,6 @@ import { isApiError } from "~/utils/error";
 
 export type { ApiError } from "~/types/api";
 
-function buildQueryString(params: Record<string, any>): string {
-  const flat: Record<string, string> = {};
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null && value !== "") {
-      if (typeof value === "object") {
-        for (const [k, v] of Object.entries(value)) {
-          if (v !== undefined && v !== null && v !== "")
-            flat[k] = String(v);
-        }
-      }
-      else {
-        flat[key] = String(value);
-      }
-    }
-  }
-  return new URLSearchParams(flat).toString();
-}
-
 function createApiError(
   message: string,
   status: number,
@@ -110,9 +92,8 @@ function createHttpClient(config: HttpClientConfig) {
   }
 
   return {
-    get<T>(endpoint: string, params?: Record<string, any>, headers?: Record<string, string>): Promise<T> {
-      const query = params ? `?${buildQueryString(params)}` : "";
-      return request<T>(`${endpoint}${query}`, { method: "GET", headers });
+    get<T>(endpoint: string, headers?: Record<string, string>): Promise<T> {
+      return request<T>(endpoint, { method: "GET", headers });
     },
     post<T>(
       endpoint: string,

@@ -83,7 +83,7 @@ async function handleCreateRole() {
 
 const adminRoles = computed(() => adminStore.roles);
 
-const roleOptions = computed(() => adminRoles.value.map(role => ({ label: role.name, value: String(role.id) })));
+const roleOptions = computed(() => adminRoles?.value.map(role => ({ label: role.name, value: String(role.id) })));
 
 onMounted(() => {
   adminStore.fetchRoles();
@@ -101,13 +101,14 @@ onMounted(() => {
       </template>
 
       <template #actions>
-        <base-button
-          variant="outline"
-          :leading-icon="ICONS.ARROW_LEFT"
-          @click="router.push({ name: 'administration/admins' })"
-        >
-          Back to list
-        </base-button>
+        <NuxtLink to="/administration/admins">
+          <base-button
+            variant="outline"
+            :leading-icon="ICONS.ARROW_LEFT"
+          >
+            Back to list
+          </base-button>
+        </NuxtLink>
       </template>
     </base-page-header>
 

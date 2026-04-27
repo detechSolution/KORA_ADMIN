@@ -306,7 +306,7 @@ onMounted(async () => {
         >
           <span class="mt-10 h-3/4 w-px bg-stone-200 absolute left-87.5" />
           <div class="border-b border-stone-200 p-6">
-            <OfferingsSpaCreateStepper
+            <OfferingsSpaFormStepper
               :steps="steps"
               :current-step="currentStep"
               @select="goToStep"
@@ -325,7 +325,7 @@ onMounted(async () => {
             </div>
 
             <div v-else class="mx-auto flex max-w-full flex-col gap-6">
-              <OfferingsSpaSectionCard
+              <OfferingsSpaFormSection
                 :title="steps[currentStep - 1]?.title"
                 :description="
                   currentStep === 1
@@ -344,9 +344,9 @@ onMounted(async () => {
                     />
                   </span>
                 </template>
-              </OfferingsSpaSectionCard>
+              </OfferingsSpaFormSection>
 
-              <OfferingsSpaSectionCard
+              <OfferingsSpaFormSection
                 v-if="currentStep === 1"
                 class="shadow-[0px_2px_4px_-1px_#0000000F,0px_0px_6px_-1px_#0000001A] p-5"
               >
@@ -370,9 +370,9 @@ onMounted(async () => {
                     @update:model-value="clearApiError"
                   />
                 </div>
-              </OfferingsSpaSectionCard>
+              </OfferingsSpaFormSection>
 
-              <OfferingsSpaSectionCard
+              <OfferingsSpaFormSection
                 v-else
                 class="shadow-[0px_2px_4px_-1px_#0000000F,0px_0px_6px_-1px_#0000001A]"
               >
@@ -436,7 +436,7 @@ onMounted(async () => {
                     </button>
                   </div>
                 </div>
-              </OfferingsSpaSectionCard>
+              </OfferingsSpaFormSection>
 
               <div class="flex items-center justify-between gap-3 pt-2">
                 <base-button
