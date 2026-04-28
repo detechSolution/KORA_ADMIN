@@ -7,10 +7,10 @@ withDefaults(defineProps<DashboardSessionCardProps>(), {
 });
 
 type DashboardSessionCardProps = {
-  title: string;
-  date: string;
-  time: string;
-  capacity: string;
+  title?: string;
+  date?: string;
+  time?: string;
+  capacity?: string;
 };
 </script>
 

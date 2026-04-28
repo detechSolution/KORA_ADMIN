@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SESSION_TYPE } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 
 definePageMeta({
@@ -10,9 +11,16 @@ definePageMeta({
 const state = ref({
   status: "",
   referenceNumber: "",
+  selectedSessionType: "",
   referenceDateRange: { start: null, end: null },
   dueDateRange: { start: null, end: null },
 });
+
+const sessionTypeOptions = [
+  { label: "Class", value: SESSION_TYPE.CLASS },
+  { label: "Event", value: SESSION_TYPE.EVENT },
+  { label: "Workshop", value: SESSION_TYPE.WORKSHOP },
+];
 
 const sessions = [
   {
@@ -92,10 +100,11 @@ const sessions = [
           class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
         />
         <base-select
-          v-model="state.referenceNumber"
-          name="referenceNumber"
-          placeholder="Search by reference number"
+          v-model="state.selectedSessionType"
+          name="selectedSessionType"
+          placeholder="Select session type"
           class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+          :options="sessionTypeOptions"
         />
 
         <base-button

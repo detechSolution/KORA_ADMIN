@@ -24,7 +24,7 @@ export const ICONS = {
 
   // Actions
   EYE: "i-lucide-eye",
-  EYE_OFF: "i-lucide-eye-slash",
+  EYE_OFF: "i-lucide-eye-off",
   PLUS: "i-lucide-plus",
   EDIT: "i-lucide-pencil",
   COPY: "i-lucide-copy",
