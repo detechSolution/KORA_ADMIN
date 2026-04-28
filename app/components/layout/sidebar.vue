@@ -119,12 +119,14 @@ const rawItems: NavItemWithPermission[] = [{
     { label: "Payments", to: "/financial/payment", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_PAYMENTS.VIEW },
     { label: "Refunds", to: "/financial/refund", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_PAYMENTS.VIEW },
   ],
-}, {
-  label: "Access Logs",
-  icon: ICONS.DOOR_LOCK,
-  to: "/access-log",
-  defaultOpen: true,
-}, {
+},
+//  {
+//   label: "Access Logs",
+//   icon: ICONS.DOOR_LOCK,
+//   to: "/access-log",
+//   defaultOpen: true,
+// },
+{
   label: "Promo Code",
   icon: ICONS.BADGE_PERCENT,
   to: "/promo-code",
@@ -132,7 +134,7 @@ const rawItems: NavItemWithPermission[] = [{
 }, {
   label: "Send Email",
   icon: ICONS.MAILS,
-  to: "/send-mail",
+  to: "/send-email/email-list",
   defaultOpen: true,
 }, {
   label: "Administration",

@@ -36,7 +36,7 @@ const getStyles = computed(() => {
       case "outline":
         return "border ring-0 text-secondary bg-transparent border-stone-300 hover:bg-stone-50 disabled:bg-transparent";
       case "ghost":
-        return "text-foreground hover:bg-primary/10 disabled:bg-transparent";
+        return "bg-transparent hover:bg-primary/10 disabled:bg-transparent";
       case "link":
         return "text-foreground hover:text-primary";
       default:

@@ -62,6 +62,14 @@ export const API_ENDPOINTS = {
     ITEMS_GET_LIST: "/api/v1/transactions/getItems",
     UPDATE: "/api/v1/transactions/updateStatus",
   },
+
+  // used
+  MAILS: {
+    CREATE: "/api/v1/mails",
+    GET_LIST: "/api/v1/mails/getList",
+    GET_RECIPIENTS: "/api/v1/mails/recipients",
+    GET_DETAILS: (id: number) => `/api/v1/mails/${id}`,
+  },
   SYSTEM_ADMIN: {
     ROLES: {
       GET_ROLES: "/api/v1/administration/roles",
