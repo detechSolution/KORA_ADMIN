@@ -79,6 +79,7 @@ const columns = [
     id: "createdAt",
     header: "Created Date",
     accessorKey: "createdAt",
+    accessorFn: (row: SystemAdmin) => formatDate(row.createdAt),
   },
   {
     id: "actions",
@@ -219,39 +220,28 @@ onMounted(() => {
           </div>
         </template>
 
-        <template #phoneNumber-cell="{ row }">
-          {{ row.original.phoneNumber || "-" }}
-        </template>
-
         <template #status-cell="{ row }">
           <base-badge :color="row.original.isActive ? 'emerald' : 'red'">
             {{ row.original.isActive ? "Active" : "Inactive" }}
           </base-badge>
         </template>
 
-        <template #createdAt-cell="{ row }">
-          {{ formatDate(row.original.createdAt) || "-" }}
-        </template>
-
         <template #actions-cell="{ row }">
           <div class="text-left">
-            <UDropdownMenu
-              :content="{ align: 'end' }"
-              :ui="{ content: 'min-w-[180px]', itemLeadingIcon: 'hidden' }"
+            <base-dropdown-menu
               :items="[
                 {
                   label: 'Edit Profile',
                   onSelect: () => openAdminDrawer(row.original),
+                  class: 'cursor-pointer',
                 },
               ]"
             >
-              <UButton
+              <base-button
                 :icon="ICONS.ELLIPSIS_VERTICAL"
-                color="neutral"
                 variant="ghost"
-                class="ml-auto"
               />
-            </UDropdownMenu>
+            </base-dropdown-menu>
           </div>
         </template>
       </base-table>

@@ -52,17 +52,9 @@ const roleOptions = computed(() =>
   })),
 );
 
-function getAdminName(admin: SystemAdmin): string {
-  return admin.fullName || admin.name || "";
-}
-
-function getAdminPhone(admin: SystemAdmin): string {
-  return admin.phoneNumber || admin.phone || "";
-}
-
 function fillForm(admin: SystemAdmin | null): void {
-  state.fullName = admin ? getAdminName(admin) : "";
-  state.phoneNumber = admin ? getAdminPhone(admin) : "";
+  state.fullName = admin?.fullName ?? "";
+  state.phoneNumber = admin?.phoneNumber ?? "";
   state.email = admin?.email ?? "";
   state.adminRoleId = admin?.adminRoleId ? String(admin.adminRoleId) : "";
   state.isActive = admin?.isActive ?? false;
