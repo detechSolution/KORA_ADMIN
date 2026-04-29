@@ -19,6 +19,7 @@ type Props = {
   toolbarItems?: ToolbarItem[][];
   height?: string | number;
   showToolbarHint?: boolean;
+  class?: string;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -62,9 +63,7 @@ const props = withDefaults(defineProps<Props>(), {
   ],
 });
 
-const emit = defineEmits<{
-  "update:modelValue": [value: EditorContent];
-}>();
+const emit = defineEmits(["update:modelValue"]);
 
 const inputValue = computed({
   get: () => props.modelValue,
@@ -72,6 +71,7 @@ const inputValue = computed({
 });
 
 const isEditable = computed(() => !(props.disabled || props.readonly));
+
 const normalizedHeight = computed(() => {
   if (typeof props.height === "number") {
     return `${props.height}px`;
@@ -122,7 +122,7 @@ const editorHandlers = computed(() => ({
   >
     <div
       class="overflow-hidden rounded-xl border border-stone-300 bg-white"
-      :class="{ 'opacity-70': props.disabled }"
+      :class="[{ 'opacity-70': props.disabled }, props.class]"
     >
       <UEditor
         v-model="inputValue"

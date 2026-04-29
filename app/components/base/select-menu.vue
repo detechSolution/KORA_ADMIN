@@ -68,7 +68,7 @@ const menuItems = computed(() =>
 
 const resolvedSearchInput = computed(() => {
   if (props.searchInput === false) {
-    return false;
+    return {};
   }
 
   const baseConfig = {
@@ -85,29 +85,6 @@ const resolvedSearchInput = computed(() => {
     ...baseConfig,
     ...props.searchInput,
   };
-});
-
-const selectedDisplayText = computed(() => {
-  const hiddenValues = new Set(props.hiddenSelectedValues);
-
-  if (props.multiple && Array.isArray(inputValue.value)) {
-    const labels = inputValue.value
-      .filter(value => !hiddenValues.has(value))
-      .map((value) => {
-        const option = props.options.find(option => option.value === value);
-        return option?.label;
-      })
-      .filter((label): label is string => Boolean(label));
-
-    return labels.join(", ");
-  }
-
-  if (hiddenValues.has(inputValue.value)) {
-    return "";
-  }
-
-  const selectedOption = props.options.find(option => option.value === inputValue.value);
-  return selectedOption?.label ?? "";
 });
 
 function isSelected(value: any) {
@@ -144,13 +121,11 @@ function isSelected(value: any) {
       :selected-icon="props.showCheckbox ? undefined : ICONS.CHECK"
       :ui="{
         base: 'bg-white ring-stone-300 placeholder:text-stone-400',
-        trigger: 'w-full min-h-11 bg-white border border-stone-300 rounded-lg hover:border-primary/50 focus:border-primary',
         item: 'rounded-none border-b border-stone-200 last:border-b-0 hover:bg-stone-50 text-foreground cursor-pointer px-3 py-3',
         itemLabel: 'text-sm text-secondary',
         itemDescription: 'text-xs text-secondary-500',
         content: 'bg-card border border-border overflow-hidden',
         input: 'border-b border-stone-200 rounded-none px-3',
-        inputLeadingIcon: 'text-stone-400',
         itemLeadingAvatar: 'bg-stone-100 text-stone-500',
         itemTrailingIcon: props.showCheckbox ? 'hidden' : 'h-4 w-4 text-primary',
         trailingIcon: 'h-5 w-5 text-foreground',
@@ -159,20 +134,6 @@ function isSelected(value: any) {
     >
       <template v-if="props.leadingIcon" #leading>
         <UIcon :name="props.leadingIcon" />
-      </template>
-      <template #default>
-        <span
-          v-if="selectedDisplayText"
-          class="block truncate text-left"
-        >
-          {{ selectedDisplayText }}
-        </span>
-        <span
-          v-else
-          class="block truncate text-left text-stone-400"
-        >
-          {{ props.placeholder }}
-        </span>
       </template>
       <template
         v-if="props.showCheckbox"

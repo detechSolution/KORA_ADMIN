@@ -151,8 +151,8 @@ const items = computed(() => [filterByPermission([...rawItems])]);
 
 <template>
   <UDashboardSidebar
-    v-model:open="sidebarOpen"
-    v-model:collapsed="sidebarCollapsed"
+    :open="sidebarOpen"
+    :collapsed="sidebarCollapsed"
     collapsible
     toggle-side="right"
     :ui="{
@@ -201,7 +201,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
     </template>
     <template #footer="{ collapsed }">
       <UPopover
-        v-model:open="isOpen"
+        :open="isOpen"
         dismissible
         :popper="{ placement: collapsed ? 'right-start' : 'top-end' }"
       >

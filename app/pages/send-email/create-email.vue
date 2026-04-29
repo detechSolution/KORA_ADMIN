@@ -92,6 +92,7 @@ const recipientSelection = computed({
 
     return [ALL_RECIPIENTS_VALUE, ...selectedEmails];
   },
+
   set: (values: string[] = []) => {
     const selectedValues = values.filter((value): value is string => typeof value === "string");
     const selectedEmails = selectedValues.filter(value => value !== ALL_RECIPIENTS_VALUE);
@@ -235,8 +236,7 @@ onMounted(() => {
               name="htmlContent"
               label="Mail Content*"
               placeholder="Enter the content of the mail"
-              class="w-full"
-              height="700px"
+              class="w-full min-h-30 max-h-60 overflow-y-auto"
             />
           </div>
 
