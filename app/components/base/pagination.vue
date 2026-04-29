@@ -11,10 +11,7 @@ type Props = {
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
 });
-
-const emit = defineEmits<{
-  (e: "update:page", value: number): void;
-}>();
+const emit = defineEmits(["update:page"]);
 
 const totalPages = computed(() => Math.ceil(props.total / props.itemsPerPage));
 
@@ -59,7 +56,7 @@ function onPageChange(value: number): void {
       :sibling-count="2"
       show-edges
       class="rounded-md p-1"
-      @update:model-value="onPageChange"
+      @update:page="onPageChange"
     />
   </div>
 </template>

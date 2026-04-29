@@ -6,6 +6,7 @@ import type { Mail } from "~/types/mail";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useMailStore } from "~/stores/mail";
+import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
@@ -50,7 +51,7 @@ const columns = ref([
     id: "sentAt",
     header: "Sent Date",
     accessorKey: "sentAt",
-    accessorFn: (row: Mail) => formatDate(row.sentAt),
+    accessorFn: (row: Mail) => row.sentAt ? formatDate(row.sentAt) : "N/A",
   },
   {
     id: "status",

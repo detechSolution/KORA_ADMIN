@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import z from "zod";
 
 import type { CreatePromoCodePayload } from "~/types/promo-code";
@@ -88,9 +88,6 @@ async function handleCreatePromoCode() {
     loading.value = false;
   }
 }
-
-onMounted(() => {
-});
 </script>
 
 <template>
@@ -165,7 +162,7 @@ onMounted(() => {
                   placeholder="Enter discount percentage"
                 />
                 <base-input
-                  v-if="state.discountType === 'fixed'"
+                  v-else
                   v-model="state.discountValue"
                   name="discountValue"
                   label="Discount Amount (Rs)*"
@@ -182,12 +179,12 @@ onMounted(() => {
               </div>
             </div>
             <div class="w-full md:w-1/2">
-              <base-input
+              <base-date-picker
                 v-model="state.expiresAt"
-                type="date"
                 name="expiresAt"
                 label="Expires At*"
                 placeholder="Select expiry date"
+                :no-of-months="1"
               />
             </div>
 

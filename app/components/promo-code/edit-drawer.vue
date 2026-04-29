@@ -148,7 +148,7 @@ watch(
 
 <template>
   <UDrawer
-    v-model:open="isOpen"
+    :open="isOpen"
     direction="right"
     :dismissible="true"
     :handle="false"
