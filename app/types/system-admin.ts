@@ -38,10 +38,8 @@ export type SystemAdmin = {
   id: number;
   adminRoleId: number | null;
   email: string;
-  fullName?: string;
-  name?: string;
+  fullName: string;
   phoneNumber?: string | null;
-  phone?: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

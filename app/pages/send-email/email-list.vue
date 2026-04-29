@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, h, onMounted, ref, resolveComponent } from "vue";
+import { computed, onMounted, ref } from "vue";
+
+import type { Mail } from "~/types/mail";
 
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useMailStore } from "~/stores/mail";
-import { formatDateTime } from "~/utils/common";
+import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
@@ -36,56 +38,25 @@ const statusOptions = [
 
 const columns = ref([
   {
+    id: "subject",
+    header: "Subject",
+    accessorKey: "subject",
+  },
+  {
+    id: "title",
+    header: "Title",
     accessorKey: "title",
-    header: "Email",
-    cell: ({ row }: { row: any }) => {
-      const title = row.original.title ?? row.original.subject ?? "-";
-      const subject = row.original.subject ?? row.original.title;
-      return h("div", { class: "flex flex-col gap-0.5" }, [
-        h("span", { class: "font-medium text-secondary" }, title),
-        h("span", { class: "text-xs text-muted-foreground" }, subject || "-"),
-      ]);
-    },
   },
   {
-    accessorKey: "recipients",
-    header: "Recipients",
-    cell: ({ row }: { row: any }) => {
-      const recipients = row.original.recipientsEmails ?? row.original.recipient_emails ?? [];
-      if (Array.isArray(recipients) && recipients.length > 0) {
-        const first = recipients[0];
-        const more = recipients.length - 1;
-        return more > 0 ? `${first} +${more} more` : first;
-      }
-      const recipientCount = row.original.recipient_count;
-      return recipientCount ? `${recipientCount} recipients` : "-";
-    },
+    id: "sentAt",
+    header: "Sent Date",
+    accessorKey: "sentAt",
+    accessorFn: (row: Mail) => row.sentAt ? formatDate(row.sentAt) : "N/A",
   },
   {
-    accessorKey: "status",
+    id: "status",
     header: "Status",
-    cell: ({ row }: { row: any }) => {
-      const rawStatus = String(row.original.status ?? "").toLowerCase();
-      const config = rawStatus === "sent"
-        ? { label: "Sent", color: "success" }
-        : rawStatus === "failed"
-          ? { label: "Failed", color: "red" }
-          : { label: "Draft", color: "amber" };
-
-      return h(
-        resolveComponent("base-badge"),
-        { color: config.color },
-        () => config.label,
-      );
-    },
-  },
-  {
-    accessorKey: "created_at",
-    header: "Created At",
-    cell: ({ row }: { row: any }) => {
-      const createdAt = row.original.created_at ?? row.original.sent_at ?? row.original.updated_at ?? null;
-      return createdAt ? formatDateTime(createdAt) : "-";
-    },
+    accessorKey: "status",
   },
 ]);
 
@@ -220,7 +191,13 @@ onMounted(() => {
         :loading="mailStore.loading"
         empty-title="No emails found"
         empty-description="Sent emails will appear here once available."
-      />
+      >
+        <template #status-cell="{ row }">
+          <base-badge :color="row.original.status === 'sent' ? 'emerald' : 'red'">
+            {{ row.original.status === "sent" ? "Sent" : "Failed" }}
+          </base-badge>
+        </template>
+      </base-table>
 
       <base-pagination
         :page="pagination.page"
