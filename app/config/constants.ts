@@ -62,9 +62,15 @@ export const API_ENDPOINTS = {
     ITEMS_GET_LIST: "/api/v1/transactions/getItems",
     UPDATE: "/api/v1/transactions/updateStatus",
   },
-
+  PROMO_CODES: {
+    BASE: "/api/v1/promo-codes",
+    GET_LIST: "/api/v1/promo-codes/getList",
+    PREVIEW: "/api/v1/promo-codes/preview",
+    UPDATE: (id: number) => `/api/v1/promo-codes/${id}`,
+  },
   // used
   MAILS: {
+    BASE: "/api/v1/mails",
     CREATE: "/api/v1/mails",
     GET_LIST: "/api/v1/mails/getList",
     GET_RECIPIENTS: "/api/v1/mails/recipients",

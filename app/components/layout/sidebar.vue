@@ -129,7 +129,7 @@ const rawItems: NavItemWithPermission[] = [{
 {
   label: "Promo Code",
   icon: ICONS.BADGE_PERCENT,
-  to: "/promo-code",
+  to: "/promo-code/list",
   defaultOpen: true,
 }, {
   label: "Send Email",

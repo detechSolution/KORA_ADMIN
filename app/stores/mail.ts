@@ -42,8 +42,8 @@ export const useMailStore = defineStore("mail", () => {
       });
 
       const endpoint = query
-        ? `${API_ENDPOINTS.MAILS.GET_LIST}?${query}`
-        : API_ENDPOINTS.MAILS.GET_LIST;
+        ? `${API_ENDPOINTS.MAILS.BASE}?${query}`
+        : API_ENDPOINTS.MAILS.BASE;
 
       const response = await http.get<ApiListResponse<Mail> & Partial<ApiResponse<Mail[]>> & { total?: number }>(endpoint);
 
