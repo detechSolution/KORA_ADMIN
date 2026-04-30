@@ -185,9 +185,9 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  const updatePassword = async (payload: { old_password: string; new_password: string }): Promise<void> => {
+  const updatePassword = async (payload: { currentPassword: string; newPassword: string }): Promise<void> => {
     try {
-      return await http.post(API_ENDPOINTS.AUTH.UPDATE_PASSWORD, payload) as any;
+      return await http.patch(API_ENDPOINTS.AUTH.UPDATE_PASSWORD, payload) as any;
     }
     catch (error: unknown) {
       console.error(error, "Update Password Error");
@@ -197,6 +197,16 @@ export const useAuthStore = defineStore("auth", () => {
 
   const setUnAuthorizedError = (value: boolean): void => {
     unAuthorizedError.value = value;
+  };
+
+  const updateProfile = async (payload: { fullName: string; phone: string }): Promise<void> => {
+    try {
+      return await http.patch(API_ENDPOINTS.AUTH.UPDATE_PROFILE, payload) as any;
+    }
+    catch (error: unknown) {
+      console.error(error, "Update Profile Error");
+      throw error;
+    }
   };
 
   return {
@@ -211,5 +221,6 @@ export const useAuthStore = defineStore("auth", () => {
     logout,
     updatePassword,
     setUnAuthorizedError,
+    updateProfile,
   };
 });
