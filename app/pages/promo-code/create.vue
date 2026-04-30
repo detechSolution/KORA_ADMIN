@@ -98,7 +98,15 @@ async function handleCreatePromoCode() {
     };
     await promoCodeStore.CreatePromoCode(payload as CreatePromoCodePayload);
     success({ message: "Promo code created successfully" });
-    router.push({ name: "promo-code/list" });
+
+    // Reset form
+    state.code = "";
+    state.discountType = "percent";
+    state.discountValue = undefined;
+    state.redemptionLimit = undefined;
+    state.expiresAt = "";
+
+    router.push({ name: "promo-code-list" });
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to create promo code. Please try again.") });
@@ -214,6 +222,7 @@ async function handleCreatePromoCode() {
             <div class="flex justify-end">
               <base-button
                 variant="solid"
+                :loading="loading"
                 @click="handleCreatePromoCode"
               >
                 Create Promo Code

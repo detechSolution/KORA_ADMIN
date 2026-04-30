@@ -38,8 +38,7 @@ export const usePromoCodeStore = defineStore("promo-code", () => {
 
   const CreatePromoCode = async (payload: CreatePromoCodePayload) => {
     try {
-      const response = await http.post(API_ENDPOINTS.PROMO_CODES.BASE, payload) as ApiResponse<any>;
-      promoCodes.value = response;
+      await http.post(API_ENDPOINTS.PROMO_CODES.BASE, payload) as ApiResponse<any>;
     }
     catch (error) {
       console.error("Failed to create promo code:", error);
