@@ -43,6 +43,7 @@ export const usePromoCodeStore = defineStore("promo-code", () => {
     }
     catch (error) {
       console.error("Failed to create promo code:", error);
+      throw error;
     }
   };
 

@@ -20,7 +20,7 @@ const discountTypeOptions = [
 ];
 
 const promoCodeStore = usePromoCodeStore();
-const toast = useNotification();
+const { success, error: showError } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
@@ -30,24 +30,49 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 const schema = z.object({
   code: z.string().min(1, "Code is required"),
   discountType: z.string().min(1, "Discount type is required"),
-  discountValue: z.string().min(1, "Discount amount is required"),
-  redemptionLimit: z.string().min(1, "Redemption limit is required"),
+
+  discountValue: z.number({
+    message: "Discount value is required",
+  }),
+
+  redemptionLimit: z.number({
+    message: "Redemption limit is required",
+  }).min(1, "Redemption limit must be greater than or equal to 1"),
+
   expiresAt: z.string().min(1, "Expire Date is required"),
-});
+})
+  .superRefine((data, ctx) => {
+    const { discountType, discountValue } = data;
+
+    if (discountType === "percent") {
+      if (discountValue < 0 || discountValue > 100) {
+        ctx.addIssue({
+          path: ["discountValue"],
+          code: z.ZodIssueCode.custom,
+          message: "Percentage must be between 0 and 100",
+        });
+      }
+    }
+    else {
+      if (discountValue <= 0) {
+        ctx.addIssue({
+          path: ["discountValue"],
+          code: z.ZodIssueCode.custom,
+          message: "Discount Amount must be greater than 0",
+        });
+      }
+    }
+  });
 
 type createPromoCodeSchema = z.output<typeof schema>;
 
 const state = reactive<Partial<createPromoCodeSchema>>({
   code: "",
   discountType: "percent",
-  discountValue: "",
-  redemptionLimit: "",
+  discountValue: undefined,
+  redemptionLimit: undefined,
   expiresAt: "",
 });
-
-function setApiError(error: string): void {
-  apiError.value = error;
-}
 
 function clearApiError(): void {
   apiError.value = null;
@@ -72,17 +97,11 @@ async function handleCreatePromoCode() {
       isActive: true,
     };
     await promoCodeStore.CreatePromoCode(payload as CreatePromoCodePayload);
-    toast.success({ message: "Promo code created successfully" });
+    success({ message: "Promo code created successfully" });
     router.push({ name: "promo-code/list" });
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
+    showError({ message: getApiErrorMessage(error, "Failed to create promo code. Please try again.") });
   }
   finally {
     loading.value = false;
@@ -160,6 +179,7 @@ async function handleCreatePromoCode() {
                   name="discountValue"
                   label="Discount Percentage (%)*"
                   placeholder="Enter discount percentage"
+                  type="number"
                 />
                 <base-input
                   v-else
@@ -167,14 +187,17 @@ async function handleCreatePromoCode() {
                   name="discountValue"
                   label="Discount Amount (Rs)*"
                   placeholder="Enter discount amount"
+                  type="number"
                 />
               </div>
+
               <div class="w-full">
                 <base-input
                   v-model="state.redemptionLimit"
                   name="redemptionLimit"
                   label="Redemption Limit*"
                   placeholder="Enter redemption limit"
+                  type="number"
                 />
               </div>
             </div>
