@@ -23,6 +23,7 @@ const { can } = usePermission();
 const route = useRoute();
 const router = useRouter();
 const isOpen = ref(false);
+console.log("🚀 ~ isOpen:", isOpen.value);
 const sidebarOpen = ref(false);
 const sidebarCollapsed = ref(false);
 
@@ -201,7 +202,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
     </template>
     <template #footer="{ collapsed }">
       <UPopover
-        :open="isOpen"
+        v-model:open="isOpen"
         dismissible
         :popper="{ placement: collapsed ? 'right-start' : 'top-end' }"
       >
