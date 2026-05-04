@@ -70,7 +70,7 @@ const sessions = [
       </template>
       <template #actions>
         <NuxtLink
-          to="/offerings/session/create"
+          to="/offerings/create-sessions"
         >
           <base-button
             variant="solid"

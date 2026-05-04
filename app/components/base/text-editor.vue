@@ -4,7 +4,7 @@ import { computed } from "vue";
 type EditorContent = Record<string, unknown> | string | null;
 type EditorContentType = "html" | "json" | "markdown";
 
-type ToolbarItem = { kind: "mark"; mark: "bold" | "italic" | "strike" | "code" | "underline"; icon?: string; tooltip?: string } | { kind: "heading"; level: 1 | 2 | 3; icon?: string; tooltip?: string } | { kind: "link"; icon?: string; tooltip?: string; href?: string } | { kind: "image"; icon?: string; tooltip?: string; src?: string } | { kind: "bulletList" | "orderedList" | "taskList" | "blockquote" | "codeBlock" | "horizontalRule" | "paragraph" | "clearFormatting" | "undo" | "redo"; icon?: string; tooltip?: string };
+// type ToolbarItem = { kind: "mark"; mark: "bold" | "italic" | "strike" | "code" | "underline"; icon?: string; tooltip?: string } | { kind: "heading"; level: 1 | 2 | 3; icon?: string; tooltip?: string } | { kind: "link"; icon?: string; tooltip?: string; href?: string } | { kind: "image"; icon?: string; tooltip?: string; src?: string } | { kind: "bulletList" | "orderedList" | "taskList" | "blockquote" | "codeBlock" | "horizontalRule" | "paragraph" | "clearFormatting" | "undo" | "redo"; icon?: string; tooltip?: string };
 
 type Props = {
   name: string;
@@ -16,7 +16,7 @@ type Props = {
   disabled?: boolean;
   readonly?: boolean;
   toolbar?: boolean;
-  toolbarItems?: ToolbarItem[][];
+  toolbarItems?: any[][];
   height?: string | number;
   showToolbarHint?: boolean;
   class?: string;
