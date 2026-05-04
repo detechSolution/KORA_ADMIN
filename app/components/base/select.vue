@@ -53,7 +53,7 @@ const inputValue = computed({
       class="w-full"
       size="lg"
       :ui="{
-        base: 'bg-transparent',
+        base: 'bg-white ring-stone-300 placeholder:text-stone-400',
         item: 'hover:bg-muted hover:text-foreground rounded-lg overflow-hidden cursor-pointer',
         content: 'bg-card border border-border',
         trailingIcon: 'h-5 w-5 text-foreground',

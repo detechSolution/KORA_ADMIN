@@ -6,7 +6,7 @@ import type { CouponType } from "~/stores/coupons";
 
 import { useNotification } from "~/composables/use-notification";
 import { usePermission } from "~/composables/use-permission";
-import { PERMISSIONS_CONFIGURATION } from "~/config/permissions";
+import { API_ENDPOINTS } from "~/config/constants";
 import { useCouponsStore } from "~/stores/coupons";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -221,7 +221,7 @@ async function handleUpdate(): Promise<void> {
             Cancel
           </base-button>
           <base-button
-            v-if="can(PERMISSIONS_CONFIGURATION.COUPONS_UPDATE)"
+            v-if="can(API_ENDPOINTS.COUPONS.UPDATE)"
             :disabled="statusOnlyMode"
             type="submit"
             :loading="updating"

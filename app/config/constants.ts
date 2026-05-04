@@ -4,81 +4,115 @@
  */
 export const API_ENDPOINTS = {
   ANALYTICS: {
-    GET_STATS: "/service/v1/analytics/getSummary",
+    GET_STATS: "/api/v1/analytics/getSummary",
+  },
+  SPA: {
+    GET_SPA: "/api/v1/spa",
+    UPDATE_SPA: "/api/v1/spa",
+    POST_SUB_TYPE: "/api/v1/spa/sub-types",
+    UPDATE_SUB_TYPE: (id: number) => `/api/v1/spa/sub-types/${id}`,
+    DELETE_SUB_TYPE: (id: number) => `/api/v1/spa/sub-types/${id}`,
+    GET_SUB_TYPE: (id: number) => `/api/v1/spa/sub-types/${id}`,
   },
   COMMUNITIES: {
-    CREATE: "/service/v1/communities",
-    GET_LIST: "/service/v1/communities/getList",
-    UPDATE_STATUS: "/service/v1/communities/updateStatus",
-    UPDATE_SUBSCRIPTION_STATUS: "/service/v1/communities/subscription/update",
-    GET_ACCOUNT_SUMMARY: (id: number) => `/service/v1/communities/${id}/getSummary`,
-    GET_USAGE_SUMMARY: (id: number) => `/service/v1/communities/${id}/usageSummary`,
-    GET_COMMUNITY_SUBSCRIPTION_PLAN: (id: number) => `/service/v1/communities/${id}/subscription`,
-    GET_ADMINS: `/service/v1/communities/admins/getList`,
-    ACTIVATE_ADMIN: `/service/v1/communities/admins/activate`,
+    CREATE: "/api/v1/communities",
+    GET_LIST: "/api/v1/communities/getList",
+    UPDATE_STATUS: "/api/v1/communities/updateStatus",
+    UPDATE_SUBSCRIPTION_STATUS: "/api/v1/communities/subscription/update",
+    GET_ACCOUNT_SUMMARY: (id: number) => `/api/v1/communities/${id}/getSummary`,
+    GET_USAGE_SUMMARY: (id: number) => `/api/v1/communities/${id}/usageSummary`,
+    GET_COMMUNITY_SUBSCRIPTION_PLAN: (id: number) => `/api/v1/communities/${id}/subscription`,
+    GET_ADMINS: `/api/v1/communities/admins/getList`,
+    ACTIVATE_ADMIN: `/api/v1/communities/admins/activate`,
   },
   AUTH: {
-    LOGIN: "/service/v1/auth/login",
-    ME: "/service/v1/auth/me",
-    REFRESH: "/service/v1/auth/refresh-token",
-    UPDATE_PASSWORD: "/service/v1/auth/update-password",
+    LOGIN: "/api/v1/auth/admin/login",
+    ME: "/api/v1/auth/me",
+    REFRESH: "/api/v1/auth/refresh-token",
+    UPDATE_PASSWORD: "/api/v1/auth/update-password",
+    UPDATE_PROFILE: "/api/v1/auth/update-profile",
   },
   CONFIGURATION: {
-    BILLABLE_ITEMS: "/service/v1/billable-items/getList",
-    BILLABLE_ITEMS_CREATE: "/service/v1/billable-items",
-    BILLABLE_ITEMS_UPDATE: "/service/v1/billable-items/update",
+    BILLABLE_ITEMS: "/api/v1/billable-items/getList",
+    BILLABLE_ITEMS_CREATE: "/api/v1/billable-items",
+    BILLABLE_ITEMS_UPDATE: "/api/v1/billable-items/update",
   },
   COUPONS: {
-    BASE: "/service/v1/coupons",
-    GET_LIST: "/service/v1/coupons/getList",
-    PREVIEW: "/service/v1/coupons/preview",
-    UPDATE: "/service/v1/coupons/update",
+    BASE: "/api/v1/coupons",
+    GET_LIST: "/api/v1/coupons/getList",
+    PREVIEW: "/api/v1/coupons/preview",
+    UPDATE: "/api/v1/coupons/update",
   },
   INQUIRIES: {
-    BASE: "/service/v1/inquiries",
-    GET_LIST: "/service/v1/inquiries/getList",
-    GET_LOGS: "/service/v1/inquiries/getLogs",
-    GET_SOURCES_LIST: "/service/v1/inquiries/getSourcesList",
-    GET_STATUS_LIST: "/service/v1/inquiries/getStatusList",
-    UPDATE: "/service/v1/inquiries/update",
-    UPDATE_STATUS: "/service/v1/inquiries/updateStatus",
+    BASE: "/api/v1/inquiries",
+    GET_LIST: "/api/v1/inquiries/getList",
+    GET_LOGS: "/api/v1/inquiries/getLogs",
+    GET_SOURCES_LIST: "/api/v1/inquiries/getSourcesList",
+    GET_STATUS_LIST: "/api/v1/inquiries/getStatusList",
+    UPDATE: "/api/v1/inquiries/update",
+    UPDATE_STATUS: "/api/v1/inquiries/updateStatus",
   },
   SUBSCRIPTION: {
-    CREATE_PLAN: "/service/v1/subscription/plans",
-    PLANS_GET_LIST: "/service/v1/subscription/plans/getList",
-    UPDATE_PLAN: "/service/v1/subscription/plans/update",
+    CREATE_PLAN: "/api/v1/subscription/plans",
+    PLANS_GET_LIST: "/api/v1/subscription/plans/getList",
+    UPDATE_PLAN: "/api/v1/subscription/plans/update",
   },
   TRANSACTIONS: {
-    CREATE: "/service/v1/transactions",
-    GET_LIST: "/service/v1/transactions/getList",
-    ITEMS_GET_LIST: "/service/v1/transactions/getItems",
-    UPDATE: "/service/v1/transactions/updateStatus",
+    CREATE: "/api/v1/transactions",
+    GET_LIST: "/api/v1/transactions/getList",
+    ITEMS_GET_LIST: "/api/v1/transactions/getItems",
+    UPDATE: "/api/v1/transactions/updateStatus",
+  },
+  // used
+  PAYMENTS: {
+    BASE: "/api/v1/payments",
+    SUMMARY: "/api/v1/payments/summary",
+    DETAIL: (id: number) => `/api/v1/payments/${id}`,
+    UPDATE: (id: number) => `/api/v1/payments/${id}/refund`,
+  },
+  // used
+  PROMO_CODES: {
+    BASE: "/api/v1/promo-codes",
+    GET_LIST: "/api/v1/promo-codes/getList",
+    PREVIEW: "/api/v1/promo-codes/preview",
+    UPDATE: (id: number) => `/api/v1/promo-codes/${id}`,
+  },
+  // used
+  MAILS: {
+    BASE: "/api/v1/mails",
+    CREATE: "/api/v1/mails",
+    GET_LIST: "/api/v1/mails/getList",
+    GET_RECIPIENTS: "/api/v1/mails/recipients",
+    GET_DETAILS: (id: number) => `/api/v1/mails/${id}`,
   },
   SYSTEM_ADMIN: {
+    // used
     ROLES: {
-      BASE: "/service/v1/system-admins/roles",
-      GET_LIST: "/service/v1/system-admins/roles/getList",
-      UPDATE_MODULES: "/service/v1/system-admins/roles/updateModules",
+      GET_ROLES: "/api/v1/administration/roles",
+      GET_ROLES_CATALOG: "/api/v1/administration/roles/catalog",
+      UPDATE_MODULES: "/api/v1/system-admins/roles/updateModules",
+      CREATE_ROLE: "/api/v1/administration/roles",
     },
+    // used
     ADMINS: {
-      BASE: "/service/v1/system-admins",
-      GET_LIST: "/service/v1/system-admins/getList",
-      UPDATE: `/service/v1/system-admins/update`,
+      GET_ADMINS: "/api/v1/administration/admins",
+      CREATE_ADMIN: "/api/v1/administration/admins",
+      UPDATE: (id: number) => `/api/v1/administration/admins/${id}`,
     },
     MODULES: {
-      GET_LIST: "/service/v1/system-admins/modules/getList",
-      GET_NAME_LIST: "/service/v1/system-admins/modules/getNameList",
-      SET_ROLE_MODULES: "/service/v1/system-admins/roles/updateModules",
+      GET_LIST: "/api/v1/system-admins/modules/getList",
+      GET_NAME_LIST: "/api/v1/system-admins/modules/getNameList",
+      SET_ROLE_MODULES: "/api/v1/system-admins/roles/updateModules",
     },
   },
   TRANSACTION_PAYMENT: {
-    CATEGORY: "/service/v1/transaction-payment/category",
-    CATEGORY_GET_LIST: "/service/v1/transaction-payment/category/getList",
-    GET_LIST: "/service/v1/transaction-payment/getList",
-    MAKE_PAYMENT: "/service/v1/transaction-payment",
-    METHOD: "/service/v1/transaction-payment/method",
-    METHOD_GET_LIST: "/service/v1/transaction-payment/method/getList",
-    METHOD_UPDATE: "/service/v1/transaction-payment/method/update",
+    CATEGORY: "/api/v1/transaction-payment/category",
+    CATEGORY_GET_LIST: "/api/v1/transaction-payment/category/getList",
+    GET_LIST: "/api/v1/transaction-payment/getList",
+    MAKE_PAYMENT: "/api/v1/transaction-payment",
+    METHOD: "/api/v1/transaction-payment/method",
+    METHOD_GET_LIST: "/api/v1/transaction-payment/method/getList",
+    METHOD_UPDATE: "/api/v1/transaction-payment/method/update",
   },
 } as const;
 
@@ -94,7 +128,7 @@ export const COMMUNITY_TYPE = {
 /**
  * Default Pagination Values
  */
-export const DEFAULT_PAGE_SIZE = 20;
+export const DEFAULT_PAGE_SIZE = 10;
 
 /**
  * Inquiry Source Values
@@ -139,9 +173,19 @@ export const SUBSCRIPTION_STATUS = {
 } as const;
 
 /**
+ * Session Type Values
+ */
+export const SESSION_TYPE = {
+  CLASS: "CLASS",
+  EVENT: "EVENT",
+  WORKSHOP: "WORKSHOP",
+} as const;
+
+/**
  * Type exports for TypeScript
  */
 export type CommunityType = typeof COMMUNITY_TYPE[keyof typeof COMMUNITY_TYPE];
+export type SessionType = typeof SESSION_TYPE[keyof typeof SESSION_TYPE];
 export type InquirySource = typeof INQUIRY_SOURCE[keyof typeof INQUIRY_SOURCE];
 export type PaymentStatus = typeof PAYMENT_STATUS[keyof typeof PAYMENT_STATUS];
 export type SubscriptionInterval = typeof SUBSCRIPTION_INTERVAL[keyof typeof SUBSCRIPTION_INTERVAL];

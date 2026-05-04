@@ -3,14 +3,16 @@ import type { NavigationMenuItem } from "@nuxt/ui";
 import type { RouteLocationRaw } from "vue-router";
 
 import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
 import {
-  PERMISSIONS,
-  PERMISSIONS_ADMINS,
-  PERMISSIONS_COMMUNITIES,
-  PERMISSIONS_TRANSACTIONS,
+  PERMISSIONS_BOOKINGS,
+  PERMISSIONS_MEMBERSHIP_PLANS,
+  PERMISSIONS_PAYMENTS,
+  PERMISSIONS_SERVICES,
+  PERMISSIONS_SESSIONS,
 } from "~/config/permissions";
 import { useAuthStore } from "~/stores/auth";
 
@@ -93,41 +95,54 @@ const rawItems: NavItemWithPermission[] = [{
   icon: ICONS.BRIEFCASE,
   defaultOpen: true,
   children: [
-    { label: "Sessions", to: "/system-admin/roles-permissions", icon: ICONS.CALENDAR, permission: PERMISSIONS_ADMINS.ROLES_PERMISSIONS },
-    { label: "Services", to: "/system-admin/admins", icon: ICONS.DUMBELL, permission: PERMISSIONS_ADMINS.LIST },
+    { label: "Sessions", to: "/offerings/session", icon: ICONS.CALENDAR, permission: PERMISSIONS_SESSIONS.VIEW },
+    { label: "Spa", to: "/offerings/spa", icon: ICONS.FLOWER, permission: PERMISSIONS_SERVICES.VIEW },
   ],
 }, {
   label: "Bookings",
   icon: ICONS.INQUIRIES,
-  to: "/inquiries",
-  permission: PERMISSIONS.INQUIRIES,
+  to: "/booking",
+  permission: PERMISSIONS_BOOKINGS.VIEW,
 }, {
   label: "Members",
   icon: ICONS.COMMUNITIES,
   defaultOpen: true,
   children: [
-    { label: "Members & Guests", to: "/communities/create", icon: ICONS.USERS, permission: PERMISSIONS_COMMUNITIES.CREATE },
-    { label: "Membership Plans", to: "/communities/list", icon: ICONS.CHECK_CIRCLE, permission: PERMISSIONS_COMMUNITIES.VIEW },
+    { label: "Members & Guests", to: "/members/guest", icon: ICONS.USERS, permission: PERMISSIONS_MEMBERSHIP_PLANS.CREATE },
+    { label: "Membership Plans", to: "/members/plan", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_MEMBERSHIP_PLANS.VIEW },
   ],
-}, {
-  label: "Access Logs",
-  icon: ICONS.COMMUNITIES,
-  defaultOpen: true,
 }, {
   label: "Financial",
   icon: ICONS.BILLING,
   defaultOpen: true,
   children: [
-    { label: "Payments", to: "/transaction/create", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_TRANSACTIONS.CREATE },
-    { label: "Refunds", to: "/transaction/list", icon: ICONS.BILLING, permission: PERMISSIONS_TRANSACTIONS.LIST },
+    { label: "Payments", to: "/financial/payments", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_PAYMENTS.VIEW },
+    { label: "Cancellations", to: "/financial/cancellations", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_PAYMENTS.VIEW },
   ],
+},
+//  {
+//   label: "Access Logs",
+//   icon: ICONS.DOOR_LOCK,
+//   to: "/access-log",
+//   defaultOpen: true,
+// },
+{
+  label: "Promo Code",
+  icon: ICONS.BADGE_PERCENT,
+  to: "/promo-code/list",
+  defaultOpen: true,
+}, {
+  label: "Send Email",
+  icon: ICONS.MAILS,
+  to: "/send-email/email-list",
+  defaultOpen: true,
 }, {
   label: "Administration",
-  icon: ICONS.BILLING,
+  icon: ICONS.SHIELD_CHECK,
   defaultOpen: true,
   children: [
-    { label: "Roles & Permissions", to: "/transaction/create", icon: ICONS.SHIELD_CHECK, permission: PERMISSIONS_TRANSACTIONS.CREATE },
-    { label: "Admins", to: "/transaction/list", icon: ICONS.USERS, permission: PERMISSIONS_TRANSACTIONS.LIST },
+    { label: "Roles & Permissions", to: "/administration/roles", icon: ICONS.SETTINGS, permission: PERMISSIONS_PAYMENTS.VIEW },
+    { label: "Admins", to: "/administration/admins", icon: ICONS.USER_COG, permission: PERMISSIONS_PAYMENTS.VIEW },
   ],
 }];
 
@@ -136,11 +151,18 @@ const items = computed(() => [filterByPermission([...rawItems])]);
 
 <template>
   <UDashboardSidebar
-    v-model:open="sidebarOpen"
-    v-model:collapsed="sidebarCollapsed"
+    :open="sidebarOpen"
+    :collapsed="sidebarCollapsed"
     collapsible
     toggle-side="right"
-    :ui="{ header: 'pr-2 sm:px-4 h-(--size-navbar)', content: 'overflow-hidden max-w-(--size-sidebar-mobile)', body: 'p-2 sm:p-2 ', root: 'border-0 min-w-(--size-sidebar-mini) min-h-(calc(100vh-1rem)) bg-background', footer: 'border rounded border-border p-2 sm:p-2' }"
+    :ui="{
+      header: 'pr-2 sm:px-4 h-(--size-navbar)',
+      content: 'overflow-hidden max-w-(--size-sidebar-mobile)',
+      body: 'p-2',
+      root: 'border-stone-200 border-r min-w-(--size-sidebar-mini) min-h-(calc(100vh-1rem)) bg-white',
+      footer: 'p-2 sm:p-2',
+
+    }"
   >
     <template #toggle>
       <UDashboardSidebarToggle variant="subtle" />
@@ -148,7 +170,14 @@ const items = computed(() => [filterByPermission([...rawItems])]);
     <template #header="{ collapsed }">
       <div class="flex items-center gap-3 w-full">
         <img
-          :src="collapsed ? '/logo/black_icon_logo.svg' : '/logo/kora_black_logo.svg'"
+          v-if="collapsed"
+          src="/logo/black_icon_logo.svg"
+          alt="Baha Connect"
+          class="w-28 h-28 transition-all duration-100 ease"
+        >
+        <img
+          v-else
+          src="/logo/kora_black_logo.svg"
           alt="Baha Connect"
           class="w-28 h-28 transition-all duration-100 ease"
         >
@@ -156,7 +185,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
     </template>
     <template #default="{ collapsed }">
       <UNavigationMenu
-        class="sidebar-nav "
+        class="sidebar-nav"
         :collapsed="collapsed"
         :items="items[0]"
         orientation="vertical"
@@ -166,6 +195,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
           link: 'px-2 gap-3 text-foreground rounded-md transition-colors',
           linkLeadingIcon: 'text-foreground ',
           linkTrailingIcon: 'text-foreground ',
+          item: 'flex flex-col gap-2',
         }"
       />
     </template>
@@ -175,7 +205,14 @@ const items = computed(() => [filterByPermission([...rawItems])]);
         dismissible
         :popper="{ placement: collapsed ? 'right-start' : 'top-end' }"
       >
-        <div class="flex items-center w-full gap-3 cursor-pointer">
+        <div
+          class="flex items-center w-full gap-3 mb-2 cursor-pointer"
+          :class="[
+            collapsed
+              ? 'p-0 border-0'
+              : 'p-2 border rounded border-stone-200',
+          ]"
+        >
           <UAvatar
             :text="getFirstLetter(authStore.user.name)"
             :ui="{
@@ -192,7 +229,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
                 {{ authStore.user.email || 'N/A' }}
               </span>
             </div>
-            <UIcon :name="ICONS.ELLIPSIS_VERTICAL" />
+            <!-- <UIcon :name="ICONS.ELLIPSIS_VERTICAL" /> -->
           </div>
         </div>
         <template #content>

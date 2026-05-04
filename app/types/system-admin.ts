@@ -7,17 +7,42 @@ export type SystemAdminRole = {
   name: string;
   created_at: string;
   updated_at: string;
+  description: string;
+  permissions: string[];
+  isActive: boolean;
+  users: {
+    id: number;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+    fullName: string;
+    email: string;
+    phoneNumber: string | null;
+    role: string;
+    adminRoleId: number;
+    isActive: boolean;
+    lastLoginAt: string;
+  }[];
 };
 
-export type SystemAdminAdmin = {
+export type RolesCatalog = Record<string, string[]>;
+
+export type ModuleTreeItem = {
+  label: string;
   id: number;
-  role_id: number | null;
+  children?: ModuleTreeItem[];
+  defaultExpanded?: boolean;
+};
+
+export type SystemAdmin = {
+  id: number;
+  adminRoleId: number | null;
   email: string;
-  name: string;
-  phone: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  fullName: string;
+  phoneNumber?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
   role_name: string;
 };
 
@@ -36,9 +61,14 @@ export type CreateAdminPayload = {
 
 export type UpdateAdminPayload = {
   admin_id: number;
-  role_id: number | null;
-  phone: string | null;
-  is_active: boolean;
+  fullName?: string;
+  phoneNumber?: string;
+  email?: string;
+  adminRoleId?: number | null;
+  isActive?: boolean;
+  role_id?: number | null;
+  phone?: string | null;
+  is_active?: boolean;
 };
 
 /** Role module (privilege) from modules/getList */

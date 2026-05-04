@@ -32,18 +32,18 @@ const getStyles = computed(() => {
   if (props.color === "primary") {
     switch (props.variant) {
       case "solid":
-        return "bg-secondary dark:bg-secondary hover:bg-secondary/75 active:bg-secondary/75 text-white";
+        return "bg-secondary dark:bg-secondary hover:bg-secondary/75 active:bg-secondary/75 disabled:bg-secondary disabled:dark:bg-secondary text-white";
       case "outline":
-        return "text-secondary bg-white border-stone-300 hover:bg-stone-50";
+        return "border ring-0 text-secondary bg-transparent border-stone-300 hover:bg-stone-50 disabled:bg-transparent";
       case "ghost":
-        return "text-foreground hover:bg-primary/10";
+        return "bg-transparent hover:bg-primary/10 disabled:bg-transparent";
       case "link":
         return "text-foreground hover:text-primary";
       default:
-        return "bg-primary hover:bg-primary/75";
+        return "bg-primary hover:bg-primary/75 disabled:bg-primary";
     }
   }
-  return "bg-primary hover:bg-primary/75";
+  return "bg-primary hover:bg-primary/75 disabled:bg-primary";
 });
 </script>
 
@@ -58,6 +58,7 @@ const getStyles = computed(() => {
     :to="to"
     :size="size"
     :variant="variant"
+    color="white"
     :class="`cursor-pointer ${getStyles} flex items-center justify-center font-semibold`"
   >
     <slot />

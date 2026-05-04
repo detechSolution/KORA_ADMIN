@@ -10,8 +10,8 @@
  * Storage keys used throughout the application
  */
 export const STORAGE_KEYS = {
-  ACCESS_TOKEN: "access_token",
-  REFRESH_TOKEN: "refresh_token",
+  ACCESS_TOKEN: "accessToken",
+  REFRESH_TOKEN: "refreshToken",
 } as const;
 
 /**

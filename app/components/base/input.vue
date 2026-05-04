@@ -9,7 +9,7 @@ type Props = {
   label?: string;
   placeholder?: string;
   required?: boolean;
-  modelValue?: null | string | number;
+  modelValue?: string | number;
   loading?: boolean;
   disabled?: boolean;
   leadingIcon?: string;
@@ -64,7 +64,7 @@ function togglePasswordVisibility() {
       class="w-full"
       size="lg"
       :ui="{
-        base: 'bg-transparent',
+        base: 'bg-transparent resize-none ring-stone-300 placeholder:text-stone-400',
       }"
     />
     <UInput
@@ -79,7 +79,7 @@ function togglePasswordVisibility() {
       class="w-full"
       size="lg"
       :ui="{
-        base: `bg-transparent`,
+        base: `ring-stone-300 placeholder:text-stone-400`,
       }"
     >
       <template v-if="props.leadingIcon" #leading>

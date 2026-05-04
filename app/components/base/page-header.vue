@@ -9,7 +9,7 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <header class="border-x border border-border rounded-t-xl p-6 sm:p-8">
+  <header>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Left: Title with Icon -->
       <div class="flex flex-col gap-2">
@@ -20,11 +20,11 @@ withDefaults(defineProps<Props>(), {
               class="w-6 h-6 text-primary"
             />
           </div>
-          <h1 class="text-2xl font-bold text-foreground uppercase">
+          <h1 class="text-2xl font-bold text-foreground">
             <slot name="title" />
           </h1>
         </div>
-        <p v-if="$slots.description" class="text-sm text-muted-foreground font-medium">
+        <p v-if="$slots.description" class="text-xs text-secondary-500 font-light">
           <slot name="description" />
         </p>
       </div>

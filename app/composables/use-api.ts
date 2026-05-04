@@ -112,9 +112,10 @@ function createHttpClient(config: HttpClientConfig) {
       data: any,
       headers?: Record<string, string>,
     ): Promise<T> {
+      const body = data instanceof FormData ? data : JSON.stringify(data);
       return request<T>(endpoint, {
         method: "PUT",
-        body: JSON.stringify(data),
+        body,
         headers,
       });
     },
@@ -126,9 +127,10 @@ function createHttpClient(config: HttpClientConfig) {
       data: any,
       headers?: Record<string, string>,
     ): Promise<T> {
+      const body = data instanceof FormData ? data : JSON.stringify(data);
       return request<T>(endpoint, {
         method: "PATCH",
-        body: JSON.stringify(data),
+        body,
         headers,
       });
     },
