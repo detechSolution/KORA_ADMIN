@@ -249,200 +249,192 @@ watch(
 </script>
 
 <template>
-  <UDrawer
-    v-model:open="isOpen"
-    direction="right"
-    :dismissible="true"
-    :handle="false"
-    :ui="{
-      content:
-        'inset-y-0 right-0 flex h-screen w-full max-w-[520px] flex-col overflow-hidden rounded-none bg-white shadow-2xl',
-      overlay: 'bg-black/50',
-    }"
+  <base-drawer
+    :open="isOpen"
+    :drawer-width="480"
+    @close="emit('close')"
   >
-    <template #content>
-      <UForm
-        ref="formRef"
-        :state="form"
-        :schema="schema"
-        :validate-on="['blur']"
-        class="flex min-h-0 flex-1 flex-col"
+    <UForm
+      ref="formRef"
+      :state="form"
+      :schema="schema"
+      :validate-on="['blur']"
+      class="flex min-h-0 flex-1 flex-col"
+    >
+      <div
+        class="flex items-center justify-between border-b border-stone-200 px-5 py-4"
       >
-        <div
-          class="flex items-center justify-between border-b border-stone-200 px-5 py-4"
+        <h2 class="text-lg font-semibold text-secondary">
+          Edit Spa
+        </h2>
+
+        <button
+          type="button"
+          class="rounded-md p-1 text-secondary-400 transition hover:bg-stone-100 hover:text-secondary"
+          @click="closeDrawer"
         >
-          <h2 class="text-lg font-semibold text-secondary">
-            Edit Spa
-          </h2>
+          <UIcon :name="ICONS.X" class="h-4 w-4" />
+        </button>
+      </div>
 
-          <button
-            type="button"
-            class="rounded-md p-1 text-secondary-400 transition hover:bg-stone-100 hover:text-secondary"
-            @click="closeDrawer"
+      <div class="flex-1 overflow-y-auto px-5 py-5">
+        <div class="grid gap-5">
+          <UFormField
+            name="videoName"
+            label="Spa Video"
+            required
+            :ui="{ error: 'mt-1 text-red-500 text-xs' }"
           >
-            <UIcon :name="ICONS.X" class="h-4 w-4" />
-          </button>
-        </div>
+            <div class="grid gap-3">
+              <input
+                ref="videoInputRef"
+                type="file"
+                accept="video/*"
+                class="hidden"
+                @change="handleVideoChange"
+              >
 
-        <div class="flex-1 overflow-y-auto px-5 py-5">
-          <div class="grid gap-5">
-            <UFormField
-              name="videoName"
-              label="Spa Video"
-              required
-              :ui="{ error: 'mt-1 text-red-500 text-xs' }"
-            >
-              <div class="grid gap-3">
-                <input
-                  ref="videoInputRef"
-                  type="file"
-                  accept="video/*"
-                  class="hidden"
-                  @change="handleVideoChange"
+              <button
+                type="button"
+                class="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-300 bg-stone-50 px-4 py-5 text-center"
+                @click="openVideoPicker"
+              >
+                <span
+                  class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white"
                 >
+                  <UIcon :name="ICONS.UPLOAD" class="h-5 w-5" />
+                </span>
+                <div>
+                  <p class="text-sm font-medium text-secondary">
+                    Drop your video here
+                  </p>
+                  <p class="text-xs text-secondary-400">
+                    mp4, mov, webm or m4v (max. 25MB)
+                  </p>
+                </div>
+              </button>
 
-                <button
-                  type="button"
-                  class="flex min-h-32 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-stone-300 bg-stone-50 px-4 py-5 text-center"
-                  @click="openVideoPicker"
-                >
-                  <span
-                    class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white"
+              <div
+                v-if="form.videoName"
+                class="flex items-center justify-between rounded-lg border border-stone-200 bg-white px-3 py-2"
+              >
+                <div class="min-w-0">
+                  <p
+                    class="truncate text-sm font-medium text-secondary max-w-100"
                   >
-                    <UIcon :name="ICONS.UPLOAD" class="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p class="text-sm font-medium text-secondary">
-                      Drop your video here
-                    </p>
-                    <p class="text-xs text-secondary-400">
-                      mp4, mov, webm or m4v (max. 25MB)
-                    </p>
-                  </div>
-                </button>
-
-                <div
-                  v-if="form.videoName"
-                  class="flex items-center justify-between rounded-lg border border-stone-200 bg-white px-3 py-2"
-                >
-                  <div class="min-w-0">
-                    <p
-                      class="truncate text-sm font-medium text-secondary max-w-100"
-                    >
-                      {{ form.videoName }}
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    class="text-secondary-400 transition hover:text-secondary"
-                    @click="clearSelectedVideo"
-                  >
-                    <UIcon :name="ICONS.X" class="h-4 w-4" />
-                  </button>
+                    {{ form.videoName }}
+                  </p>
                 </div>
 
-                <p class="text-xs text-secondary-400">
-                  Spa video is displayed on website and app
-                </p>
+                <button
+                  type="button"
+                  class="text-secondary-400 transition hover:text-secondary"
+                  @click="clearSelectedVideo"
+                >
+                  <UIcon :name="ICONS.X" class="h-4 w-4" />
+                </button>
               </div>
-            </UFormField>
 
+              <p class="text-xs text-secondary-400">
+                Spa video is displayed on website and app
+              </p>
+            </div>
+          </UFormField>
+
+          <UFormField
+            name="availableDays"
+            label="Available Days"
+            required
+            :ui="{ error: 'mt-1 text-red-500 text-xs' }"
+          >
+            <div class="flex flex-wrap gap-2">
+              <button
+                v-for="day in dayOptions"
+                :key="day.value"
+                type="button"
+                class="rounded-md border px-3 py-2 text-xs font-medium transition"
+                :class="
+                  form.availableDays.includes(day.value)
+                    ? 'border-primary-700 bg-primary-700 text-white'
+                    : 'border-stone-200 bg-white text-secondary-400 hover:border-primary-300 hover:text-secondary'
+                "
+                @click="toggleDay(day.value)"
+              >
+                {{ day.label }}
+              </button>
+            </div>
+          </UFormField>
+
+          <div class="grid gap-4 sm:grid-cols-2">
             <UFormField
-              name="availableDays"
-              label="Available Days"
+              name="availableFromTime"
+              label="From"
               required
               :ui="{ error: 'mt-1 text-red-500 text-xs' }"
             >
-              <div class="flex flex-wrap gap-2">
-                <button
-                  v-for="day in dayOptions"
-                  :key="day.value"
-                  type="button"
-                  class="rounded-md border px-3 py-2 text-xs font-medium transition"
-                  :class="
-                    form.availableDays.includes(day.value)
-                      ? 'border-primary-700 bg-primary-700 text-white'
-                      : 'border-stone-200 bg-white text-secondary-400 hover:border-primary-300 hover:text-secondary'
-                  "
-                  @click="toggleDay(day.value)"
-                >
-                  {{ day.label }}
-                </button>
-              </div>
+              <UInputTime
+                v-model="availableFromTimeModel"
+                granularity="minute"
+                class="w-full"
+              />
             </UFormField>
 
-            <div class="grid gap-4 sm:grid-cols-2">
-              <UFormField
-                name="availableFromTime"
-                label="From"
-                required
-                :ui="{ error: 'mt-1 text-red-500 text-xs' }"
-              >
-                <UInputTime
-                  v-model="availableFromTimeModel"
-                  granularity="minute"
-                  class="w-full"
-                />
-              </UFormField>
+            <UFormField
+              name="availableToTime"
+              label="To"
+              required
+              :ui="{ error: 'mt-1 text-red-500 text-xs' }"
+            >
+              <UInputTime
+                v-model="availableToTimeModel"
+                granularity="minute"
+                class="w-full"
+              />
+            </UFormField>
+          </div>
 
-              <UFormField
-                name="availableToTime"
-                label="To"
-                required
-                :ui="{ error: 'mt-1 text-red-500 text-xs' }"
-              >
-                <UInputTime
-                  v-model="availableToTimeModel"
-                  granularity="minute"
-                  class="w-full"
-                />
-              </UFormField>
-            </div>
+          <div class="grid gap-2">
+            <UFormField
+              name="capacityPerSlot"
+              label="Capacity Per Slot"
+              required
+              :ui="{ error: 'mt-1 text-red-500 text-xs' }"
+            >
+              <UInput
+                v-model="form.capacityPerSlot"
+                type="number"
+                placeholder="e.g. 3"
+                class="w-full"
+              />
+            </UFormField>
 
-            <div class="grid gap-2">
-              <UFormField
-                name="capacityPerSlot"
-                label="Capacity Per Slot"
-                required
-                :ui="{ error: 'mt-1 text-red-500 text-xs' }"
-              >
-                <UInput
-                  v-model="form.capacityPerSlot"
-                  type="number"
-                  placeholder="e.g. 3"
-                  class="w-full"
-                />
-              </UFormField>
-
-              <p class="text-xs text-secondary-400">
-                e.g. 3 clients at once
-              </p>
-            </div>
+            <p class="text-xs text-secondary-400">
+              e.g. 3 clients at once
+            </p>
           </div>
         </div>
+      </div>
 
-        <div
-          class="flex items-center justify-between border-t border-stone-200 px-5 py-4"
+      <div
+        class="flex items-center justify-between border-t border-stone-200 px-5 py-4"
+      >
+        <base-button
+          variant="outline"
+          size="md"
+          @click="closeDrawer"
         >
-          <base-button
-            variant="outline"
-            size="md"
-            @click="closeDrawer"
-          >
-            Cancel
-          </base-button>
+          Cancel
+        </base-button>
 
-          <base-button
-            variant="solid"
-            size="md"
-            :loading="loading"
-            @click="handleSubmit"
-          >
-            Update
-          </base-button>
-        </div>
-      </UForm>
-    </template>
-  </UDrawer>
+        <base-button
+          variant="solid"
+          size="md"
+          :loading="loading"
+          @click="handleSubmit"
+        >
+          Update
+        </base-button>
+      </div>
+    </UForm>
+  </base-drawer>
 </template>

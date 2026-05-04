@@ -6,23 +6,33 @@ definePageMeta({
   layout: "dashboard",
   permission: "refunds.manage",
 });
+
+const columns = [
+  { id: "id", header: "Client", accessorKey: "id" },
+  { id: "customer", header: "Reference ID", accessorKey: "customer" },
+  { id: "date", header: "Requested Date", accessorKey: "date" },
+  { id: "status", header: "Refunded Date", accessorKey: "status" },
+  { id: "amount", header: "Amount", accessorKey: "amount" },
+  { id: "amount", header: "Status", accessorKey: "amount" },
+  { id: "amount", header: "Actions", accessorKey: "amount" },
+];
 </script>
 
 <template>
   <div class="flex flex-col gap-6">
     <base-page-header>
       <template #title>
-        Refunds
+        Cancellations
       </template>
       <template #description>
-        View Refund Details, Status, and Types
+        View cancellation details & status and manage refunds
       </template>
     </base-page-header>
 
     <div class="bg-white flex flex-col p-4 gap-4">
       <div>
         <h2 class="text-base font-semibold">
-          Refunds List
+          Cancellations List
         </h2>
       </div>
 
@@ -73,7 +83,7 @@ definePageMeta({
       </div>
       <base-table
         :data="[]"
-        :columns="[]"
+        :columns="columns"
         :loading="false"
         empty-title="No communities found"
         empty-description="It looks like you haven't added any communities. Create one to get started."
