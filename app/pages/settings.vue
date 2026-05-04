@@ -13,12 +13,12 @@ definePageMeta({
 
 const tabs = [
   {
-    label: "Profile",
+    label: "My Profile",
     value: "account",
     icon: ICONS.SETTINGS,
   },
   {
-    label: "Change Password",
+    label: "Update Password",
     value: "change-password",
     icon: ICONS.LOCK,
   },
@@ -38,29 +38,29 @@ const activeComponent = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col gap-6">
     <base-page-header>
       <template #title>
-        Settings
+        Profile & Settings
       </template>
       <template #description>
-        Manage your account settings and preferences
+        Manage your profile and settings
       </template>
     </base-page-header>
 
-    <div class="page-content-height bg-card border-x border-b border-border rounded-b-xl shadow-sm p-6">
+    <div class="page-content-height bg-white rounded-xl shadow-sm p-6">
       <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
         <!-- Sidebar Navigation (Desktop) -->
         <div v-if="isMdOrAbove" class="hidden lg:block">
-          <div class="bg-muted/30 border border-border rounded-lg p-1.5 sticky top-4">
-            <nav class="flex flex-col gap-1">
+          <div class="bg-muted/30 p-1.5 sticky top-4">
+            <nav class="flex flex-col gap-2">
               <button
                 v-for="tab in tabs"
                 :key="tab.value"
-                class="flex items-center gap-2.5 px-3 py-2 rounded-md text-left transition-colors"
+                class="flex items-center gap-2.5 cursor-pointer px-3 py-2 rounded-md text-left transition-colors"
                 :class="[
                   activeTab === tab.value
-                    ? 'bg-primary text-white'
+                    ? 'bg-primary-50 text-primary'
                     : 'text-foreground hover:bg-muted',
                 ]"
                 @click="activeTab = tab.value"
@@ -81,7 +81,7 @@ const activeComponent = computed(() => {
               class="flex items-center gap-2 px-3 py-2 rounded-md whitespace-nowrap transition-colors"
               :class="[
                 activeTab === tab.value
-                  ? 'bg-primary text-white'
+                  ? 'text-primary bg-primary-50'
                   : 'bg-card border border-border text-foreground hover:bg-muted',
               ]"
               @click="activeTab = tab.value"
@@ -94,7 +94,7 @@ const activeComponent = computed(() => {
 
         <!-- Content Area -->
         <div class="flex-1">
-          <div class="bg-muted/30 border border-border rounded-lg p-5 lg:p-6">
+          <div class="bg-muted/30  rounded-lg ">
             <component :is="activeComponent" />
           </div>
         </div>

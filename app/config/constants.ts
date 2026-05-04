@@ -30,6 +30,7 @@ export const API_ENDPOINTS = {
     ME: "/api/v1/auth/me",
     REFRESH: "/api/v1/auth/refresh-token",
     UPDATE_PASSWORD: "/api/v1/auth/update-password",
+    UPDATE_PROFILE: "/api/v1/auth/update-profile",
   },
   CONFIGURATION: {
     BILLABLE_ITEMS: "/api/v1/billable-items/getList",

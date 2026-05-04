@@ -1,95 +1,110 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { reactive, ref } from "vue";
+import z from "zod";
 
+import { ICONS } from "~/config/icons";
 import { useAuthStore } from "~/stores/auth";
+import { getApiErrorMessage } from "~/utils/error";
 
 const authStore = useAuthStore();
+const { success, error: showError } = useNotification();
 
-const email = computed(() => authStore.user.email);
-const name = computed(() => authStore.user.name);
-const phone = computed(() => authStore.user.phone);
+const loading = ref(false);
+const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
-function getFirstLetter(name: string): string {
-  return name?.charAt(0).toUpperCase() || "U";
+const schema = z.object({
+  email: z.string().email("Invalid email address"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+});
+
+type ProfileForm = z.output<typeof schema>;
+
+const state = reactive<ProfileForm>({
+  email: authStore.user.email,
+  name: authStore.user.name,
+  phone: authStore.user.phone,
+});
+
+async function handleUpdateProfile(): Promise<void> {
+  try {
+    await formRef.value?.validate();
+  }
+  catch {
+    return;
+  }
+  try {
+    loading.value = true;
+    const payload = {
+      fullName: state.name,
+      phoneNumber: state.phone,
+    };
+    await authStore.updateProfile(payload);
+    success({ message: "Profile updated successfully" });
+  }
+  catch (error) {
+    showError({ message: getApiErrorMessage(error, "Failed to update profile") });
+  }
+  finally {
+    loading.value = false;
+  }
 }
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
-    <!-- Profile Header -->
-    <div class="flex items-center gap-3 pb-4 border-b border-border">
-      <UAvatar
-        :text="getFirstLetter(name || 'User')"
-        :ui="{
-          root: 'w-12 h-12 bg-primary rounded-lg text-base shrink-0',
-          fallback: 'text-white font-semibold',
-        }"
-      />
-      <div class="flex flex-col gap-0.5 min-w-0 flex-1">
-        <h2 class="text-lg font-semibold text-foreground truncate">
-          {{ name || "User" }}
-        </h2>
-        <p class="text-xs text-muted-foreground truncate">
-          {{ email || "No email provided" }}
-        </p>
-      </div>
-    </div>
-
-    <!-- Profile Information -->
-    <div class="flex flex-col gap-4">
-      <div>
-        <h3 class="text-base font-semibold text-foreground mb-3">
-          Personal Information
+    <div class="bg-stone-50 rounded-lg p-4 flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <UIcon :name="ICONS.INFO" class="text-primary" />
+        <h3 class="text-sm text-secondary font-medium">
+          Mail details
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div class="space-y-1">
-            <label class="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              Email Address
-            </label>
-            <div class="p-2.5 bg-muted rounded-md border border-border">
-              <p class="text-sm text-foreground">
-                {{ email || "Not set" }}
-              </p>
-            </div>
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              Name
-            </label>
-            <div class="p-2.5 bg-muted rounded-md border border-border">
-              <p class="text-sm text-foreground">
-                {{ name || "Not set" }}
-              </p>
-            </div>
-          </div>
-
-          <div class="space-y-1">
-            <label class="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-              Phone Number
-            </label>
-            <div class="p-2.5 bg-muted rounded-md border border-border">
-              <p class="text-sm text-foreground">
-                {{ phone || "Not set" }}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
-
-      <!-- Info Message -->
-      <div class="bg-muted/50 border border-border rounded-md p-3">
-        <div class="flex items-start gap-2.5">
-          <div class="flex flex-col gap-0.5">
-            <p class="text-xs font-medium text-foreground">
-              Profile Updates
-            </p>
-            <p class="text-xs text-muted-foreground leading-relaxed">
-              Profile information is managed by your administrator. Contact support if you need to update your details.
-            </p>
-          </div>
-        </div>
-      </div>
+      <p class="text-secondary-500 text-xs">
+        Enter the subject, title and contents of the mail
+      </p>
     </div>
+
+    <UForm
+      ref="formRef"
+      :schema="schema"
+      :state="state"
+      :validate-on="['input', 'change', 'blur']"
+      class="flex min-h-0 flex-1 flex-col"
+    >
+      <div class="flex flex-col gap-4">
+        <!-- Profile Information -->
+        <div class="flex bg-white shadow-md rounded-md flex-col gap-4 p-4">
+          <div class="flex flex-col gap-4">
+            <base-input
+              v-model="state.name"
+              name="name"
+              label="Name*"
+              placeholder="Enter your name"
+            />
+
+            <div class="w-full">
+              <base-input
+                v-model="state.phone"
+                name="phone"
+                label="Phone Number*"
+                placeholder="Enter your phone number"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <base-button
+            type="submit"
+            color="primary"
+            :loading="loading"
+            @click="handleUpdateProfile"
+          >
+            Update Profile
+          </base-button>
+        </div>
+      </div>
+    </UForm>
   </div>
 </template>

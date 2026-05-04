@@ -1,83 +1,55 @@
 <script setup lang="ts">
-import { nextTick, reactive, ref } from "vue";
-import * as z from "zod";
+import { reactive, ref } from "vue";
+import z from "zod";
 
-import { useNotification } from "~/composables/use-notification";
+import { ICONS } from "~/config/icons";
 import { useAuthStore } from "~/stores/auth";
-import { getApiErrorMessage, isApiError } from "~/utils/error";
+import { getApiErrorMessage } from "~/utils/error";
 
 const authStore = useAuthStore();
-const router = useRouter();
+const { success, error: showError } = useNotification();
 
 const loading = ref(false);
-const apiError = ref<string | null>(null);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
-const { success, error: showError } = useNotification();
-const hasValidated = ref(false);
 
 const schema = z.object({
-  oldPassword: z.string().min(1, "Current password is required"),
+  currentPassword: z.string().min(6, "Current password must be at least 6 characters"),
   newPassword: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-}).superRefine((data, ctx) => {
-  if (data.newPassword !== data.confirmPassword) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["confirmPassword"],
-      message: "Passwords do not match",
-    });
-  }
-  if (apiError.value) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["oldPassword"],
-      message: apiError.value,
-    });
-  }
+  confirmPassword: z.string().min(6, "Confirm password must be at least 6 characters"),
 });
 
-type Schema = z.output<typeof schema>;
+type ProfileForm = z.output<typeof schema>;
 
-const state = reactive<Partial<Schema>>({
-  oldPassword: "",
+const state = reactive<ProfileForm>({
+  currentPassword: "",
   newPassword: "",
   confirmPassword: "",
 });
 
-function setApiError(error: string): void {
-  apiError.value = error;
-}
-
-async function clearApiError(): Promise<void> {
-  apiError.value = null;
-  await nextTick();
-  if (hasValidated.value && formRef.value) {
-    formRef.value.validate();
-  }
-}
-
-async function handleChangePassword(): Promise<void> {
-  loading.value = true;
-  apiError.value = null;
+async function handleUpdateProfile(): Promise<void> {
   try {
-    await authStore.updatePassword({
-      old_password: state.oldPassword || "",
-      new_password: state.newPassword || "",
-    });
-    success({ message: "Password changed successfully. Please login again." });
-    state.oldPassword = "";
-    state.newPassword = "";
-    state.confirmPassword = "";
-    await authStore.logout();
-    router.push({ name: "login" });
+    await formRef.value?.validate();
   }
-  catch (error: unknown) {
-    if (isApiError(error) && error.data?.code === "auth.password.incorrect") {
-      setApiError(error.data?.message ?? "Invalid credentials");
-      formRef.value?.validate();
+  catch {
+    return;
+  }
+  try {
+    loading.value = true;
+
+    if (state.newPassword !== state.confirmPassword) {
+      showError({ message: "New password and confirm password do not match" });
       return;
     }
-    showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });
+    const payload = {
+      currentPassword: state.currentPassword,
+      newPassword: state.newPassword,
+    };
+
+    await authStore.updatePassword(payload);
+    success({ message: "Password updated successfully" });
+  }
+  catch (error) {
+    showError({ message: getApiErrorMessage(error, "Failed to update password") });
   }
   finally {
     loading.value = false;
@@ -87,75 +59,66 @@ async function handleChangePassword(): Promise<void> {
 
 <template>
   <div class="flex flex-col gap-4">
-    <div class="flex flex-col gap-1 pb-4 border-b border-border">
-      <h2 class="flex items-center gap-2 text-xl font-semibold text-foreground">
-        <span>Change Password</span>
-      </h2>
-      <p class="text-xs text-muted-foreground">
-        Update your password to keep your account secure
+    <div class="bg-stone-50 rounded-lg p-4 flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <UIcon :name="ICONS.INFO" class="text-primary" />
+        <h3 class="text-sm text-secondary font-medium">
+          Update Password
+        </h3>
+      </div>
+      <p class="text-secondary-500 text-xs">
+        update your password by entering your current password
       </p>
     </div>
 
-    <div class="bg-muted/50 border border-border rounded-md p-3">
-      <div class="flex items-start gap-2.5">
-        <div class="flex flex-col gap-0.5">
-          <p class="text-xs font-medium text-foreground">
-            Password Requirements
-          </p>
-          <ul class="text-xs text-muted-foreground space-y-0.5 mt-1">
-            <li>• At least 6 characters long</li>
-            <li>• Use a combination of letters and numbers</li>
-            <li>• Avoid using easily guessable passwords</li>
-          </ul>
+    <UForm
+      ref="formRef"
+      :schema="schema"
+      :state="state"
+      :validate-on="['input', 'change', 'blur']"
+      class="flex min-h-0 flex-1 flex-col"
+    >
+      <div class="flex flex-col gap-4">
+        <!-- Profile Information -->
+        <div class="flex bg-white shadow-md rounded-md flex-col gap-4 p-4">
+          <div class="flex flex-col gap-4">
+            <base-input
+              v-model="state.currentPassword"
+              name="currentPassword"
+              label="Current Password"
+              placeholder="Enter current password"
+              type="password"
+            />
+
+            <base-input
+              v-model="state.newPassword"
+              name="newPassword"
+              label="New Password"
+              placeholder="Enter new password"
+              type="password"
+            />
+
+            <base-input
+              v-model="state.confirmPassword"
+              name="confirmPassword"
+              label="Confirm Password"
+              placeholder="Confirm new password"
+              type="password"
+            />
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="w-full max-w-[450px]">
-      <UForm
-        ref="formRef"
-        :state="state"
-        :schema="schema"
-        :validate-on="['input', 'change', 'blur']"
-        class="flex flex-col gap-4"
-        @submit.prevent="handleChangePassword"
-      >
-        <base-input
-          v-model="state.oldPassword"
-          name="oldPassword"
-          label="Current Password"
-          placeholder="Enter your current password"
-          type="password"
-          @input="clearApiError"
-        />
-
-        <base-input
-          v-model="state.newPassword"
-          name="newPassword"
-          label="New Password"
-          placeholder="Enter your new password"
-          type="password"
-          @input="clearApiError"
-        />
-
-        <base-input
-          v-model="state.confirmPassword"
-          name="confirmPassword"
-          label="Confirm New Password"
-          placeholder="Confirm your new password"
-          type="password"
-          @input="clearApiError"
-        />
-
-        <div class="flex justify-start pt-1">
+        <div class="flex justify-end">
           <base-button
             type="submit"
+            color="primary"
             :loading="loading"
+            @click="handleUpdateProfile"
           >
             Update Password
           </base-button>
         </div>
-      </UForm>
-    </div>
+      </div>
+    </UForm>
   </div>
 </template>

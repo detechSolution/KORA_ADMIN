@@ -47,8 +47,10 @@ export const useAdminStore = defineStore("admin", () => {
     }
     catch (error) {
       console.error("Failed to fetch roles:", error);
+      throw error;
     }
   };
+
   const fetchRolesCatalog = async (): Promise<void> => {
     try {
       const response = await http.get(API_ENDPOINTS.SYSTEM_ADMIN.ROLES.GET_ROLES_CATALOG, {}) as any;
@@ -56,6 +58,7 @@ export const useAdminStore = defineStore("admin", () => {
     }
     catch (error) {
       console.error("Failed to fetch roles catalog:", error);
+      throw error;
     }
   };
   const createRole = async (payload: { name: string; description: string; permissions: string[] }): Promise<void> => {
@@ -64,6 +67,7 @@ export const useAdminStore = defineStore("admin", () => {
     }
     catch (error) {
       console.error("Failed to create role:", error);
+      throw error;
     }
   };
 
@@ -98,6 +102,7 @@ export const useAdminStore = defineStore("admin", () => {
     }
     catch (error) {
       console.error("Failed to fetch admins:", error);
+      throw error;
     }
   };
 
@@ -107,6 +112,7 @@ export const useAdminStore = defineStore("admin", () => {
     }
     catch (error) {
       console.error("Failed to create admin:", error);
+      throw error;
     }
   };
 
