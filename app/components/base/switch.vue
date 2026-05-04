@@ -8,6 +8,7 @@ type Props = {
   onLabel?: string;
   offLabel?: string;
   disabled?: boolean;
+  showLabel?: boolean;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -15,6 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
   onLabel: "Active",
   offLabel: "Inactive",
   disabled: false,
+  showLabel: true,
 });
 
 const emit = defineEmits<{
@@ -44,7 +46,7 @@ const checked = computed(() => props.modelValue ?? false);
         class="shrink-0"
         @update:model-value="emit('update:modelValue', $event)"
       />
-      <span class="text-sm font-medium text-foreground">{{ switchLabel }}</span>
+      <span v-if="showLabel" class="text-sm font-medium text-foreground">{{ switchLabel }}</span>
     </div>
   </UFormField>
 </template>

@@ -17,7 +17,7 @@ type SessionCardProps = {
 </script>
 
 <template>
-  <div class="bg-card rounded-xl">
+  <div class="bg-card rounded-xl box-shadow">
     <div class="p-4 border-b border-stone-100 flex  items-start justify-between">
       <div class="flex flex-col gap-2">
         <h2 class="text-base font-medium">
@@ -69,3 +69,9 @@ type SessionCardProps = {
     </div>
   </div>
 </template>
+
+<style>
+.box-shadow {
+  box-shadow: 0px 0px 5px 0px #0000000d;
+}
+</style>
