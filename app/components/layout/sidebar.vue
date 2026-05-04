@@ -116,8 +116,8 @@ const rawItems: NavItemWithPermission[] = [{
   icon: ICONS.BILLING,
   defaultOpen: true,
   children: [
-    { label: "Payments", to: "/financial/payment", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_PAYMENTS.VIEW },
-    { label: "Refunds", to: "/financial/refund", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_PAYMENTS.VIEW },
+    { label: "Payments", to: "/financial/payments", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_PAYMENTS.VIEW },
+    { label: "Cancellations", to: "/financial/cancellations", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_PAYMENTS.VIEW },
   ],
 },
 //  {

@@ -62,6 +62,14 @@ export const API_ENDPOINTS = {
     ITEMS_GET_LIST: "/api/v1/transactions/getItems",
     UPDATE: "/api/v1/transactions/updateStatus",
   },
+  // used
+  PAYMENTS: {
+    BASE: "/api/v1/payments",
+    SUMMARY: "/api/v1/payments/summary",
+    DETAIL: (id: number) => `/api/v1/payments/${id}`,
+    UPDATE: (id: number) => `/api/v1/payments/${id}/refund`,
+  },
+  // used
   PROMO_CODES: {
     BASE: "/api/v1/promo-codes",
     GET_LIST: "/api/v1/promo-codes/getList",
@@ -77,12 +85,14 @@ export const API_ENDPOINTS = {
     GET_DETAILS: (id: number) => `/api/v1/mails/${id}`,
   },
   SYSTEM_ADMIN: {
+    // used
     ROLES: {
       GET_ROLES: "/api/v1/administration/roles",
       GET_ROLES_CATALOG: "/api/v1/administration/roles/catalog",
       UPDATE_MODULES: "/api/v1/system-admins/roles/updateModules",
       CREATE_ROLE: "/api/v1/administration/roles",
     },
+    // used
     ADMINS: {
       GET_ADMINS: "/api/v1/administration/admins",
       CREATE_ADMIN: "/api/v1/administration/admins",
@@ -117,7 +127,7 @@ export const COMMUNITY_TYPE = {
 /**
  * Default Pagination Values
  */
-export const DEFAULT_PAGE_SIZE = 20;
+export const DEFAULT_PAGE_SIZE = 10;
 
 /**
  * Inquiry Source Values

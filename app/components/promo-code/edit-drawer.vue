@@ -66,15 +66,6 @@ const state = reactive<Partial<Schema>>({
   isActive: true,
 });
 
-const isOpen = computed({
-  get: () => props.open,
-  set: (value: boolean) => {
-    if (!value) {
-      emit("close");
-    }
-  },
-});
-
 const discountValueLabel = computed(() =>
   state.discountType === "percent"
     ? "Discount Percentage (%)*"
@@ -147,109 +138,101 @@ watch(
 </script>
 
 <template>
-  <UDrawer
-    :open="isOpen"
-    direction="right"
-    :dismissible="true"
-    :handle="false"
-    :ui="{
-      content:
-        'inset-y-0 right-0 flex h-screen w-full max-w-[520px] flex-col overflow-hidden rounded-none bg-white shadow-2xl',
-      overlay: 'bg-black/50',
-    }"
+  <base-drawer
+    :open="open"
+    :drawer-width="480"
+    @close="emit('close')"
   >
-    <template #content>
-      <UForm
-        ref="formRef"
-        :state="state"
-        :schema="schema"
-        :validate-on="['input', 'change', 'blur']"
-        class="flex min-h-0 flex-1 flex-col"
-      >
-        <div class="flex items-center justify-between border-b border-stone-200 px-5 py-4">
-          <h2 class="text-lg font-semibold text-secondary">
-            Edit Promo Code
-          </h2>
+    <UForm
+      ref="formRef"
+      :state="state"
+      :schema="schema"
+      :validate-on="['input', 'change', 'blur']"
+      class="flex min-h-0 flex-1 flex-col"
+    >
+      <div class="flex items-center justify-between border-b border-stone-200 px-5 py-4">
+        <h2 class="text-lg font-semibold text-secondary">
+          Edit Promo Code
+        </h2>
 
-          <button
-            type="button"
-            class="rounded-md p-1 text-secondary-400 transition hover:bg-stone-100 hover:text-secondary"
-            @click="closeDrawer"
-          >
-            <UIcon :name="ICONS.X" class="h-4 w-4" />
-          </button>
+        <button
+          type="button"
+          class="rounded-md p-1 text-secondary-400 transition hover:bg-stone-100 hover:text-secondary"
+          @click="closeDrawer"
+        >
+          <UIcon :name="ICONS.X" class="h-4 w-4" />
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-5 py-5">
+        <div class="grid gap-5">
+          <base-input
+            v-model="state.code"
+            name="code"
+            label="Code Name*"
+            placeholder="Enter code name"
+          />
+
+          <base-select
+            v-model="state.discountType"
+            name="discountType"
+            label="Discount Type*"
+            placeholder="Select discount type"
+            :options="discountTypeOptions"
+          />
+
+          <base-input
+            v-model.number="state.discountValue"
+            name="discountValue"
+            :label="discountValueLabel"
+            :placeholder="state.discountType === 'percent' ? 'Enter discount percentage' : 'Enter discount amount'"
+            type="number"
+          />
+
+          <base-input
+            v-model.number="state.redemptionLimit"
+            name="redemptionLimit"
+            label="Redemption Limit*"
+            placeholder="Enter redemption limit"
+            type="number"
+          />
+
+          <base-date-picker
+            v-model="state.expiresAt"
+            name="expiresAt"
+            label="Expires At*"
+            placeholder="Select expiry date"
+            :no-of-months="1"
+          />
+
+          <base-switch
+            v-model="state.isActive"
+            name="isActive"
+            label="Status"
+            on-label="Active"
+            off-label="Inactive"
+          />
         </div>
+      </div>
 
-        <div class="flex-1 overflow-y-auto px-5 py-5">
-          <div class="grid gap-5">
-            <base-input
-              v-model="state.code"
-              name="code"
-              label="Code Name*"
-              placeholder="Enter code name"
-            />
+      <div class="flex items-center justify-between border-t border-stone-200 px-5 py-4">
+        <base-button
+          variant="outline"
+          size="md"
+          @click="closeDrawer"
+        >
+          Cancel
+        </base-button>
 
-            <base-select
-              v-model="state.discountType"
-              name="discountType"
-              label="Discount Type*"
-              placeholder="Select discount type"
-              :options="discountTypeOptions"
-            />
-
-            <base-input
-              v-model.number="state.discountValue"
-              name="discountValue"
-              :label="discountValueLabel"
-              :placeholder="state.discountType === 'percent' ? 'Enter discount percentage' : 'Enter discount amount'"
-              type="number"
-            />
-
-            <base-input
-              v-model.number="state.redemptionLimit"
-              name="redemptionLimit"
-              label="Redemption Limit*"
-              placeholder="Enter redemption limit"
-              type="number"
-            />
-
-            <base-date-picker
-              v-model="state.expiresAt"
-              name="expiresAt"
-              label="Expires At*"
-              placeholder="Select expiry date"
-              :no-of-months="1"
-            />
-
-            <base-switch
-              v-model="state.isActive"
-              name="isActive"
-              label="Status"
-              on-label="Active"
-              off-label="Inactive"
-            />
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between border-t border-stone-200 px-5 py-4">
-          <base-button
-            variant="outline"
-            size="md"
-            @click="closeDrawer"
-          >
-            Cancel
-          </base-button>
-
-          <base-button
-            variant="solid"
-            size="md"
-            :loading="loading"
-            @click="handleSubmit"
-          >
-            Update Promo Code
-          </base-button>
-        </div>
-      </UForm>
-    </template>
-  </UDrawer>
+        <base-button
+          variant="solid"
+          size="md"
+          :loading="loading"
+          @click="handleSubmit"
+        >
+          Update Promo Code
+        </base-button>
+      </div>
+    </UForm>
+  </base-drawer>
 </template>
