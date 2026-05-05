@@ -3,7 +3,10 @@ import { Time } from "@internationalized/date";
 import { computed, reactive, ref } from "vue";
 import * as z from "zod";
 
+import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { useSessionsStore } from "~/stores/sessions";
+import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
   auth: true,
@@ -11,10 +14,13 @@ definePageMeta({
   permission: "offerings.services.create",
 });
 
+const { success, error: showError } = useNotification();
+const sessionsStore = useSessionsStore();
+
 const currentStep = ref(0);
 const loading = ref(false);
 const apiError = ref<string | null>(null);
-const sessionTypeOptions = ["Class", "Event", "Workshop"] as const;
+const sessionTypeOptions = ["class", "event", "workshop"] as const;
 
 type ValidatableForm = {
   validate: () => Promise<void>;
@@ -116,40 +122,6 @@ const step3Schema = z.object({
   }
 });
 
-const baseSchema = step1Schema.merge(step2Schema).merge(step3Schema);
-
-const submitSchema = baseSchema.superRefine((data, ctx) => {
-  const startTime = parseTimeValue(data.startTime);
-  const endTime = parseTimeValue(data.endTime);
-
-  if (!startTime || !endTime || endTime.compare(startTime) <= 0) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["endTime"],
-      message: "End time must be after start time",
-    });
-  }
-
-  if (data.isFreeSession) {
-    if (data.price !== undefined && data.price !== 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["price"],
-        message: "Free sessions should not have a price",
-      });
-    }
-    return;
-  }
-
-  if (data.price === undefined) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["price"],
-      message: "Price is required",
-    });
-  }
-});
-
 type Step1Schema = z.output<typeof step1Schema>;
 type Step2Schema = z.output<typeof step2Schema>;
 type Step3Schema = z.output<typeof step3Schema>;
@@ -170,7 +142,7 @@ const form = reactive<Partial<CombinedSchema>>({
   bannerImage: undefined,
   bannerVideo: undefined,
   sessionDescription: "",
-  sessionType: "Class",
+  sessionType: "class",
   instructorName: "",
   venue: "",
   capacity: 0,
@@ -240,49 +212,39 @@ function handleBack(): void {
   currentStep.value = Math.max(currentStep.value - 1, 0);
 }
 
-async function handleCreate(): Promise<void> {
-  const isValid = await validateCurrentStep();
-  if (!isValid)
-    return;
+function clearFormData(): void {
+  currentStep.value = 0;
+  form.sessionName = "";
+  form.sessionType = "Class";
+  form.sessionDescription = "";
+  form.bannerImage = undefined;
+  form.bannerVideo = undefined;
+  form.instructorName = "";
+  form.venue = "";
+  form.capacity = 0;
+  form.date = [];
+  form.startTime = undefined;
+  form.endTime = undefined;
+  form.price = undefined;
+  form.isFreeSession = false;
+}
 
-  const submission = submitSchema.safeParse(form);
-  if (!submission.success) {
-    apiError.value = submission.error.issues[0]?.message ?? "Please fix the highlighted fields";
-    return;
-  }
-
+async function handleCreateSession(): Promise<void> {
   try {
     loading.value = true;
     apiError.value = null;
-    // TODO: call API to create session with form data
-    const payload = submission.data;
-    console.log("🚀 ~ handleCreate ~ payload:", payload);
-    const formData = new FormData();
-    for (const key in payload) {
-      formData.append(key, String(payload[key as keyof typeof payload]));
-    }
-    // await createSession(payload);
-    // Show success notification
-    // Reset form
-    // currentStep.value = 0;
-    // form.sessionName = "";
-    // form.sessionType = "";
-    // form.sessionDescription = "";
-    // form.bannerImage = undefined;
-    // form.bannerVideo = undefined;
-    // form.instructorName = "";
-    // form.venue = "";
-    // form.capacity = 0;
-    // form.date = [];
-    // form.startTime = undefined;
-    // form.endTime = undefined;
-    // form.price = undefined;
-    // form.isFreeSession = false;
+
+    const payload: any = {
+      ...form,
+    };
+    await sessionsStore.createSession(payload);
+    success({
+      message: "Session created successfully",
+    });
+    clearFormData();
   }
   catch (err) {
-    // Handle error
-    apiError.value = err instanceof Error ? err.message : "Failed to create session";
-    await formRef.value?.validate();
+    showError({ message: getApiErrorMessage(err, "Failed to create community") });
   }
   finally {
     loading.value = false;
@@ -383,7 +345,7 @@ async function handleCreate(): Promise<void> {
                             : 'border-primary-100 bg-white text-foreground hover:border-primary-400'"
                           @click="form.sessionType = type"
                         >
-                          {{ type }}
+                          {{ type[0].toUpperCase() + type.slice(1) }}
                         </button>
                       </div>
                     </UFormField>
@@ -537,7 +499,7 @@ async function handleCreate(): Promise<void> {
               <base-button variant="outline" @click="handleBack">
                 Back
               </base-button>
-              <base-button :loading="loading" @click="handleCreate">
+              <base-button :loading="loading" @click="handleCreateSession">
                 Create Session
               </base-button>
             </div>
