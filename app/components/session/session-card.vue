@@ -28,7 +28,7 @@ type SessionCardProps = {
         </p>
       </div>
 
-      <base-badge>
+      <base-badge :color="getStatusColor(type)">
         {{ type }}
       </base-badge>
     </div>
