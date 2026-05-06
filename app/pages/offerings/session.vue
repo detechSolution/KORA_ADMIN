@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
+
+import { useNotification } from "~/composables/use-notification";
+import { usePagination } from "~/composables/use-pagination";
 import { SESSION_TYPE } from "~/config/constants";
 import { ICONS } from "~/config/icons";
+import { useSessionsStore } from "~/stores/sessions";
+import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
   auth: true,
@@ -8,7 +14,13 @@ definePageMeta({
   permission: "offerings.sessions.view",
 });
 
+const { error: showError } = useNotification();
+const sessionsStore = useSessionsStore();
+const sessions = computed(() => sessionsStore.sessions);
+const { pagination } = usePagination(8);
+
 const state = ref({
+  search: "",
   status: "",
   referenceNumber: "",
   selectedSessionType: "",
@@ -22,41 +34,30 @@ const sessionTypeOptions = [
   { label: "Workshop", value: SESSION_TYPE.WORKSHOP },
 ];
 
-const sessions = [
-  {
-    title: "Session Title",
-    type: "Type",
-    trainer: "Trainer",
-    date: "Date",
-    time: "Time",
-    location: "Location",
-    price: "Price",
-    capacity: 10,
-    registered: 5,
-  },
-  {
-    title: "Session Title",
-    type: "Type",
-    trainer: "Trainer",
-    date: "Date",
-    time: "Time",
-    location: "Location",
-    price: "Price",
-    capacity: 10,
-    registered: 8,
-  },
-  {
-    title: "Session Title",
-    type: "Type",
-    trainer: "Trainer",
-    date: "Date",
-    time: "Time",
-    location: "Location",
-    price: "Price",
-    capacity: 20,
-    registered: 30,
-  },
-];
+async function loadSessions(): Promise<void> {
+  try {
+    sessionsStore.loading = true;
+    const params = {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      q: state.value.search || undefined,
+      status: state.value.status === "" ? undefined : state.value.status,
+      startDate: state.value.referenceDateRange.start || undefined,
+      endDate: state.value.referenceDateRange.end || undefined,
+    };
+    await sessionsStore.getSessions(params);
+  }
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Failed to load sessions") });
+  }
+  finally {
+    sessionsStore.loading = false;
+  }
+}
+
+onMounted(() => {
+  loadSessions();
+});
 </script>
 
 <template>
@@ -118,19 +119,34 @@ const sessions = [
     </div>
 
     <div class=" rounded-b-xl  grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-4 ">
+      <!-- Skeleton Loading -->
+      <session-card-skeleton
+        v-if="sessionsStore.loading"
+        :count="pagination.pageSize"
+      />
+
+      <!-- Session Cards -->
       <session-card
-        v-for="(session, index) in sessions"
+        v-for="(session, index) in sessions.data"
+        v-else
         :key="index"
-        :title="session.title"
-        :type="session.type"
-        :trainer="session.trainer"
-        :date="session.date"
-        :time="session.time"
-        :location="session.location"
-        :price="session.price"
+        :title="session.name"
+        :type="`${session.type[0].toUpperCase()}${session.type.slice(1)}`"
+        :trainer="session.instructor"
+        :date="session.sessionDate"
+        :time="`${session.startTime} - ${session.endTime}`"
+        :location="session.venue"
+        :price="`Rs. ${session.price}`"
         :capacity="session.capacity"
         :registered="session.registered"
       />
     </div>
+    <base-pagination
+      :page="pagination.page"
+      :total="sessions.meta.total"
+      :items-per-page="pagination.pageSize"
+      :disabled="sessionsStore.loading"
+      @update:page="(v) => { pagination.page = v; loadSessions(); }"
+    />
   </div>
 </template>

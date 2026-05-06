@@ -89,6 +89,21 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
     badgeColor: "blue",
     className: "bg-blue-100 text-blue-800",
   },
+  class: {
+    label: "Class",
+    badgeColor: "blue",
+    className: "bg-blue-100 text-blue-800",
+  },
+  event: {
+    label: "Event",
+    badgeColor: "emerald",
+    className: "bg-emerald-100 text-emerald-800",
+  },
+  workshop: {
+    label: "Workshop",
+    badgeColor: "purple",
+    className: "bg-purple-100 text-purple-800",
+  },
   monthly: {
     label: "Monthly",
     badgeColor: "blue",
