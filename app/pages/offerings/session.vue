@@ -36,6 +36,7 @@ const sessionTypeOptions = [
 
 async function loadSessions(): Promise<void> {
   try {
+    sessionsStore.loading = true;
     const params = {
       page: pagination.value.page,
       limit: pagination.value.pageSize,
@@ -48,6 +49,9 @@ async function loadSessions(): Promise<void> {
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to load sessions") });
+  }
+  finally {
+    sessionsStore.loading = false;
   }
 }
 
@@ -115,8 +119,16 @@ onMounted(() => {
     </div>
 
     <div class=" rounded-b-xl  grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-4 ">
+      <!-- Skeleton Loading -->
+      <session-card-skeleton
+        v-if="sessionsStore.loading"
+        :count="pagination.pageSize"
+      />
+
+      <!-- Session Cards -->
       <session-card
         v-for="(session, index) in sessions.data"
+        v-else
         :key="index"
         :title="session.name"
         :type="`${session.type[0].toUpperCase()}${session.type.slice(1)}`"
