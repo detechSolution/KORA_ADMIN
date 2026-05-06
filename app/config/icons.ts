@@ -46,6 +46,7 @@ export const ICONS = {
   WARNING: "i-lucide-triangle-alert",
   WIFI: "i-lucide-wifi",
   BANKNOTE: "i-lucide-banknote",
+  TRASH: "i-lucide-trash-2",
 
   // UI Elements
   ELLIPSIS_VERTICAL: "i-lucide-ellipsis-vertical",
