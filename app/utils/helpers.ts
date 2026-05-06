@@ -89,6 +89,26 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
     badgeColor: "blue",
     className: "bg-blue-100 text-blue-800",
   },
+  monthly: {
+    label: "Monthly",
+    badgeColor: "blue",
+    className: "bg-blue-100 text-blue-800",
+  },
+  quarterly: {
+    label: "Quarterly",
+    badgeColor: "emerald",
+    className: "bg-emerald-100 text-emerald-800",
+  },
+  yearly: {
+    label: "Yearly",
+    badgeColor: "orange",
+    className: "bg-orange-100 text-orange-800",
+  },
+  custom: {
+    label: "Custom",
+    badgeColor: "purple",
+    className: "bg-purple-100 text-purple-800",
+  },
 };
 
 function normalizeStatus(status: string | null | undefined): string {

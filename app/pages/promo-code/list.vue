@@ -258,7 +258,7 @@ onMounted(() => {
       />
     </div>
 
-    <PromoCodeEditDrawer
+    <promocode-edit-drawer
       :open="editDrawerOpen"
       :promo-code="selectedPromoCode"
       @close="closeEditDrawer"
