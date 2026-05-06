@@ -256,7 +256,6 @@ async function handleCreate(): Promise<void> {
     apiError.value = null;
     // TODO: call API to create session with form data
     const payload = submission.data;
-    console.log("🚀 ~ handleCreate ~ payload:", payload);
     const formData = new FormData();
     for (const key in payload) {
       formData.append(key, String(payload[key as keyof typeof payload]));

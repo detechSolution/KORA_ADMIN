@@ -53,6 +53,7 @@ export const useFinanceStore = defineStore("finance", () => {
     }
     catch (error) {
       console.error("Error fetching payments:", error);
+      throw error;
     }
     finally {
       loading.value = false;
@@ -67,6 +68,7 @@ export const useFinanceStore = defineStore("finance", () => {
     }
     catch (error) {
       console.error("Error fetching payment summary:", error);
+      throw error;
     }
     finally {
       loading.value = false;

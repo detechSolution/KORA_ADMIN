@@ -64,6 +64,20 @@ export const API_ENDPOINTS = {
     UPDATE: "/api/v1/transactions/updateStatus",
   },
   // used
+  MEMBERS: {
+    BASE: "/api/v1/members",
+    UPDATE: (id: number) => `/api/v1/members/${id}`,
+    SUMMARY: "/api/v1/members/summary",
+    DELETE: (id: number) => `/api/v1/members/${id}`,
+
+  },
+  // used
+  MEMBERSHIP: {
+    CREATE_PLAN: "/api/v1/membership-plans",
+    GET_PLANS: "/api/v1/membership-plans",
+    UPDATE_PLAN: (id: number) => `/api/v1/membership-plans/${id}`,
+  },
+  // used
   PAYMENTS: {
     BASE: "/api/v1/payments",
     SUMMARY: "/api/v1/payments/summary",

@@ -15,15 +15,14 @@ const props = withDefaults(defineProps<Props>(), {
   dismissible: true,
   handle: false,
   direction: "right",
-  overlayClass: "bg-black/50",
+  overlayClass: "bg-black/50 backdrop-blur-sm",
   contentClass: "",
   drawerWidth: 520,
 });
 
 const emit = defineEmits<{
-  (e: "close"): void;
+  close: [];
 }>();
-
 const isOpen = computed({
   get: () => props.open,
   set: (value: boolean) => {
