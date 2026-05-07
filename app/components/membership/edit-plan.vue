@@ -285,7 +285,6 @@ watch(
                 </base-button>
               </div>
             </div>
-
             <base-button
               variant="outline"
               @click="addOption"

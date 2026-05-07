@@ -18,6 +18,18 @@ export const useMembershipStore = defineStore("membership", () => {
       limit: 10,
     },
   });
+  const members = ref<ApiResponse<MembershipPlan[]>>({
+    data: [],
+    meta: {
+      total: 0,
+      page: 1,
+      limit: 10,
+    },
+  });
+  const membersSummary = ref({
+    totalMembers: 0,
+    activeMembers: 0,
+  });
   const loading = ref(false);
 
   const fetchPlans = async (payload: {
@@ -41,17 +53,11 @@ export const useMembershipStore = defineStore("membership", () => {
       const response = await http.get(
         `${API_ENDPOINTS.MEMBERSHIP.GET_PLANS}?${query}`,
       ) as ApiResponse<MembershipPlan[]>;
-      plans.value = {
-        data: response.data,
-        meta: {
-          total: response.meta.total,
-          page: response.meta.page,
-          limit: response.meta.limit,
-        },
-      };
+      plans.value = response;
     }
     catch (error) {
       console.error("Error fetching membership plans:", error);
+      throw error;
     }
     finally {
       loading.value = false;
@@ -92,11 +98,64 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
+  const fetchMembers = async (payload: {
+    pagination: {
+      page: number;
+      pageSize: number;
+    };
+    search: string;
+    type: string | null;
+    status: string | null;
+  }) => {
+    loading.value = true;
+    try {
+      const query = buildQueryString({
+        page: payload.pagination.page,
+        limit: payload.pagination.pageSize,
+        q: payload.search,
+        type: payload.type,
+        status: payload.status,
+      });
+      const response = await http.get(
+        `${API_ENDPOINTS.MEMBERS.BASE}?${query}`,
+      ) as ApiResponse<MembershipPlan[]>;
+      members.value = response;
+    }
+    catch (error) {
+      console.error("Error fetching membership plans:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
+  const fetchMembersSummary = async () => {
+    loading.value = true;
+    try {
+      const response = await http.get(
+        API_ENDPOINTS.MEMBERS.SUMMARY,
+      ) as ApiResponse<MembershipPlan[]>;
+      membersSummary.value = response;
+    }
+    catch (error) {
+      console.error("Error fetching membership plans:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
   return {
     plans,
     loading,
     fetchPlans,
     createPlan,
     updatePlan,
+    fetchMembers,
+    fetchMembersSummary,
+    members,
+    membersSummary,
   };
 });
