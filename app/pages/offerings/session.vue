@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
@@ -14,6 +15,7 @@ definePageMeta({
   permission: "offerings.sessions.view",
 });
 
+const router = useRouter();
 const { error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
 const sessions = computed(() => sessionsStore.sessions);
@@ -73,6 +75,12 @@ function handleOpenOverviewModal(id: number) {
 function handleEditFromOverview(id: number) {
   isSessionOverviewModalOpen.value = false;
   handleOpenEditSessionDrawer(id);
+}
+
+function handleCopySession(id: number) {
+  const session = sessions.value.data.find((s: any) => s.id === id);
+  sessionsStore.sessionToCopy = session;
+  router.push("/offerings/create-sessions");
 }
 
 onMounted(() => {
@@ -162,6 +170,7 @@ onMounted(() => {
         :registered="session.registered"
         @open-edit-session-drawer="handleOpenEditSessionDrawer"
         @open-overview-modal="handleOpenOverviewModal"
+        @copy-session="handleCopySession"
       />
     </div>
     <base-pagination

@@ -10,6 +10,7 @@ export const ICONS = {
   COMMUNITIES: "i-lucide-award",
   USERS: "i-lucide-users",
   USER: "i-lucide-user",
+  USER_PLUS: "i-lucide-user-plus",
   SHIELD_CHECK: "i-lucide-shield-check",
   CONFIGURATION: "i-lucide-gear",
   REPORTS: "i-lucide-chart-bar",

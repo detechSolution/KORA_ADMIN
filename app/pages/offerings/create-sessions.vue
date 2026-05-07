@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Time } from "@internationalized/date";
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import * as z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
@@ -74,8 +74,8 @@ function formatTimeValue(value: Time | undefined): string {
 const step1Schema = z.object({
   sessionName: z.string().trim().min(1, "Session name is required"),
   sessionType: sessionTypeSchema,
-  bannerImage: z.file({ error: "Banner image is required" }),
-  bannerVideo: z.file({ error: "Banner video is required" }),
+  bannerImage: z.string().or(z.instanceof(File)),
+  bannerVideo: z.string().or(z.instanceof(File)),
   sessionDescription: z.string().refine(v => stripHtml(v).length > 0, { message: "Description is required" }),
 });
 
@@ -258,6 +258,29 @@ async function handleCreateSession(): Promise<void> {
     loading.value = false;
   }
 }
+
+onMounted(() => {
+  if (sessionsStore.sessionToCopy) {
+    const s = sessionsStore.sessionToCopy;
+    form.sessionName = `${s.name} (Copy)`;
+    form.sessionType = s.type;
+    form.sessionDescription = s.description;
+    form.instructorName = s.instructor;
+    form.venue = s.venue;
+    form.capacity = s.capacity;
+    // Date in list is usually a single string sessionDate, but create expects an array
+    form.date = s.sessionDate ? [s.sessionDate] : [];
+    form.startTime = s.startTime;
+    form.endTime = s.endTime;
+    form.price = s.price;
+    form.isFreeSession = s.isFree;
+    form.bannerImage = s.bannerUrl;
+    form.bannerVideo = s.videoUrl;
+
+    // Reset the copy state so it doesn't persist on next visit
+    sessionsStore.sessionToCopy = null;
+  }
+});
 </script>
 
 <template>

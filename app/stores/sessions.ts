@@ -18,6 +18,7 @@ export const useSessionsStore = defineStore("sessions", () => {
       total: 0,
     },
   });
+  const sessionToCopy = ref<any>(null);
 
   // Actions
   const getSessions = async (params?: Record<string, any>): Promise<void> => {
@@ -105,5 +106,6 @@ export const useSessionsStore = defineStore("sessions", () => {
     getSessions,
     createSession,
     updateSession,
+    sessionToCopy,
   };
 });
