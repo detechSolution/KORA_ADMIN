@@ -23,6 +23,7 @@ const { pagination } = usePagination(8);
 const isSessionEditDrawerOpen = ref(false);
 const isSessionOverviewModalOpen = ref(false);
 const isAttendanceModalOpen = ref(false);
+const isAddMemberModalOpen = ref(false);
 const selectedSession = ref(null);
 
 const state = ref({
@@ -88,6 +89,12 @@ function handleOpenAttendanceModal(id: number) {
   const session = sessions.value.data.find((s: any) => s.id === id);
   selectedSession.value = session;
   isAttendanceModalOpen.value = true;
+}
+
+function handleOpenAddMemberModal(id: number) {
+  const session = sessions.value.data.find((s: any) => s.id === id);
+  selectedSession.value = session;
+  isAddMemberModalOpen.value = true;
 }
 
 onMounted(() => {
@@ -179,6 +186,7 @@ onMounted(() => {
         @open-overview-modal="handleOpenOverviewModal"
         @copy-session="handleCopySession"
         @open-attendance-modal="handleOpenAttendanceModal"
+        @open-add-member-modal="handleOpenAddMemberModal"
       />
     </div>
     <base-pagination
@@ -207,6 +215,12 @@ onMounted(() => {
       :open="isAttendanceModalOpen"
       :session="selectedSession"
       @close="isAttendanceModalOpen = false"
+    />
+
+    <SessionAddMemberModal
+      :open="isAddMemberModalOpen"
+      :session="selectedSession"
+      @close="isAddMemberModalOpen = false"
     />
   </div>
 </template>

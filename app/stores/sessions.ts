@@ -134,6 +134,33 @@ export const useSessionsStore = defineStore("sessions", () => {
     }
   };
 
+  const getMembers = async (): Promise<any[]> => {
+    try {
+      // Mocking for now as per user request
+      return [
+        { label: "John Doe", value: 1, description: "9845897465" },
+        { label: "Jane Smith", value: 2, description: "9845897466" },
+        { label: "Shyam Shakya", value: 3, description: "9845897467" },
+      ];
+      // return await http.get(`${API_ENDPOINTS.MEMBERS.GET_LIST}`);
+    }
+    catch (error: unknown) {
+      console.error(error, "Get Members Error");
+      throw error;
+    }
+  };
+
+  const addMemberToSession = async (sessionId: number, memberId: number): Promise<void> => {
+    try {
+      console.log("Adding member", memberId, "to session", sessionId);
+      // await http.post(`${API_ENDPOINTS.SESSION.ADD_MEMBER(sessionId)}`, { memberId });
+    }
+    catch (error: unknown) {
+      console.error(error, "Add Member Error");
+      throw error;
+    }
+  };
+
   return {
     loading,
     sessions,
@@ -143,5 +170,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     updateSession,
     getAttendance,
     saveAttendance,
+    getMembers,
+    addMemberToSession,
   };
 });
