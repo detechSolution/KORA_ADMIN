@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
   modalWidth: 600,
   modalMaxHeight: undefined,
   title: "Modal",
-  description: "Modal",
+  description: "",
 });
 
 const emit = defineEmits<{

@@ -19,6 +19,7 @@ const sessionsStore = useSessionsStore();
 const sessions = computed(() => sessionsStore.sessions);
 const { pagination } = usePagination(8);
 const isSessionEditDrawerOpen = ref(false);
+const isSessionOverviewModalOpen = ref(false);
 const selectedSession = ref(null);
 
 const state = ref({
@@ -61,6 +62,17 @@ function handleOpenEditSessionDrawer(id: number) {
   isSessionEditDrawerOpen.value = true;
   const session = sessions.value.data.find((s: any) => s.id === id);
   selectedSession.value = session;
+}
+
+function handleOpenOverviewModal(id: number) {
+  const session = sessions.value.data.find((s: any) => s.id === id);
+  selectedSession.value = session;
+  isSessionOverviewModalOpen.value = true;
+}
+
+function handleEditFromOverview(id: number) {
+  isSessionOverviewModalOpen.value = false;
+  handleOpenEditSessionDrawer(id);
 }
 
 onMounted(() => {
@@ -149,6 +161,7 @@ onMounted(() => {
         :capacity="session.capacity"
         :registered="session.registered"
         @open-edit-session-drawer="handleOpenEditSessionDrawer"
+        @open-overview-modal="handleOpenOverviewModal"
       />
     </div>
     <base-pagination
@@ -164,6 +177,13 @@ onMounted(() => {
       :session="selectedSession"
       @close-session-drawer="isSessionEditDrawerOpen = false"
       @update-session-list="loadSessions()"
+    />
+
+    <SessionOverviewModal
+      :open="isSessionOverviewModalOpen"
+      :session="selectedSession"
+      @close="isSessionOverviewModalOpen = false"
+      @edit="handleEditFromOverview"
     />
   </div>
 </template>

@@ -3,7 +3,7 @@ import { ICONS } from "~/config/icons";
 
 defineProps<SessionCardProps>();
 
-const emit = defineEmits(["openEditSessionDrawer"]);
+const emit = defineEmits(["openEditSessionDrawer", "openOverviewModal"]);
 
 type SessionCardProps = {
   id: number;
@@ -70,7 +70,11 @@ type SessionCardProps = {
           class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
           @click="emit('openEditSessionDrawer', id)"
         />
-        <UIcon :name="ICONS.EYE" class="w-4 h-4 cursor-pointer hover:text-primary transition-colors" />
+        <UIcon
+          :name="ICONS.EYE"
+          class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
+          @click="emit('openOverviewModal', id)"
+        />
         <UIcon :name="ICONS.COPY" class="w-4 h-4 cursor-pointer hover:text-primary transition-colors" />
       </div>
     </div>

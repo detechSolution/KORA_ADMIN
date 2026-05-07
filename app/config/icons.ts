@@ -77,6 +77,7 @@ export const ICONS = {
   REGISTERED: "i-lucide-user-check",
   SAVE: "i-lucide-save",
   FLOWER: "i-lucide-flower",
+  IMAGE: "i-lucide-image",
   // arrow
   ARROW_LEFT: "i-lucide-arrow-left",
   ARROW_RIGHT: "i-lucide-arrow-right",

@@ -230,8 +230,7 @@ async function handleUpdateSession(): Promise<void> {
     await sessionsStore.updateSession(props.session.id, form);
     success({ message: "Session updated successfully" });
     emit("updateSessionList");
-    emit("closeSessionDrawer");
-    currentStep.value = 0;
+    handleCloseSessionDrawer();
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to update session. Please try again.") });
@@ -239,6 +238,11 @@ async function handleUpdateSession(): Promise<void> {
   finally {
     loading.value = false;
   }
+}
+
+function handleCloseSessionDrawer(): void {
+  emit("closeSessionDrawer");
+  currentStep.value = 0;
 }
 
 watch(() => props.session, (newValue) => {
@@ -265,7 +269,7 @@ watch(() => props.session, (newValue) => {
     :open="open"
     :drawer-width="600"
     title="Edit session"
-    @close="emit('closeSessionDrawer')"
+    @close="handleCloseSessionDrawer"
   >
     <UForm
       ref="formRef"
