@@ -122,7 +122,7 @@ const step2Schema = z.object({
 
 const step3Schema = z.object({
   isFreeSession: z.boolean(),
-  price: z.coerce.number({ message: "Price is required" }).int({ message: "Price must be a whole number" }).positive("Price must be a positive integer"),
+  price: z.coerce.number({ message: "Price is required" }).int({ message: "Price must be a whole number" }),
 }).superRefine((data, ctx) => {
   if (data.isFreeSession) {
     if (data.price !== undefined && data.price !== 0) {
@@ -220,32 +220,18 @@ async function handleUpdateSession(): Promise<void> {
 
   try {
     loading.value = true;
-    const payload = {
-      name: form.sessionName,
-      type: form.sessionType,
-      bannerUrl: form.bannerImage,
-      videoUrl: form.bannerVideo,
-      description: form.sessionDescription,
-      instructor: form.instructorName,
-      venue: form.venue,
-      capacity: form.capacity,
-      sessionDate: form.date,
-      startTime: form.startTime,
-      endTime: form.endTime,
-      price: form.price,
-      isFree: form.isFreeSession,
-    };
-    if (typeof payload.bannerUrl == "string") {
-      delete payload.bannerUrl;
+    if (typeof form.bannerImage == "string") {
+      delete form.bannerImage;
     }
-    if (typeof payload.videoUrl == "string") {
-      delete payload.videoUrl;
+    if (typeof form.bannerVideo == "string") {
+      delete form.bannerVideo;
     }
 
-    await sessionsStore.updateSession(props.session.id, payload);
+    await sessionsStore.updateSession(props.session.id, form);
     success({ message: "Session updated successfully" });
     emit("updateSessionList");
     emit("closeSessionDrawer");
+    currentStep.value = 0;
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to update session. Please try again.") });

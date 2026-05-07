@@ -101,7 +101,7 @@ const step2Schema = z.object({
 
 const step3Schema = z.object({
   isFreeSession: z.boolean(),
-  price: z.coerce.number({ message: "Price is required" }).int({ message: "Price must be a whole number" }).positive("Price must be a positive integer"),
+  price: z.coerce.number({ message: "Price is required" }).int({ message: "Price must be a whole number" }),
 }).superRefine((data, ctx) => {
   if (data.isFreeSession) {
     if (data.price !== undefined && data.price !== 0) {
@@ -231,6 +231,13 @@ function clearFormData(): void {
 }
 
 async function handleCreateSession(): Promise<void> {
+  try {
+    await formRef.value?.validate();
+  }
+  catch {
+    return;
+  }
+
   try {
     loading.value = true;
     apiError.value = null;

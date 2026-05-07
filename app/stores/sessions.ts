@@ -73,7 +73,25 @@ export const useSessionsStore = defineStore("sessions", () => {
 
   const updateSession = async (id: number, payload: any): Promise<void> => {
     try {
-      await http.patch(API_ENDPOINTS.SESSION.UPDATE(id), payload);
+      const formData = new FormData();
+      formData.append("name", payload.sessionName);
+      formData.append("type", payload.sessionType);
+      formData.append("description", payload.sessionDescription);
+      formData.append("instructor", payload.instructorName);
+      formData.append("venue", payload.venue);
+      formData.append("sessionDate", payload.date);
+      formData.append("startTime", payload.startTime);
+      formData.append("endTime", payload.endTime);
+      formData.append("capacity", String(payload.capacity));
+      formData.append("isFree", String(payload.isFreeSession));
+      formData.append("price", String(payload.price));
+      if (payload.bannerImage instanceof File) {
+        formData.append("file", payload.bannerImage);
+      }
+      if (payload.bannerVideo instanceof File) {
+        formData.append("video", payload.bannerVideo);
+      }
+      await http.patch(API_ENDPOINTS.SESSION.UPDATE(id), formData);
     }
     catch (error: unknown) {
       console.error(error, "Update Session Error");
