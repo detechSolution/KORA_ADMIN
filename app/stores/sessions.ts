@@ -71,10 +71,21 @@ export const useSessionsStore = defineStore("sessions", () => {
     }
   };
 
+  const updateSession = async (id: number, payload: any): Promise<void> => {
+    try {
+      await http.patch(API_ENDPOINTS.SESSION.UPDATE(id), payload);
+    }
+    catch (error: unknown) {
+      console.error(error, "Update Session Error");
+      throw error;
+    }
+  };
+
   return {
     loading,
     sessions,
     getSessions,
     createSession,
+    updateSession,
   };
 });

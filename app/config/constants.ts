@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
   SESSION: {
     CREATE: "/api/v1/sessions",
     GET_LIST: "/api/v1/sessions",
+    UPDATE: (id: number) => `/api/v1/sessions/${id}`,
   },
   SPA: {
     GET_SPA: "/api/v1/spa",

@@ -18,6 +18,8 @@ const { error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
 const sessions = computed(() => sessionsStore.sessions);
 const { pagination } = usePagination(8);
+const isSessionEditDrawerOpen = ref(false);
+const selectedSession = ref(null);
 
 const state = ref({
   search: "",
@@ -53,6 +55,12 @@ async function loadSessions(): Promise<void> {
   finally {
     sessionsStore.loading = false;
   }
+}
+
+function handleOpenEditSessionDrawer(id: number) {
+  isSessionEditDrawerOpen.value = true;
+  const session = sessions.value.data.find((s: any) => s.id === id);
+  selectedSession.value = session;
 }
 
 onMounted(() => {
@@ -129,6 +137,7 @@ onMounted(() => {
       <session-card
         v-for="(session, index) in sessions.data"
         v-else
+        :id="session.id"
         :key="index"
         :title="session.name"
         :type="`${session.type[0].toUpperCase()}${session.type.slice(1)}`"
@@ -139,6 +148,7 @@ onMounted(() => {
         :price="`Rs. ${session.price}`"
         :capacity="session.capacity"
         :registered="session.registered"
+        @open-edit-session-drawer="handleOpenEditSessionDrawer"
       />
     </div>
     <base-pagination
@@ -147,6 +157,13 @@ onMounted(() => {
       :items-per-page="pagination.pageSize"
       :disabled="sessionsStore.loading"
       @update:page="(v) => { pagination.page = v; loadSessions(); }"
+    />
+
+    <OfferingsSessionsEdit
+      :open="isSessionEditDrawerOpen"
+      :session="selectedSession"
+      @close-session-drawer="isSessionEditDrawerOpen = false"
+      @update-session-list="loadSessions()"
     />
   </div>
 </template>

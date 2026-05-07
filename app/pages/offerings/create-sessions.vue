@@ -356,7 +356,7 @@ async function handleCreateSession(): Promise<void> {
                       accept="image"
                       label="Banner Image*"
                       name="bannerImage"
-                      class-names="min-h-48"
+                      class-names="min-h-32"
                     />
 
                     <base-file-upload
@@ -364,7 +364,7 @@ async function handleCreateSession(): Promise<void> {
                       accept="video"
                       label="Banner Video*"
                       name="bannerVideo"
-                      class-names="min-h-48"
+                      class-names="min-h-32"
                     />
 
                     <base-text-editor
@@ -474,6 +474,7 @@ async function handleCreateSession(): Promise<void> {
                       type="number"
                       placeholder="Enter session price"
                       :min="1"
+                      :disabled="form.isFreeSession"
                     />
                   </div>
                 </div>
