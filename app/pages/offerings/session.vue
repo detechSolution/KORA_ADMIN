@@ -22,6 +22,7 @@ const sessions = computed(() => sessionsStore.sessions);
 const { pagination } = usePagination(8);
 const isSessionEditDrawerOpen = ref(false);
 const isSessionOverviewModalOpen = ref(false);
+const isAttendanceModalOpen = ref(false);
 const selectedSession = ref(null);
 
 const state = ref({
@@ -81,6 +82,12 @@ function handleCopySession(id: number) {
   const session = sessions.value.data.find((s: any) => s.id === id);
   sessionsStore.sessionToCopy = session;
   router.push("/offerings/create-sessions");
+}
+
+function handleOpenAttendanceModal(id: number) {
+  const session = sessions.value.data.find((s: any) => s.id === id);
+  selectedSession.value = session;
+  isAttendanceModalOpen.value = true;
 }
 
 onMounted(() => {
@@ -171,6 +178,7 @@ onMounted(() => {
         @open-edit-session-drawer="handleOpenEditSessionDrawer"
         @open-overview-modal="handleOpenOverviewModal"
         @copy-session="handleCopySession"
+        @open-attendance-modal="handleOpenAttendanceModal"
       />
     </div>
     <base-pagination
@@ -193,6 +201,12 @@ onMounted(() => {
       :session="selectedSession"
       @close="isSessionOverviewModalOpen = false"
       @edit="handleEditFromOverview"
+    />
+
+    <SessionAttendanceModal
+      :open="isAttendanceModalOpen"
+      :session="selectedSession"
+      @close="isAttendanceModalOpen = false"
     />
   </div>
 </template>

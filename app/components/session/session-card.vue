@@ -3,7 +3,7 @@ import { ICONS } from "~/config/icons";
 
 defineProps<SessionCardProps>();
 
-const emit = defineEmits(["openEditSessionDrawer", "openOverviewModal", "copySession"]);
+const emit = defineEmits(["openEditSessionDrawer", "openOverviewModal", "copySession", "openAttendanceModal"]);
 
 type SessionCardProps = {
   id: number;
@@ -64,7 +64,11 @@ type SessionCardProps = {
         {{ price }}
       </div>
       <div class="flex items-center gap-3 text-secondary-400">
-        <UIcon :name="ICONS.CLIPBOARD_CHECK" class="w-4 h-4 cursor-pointer hover:text-primary transition-colors" />
+        <UIcon
+          :name="ICONS.CLIPBOARD_CHECK"
+          class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
+          @click="emit('openAttendanceModal', id)"
+        />
         <UIcon :name="ICONS.USER_PLUS" class="w-4 h-4 cursor-pointer hover:text-primary transition-colors" />
         <UIcon
           :name="ICONS.EDIT"
