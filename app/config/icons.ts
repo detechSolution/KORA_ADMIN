@@ -10,7 +10,6 @@ export const ICONS = {
   COMMUNITIES: "i-lucide-award",
   USERS: "i-lucide-users",
   USER: "i-lucide-user",
-  USER_PLUS: "i-lucide-user-plus",
   SHIELD_CHECK: "i-lucide-shield-check",
   CONFIGURATION: "i-lucide-gear",
   REPORTS: "i-lucide-chart-bar",
@@ -48,6 +47,8 @@ export const ICONS = {
   WIFI: "i-lucide-wifi",
   BANKNOTE: "i-lucide-banknote",
   TRASH: "i-lucide-trash-2",
+  USER_PLUS: "i-lucide-user-plus",
+  ID_CARD: "i-lucide-id-card-lanyard",
 
   // UI Elements
   ELLIPSIS_VERTICAL: "i-lucide-ellipsis-vertical",

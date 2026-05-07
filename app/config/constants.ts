@@ -11,6 +11,11 @@ export const API_ENDPOINTS = {
     GET_LIST: "/api/v1/sessions",
     UPDATE: (id: number) => `/api/v1/sessions/${id}`,
   },
+  KORA_PASSES: {
+    GET_LIST: "/api/v1/kora-passes",
+    CREATE: "/api/v1/kora-passes",
+    UPDATE: (id: number) => `/api/v1/kora-passes/${id}`,
+  },
   SPA: {
     GET_SPA: "/api/v1/spa",
     UPDATE_SPA: "/api/v1/spa",
