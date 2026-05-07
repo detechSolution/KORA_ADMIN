@@ -20,7 +20,11 @@ const sessionsStore = useSessionsStore();
 const currentStep = ref(0);
 const loading = ref(false);
 const apiError = ref<string | null>(null);
-const sessionTypeOptions = ["class", "event", "workshop"] as const;
+const sessionTypeOptions = [
+  { label: "Class", value: "class" },
+  { label: "Event", value: "event" },
+  { label: "Workshop", value: "workshop" },
+];
 
 type ValidatableForm = {
   validate: () => Promise<void>;
@@ -28,10 +32,7 @@ type ValidatableForm = {
 
 const formRef = ref<ValidatableForm | null>(null);
 
-const sessionTypeSchema = z.string().min(1, "Session type is required").refine(
-  value => sessionTypeOptions.includes(value as typeof sessionTypeOptions[number]),
-  { message: "Session type is required" },
-);
+const sessionTypeSchema = z.string().min(1, "Session type is required");
 
 const timeValueSchema = z.string().min(1, "Please select a valid time");
 
@@ -336,16 +337,16 @@ async function handleCreateSession(): Promise<void> {
                     >
                       <div class="flex flex-wrap gap-2">
                         <button
-                          v-for="type in sessionTypeOptions"
-                          :key="type"
+                          v-for="(type, index) in sessionTypeOptions"
+                          :key="index"
                           type="button"
                           class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
-                          :class="form.sessionType === type
+                          :class="form.sessionType === type.value
                             ? 'bg-primary-700 text-white shadow-sm'
                             : 'border-primary-100 bg-white text-foreground hover:border-primary-400'"
-                          @click="form.sessionType = type"
+                          @click="form.sessionType = type.value"
                         >
-                          {{ type[0].toUpperCase() + type.slice(1) }}
+                          {{ type.label }}
                         </button>
                       </div>
                     </UFormField>
@@ -355,7 +356,7 @@ async function handleCreateSession(): Promise<void> {
                       accept="image"
                       label="Banner Image*"
                       name="bannerImage"
-                      class-names="min-h-48"
+                      class-names="min-h-32"
                     />
 
                     <base-file-upload
@@ -363,7 +364,7 @@ async function handleCreateSession(): Promise<void> {
                       accept="video"
                       label="Banner Video*"
                       name="bannerVideo"
-                      class-names="min-h-48"
+                      class-names="min-h-32"
                     />
 
                     <base-text-editor
@@ -473,6 +474,7 @@ async function handleCreateSession(): Promise<void> {
                       type="number"
                       placeholder="Enter session price"
                       :min="1"
+                      :disabled="form.isFreeSession"
                     />
                   </div>
                 </div>
