@@ -232,6 +232,7 @@ onMounted(() => {
     <membership-edit-plan
       :open="editDrawerOpen"
       :plan="selectedPlan"
+      title="Edit Plan"
       @close="editDrawerOpen = false"
       @updated="fetchPlans"
     />
