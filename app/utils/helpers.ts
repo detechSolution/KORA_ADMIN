@@ -124,6 +124,16 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
     badgeColor: "purple",
     className: "bg-purple-100 text-purple-800",
   },
+  guest: {
+    label: "Guest",
+    badgeColor: "purple",
+    className: "bg-purple-100 text-purple-800",
+  },
+  member: {
+    label: "Member",
+    badgeColor: "purple",
+    className: "bg-purple-100 text-purple-800",
+  },
 };
 
 function normalizeStatus(status: string | null | undefined): string {

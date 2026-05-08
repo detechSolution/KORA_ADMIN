@@ -188,7 +188,7 @@ onMounted(() => {
             </base-badge>
             <div
               v-if="row.original.options.length > 2"
-              class="bg-[#F9F6F2] text-secondary"
+              class="bg-[#F9F6F2] rounded-full p-2 text-secondary"
             >
               +{{ row.original.options.length - 2 }}
             </div>
@@ -232,6 +232,7 @@ onMounted(() => {
     <membership-edit-plan
       :open="editDrawerOpen"
       :plan="selectedPlan"
+      title="Edit Plan"
       @close="editDrawerOpen = false"
       @updated="fetchPlans"
     />

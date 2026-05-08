@@ -5,7 +5,6 @@ import z from "zod";
 import type { SystemAdmin } from "~/types/system-admin";
 
 import { useNotification } from "~/composables/use-notification";
-import { ICONS } from "~/config/icons";
 import { useAdminStore } from "~/stores/admin";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -124,20 +123,6 @@ watch(
     :drawer-width="480"
     @close="emit('close')"
   >
-    <div class="flex items-center justify-between border-b border-stone-200 px-4 py-4">
-      <h2 class="text-lg font-semibold text-secondary">
-        Edit Admin
-      </h2>
-
-      <button
-        type="button"
-        class="rounded-md p-1 text-secondary-400 transition hover:bg-stone-100 hover:text-secondary"
-        @click="emit('close')"
-      >
-        <UIcon :name="ICONS.X" class="h-4 w-4" />
-      </button>
-    </div>
-
     <UForm
       v-if="admin"
       ref="formRef"

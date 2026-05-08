@@ -254,9 +254,10 @@ onMounted(() => {
       />
     </div>
 
-    <AdminEditAdmin
+    <admin-edit-admin
       :open="isAdminDrawerOpen"
       :admin="selectedAdmin"
+      title="Edit Admin"
       @close="closeAdminDrawer"
       @updated="handleAdminUpdated"
     />

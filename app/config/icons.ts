@@ -7,7 +7,7 @@ export const ICONS = {
   // Navigation
   DASHBOARD: "i-lucide-layout-dashboard",
   INQUIRIES: "i-lucide-book-open",
-  COMMUNITIES: "i-lucide-award",
+  AWARD: "i-lucide-award",
   USERS: "i-lucide-users",
   USER: "i-lucide-user",
   SHIELD_CHECK: "i-lucide-shield-check",

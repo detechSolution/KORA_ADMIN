@@ -73,6 +73,12 @@ export const API_ENDPOINTS = {
     ITEMS_GET_LIST: "/api/v1/transactions/getItems",
     UPDATE: "/api/v1/transactions/updateStatus",
   },
+  INSTRUCTORS: {
+    BASE: "/api/v1/instructors",
+    CREATE: "/api/v1/instructors",
+    GET_LIST: "/api/v1/instructors/getList",
+    GET_DETAILS: (id: number) => `/api/v1/instructors/${id}`,
+  },
   // used
   MEMBERS: {
     BASE: "/api/v1/members",
