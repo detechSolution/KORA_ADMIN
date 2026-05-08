@@ -5,6 +5,7 @@ import * as z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { useInstructorsStore } from "~/stores/instructors";
 import { useSessionsStore } from "~/stores/sessions";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -16,6 +17,7 @@ definePageMeta({
 
 const { success, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
+const instructorsStore = useInstructorsStore();
 
 const currentStep = ref(0);
 const loading = ref(false);
@@ -25,6 +27,13 @@ const sessionTypeOptions = [
   { label: "Event", value: "event" },
   { label: "Workshop", value: "workshop" },
 ];
+
+const instructorOptions = computed(() =>
+  instructorsStore.instructors.data.map(i => ({
+    label: i.fullName,
+    value: i.id,
+  })),
+);
 
 type ValidatableForm = {
   validate: () => Promise<void>;
@@ -80,7 +89,7 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  instructorName: z.string().trim().min(1, "Instructor name is required"),
+  instructorId: z.number().min(1, "Instructor id is required"),
   venue: z.string().trim().min(1, "Venue is required"),
   capacity: z.coerce.number({ message: "Capacity is required" }).int({ message: "Capacity must be a whole number" }).positive("Capacity must be a positive integer"),
   date: z.array(z.string().min(1, "Invalid date")).min(1, "At least one session date is required"),
@@ -144,7 +153,7 @@ const form = reactive<Partial<CombinedSchema>>({
   bannerVideo: undefined,
   sessionDescription: "",
   sessionType: "class",
-  instructorName: "",
+  instructorId: undefined,
   venue: "",
   capacity: 0,
   date: [],
@@ -220,7 +229,7 @@ function clearFormData(): void {
   form.sessionDescription = "";
   form.bannerImage = undefined;
   form.bannerVideo = undefined;
-  form.instructorName = "";
+  form.instructorId = undefined;
   form.venue = "";
   form.capacity = 0;
   form.date = [];
@@ -259,13 +268,14 @@ async function handleCreateSession(): Promise<void> {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await instructorsStore.fetchInstructors();
   if (sessionsStore.sessionToCopy) {
     const s = sessionsStore.sessionToCopy;
     form.sessionName = `${s.name} (Copy)`;
     form.sessionType = s.type;
     form.sessionDescription = s.description;
-    form.instructorName = s.instructor;
+    form.instructorId = s.instructorId;
     form.venue = s.venue;
     form.capacity = s.capacity;
     // Date in list is usually a single string sessionDate, but create expects an array
@@ -415,11 +425,14 @@ onMounted(() => {
               >
                 <div class="rounded-xl border border-border bg-muted/20 p-5 sm:p-6 shadow-sm space-y-6">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <base-input
-                      v-model="form.instructorName"
-                      name="instructorName"
+                    <base-select-searchable
+                      v-model="form.instructorId"
+                      name="instructorId"
                       label="Instructor Name"
-                      placeholder="Enter instructor name"
+                      placeholder="Select instructor"
+                      :options="instructorOptions"
+                      :loading="instructorsStore.loading"
+                      @update:model-value="(value) => console.log('Selected instructor ID:', value)"
                     />
                     <base-input
                       v-model="form.venue"

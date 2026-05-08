@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Time } from "@internationalized/date";
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import z, { success } from "zod";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { useInstructorsStore } from "~/stores/instructors";
 import { useSessionsStore } from "~/stores/sessions";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -13,6 +14,7 @@ const emit = defineEmits(["closeSessionDrawer", "updateSessionList"]);
 
 const { success, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
+const instructorsStore = useInstructorsStore();
 
 type Props = {
   open: boolean;
@@ -26,6 +28,13 @@ const sessionTypeOptions = [
   { label: "Event", value: "event" },
   { label: "Workshop", value: "workshop" },
 ];
+
+const instructorOptions = computed(() =>
+  instructorsStore.instructors.data.map(i => ({
+    label: i.fullName,
+    value: i.id,
+  })),
+);
 
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
@@ -101,7 +110,7 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  instructorName: z.string().trim().min(1, "Instructor name is required"),
+  instructorId: z.number().min(1, "Instructor is required"),
   venue: z.string().trim().min(1, "Venue is required"),
   capacity: z.coerce.number({ message: "Capacity is required" }).int({ message: "Capacity must be a whole number" }).positive("Capacity must be a positive integer"),
   date: z.string().min(1, "Invalid date").min(1, "At least one session date is required"),
@@ -165,7 +174,7 @@ const form = reactive<Partial<CombinedSchema>>({
   bannerVideo: undefined,
   sessionDescription: "",
   sessionType: "class",
-  instructorName: "",
+  instructorId: undefined,
   venue: "",
   capacity: 0,
   date: "",
@@ -252,7 +261,7 @@ watch(() => props.session, (newValue) => {
     form.bannerImage = newValue.bannerUrl;
     form.bannerVideo = newValue.videoUrl;
     form.sessionDescription = newValue.description;
-    form.instructorName = newValue.instructor;
+    form.instructorId = newValue.instructorId;
     form.venue = newValue.venue;
     form.capacity = newValue.capacity;
     form.date = newValue.sessionDate || "";
@@ -262,6 +271,10 @@ watch(() => props.session, (newValue) => {
     form.isFreeSession = newValue.isFree;
   }
 }, { immediate: true });
+
+onMounted(() => {
+  void instructorsStore.fetchInstructors();
+});
 </script>
 
 <template>
@@ -350,11 +363,13 @@ watch(() => props.session, (newValue) => {
           class="space-y-6"
         >
           <div class="grid gap-5 px-5">
-            <base-input
-              v-model="form.instructorName"
-              name="instructorName"
+            <base-select-searchable
+              v-model="form.instructorId"
+              name="instructorId"
               label="Instructor Name"
-              placeholder="Enter instructor name"
+              placeholder="Select instructor"
+              :options="instructorOptions"
+              :loading="instructorsStore.loading"
               required
             />
             <base-input
