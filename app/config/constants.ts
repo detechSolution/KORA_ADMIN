@@ -13,9 +13,9 @@ export const API_ENDPOINTS = {
     GET_ATTENDANCE_CANDIDATES: (id: number) => `/api/v1/sessions/${id}/attendance/candidates`,
   },
   KORA_PASSES: {
-    GET_LIST: "/api/v1/kora-passes",
-    CREATE: "/api/v1/kora-passes",
-    UPDATE: (id: number) => `/api/v1/kora-passes/${id}`,
+    GET_LIST: "/api/v1/passes",
+    CREATE: "/api/v1/passes",
+    UPDATE: (id: number) => `/api/v1/passes/${id}`,
   },
   SPA: {
     GET_SPA: "/api/v1/spa",

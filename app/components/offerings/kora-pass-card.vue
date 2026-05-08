@@ -8,6 +8,7 @@ defineProps<{
   description: string;
   discount: string;
   price: number;
+  isActive: boolean;
 }>();
 
 const emit = defineEmits(["edit"]);
@@ -21,18 +22,18 @@ const emit = defineEmits(["edit"]);
         {{ name }}
       </h3>
       <base-badge
-        v-if="status === 'Active'"
+        v-if="isActive"
         color="success"
         class="bg-emerald-50/50 border-emerald-200 text-emerald-600 px-2.5 py-0.5 rounded-lg text-xs font-semibold shadow-none"
       >
-        {{ status }}
+        Active
       </base-badge>
       <base-badge
         v-else
         color="muted"
         class="px-2.5 py-0.5 rounded-lg text-xs font-semibold shadow-none"
       >
-        {{ status }}
+        Expired
       </base-badge>
     </div>
 
