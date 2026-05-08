@@ -121,7 +121,7 @@ const kpiData = computed(() => [
         Create and manage members
       </template>
       <template #actions>
-        <NuxtLink to="/communities/list">
+        <NuxtLink to="/members/create-member">
           <base-button
             variant="solid"
             size="md"
@@ -277,6 +277,7 @@ const kpiData = computed(() => [
     <members-edit-member
       :open="editDrawerOpen"
       :plan="selectedMember"
+      title="Edit Member"
       @close="editDrawerOpen = false"
       @updated="fetchMembers()"
     />
