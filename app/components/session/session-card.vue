@@ -64,31 +64,41 @@ type SessionCardProps = {
         {{ price }}
       </div>
       <div class="flex items-center gap-3 text-secondary-400">
-        <UIcon
-          :name="ICONS.CLIPBOARD_CHECK"
-          class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
-          @click="emit('openAttendanceModal', id)"
-        />
-        <UIcon
-          :name="ICONS.USER_PLUS"
-          class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
-          @click="emit('openAddMemberModal', id)"
-        />
-        <UIcon
-          :name="ICONS.EDIT"
-          class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
-          @click="emit('openEditSessionDrawer', id)"
-        />
-        <UIcon
-          :name="ICONS.EYE"
-          class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
-          @click="emit('openOverviewModal', id)"
-        />
-        <UIcon
-          :name="ICONS.COPY"
-          class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
-          @click="emit('copySession', id)"
-        />
+        <UTooltip text="Attendance">
+          <UIcon
+            :name="ICONS.CLIPBOARD_CHECK"
+            class="w-4 h-4 cursor-pointer hover:text-primary transition-colors text-primary"
+            @click="emit('openAttendanceModal', id)"
+          />
+        </UTooltip>
+        <UTooltip text="Add Member & Pass Users">
+          <UIcon
+            :name="ICONS.USER_PLUS"
+            class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
+            @click="emit('openAddMemberModal', id)"
+          />
+        </UTooltip>
+        <UTooltip text="Edit Session">
+          <UIcon
+            :name="ICONS.EDIT"
+            class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
+            @click="emit('openEditSessionDrawer', id)"
+          />
+        </UTooltip>
+        <UTooltip text="Open Overview">
+          <UIcon
+            :name="ICONS.EYE"
+            class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
+            @click="emit('openOverviewModal', id)"
+          />
+        </UTooltip>
+        <UTooltip text="Copy Session">
+          <UIcon
+            :name="ICONS.COPY"
+            class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
+            @click="emit('copySession', id)"
+          />
+        </UTooltip>
       </div>
     </div>
   </div>

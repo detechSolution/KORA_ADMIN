@@ -100,7 +100,7 @@ watch(() => props.open, (newVal) => {
         </div>
 
         <!-- Stats Summary -->
-        <div class="py-3 bg-[#F9F6F2]">
+        <div class="p-3 bg-[#F9F6F2]">
           <div class="flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <UIcon :name="ICONS.USERS" class="w-5 h-5" />
@@ -124,7 +124,7 @@ watch(() => props.open, (newVal) => {
       </div>
 
       <!-- Attendance List -->
-      <div class="flex-1 py-2 px-6">
+      <div class="flex-1 py-2 ">
         <div v-if="loading && !attendanceList.length" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
           <UIcon :name="ICONS.REFRESH_CW" class="w-8 h-8 animate-spin" />
           <span class="text-sm">Loading participants...</span>
@@ -134,7 +134,7 @@ watch(() => props.open, (newVal) => {
           <div
             v-for="(item, index) in attendanceList"
             :key="item.id"
-            class="flex flex-col items-center justify-between group hover:bg-stone-50/30 transition-colors px-2 -mx-2 rounded-lg"
+            class="flex flex-col items-center justify-between group hover:bg-stone-50/30 transition-colors rounded-lg"
           >
             <div class="py-4 w-full flex justify-between">
               <div class="flex items-center gap-4">
