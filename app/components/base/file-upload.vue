@@ -133,7 +133,19 @@ function getDefaultDescription(fileType: FileType): string {
           :label="label || `Drop your ${accept === 'both' ? 'file' : accept} here`"
           :description="description || getDefaultDescription(accept)"
           :class="classNames"
-        />
+          :ui="{
+            base: 'bg-[#F9F6F2] hover:bg-[#F9F6F2] border-stone-300',
+          }"
+        >
+          <template #leading>
+            <div class="image-dropzone py-2 px-2.5 rounded-full">
+              <UIcon
+                name="i-lucide-upload"
+                class="text-white w-5 h-5"
+              />
+            </div>
+          </template>
+        </UFileUpload>
 
         <div
           v-for="(file, index) in files"
@@ -170,3 +182,9 @@ function getDefaultDescription(fileType: FileType): string {
     </UFormField>
   </div>
 </template>
+
+<style>
+.image-dropzone {
+  background: linear-gradient(180.17deg, rgba(26, 26, 27, 0.8) 0.15%, #1a1a1b 99.85%);
+}
+</style>
