@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import z from "zod";
 
-import type { CreateMembershipPlanPayload } from "~/types/membership";
+import type { CreateMemberPayload, MembershipPlan, MembershipPlanOption } from "~/types/membership";
 
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
@@ -36,35 +36,73 @@ const loading = ref(false);
 const apiError = ref<string | null>(null);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
-const schema = z.object({
+const stepOneSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   phoneNumber: z.string().min(1, "Phone number is required"),
   email: z.string().email("Invalid email address"),
-  membershipPlanOptionId: z.number().min(1, "Membership plan option is required"),
-  subscriptionStartDate: z.string().min(1, "Subscription start date is required"),
-  paymentAmount: z.number().min(1, "Payment amount is required"),
-  paymentCurrency: z.string().min(1, "Payment currency is required"),
-  paymentStatus: z.string().min(1, "Payment status is required"),
-  paymentMethod: z.string().min(1, "Payment method is required"),
-  paymentPaidAt: z.string().min(1, "Payment paid at is required"),
-  paymentNotes: z.string().min(1, "Payment notes is required"),
+  identificationDocument: z.instanceof(File).refine(file => file.size <= 4 * 1024 * 1024, "File must be less than 4MB").refine(file => ["image/jpeg", "image/png", "application/pdf"].includes(file.type), "Invalid file type"),
 });
 
-type CreatePlanSchema = z.output<typeof schema>;
+const stepTwoSchema = z.object({
+  membershipPlanOptionId: z.number().min(1, "Membership plan option is required"),
+  subscriptionStartDate: z.string().min(1, "Subscription start date is required"),
+});
 
-const state = reactive<Partial<CreatePlanSchema>>({
+const stepThreeSchema = z.object({
+  paymentMethod: z.string().min(1, "Payment method is required"),
+});
+
+type Step1Schema = z.output<typeof stepOneSchema>;
+type Step2Schema = z.output<typeof stepTwoSchema>;
+type Step3Schema = z.output<typeof stepThreeSchema>;
+type CombinedSchema = Step1Schema & Step2Schema & Step3Schema;
+
+const currentSchema = computed(() => {
+  if (currentStep.value === 0)
+    return stepOneSchema;
+  if (currentStep.value === 1)
+    return stepTwoSchema;
+  if (currentStep.value === 2)
+    return stepThreeSchema;
+  return stepOneSchema;
+});
+
+const state = reactive<Partial<CombinedSchema>>({
   fullName: "",
   phoneNumber: "",
   email: "",
   membershipPlanOptionId: 0,
   subscriptionStartDate: "",
-  paymentAmount: 0,
-  paymentCurrency: "",
-  paymentStatus: "",
   paymentMethod: "",
-  paymentPaidAt: "",
-  paymentNotes: "",
 });
+
+function getPrimaryOption(plan: MembershipPlan): MembershipPlanOption | null {
+  return plan.options.find(option => option.isVisible) ?? plan.options[0] ?? null;
+}
+
+function isPlanSelected(plan: MembershipPlan): boolean {
+  const optionId = getPrimaryOption(plan)?.id;
+  return optionId != null && state.membershipPlanOptionId === optionId;
+}
+
+function handlePlanSelect(optionId: number | null): void {
+  if (optionId != null) {
+    state.membershipPlanOptionId = optionId;
+  }
+}
+
+function goToStep(step: number) {
+  if (step > currentStep.value) {
+    void validateCurrentStep().then((isValid) => {
+      if (isValid) {
+        currentStep.value = step;
+      }
+    });
+    return;
+  }
+
+  currentStep.value = step;
+}
 
 async function validateCurrentStep(): Promise<boolean> {
   try {
@@ -105,17 +143,14 @@ async function handleCreatePlan() {
   try {
     loading.value = true;
     clearApiError();
-    const payload: CreateMembershipPlanPayload = {
-      name: state.name,
-      description: state.description,
-      isActive: state.isActive,
-      options: state.options.map(opt => ({
-        frequency: opt.frequency,
-        ...(opt.frequency === "custom" && { customDays: opt.customDays }),
-        price: opt.price,
-        memberBenefit: opt.memberBenefit,
-        isVisible: opt.isVisible,
-      })),
+    const payload: CreateMemberPayload = {
+      fullName: state.fullName,
+      phoneNumber: state.phoneNumber,
+      email: state.email,
+      identificationDocument: state.identificationDocument,
+      membershipPlanOptionId: state.membershipPlanOptionId,
+      subscriptionStartDate: state.subscriptionStartDate,
+      paymentMethod: state.paymentMethod,
     };
     await membershipStore.createPlan(payload);
     toast.success({ message: "Membership plan created successfully" });
@@ -134,6 +169,30 @@ async function handleCreatePlan() {
     loading.value = false;
   }
 }
+
+async function fetchMembershipPlanOptions() {
+  try {
+    loading.value = true;
+    clearApiError();
+    await membershipStore.fetchPlans();
+  }
+  catch (error: unknown) {
+    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
+    if (message !== "Something went wrong. Please try again.") {
+      setApiError(message);
+      formRef.value?.validate();
+      return;
+    }
+    toast.error({ message });
+  }
+  finally {
+    loading.value = false;
+  }
+}
+
+onMounted(() => {
+  fetchMembershipPlanOptions();
+});
 </script>
 
 <template>
@@ -158,7 +217,7 @@ async function handleCreatePlan() {
       </template>
     </base-page-header>
 
-    <div class="bg-card border-x border-b border-border rounded-b-xl shadow-sm p-4 sm:p-6 page-content-height">
+    <div class="bg-white rounded-xl p-4 sm:p-6 page-content-height">
       <div class="flex flex-col lg:flex-row gap-6">
         <FormStepper
           :steps="steps"
@@ -167,26 +226,15 @@ async function handleCreatePlan() {
           @select="goToStep"
         />
         <div class="flex-1 min-w-0 lg:pl-0">
-          <div class="mb-6 flex items-start gap-3 rounded-lg bg-muted/40 p-4 border border-border">
-            <div class="rounded-lg bg-primary/10 p-2 shrink-0">
-              <UIcon
-                :name="steps[currentStep]?.icon ?? ''"
-                class="h-5 w-5 text-primary"
-              />
-            </div>
-            <div>
-              <h2 class="text-lg font-semibold text-foreground">
-                {{ steps[currentStep]?.label ?? "" }}
-              </h2>
-              <p class="text-sm text-muted-foreground mt-0.5">
-                {{ steps[currentStep]?.title ?? "" }}
-              </p>
-            </div>
-          </div>
+          <form-header-card
+            :label="steps[currentStep]?.label ?? ''"
+            :description="steps[currentStep]?.title ?? ''"
+            :icon="steps[currentStep]?.icon ?? ''"
+          />
 
           <UForm
             ref="formRef"
-            :schema="schema"
+            :schema="currentSchema"
             :state="state"
             class="space-y-6"
             @submit="handleCreatePlan"
@@ -203,24 +251,24 @@ async function handleCreatePlan() {
                 <div class="rounded-xl bg-muted/20 p-5 sm:p-6 shadow-sm">
                   <div class="grid grid-cols-1 gap-4">
                     <base-input
-                      v-model="state.name"
-                      name="name"
+                      v-model="state.fullName"
+                      name="fullName"
                       label="Member Name*"
                       placeholder="Enter member name"
                     />
 
                     <div class="flex flex-col md:flex-row gap-4">
                       <base-input
-                        v-model="state.name"
-                        name="name"
+                        v-model="state.phoneNumber"
+                        name="phoneNumber"
                         label="Phone Number*"
                         placeholder="Enter phone number"
                         class="w-full"
                       />
 
                       <base-input
-                        v-model="state.name"
-                        name="name"
+                        v-model="state.email"
+                        name="email"
                         label="Email Address*"
                         placeholder="Enter email address"
                         class="w-full"
@@ -228,8 +276,8 @@ async function handleCreatePlan() {
                     </div>
 
                     <base-file-upload
-                      v-model="state.name"
-                      name="name"
+                      v-model="state.identificationDocument"
+                      name="identificationDocument"
                       label="Identification Document*"
                       placeholder="Drop your image here"
                     />
@@ -242,13 +290,61 @@ async function handleCreatePlan() {
                 class="space-y-6"
               >
                 <div class="rounded-xl border border-border bg-muted/20 p-5 sm:p-6 shadow-sm space-y-6">
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <base-input
-                      v-model="form.instructorName"
-                      name="instructorName"
-                      label="Instructor Name"
-                      placeholder="Enter instructor name"
+                  <div class="flex flex-col gap-4">
+                    <h2 class="text-stone-900 font-medium text-base">
+                      Select a membership plan
+                    </h2>
+
+                    <members-membership-card
+                      v-for="plan in membershipStore.plans.data"
+                      :key="plan.id"
+                      :name="plan.name"
+                      :currency="plan.currency"
+                      :options="plan.options"
+                      :is-selected="isPlanSelected(plan)"
+                      @select="handlePlanSelect"
                     />
+
+                    <USeparator />
+
+                    <base-date-picker
+                      v-model="state.subscriptionStartDate"
+                      name="startDate"
+                      label="Start Date*"
+                      placeholder="Select start date"
+                      number-of-months="1"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section
+                v-else-if="currentStep === 2"
+                key="step-3"
+              >
+                <div class="rounded-xl bg-muted/20 p-5 sm:p-6 shadow-xl">
+                  <div class="flex flex-col bg-stone-50 p-4 border border-stone-200 rounded-md gap-2">
+                    <h2 class="text-stone-900 font-medium text-base">
+                      Overview
+                    </h2>
+                    <div class="flex justify-between">
+                      <p class="text-secondary-500 text-xs">
+                        kora premium
+                      </p>
+
+                      <p class="text-secondary text-xs font-normal">
+                        Rs. 2000
+                      </p>
+                    </div>
+                    <USeparator />
+                    <div class="flex justify-between">
+                      <p class="text-secondary font-medium text-sm">
+                        Total
+                      </p>
+                      <p class="text-secondary text-sm font-medium">
+                        Rs. 2000
+                      </p>
+                    </div>
                   </div>
                 </div>
               </section>
@@ -273,8 +369,8 @@ async function handleCreatePlan() {
               <base-button variant="outline" @click="handleBack">
                 Back
               </base-button>
-              <base-button :loading="loading" @click="handleCreateSession">
-                Create Session
+              <base-button :loading="loading" @click="handleCreatePlan">
+                Create Member
               </base-button>
             </div>
           </UForm>

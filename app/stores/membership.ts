@@ -32,7 +32,7 @@ export const useMembershipStore = defineStore("membership", () => {
   });
   const loading = ref(false);
 
-  const fetchPlans = async (payload: {
+  const fetchPlans = async (payload?: {
     pagination: {
       page: number;
       pageSize: number;
@@ -44,11 +44,11 @@ export const useMembershipStore = defineStore("membership", () => {
     loading.value = true;
     try {
       const query = buildQueryString({
-        page: payload.pagination.page,
-        limit: payload.pagination.pageSize,
-        q: payload.search,
-        type: payload.type,
-        status: payload.status,
+        page: payload?.pagination.page,
+        limit: payload?.pagination.pageSize,
+        q: payload?.search,
+        type: payload?.type,
+        status: payload?.status,
       });
       const response = await http.get(
         `${API_ENDPOINTS.MEMBERSHIP.GET_PLANS}?${query}`,
