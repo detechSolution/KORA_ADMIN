@@ -101,21 +101,10 @@ export const useSessionsStore = defineStore("sessions", () => {
   };
 
   const getAttendance = async (sessionId: number): Promise<any> => {
-    console.log("🚀 ~ getAttendance ~ sessionId:", sessionId);
     try {
-      // Mocking for now as per user request
-      return [
-        { id: 1, name: "Shyam Shakya", phone: "9845897465", status: "attended" },
-        { id: 2, name: "Anil Shakya", phone: "9845897465", status: "no-show" },
-        { id: 3, name: "Prabesh Poudel", phone: "9845897465", status: "pending" },
-        { id: 4, name: "Rohan Yadav", phone: "9845897465", status: "pending" },
-        { id: 5, name: "Simran Gurung", phone: "9845897465", status: "pending" },
-        { id: 6, name: "Simran Gurung", phone: "9845897465", status: "pending" },
-        { id: 7, name: "Simran Gurung", phone: "9845897465", status: "pending" },
-        { id: 8, name: "Simran Gurung", phone: "9845897465", status: "pending" },
-      ];
-      // Actual API call:
-      // return await http.get(`${API_ENDPOINTS.SESSION.GET_ATTENDANCE(sessionId)}`);
+      const endpoint = API_ENDPOINTS.SESSION.GET_ATTENDANCE_CANDIDATES(sessionId);
+      const response = await http.get(endpoint) as ApiResponse<any[]>;
+      return response.data;
     }
     catch (error: unknown) {
       console.error(error, "Get Attendance Error");
