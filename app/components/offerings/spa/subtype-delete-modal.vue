@@ -25,7 +25,7 @@ const emit = defineEmits<{
     dismissible
     @close="emit('close')"
   >
-    <div class="flex flex-col gap-5">
+    <div class="flex flex-col gap-5 p-6">
       <p class="text-sm text-secondary-500">
         Are you sure you want to delete this spa sub-type?
       </p>
