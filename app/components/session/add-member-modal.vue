@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 import { useNotification } from "~/composables/use-notification";
 import { useSessionsStore } from "~/stores/sessions";
@@ -14,6 +14,7 @@ const emit = defineEmits(["close", "success"]);
 
 const { success: showSuccess, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
+const memberOrPassUser = computed(() => sessionsStore.memberOrPassUser);
 
 const loading = ref(false);
 const memberOptions = ref<{ label: string; value: number; description: string }[]>([]);
@@ -23,10 +24,10 @@ async function fetchMembers() {
   try {
     loading.value = true;
 
-    const response = await sessionsStore.getMembers(props.session.id);
-    memberOptions.value = response.data.map((item: any) => ({
+    await sessionsStore.getMembers(props.session.id);
+    memberOptions.value = memberOrPassUser.value.data.map((item: any) => ({
       label: item.name,
-      value: item.memberId,
+      value: item.userId,
       description: item.email,
     }));
   }
@@ -44,9 +45,14 @@ async function handleAddMember() {
   if (!selectedMemberId.value || !props.session?.id)
     return;
 
+  let payload = memberOrPassUser.value.data.find((option: any) => option.memberId === selectedMemberId.value || option.userId === selectedMemberId.value);
+  payload = {
+    memberId: payload.memberId,
+    userPassId: payload.userPassId,
+  };
   try {
     loading.value = true;
-    await sessionsStore.addMemberToSession(props.session.id, selectedMemberId.value);
+    await sessionsStore.addMemberToSession(props.session.id, payload);
     showSuccess({ message: "Member added successfully" });
     emit("success");
     emit("close");
@@ -55,6 +61,7 @@ async function handleAddMember() {
     showError({ message: getApiErrorMessage(error, "Failed to add member") });
   }
   finally {
+    selectedMemberId.value = null;
     loading.value = false;
   }
 }

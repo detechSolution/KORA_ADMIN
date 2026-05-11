@@ -21,6 +21,10 @@ export const useSessionsStore = defineStore("sessions", () => {
   const sessionAttendance = ref<any>({
     data: [],
   });
+  const memberOrPassUser = ref<any>({
+    data: [],
+    meta: {},
+  });
   const sessionToCopy = ref<any>(null);
 
   // Actions
@@ -134,7 +138,7 @@ export const useSessionsStore = defineStore("sessions", () => {
   const getMembers = async (
     id: number,
     search?: string,
-  ): Promise<MembersResponse> => {
+  ): Promise<void> => {
     try {
       const query = buildQueryString({
         q: search?.trim(),
@@ -142,8 +146,7 @@ export const useSessionsStore = defineStore("sessions", () => {
 
       const endpoint = `${API_ENDPOINTS.SESSION.GET_ATTENDANCE_CANDIDATES(id)}${query}`;
       const response = await http.get(endpoint) as MembersResponse;
-
-      return response;
+      memberOrPassUser.value = response;
     }
     catch (error: unknown) {
       console.error("Get Members Error:", error);
@@ -151,10 +154,9 @@ export const useSessionsStore = defineStore("sessions", () => {
     }
   };
 
-  const addMemberToSession = async (sessionId: number, memberId: number): Promise<void> => {
+  const addMemberToSession = async (sessionId: number, payload: { memberId: number; userPassId: number }): Promise<void> => {
     try {
-      console.log("Adding member", memberId, "to session", sessionId);
-      await http.post(`${API_ENDPOINTS.SESSION.ADD_MEMBER(sessionId)}`, { memberId });
+      await http.post(`${API_ENDPOINTS.SESSION.ADD_MEMBER(sessionId)}`, payload);
     }
     catch (error: unknown) {
       console.error(error, "Add Member Error");
@@ -167,6 +169,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     sessions,
     sessionToCopy,
     sessionAttendance,
+    memberOrPassUser,
     getSessions,
     createSession,
     updateSession,
