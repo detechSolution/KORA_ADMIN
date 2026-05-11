@@ -31,7 +31,7 @@ function openPreview(type: "image" | "video", url: string) {
     dismissible
     @close="emit('close')"
   >
-    <div v-if="session" class="flex flex-col gap-6 p-1">
+    <div v-if="session" class="flex flex-col gap-6 p-6">
       <!-- Header Info -->
       <div class="flex items-start justify-between">
         <div class="flex flex-col gap-1">
