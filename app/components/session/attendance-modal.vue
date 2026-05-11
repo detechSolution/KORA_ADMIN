@@ -126,12 +126,17 @@ watch(() => props.open, (newVal) => {
 
       <!-- Attendance List -->
       <div class="flex-1 px-6">
-        <div v-if="loading && !sessionAttendance.length" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
+        <div v-if="loading" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
           <UIcon :name="ICONS.REFRESH_CW" class="w-8 h-8 animate-spin" />
           <span class="text-sm">Loading participants...</span>
         </div>
 
-        <div v-else class="">
+        <div v-else-if="sessionAttendance.length === 0" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
+          <UIcon :name="ICONS.USERS" class="w-8 h-8" />
+          <span class="text-sm">No participants found for this session.</span>
+        </div>
+
+        <div v-else>
           <div
             v-for="(item, index) in sessionAttendance"
             :key="item.id"
