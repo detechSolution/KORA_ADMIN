@@ -120,7 +120,7 @@ function isSelected(value: any) {
       variant="outline"
       :selected-icon="props.showCheckbox ? undefined : ICONS.CHECK"
       :ui="{
-        base: 'bg-white ring-stone-300 placeholder:text-stone-400',
+        base: 'bg-white hover:bg-transparent ring-stone-300 placeholder:text-stone-400',
         item: 'rounded-none border-b border-stone-200 last:border-b-0 hover:bg-stone-50 text-foreground cursor-pointer px-3 py-3',
         itemLabel: 'text-sm text-secondary',
         itemDescription: 'text-xs text-secondary-500',

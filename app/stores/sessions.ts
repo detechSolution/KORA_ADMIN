@@ -24,9 +24,9 @@ export const useSessionsStore = defineStore("sessions", () => {
   const sessionToCopy = ref<any>(null);
 
   // Actions
-  const getSessions = async (params?: Record<string, any>): Promise<void> => {
+  const getSessions = async (params: Record<string, any>): Promise<void> => {
     try {
-      const qs = params ? buildQueryString(params) : "";
+      const qs = buildQueryString(params);
       const res = await http.get(`${API_ENDPOINTS.SESSION.GET_LIST}?${qs}`) as ApiResponse<any>;
       sessions.value = res;
     }
@@ -105,7 +105,7 @@ export const useSessionsStore = defineStore("sessions", () => {
 
   const getAttendance = async (sessionId: number): Promise<any> => {
     try {
-      const endpoint = API_ENDPOINTS.SESSION.GET_ATTENDANCE_CANDIDATES(sessionId);
+      const endpoint = API_ENDPOINTS.SESSION.GET_ATTENDANCE_LIST(sessionId);
       const response = await http.get(endpoint) as ApiResponse<any[]>;
       console.log("🚀 ~ getAttendance ~ response:", response);
       sessionAttendance.value = response;
@@ -126,18 +126,27 @@ export const useSessionsStore = defineStore("sessions", () => {
     }
   };
 
-  const getMembers = async (): Promise<any[]> => {
+  type MembersResponse = {
+    data: any[];
+    meta: any;
+  };
+
+  const getMembers = async (
+    id: number,
+    search?: string,
+  ): Promise<MembersResponse> => {
     try {
-      // Mocking for now as per user request
-      return [
-        { label: "John Doe", value: 1, description: "9845897465" },
-        { label: "Jane Smith", value: 2, description: "9845897466" },
-        { label: "Shyam Shakya", value: 3, description: "9845897467" },
-      ];
-      // return await http.get(`${API_ENDPOINTS.MEMBERS.GET_LIST}`);
+      const query = buildQueryString({
+        q: search?.trim(),
+      });
+
+      const endpoint = `${API_ENDPOINTS.SESSION.GET_ATTENDANCE_CANDIDATES(id)}${query}`;
+      const response = await http.get(endpoint) as MembersResponse;
+
+      return response;
     }
     catch (error: unknown) {
-      console.error(error, "Get Members Error");
+      console.error("Get Members Error:", error);
       throw error;
     }
   };

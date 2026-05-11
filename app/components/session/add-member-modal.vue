@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref, watch } from "vue";
 
 import { useNotification } from "~/composables/use-notification";
 import { useSessionsStore } from "~/stores/sessions";
@@ -16,17 +16,24 @@ const { success: showSuccess, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
 
 const loading = ref(false);
-const memberOptions = ref<any[]>([]);
+const memberOptions = ref<{ label: string; value: number; description: string }[]>([]);
 const selectedMemberId = ref<number | null>(null);
 
 async function fetchMembers() {
   try {
     loading.value = true;
-    const data = await sessionsStore.getMembers();
-    memberOptions.value = data;
+
+    const response = await sessionsStore.getMembers(props.session.id);
+    memberOptions.value = response.data.map((item: any) => ({
+      label: item.name,
+      value: item.memberId,
+      description: item.email,
+    }));
   }
   catch (error: unknown) {
-    showError({ message: getApiErrorMessage(error, "Failed to load members") });
+    showError({
+      message: getApiErrorMessage(error, "Failed to load members"),
+    });
   }
   finally {
     loading.value = false;
@@ -52,8 +59,10 @@ async function handleAddMember() {
   }
 }
 
-onMounted(() => {
-  fetchMembers();
+watch(() => props.open, (newVal) => {
+  if (newVal) {
+    fetchMembers();
+  }
 });
 </script>
 
@@ -65,7 +74,7 @@ onMounted(() => {
     dismissible
     @close="emit('close')"
   >
-    <div v-if="session" class="flex flex-col gap-6 py-2">
+    <div v-if="session" class="flex flex-col gap-6 p-6">
       <base-select-menu
         v-model="selectedMemberId"
         name="member"
