@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import { ICONS } from "~/config/icons";
 import { useKoraPassesStore } from "~/stores/kora-passes";
@@ -12,6 +12,9 @@ definePageMeta({
 
 const koraPassesStore = useKoraPassesStore();
 
+const isEditDrawerOpen = ref(false);
+const selectedPass = ref<any>(null);
+
 const koraPasses = computed(() => koraPassesStore.koraPasses);
 
 onMounted(() => {
@@ -19,8 +22,15 @@ onMounted(() => {
 });
 
 function handleEditPass(id: number) {
-  console.log("Edit pass", id);
-  // Implementation for edit pass
+  const pass = koraPasses.value.data.find((p: any) => p.id === id);
+  if (pass) {
+    selectedPass.value = pass;
+    isEditDrawerOpen.value = true;
+  }
+}
+
+function handleSuccess() {
+  koraPassesStore.getKoraPasses();
 }
 </script>
 
@@ -50,7 +60,7 @@ function handleEditPass(id: number) {
 
     <div class="rounded-b-xl">
       <!-- Loading State -->
-      <div v-if="koraPassesStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-if="koraPassesStore.loading && !koraPasses.data.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
           v-for="i in 3"
           :key="i"
@@ -68,6 +78,14 @@ function handleEditPass(id: number) {
         />
       </div>
     </div>
+
+    <!-- Edit Pass Drawer -->
+    <OfferingsEditPassDrawer
+      :open="isEditDrawerOpen"
+      :pass="selectedPass"
+      @close="isEditDrawerOpen = false"
+      @success="handleSuccess"
+    />
   </div>
 </template>
 
