@@ -15,7 +15,7 @@ type SessionCardProps = {
   location: string;
   price: string;
   capacity: number;
-  registered: number;
+  occupied: number;
 };
 </script>
 
@@ -49,11 +49,11 @@ type SessionCardProps = {
 
     <div class="p-4 pt-0">
       <base-progress
-        :value="registered"
+        :value="occupied"
         :max="capacity"
         size="sm"
-        :color="registered >= capacity ? 'error' : 'success'"
-        label="Capacity"
+        :color="occupied >= capacity ? 'error' : 'success'"
+        label="Occupied"
         show-text
       />
     </div>

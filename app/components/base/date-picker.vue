@@ -253,16 +253,18 @@ const displayValue = computed(() => {
 
 // Computed UI classes for better performance
 const inputClasses = computed(() => ({
-  base: props.inputBgPrimary ? "bg-transparent" : "bg-transparent",
   root: "focus:ring-0",
+  base: "ring-stone-300 placeholder:text-stone-400",
 }));
 
 const calendarClasses = computed(() => ({
   root: "bg-card border border-border",
+  base: "ring-stone-300 placeholder:text-stone-400",
 }));
 
 const formFieldClasses = computed(() => ({
   error: "mt-1 text-red-500 text-xs",
+  base: "ring-stone-300 placeholder:text-stone-400",
 }));
 
 const popoverOpen = ref(false);

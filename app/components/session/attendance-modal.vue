@@ -19,10 +19,8 @@ const sessionAttendance = computed(() => {
   const val = sessionsStore.sessionAttendance;
   return Array.isArray(val) ? val : (val?.data || []);
 });
+const sessionAttendanceSummary = computed(() => sessionsStore.sessionAttendance.summary);
 const loading = ref(false);
-
-const presentCount = computed(() => sessionAttendance.value.filter((a: any) => a.attendanceStatus === "attended").length);
-const totalCount = computed(() => sessionAttendance.value.length);
 
 async function fetchAttendance() {
   if (!props.session?.id)
@@ -113,12 +111,12 @@ watch(() => props.open, (newVal) => {
             <div class="flex-1">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-sm font-semibold text-secondary-700">
-                  {{ presentCount }}/{{ totalCount }} Present
+                  {{ sessionAttendanceSummary.attendedCount }}/{{ sessionAttendanceSummary.bookedCount }} Present
                 </span>
               </div>
               <base-progress
-                :value="presentCount"
-                :max="totalCount"
+                :value="sessionAttendanceSummary.attendedCount"
+                :max="sessionAttendanceSummary.bookedCount"
                 size="sm"
                 color="success"
                 class="max-w-2xs"

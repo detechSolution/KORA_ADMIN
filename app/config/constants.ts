@@ -210,9 +210,9 @@ export const SUBSCRIPTION_STATUS = {
  * Session Type Values
  */
 export const SESSION_TYPE = {
-  CLASS: "CLASS",
-  EVENT: "EVENT",
-  WORKSHOP: "WORKSHOP",
+  CLASS: "class",
+  EVENT: "event",
+  WORKSHOP: "workshop",
 } as const;
 
 /**

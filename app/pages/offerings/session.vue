@@ -16,6 +16,7 @@ definePageMeta({
 });
 
 const router = useRouter();
+const loading = ref(false);
 const { error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
 const sessions = computed(() => sessionsStore.sessions);
@@ -32,7 +33,6 @@ const state = ref({
   referenceNumber: "",
   selectedSessionType: "",
   referenceDateRange: { start: null, end: null },
-  dueDateRange: { start: null, end: null },
 });
 
 const sessionTypeOptions = [
@@ -43,7 +43,7 @@ const sessionTypeOptions = [
 
 async function loadSessions(): Promise<void> {
   try {
-    sessionsStore.loading = true;
+    loading.value = true;
     const params = {
       page: pagination.value.page,
       limit: pagination.value.pageSize,
@@ -51,6 +51,7 @@ async function loadSessions(): Promise<void> {
       status: state.value.status === "" ? undefined : state.value.status,
       startDate: state.value.referenceDateRange.start || undefined,
       endDate: state.value.referenceDateRange.end || undefined,
+      type: state.value.selectedSessionType || undefined,
     };
     await sessionsStore.getSessions(params);
   }
@@ -58,8 +59,13 @@ async function loadSessions(): Promise<void> {
     showError({ message: getApiErrorMessage(error, "Failed to load sessions") });
   }
   finally {
-    sessionsStore.loading = false;
+    loading.value = false;
   }
+}
+
+function handleSearch() {
+  pagination.value.page = 1;
+  loadSessions();
 }
 
 function handleOpenEditSessionDrawer(id: number) {
@@ -97,6 +103,17 @@ function handleOpenAddMemberModal(id: number) {
   isAddMemberModalOpen.value = true;
 }
 
+function clearFilters(): void {
+  state.value.search = "";
+  state.value.status = "";
+  state.value.referenceDateRange = { start: null, end: null };
+  state.value.selectedSessionType = "";
+}
+
+function hasActiveFilters(): boolean {
+  return !!(state.value.search || state.value.status || state.value.referenceDateRange.start || state.value.referenceDateRange.end || state.value.selectedSessionType);
+}
+
 onMounted(() => {
   loadSessions();
 });
@@ -129,17 +146,18 @@ onMounted(() => {
     <div class=" rounded-b-xl flex flex-col gap-4 ">
       <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
         <base-input
-          v-model="state.referenceNumber"
+          v-model="state.search"
           :leading-icon="ICONS.SEARCH"
-          name="referenceNumber"
-          placeholder="Search by reference number"
+          name="search"
+          placeholder="Search by session"
           class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
         />
-        <base-input
-          v-model="state.referenceNumber"
-          type="date"
-          name="referenceNumber"
-          placeholder="Search by reference number"
+        <base-date-picker
+          v-model="state.referenceDateRange"
+          name="referenceDateRange"
+          placeholder="Filter by date"
+          range
+          :no-of-months="2"
           class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
         />
         <base-select
@@ -150,13 +168,26 @@ onMounted(() => {
           :options="sessionTypeOptions"
         />
 
-        <base-button
-          variant="outline"
-          size="md"
-          :leading-icon="ICONS.SEARCH"
-        >
-          Search
-        </base-button>
+        <div class="flex gap-2 w-full sm:w-auto">
+          <base-button
+            v-if="hasActiveFilters()"
+            variant="outline"
+            class="flex-1 sm:flex-none"
+            @click="clearFilters"
+          >
+            Clear Filters
+          </base-button>
+
+          <base-button
+            variant="outline"
+            :loading="loading"
+            class="flex-1 sm:flex-none"
+            :leading-icon="ICONS.SEARCH"
+            @click="handleSearch"
+          >
+            Search
+          </base-button>
+        </div>
       </div>
     </div>
 
@@ -181,7 +212,7 @@ onMounted(() => {
         :location="session.venue"
         :price="`Rs. ${session.price}`"
         :capacity="session.capacity"
-        :registered="session.registered"
+        :occupied="session.occupied"
         @open-edit-session-drawer="handleOpenEditSessionDrawer"
         @open-overview-modal="handleOpenOverviewModal"
         @copy-session="handleCopySession"
