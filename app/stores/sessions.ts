@@ -18,6 +18,9 @@ export const useSessionsStore = defineStore("sessions", () => {
       total: 0,
     },
   });
+  const sessionAttendance = ref<any>({
+    data: [],
+  });
   const sessionToCopy = ref<any>(null);
 
   // Actions
@@ -104,7 +107,8 @@ export const useSessionsStore = defineStore("sessions", () => {
     try {
       const endpoint = API_ENDPOINTS.SESSION.GET_ATTENDANCE_CANDIDATES(sessionId);
       const response = await http.get(endpoint) as ApiResponse<any[]>;
-      return response.data;
+      console.log("🚀 ~ getAttendance ~ response:", response);
+      sessionAttendance.value = response;
     }
     catch (error: unknown) {
       console.error(error, "Get Attendance Error");
@@ -115,7 +119,7 @@ export const useSessionsStore = defineStore("sessions", () => {
   const saveAttendance = async (sessionId: number, attendance: any[]): Promise<void> => {
     try {
       console.log("Saving attendance for session", sessionId, attendance);
-      // await http.post(`${API_ENDPOINTS.SESSION.SAVE_ATTENDANCE(sessionId)}`, { attendance });
+      await http.post(`${API_ENDPOINTS.SESSION.SAVE_ATTENDANCE(sessionId)}`, { attendance });
     }
     catch (error: unknown) {
       console.error(error, "Save Attendance Error");
@@ -142,7 +146,7 @@ export const useSessionsStore = defineStore("sessions", () => {
   const addMemberToSession = async (sessionId: number, memberId: number): Promise<void> => {
     try {
       console.log("Adding member", memberId, "to session", sessionId);
-      // await http.post(`${API_ENDPOINTS.SESSION.ADD_MEMBER(sessionId)}`, { memberId });
+      await http.post(`${API_ENDPOINTS.SESSION.ADD_MEMBER(sessionId)}`, { memberId });
     }
     catch (error: unknown) {
       console.error(error, "Add Member Error");
@@ -154,6 +158,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     loading,
     sessions,
     sessionToCopy,
+    sessionAttendance,
     getSessions,
     createSession,
     updateSession,

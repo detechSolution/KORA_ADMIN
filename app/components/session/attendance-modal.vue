@@ -15,20 +15,21 @@ const emit = defineEmits(["close", "success"]);
 
 const { success: showSuccess, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
-
+const sessionAttendance = computed(() => {
+  const val = sessionsStore.sessionAttendance;
+  return Array.isArray(val) ? val : (val?.data || []);
+});
 const loading = ref(false);
-const attendanceList = ref<any[]>([]);
 
-const presentCount = computed(() => attendanceList.value.filter(a => a.status === "attended").length);
-const totalCount = computed(() => attendanceList.value.length);
+const presentCount = computed(() => sessionAttendance.value.filter((a: any) => a.status === "attended").length);
+const totalCount = computed(() => sessionAttendance.value.length);
 
 async function fetchAttendance() {
   if (!props.session?.id)
     return;
   try {
     loading.value = true;
-    const data = await sessionsStore.getAttendance(props.session.id);
-    attendanceList.value = data;
+    await sessionsStore.getAttendance(props.session.id);
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to load attendance") });
@@ -39,7 +40,7 @@ async function fetchAttendance() {
 }
 
 function toggleStatus(id: number, status: "attended" | "no-show") {
-  const item = attendanceList.value.find(a => a.id === id);
+  const item = sessionAttendance.value.find(a => a.id === id);
   if (item) {
     item.status = item.status === status ? "pending" : status;
   }
@@ -48,7 +49,7 @@ function toggleStatus(id: number, status: "attended" | "no-show") {
 async function handleSaveAttendance() {
   try {
     loading.value = true;
-    await sessionsStore.saveAttendance(props.session.id, attendanceList.value);
+    await sessionsStore.saveAttendance(props.session.id, sessionAttendance.value);
     showSuccess({ message: "Attendance saved successfully" });
     emit("success");
     emit("close");
@@ -81,9 +82,9 @@ watch(() => props.open, (newVal) => {
     @close="emit('close')"
   >
     <div v-if="session" class="flex flex-col h-full max-h-[85vh]">
-      <div class="sticky top-0 z-10 ">
+      <div class="sticky top-0 z-100 bg-white">
         <!-- Header Session Info -->
-        <div class="py-4 border-b border-stone-100 bg-white ">
+        <div class="p-6 border-b border-stone-100 bg-white ">
           <h3 class="text-lg font-bold text-secondary-900">
             {{ session.name }}
           </h3>
@@ -100,7 +101,7 @@ watch(() => props.open, (newVal) => {
         </div>
 
         <!-- Stats Summary -->
-        <div class="p-3 bg-[#F9F6F2]">
+        <div class="px-6 py-4 bg-[#F9F6F2]">
           <div class="flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <UIcon :name="ICONS.USERS" class="w-5 h-5" />
@@ -124,19 +125,19 @@ watch(() => props.open, (newVal) => {
       </div>
 
       <!-- Attendance List -->
-      <div class="flex-1 py-2 ">
-        <div v-if="loading && !attendanceList.length" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
+      <div class="flex-1 px-6">
+        <div v-if="loading && !sessionAttendance.length" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
           <UIcon :name="ICONS.REFRESH_CW" class="w-8 h-8 animate-spin" />
           <span class="text-sm">Loading participants...</span>
         </div>
 
         <div v-else class="">
           <div
-            v-for="(item, index) in attendanceList"
+            v-for="(item, index) in sessionAttendance"
             :key="item.id"
             class="flex flex-col items-center justify-between group hover:bg-stone-50/30 transition-colors rounded-lg"
           >
-            <div class="py-4 w-full flex justify-between">
+            <div class="p-3 w-full flex justify-between">
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-secondary-500 font-bold text-sm border border-stone-200">
                   {{ getInitials(item.name) }}
@@ -190,7 +191,7 @@ watch(() => props.open, (newVal) => {
                 </button>
               </div>
             </div>
-            <USeparator v-if="index !== attendanceList.length - 1" />
+            <USeparator v-if="index !== sessionAttendance.length - 1" />
           </div>
         </div>
       </div>

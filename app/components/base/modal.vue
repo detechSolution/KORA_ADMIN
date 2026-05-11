@@ -55,6 +55,7 @@ const ui = computed(() => {
     header: "flex items-center justify-between p-6 shrink-0",
     close: "hover:bg-muted hover:text-foreground text-muted-foreground cursor-pointer rounded-md p-2",
     title: "text-lg",
+    body: "p-0 sm:p-0",
   };
 });
 </script>
