@@ -116,10 +116,9 @@ export const useSessionsStore = defineStore("sessions", () => {
     }
   };
 
-  const saveAttendance = async (sessionId: number, attendance: any[]): Promise<void> => {
+  const saveAttendance = async (sessionId: number, items: { id: number; attendanceStatus: string }[]): Promise<void> => {
     try {
-      console.log("Saving attendance for session", sessionId, attendance);
-      await http.post(`${API_ENDPOINTS.SESSION.SAVE_ATTENDANCE(sessionId)}`, { attendance });
+      await http.post(`${API_ENDPOINTS.SESSION.SAVE_ATTENDANCE(sessionId)}`, { items });
     }
     catch (error: unknown) {
       console.error(error, "Save Attendance Error");

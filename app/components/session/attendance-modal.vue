@@ -21,7 +21,7 @@ const sessionAttendance = computed(() => {
 });
 const loading = ref(false);
 
-const presentCount = computed(() => sessionAttendance.value.filter((a: any) => a.status === "attended").length);
+const presentCount = computed(() => sessionAttendance.value.filter((a: any) => a.attendanceStatus === "attended").length);
 const totalCount = computed(() => sessionAttendance.value.length);
 
 async function fetchAttendance() {
@@ -39,17 +39,21 @@ async function fetchAttendance() {
   }
 }
 
-function toggleStatus(id: number, status: "attended" | "no-show") {
+function toggleStatus(id: number, status: "attended" | "no_show") {
   const item = sessionAttendance.value.find(a => a.id === id);
   if (item) {
-    item.status = item.status === status ? "pending" : status;
+    item.attendanceStatus = item.attendanceStatus === status ? "pending" : status;
   }
 }
 
 async function handleSaveAttendance() {
   try {
     loading.value = true;
-    await sessionsStore.saveAttendance(props.session.id, sessionAttendance.value);
+    const payload = sessionAttendance.value.map((item: any) => ({
+      id: item.id,
+      attendanceStatus: item.attendanceStatus,
+    }));
+    await sessionsStore.saveAttendance(props.session.id, payload);
     showSuccess({ message: "Attendance saved successfully" });
     emit("success");
     emit("close");
@@ -151,7 +155,7 @@ watch(() => props.open, (newVal) => {
                   <div class="flex items-center gap-2">
                     <span class="text-base font-semibold text-secondary-800">{{ item.name }}</span>
                     <base-badge
-                      v-if="item.status === 'attended'"
+                      v-if="item.attendanceStatus === 'attended'"
                       color="success"
                       variant="subtle"
                       size="xs"
@@ -160,7 +164,7 @@ watch(() => props.open, (newVal) => {
                       Attended
                     </base-badge>
                     <base-badge
-                      v-else-if="item.status === 'no-show'"
+                      v-else-if="item.attendanceStatus === 'no_show'"
                       color="red"
                       variant="subtle"
                       size="xs"
@@ -177,7 +181,7 @@ watch(() => props.open, (newVal) => {
                 <button
                   type="button"
                   class="w-8 h-8 rounded-lg border flex items-center justify-center transition-all"
-                  :class="item.status === 'attended'
+                  :class="item.attendanceStatus === 'attended'
                     ? 'bg-emerald-300 text-emerald-700 border-emerald-300 shadow-sm'
                     : 'bg-emerald-50 text-emerald-500 border-emerald-500/30 hover:border-emerald-500'"
                   @click="toggleStatus(item.id, 'attended')"
@@ -187,10 +191,10 @@ watch(() => props.open, (newVal) => {
                 <button
                   type="button"
                   class="w-8 h-8 rounded-lg border flex items-center justify-center transition-all"
-                  :class="item.status === 'no-show'
+                  :class="item.attendanceStatus === 'no_show'
                     ? 'bg-red-300 text-red-700 border-red-300 shadow-sm'
                     : 'bg-red-50 text-red-500 border-red-500/30 hover:border-red-500'"
-                  @click="toggleStatus(item.id, 'no-show')"
+                  @click="toggleStatus(item.id, 'no_show')"
                 >
                   <UIcon :name="ICONS.X" class="w-5 h-5" />
                 </button>
