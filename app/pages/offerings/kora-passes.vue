@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 
 import { ICONS } from "~/config/icons";
 import { useKoraPassesStore } from "~/stores/kora-passes";
@@ -11,6 +11,8 @@ definePageMeta({
 });
 
 const koraPassesStore = useKoraPassesStore();
+
+const koraPasses = computed(() => koraPassesStore.koraPasses);
 
 onMounted(() => {
   koraPassesStore.getKoraPasses();
@@ -59,7 +61,7 @@ function handleEditPass(id: number) {
       <!-- Passes Cards -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <OfferingsKoraPassCard
-          v-for="pass in koraPassesStore.koraPasses"
+          v-for="pass in koraPasses.data"
           :key="pass.id"
           v-bind="pass"
           @edit="handleEditPass"

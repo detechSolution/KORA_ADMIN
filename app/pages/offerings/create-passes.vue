@@ -5,6 +5,7 @@ import * as z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { useKoraPassesStore } from "~/stores/kora-passes";
 import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
@@ -13,8 +14,9 @@ definePageMeta({
   permission: "offerings.sessions.view",
 });
 
-const { success: showSuccess, error: showError } = useNotification();
 const router = useRouter();
+const { success: showSuccess, error: showError } = useNotification();
+const koraPassesStore = useKoraPassesStore();
 
 const loading = ref(false);
 const formRef = ref<any>(null);
@@ -61,7 +63,7 @@ async function handleCreatePass() {
   try {
     loading.value = true;
     console.log("Creating pass:", form);
-    // await koraPassesStore.createPass(form);
+    await koraPassesStore.createPass(form);
     showSuccess({ message: "Kora Pass created successfully" });
     router.push("/offerings/kora-passes");
   }
@@ -98,7 +100,7 @@ async function handleCreatePass() {
       </template>
     </base-page-header>
 
-    <div class="bg-card rounded-xl box-shadow p-4 sm:p-8">
+    <div class="bg-card rounded-xl border border-border shadow-sm p-6">
       <!-- Info Alert -->
       <div class="mb-6 flex items-start gap-3 rounded-lg bg-stone-50 p-4 border border-stone-200">
         <div class="rounded-lg p-2 shrink-0">
@@ -125,7 +127,7 @@ async function handleCreatePass() {
         @submit="handleCreatePass"
       >
         <!-- Form Fields -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 form-box-shadow p-4 rounded-lg">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 shadow-sm p-4 rounded-lg">
           <base-input
             v-model="form.name"
             name="name"
@@ -210,12 +212,4 @@ async function handleCreatePass() {
 </template>
 
 <style scoped>
-.box-shadow {
-  box-shadow: 0px 0px 5px 0px #0000000d;
-}
-
-.form-box-shadow {
-  box-shadow: 0px 2px 4px -1px #0000000f;
-  box-shadow: 0px 0px 6px -1px #0000001a;
-}
 </style>
