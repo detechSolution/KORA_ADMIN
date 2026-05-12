@@ -108,6 +108,8 @@ function clearFilters(): void {
   state.value.status = "";
   state.value.referenceDateRange = { start: null, end: null };
   state.value.selectedSessionType = "";
+  pagination.value.page = 1;
+  loadSessions();
 }
 
 function hasActiveFilters(): boolean {
