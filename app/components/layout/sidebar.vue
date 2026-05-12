@@ -97,6 +97,7 @@ const rawItems: NavItemWithPermission[] = [{
   children: [
     { label: "Sessions", to: "/offerings/session", icon: ICONS.CALENDAR, permission: PERMISSIONS_SESSIONS.VIEW },
     { label: "Spa", to: "/offerings/spa", icon: ICONS.FLOWER, permission: PERMISSIONS_SERVICES.VIEW },
+    { label: "Kora Passes", to: "/offerings/kora-passes", icon: ICONS.ID_CARD, permission: PERMISSIONS_SERVICES.VIEW },
   ],
 }, {
   label: "Bookings",
@@ -105,11 +106,11 @@ const rawItems: NavItemWithPermission[] = [{
   permission: PERMISSIONS_BOOKINGS.VIEW,
 }, {
   label: "Members",
-  icon: ICONS.COMMUNITIES,
+  icon: ICONS.AWARD,
   defaultOpen: true,
   children: [
-    { label: "Members & Guests", to: "/members/guest", icon: ICONS.USERS, permission: PERMISSIONS_MEMBERSHIP_PLANS.CREATE },
-    { label: "Membership Plans", to: "/members/plan", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_MEMBERSHIP_PLANS.VIEW },
+    { label: "Members & Guests", to: "/members/members-list", icon: ICONS.USERS, permission: PERMISSIONS_MEMBERSHIP_PLANS.CREATE },
+    { label: "Membership Plans", to: "/members/plans", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_MEMBERSHIP_PLANS.VIEW },
   ],
 }, {
   label: "Financial",
@@ -127,6 +128,11 @@ const rawItems: NavItemWithPermission[] = [{
 //   defaultOpen: true,
 // },
 {
+  label: "Instructors",
+  icon: ICONS.DOOR_LOCK,
+  to: "/instructors/instructors-list",
+  defaultOpen: true,
+}, {
   label: "Promo Code",
   icon: ICONS.BADGE_PERCENT,
   to: "/promo-code/list",

@@ -98,6 +98,9 @@ function togglePasswordVisibility() {
           @click="togglePasswordVisibility"
         />
       </template>
+      <template v-else #trailing>
+        <slot name="trailing" />
+      </template>
     </UInput>
   </UFormField>
 </template>

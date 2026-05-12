@@ -132,11 +132,9 @@ const kpiCards = computed(() => [
         />
       </div>
 
-      <div class="">
-        <h2 class="text-base font-semibold">
-          Payments List
-        </h2>
-      </div>
+      <h2 class="text-base font-semibold">
+        Payments List
+      </h2>
 
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">

@@ -6,6 +6,20 @@ export const API_ENDPOINTS = {
   ANALYTICS: {
     GET_STATS: "/api/v1/analytics/getSummary",
   },
+  SESSION: {
+    CREATE: "/api/v1/sessions",
+    GET_LIST: "/api/v1/sessions",
+    UPDATE: (id: number) => `/api/v1/sessions/${id}`,
+    GET_ATTENDANCE_LIST: (id: number) => `/api/v1/sessions/${id}/attendance`,
+    GET_ATTENDANCE_CANDIDATES: (id: number) => `/api/v1/sessions/${id}/attendance/candidates`,
+    SAVE_ATTENDANCE: (id: number) => `/api/v1/sessions/${id}/attendance`,
+    ADD_MEMBER: (id: number) => `/api/v1/sessions/${id}/attendance/replacements`,
+  },
+  KORA_PASSES: {
+    GET_LIST: "/api/v1/passes",
+    CREATE: "/api/v1/passes",
+    UPDATE: (id: number) => `/api/v1/passes/${id}`,
+  },
   SPA: {
     GET_SPA: "/api/v1/spa",
     UPDATE_SPA: "/api/v1/spa",
@@ -62,6 +76,26 @@ export const API_ENDPOINTS = {
     GET_LIST: "/api/v1/transactions/getList",
     ITEMS_GET_LIST: "/api/v1/transactions/getItems",
     UPDATE: "/api/v1/transactions/updateStatus",
+  },
+  INSTRUCTORS: {
+    BASE: "/api/v1/instructors",
+    CREATE: "/api/v1/instructors",
+    GET_LIST: "/api/v1/instructors/getList",
+    GET_DETAILS: (id: number) => `/api/v1/instructors/${id}`,
+  },
+  // used
+  MEMBERS: {
+    BASE: "/api/v1/members",
+    UPDATE: (id: number) => `/api/v1/members/${id}`,
+    SUMMARY: "/api/v1/members/summary",
+    DELETE: (id: number) => `/api/v1/members/${id}`,
+
+  },
+  // used
+  MEMBERSHIP: {
+    CREATE_PLAN: "/api/v1/membership-plans",
+    GET_PLANS: "/api/v1/membership-plans",
+    UPDATE_PLAN: (id: number) => `/api/v1/membership-plans/${id}`,
   },
   // used
   PAYMENTS: {
@@ -176,9 +210,9 @@ export const SUBSCRIPTION_STATUS = {
  * Session Type Values
  */
 export const SESSION_TYPE = {
-  CLASS: "CLASS",
-  EVENT: "EVENT",
-  WORKSHOP: "WORKSHOP",
+  CLASS: "class",
+  EVENT: "event",
+  WORKSHOP: "workshop",
 } as const;
 
 /**

@@ -9,21 +9,22 @@ type Props = {
   overlayClass?: string;
   contentClass?: string;
   drawerWidth?: number;
+  title?: string;
 };
 
 const props = withDefaults(defineProps<Props>(), {
   dismissible: true,
   handle: false,
   direction: "right",
-  overlayClass: "bg-black/50",
+  overlayClass: "bg-black/50 backdrop-blur-sm",
   contentClass: "",
   drawerWidth: 520,
+  title: "Edit",
 });
 
 const emit = defineEmits<{
-  (e: "close"): void;
+  close: [];
 }>();
-
 const isOpen = computed({
   get: () => props.open,
   set: (value: boolean) => {
@@ -56,6 +57,24 @@ const ui = computed(() => ({
     :ui="ui"
   >
     <template #content>
+      <!-- Drawer Header -->
+      <div class="flex items-center justify-between gap-4 p-4">
+        <h2 class="text-lg text-highlighted font-semibold">
+          {{ title }}
+        </h2>
+
+        <UButton
+          color="neutral"
+          variant="ghost"
+          icon="i-lucide-x"
+          size="sm"
+          class="border border-stone-200"
+          @click="emit('close')"
+        />
+      </div>
+      <USeparator class="mb-4" />
+
+      <!-- Drawer Content -->
       <slot />
     </template>
   </UDrawer>

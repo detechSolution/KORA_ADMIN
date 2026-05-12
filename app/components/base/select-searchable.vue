@@ -54,8 +54,7 @@ const menuItems = computed(() => props.options.map(opt => ({ label: opt.label, v
       class="w-full"
       size="lg"
       :ui="{
-        base: 'bg-transparent',
-        trigger: 'w-full min-h-11 border border-border rounded-lg hover:border-primary/50 focus:border-primary',
+        base: 'bg-transparent w-full ring-stone-300 rounded-lg hover:border-primary/50 hover:bg-transparent focus:border-primary',
         item: 'hover:bg-muted hover:text-foreground rounded-lg overflow-hidden cursor-pointer',
         content: 'bg-card border border-border',
         trailingIcon: 'h-5 w-5 text-foreground',

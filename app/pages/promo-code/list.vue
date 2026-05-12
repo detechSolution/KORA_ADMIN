@@ -258,11 +258,12 @@ onMounted(() => {
       />
     </div>
 
-    <PromoCodeEditDrawer
+    <promo-code-edit-drawer
       :open="editDrawerOpen"
       :promo-code="selectedPromoCode"
       @close="closeEditDrawer"
       @updated="handlePromoCodeUpdated"
+      title="Edit Promo Code"
     />
   </div>
 </template>

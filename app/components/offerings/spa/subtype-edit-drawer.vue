@@ -31,7 +31,7 @@ const emit = defineEmits<{
 const spaStore = useSpaStore();
 const { success, error: showError } = useNotification();
 
-const currentStep = ref(1);
+const currentStep = ref(0);
 const loading = ref(false);
 const initialLoading = ref(false);
 const apiError = ref<string | null>(null);
@@ -40,7 +40,7 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 const steps = [
   { title: "Service Info" },
   { title: "Configuration & Pricing" },
-] as const;
+];
 
 const timeUnitOptions = [
   { label: "Hours", value: "hours" },
@@ -118,7 +118,7 @@ const schema = z
   });
 
 function resetForm(): void {
-  currentStep.value = 1;
+  currentStep.value = 0;
   apiError.value = null;
   form.name = "";
   form.description = "";
@@ -141,7 +141,7 @@ function closeDrawer(): void {
 }
 
 function previousStep(): void {
-  currentStep.value = Math.max(currentStep.value - 1, 1);
+  currentStep.value = Math.max(currentStep.value - 1, 0);
 }
 
 function addPricingRow(): void {
@@ -194,7 +194,7 @@ async function handleNext(): Promise<void> {
     return;
   }
 
-  currentStep.value = 2;
+  currentStep.value = 1;
 }
 
 async function handleUpdate(): Promise<void> {
@@ -273,6 +273,7 @@ watch(
 <template>
   <base-drawer
     :open="isOpen"
+    title="Edit Service"
     @close="closeDrawer"
   >
     <UForm
@@ -282,19 +283,6 @@ watch(
       :validate-on="['blur']"
       class="flex min-h-0 flex-1 flex-col"
     >
-      <div class="flex items-center justify-between border-b border-stone-200 px-5 py-4">
-        <h2 class="text-lg font-semibold text-secondary">
-          Edit Service
-        </h2>
-        <button
-          type="button"
-          class="rounded-md p-1 text-secondary-400 transition hover:bg-stone-100 hover:text-secondary"
-          @click="closeDrawer"
-        >
-          <UIcon :name="ICONS.X" class="h-4 w-4" />
-        </button>
-      </div>
-
       <div v-if="initialLoading" class="flex flex-1 items-center justify-center">
         <UIcon
           :name="ICONS.REFRESH_CW"
@@ -303,35 +291,13 @@ watch(
       </div>
 
       <template v-else>
-        <div class="flex items-center gap-3 px-5 py-5">
-          <template v-for="(step, index) in steps" :key="step.title">
-            <button
-              type="button"
-              class="flex min-w-0 flex-col items-center gap-1 text-center"
-              @click="currentStep = index + 1"
-            >
-              <span
-                class="flex h-7 w-7 items-center justify-center rounded-full border text-xs font-medium"
-                :class="index + 1 === currentStep
-                  ? 'border-primary-700 bg-primary-700 text-white'
-                  : 'border-primary-700 text-primary-700'"
-              >
-                {{ index + 1 }}
-              </span>
-              <span class="text-[11px] text-secondary">
-                {{ step.title }}
-              </span>
-            </button>
+        <FormEditStepper
+          :steps="steps"
+          :current-step="currentStep"
+        />
 
-            <div
-              v-if="index !== steps.length - 1"
-              class="mb-5 h-px flex-1 bg-stone-200"
-            />
-          </template>
-        </div>
-
-        <div class="flex-1 overflow-y-auto px-5 pb-6">
-          <div v-if="currentStep === 1" class="grid gap-5">
+        <div class="flex-1 overflow-y-auto px-5 py-3">
+          <div v-if="currentStep === 0" class="grid gap-5">
             <base-input
               v-model="form.name"
               name="name"
@@ -412,7 +378,7 @@ watch(
 
         <div class="flex items-center justify-between border-t border-stone-200 px-5 py-4">
           <base-button
-            v-if="currentStep === 1"
+            v-if="currentStep === 0"
             variant="outline"
             size="md"
             @click="closeDrawer"
@@ -432,9 +398,9 @@ watch(
             variant="solid"
             size="md"
             :loading="loading"
-            @click="currentStep === 1 ? handleNext() : handleUpdate()"
+            @click="currentStep === 0 ? handleNext() : handleUpdate()"
           >
-            {{ currentStep === 1 ? "Next" : "Update" }}
+            {{ currentStep === 0 ? "Next" : "Update" }}
           </base-button>
         </div>
       </template>
