@@ -250,6 +250,7 @@ watch(
 
 <template>
   <base-drawer
+    title="Edit Spa"
     :open="isOpen"
     :drawer-width="480"
     @close="emit('close')"
@@ -261,22 +262,6 @@ watch(
       :validate-on="['blur']"
       class="flex min-h-0 flex-1 flex-col"
     >
-      <div
-        class="flex items-center justify-between border-b border-stone-200 px-5 py-4"
-      >
-        <h2 class="text-lg font-semibold text-secondary">
-          Edit Spa
-        </h2>
-
-        <button
-          type="button"
-          class="rounded-md p-1 text-secondary-400 transition hover:bg-stone-100 hover:text-secondary"
-          @click="closeDrawer"
-        >
-          <UIcon :name="ICONS.X" class="h-4 w-4" />
-        </button>
-      </div>
-
       <div class="flex-1 overflow-y-auto px-5 py-5">
         <div class="grid gap-5">
           <UFormField

@@ -10,6 +10,15 @@ export const API_ENDPOINTS = {
     CREATE: "/api/v1/sessions",
     GET_LIST: "/api/v1/sessions",
     UPDATE: (id: number) => `/api/v1/sessions/${id}`,
+    GET_ATTENDANCE_LIST: (id: number) => `/api/v1/sessions/${id}/attendance`,
+    GET_ATTENDANCE_CANDIDATES: (id: number) => `/api/v1/sessions/${id}/attendance/candidates`,
+    SAVE_ATTENDANCE: (id: number) => `/api/v1/sessions/${id}/attendance`,
+    ADD_MEMBER: (id: number) => `/api/v1/sessions/${id}/attendance/replacements`,
+  },
+  KORA_PASSES: {
+    GET_LIST: "/api/v1/passes",
+    CREATE: "/api/v1/passes",
+    UPDATE: (id: number) => `/api/v1/passes/${id}`,
   },
   SPA: {
     GET_SPA: "/api/v1/spa",
@@ -201,9 +210,9 @@ export const SUBSCRIPTION_STATUS = {
  * Session Type Values
  */
 export const SESSION_TYPE = {
-  CLASS: "CLASS",
-  EVENT: "EVENT",
-  WORKSHOP: "WORKSHOP",
+  CLASS: "class",
+  EVENT: "event",
+  WORKSHOP: "workshop",
 } as const;
 
 /**

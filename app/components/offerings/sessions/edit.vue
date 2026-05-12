@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Time } from "@internationalized/date";
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import z, { success } from "zod";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { useInstructorsStore } from "~/stores/instructors";
 import { useSessionsStore } from "~/stores/sessions";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -13,6 +14,7 @@ const emit = defineEmits(["closeSessionDrawer", "updateSessionList"]);
 
 const { success, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
+const instructorsStore = useInstructorsStore();
 
 type Props = {
   open: boolean;
@@ -26,6 +28,13 @@ const sessionTypeOptions = [
   { label: "Event", value: "event" },
   { label: "Workshop", value: "workshop" },
 ];
+
+const instructorOptions = computed(() =>
+  instructorsStore.instructors.data.map(i => ({
+    label: i.fullName,
+    value: i.id,
+  })),
+);
 
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
@@ -101,7 +110,7 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  instructorName: z.string().trim().min(1, "Instructor name is required"),
+  instructorId: z.coerce.number().min(1, "Instructor is required"),
   venue: z.string().trim().min(1, "Venue is required"),
   capacity: z.coerce.number({ message: "Capacity is required" }).int({ message: "Capacity must be a whole number" }).positive("Capacity must be a positive integer"),
   date: z.string().min(1, "Invalid date").min(1, "At least one session date is required"),
@@ -122,7 +131,7 @@ const step2Schema = z.object({
 
 const step3Schema = z.object({
   isFreeSession: z.boolean(),
-  price: z.coerce.number({ message: "Price is required" }).int({ message: "Price must be a whole number" }).positive("Price must be a positive integer"),
+  price: z.coerce.number({ message: "Price is required" }).int({ message: "Price must be a whole number" }),
 }).superRefine((data, ctx) => {
   if (data.isFreeSession) {
     if (data.price !== undefined && data.price !== 0) {
@@ -165,7 +174,7 @@ const form = reactive<Partial<CombinedSchema>>({
   bannerVideo: undefined,
   sessionDescription: "",
   sessionType: "class",
-  instructorName: "",
+  instructorId: undefined,
   venue: "",
   capacity: 0,
   date: "",
@@ -220,32 +229,17 @@ async function handleUpdateSession(): Promise<void> {
 
   try {
     loading.value = true;
-    const payload = {
-      name: form.sessionName,
-      type: form.sessionType,
-      bannerUrl: form.bannerImage,
-      videoUrl: form.bannerVideo,
-      description: form.sessionDescription,
-      instructor: form.instructorName,
-      venue: form.venue,
-      capacity: form.capacity,
-      sessionDate: form.date,
-      startTime: form.startTime,
-      endTime: form.endTime,
-      price: form.price,
-      isFree: form.isFreeSession,
-    };
-    if (typeof payload.bannerUrl == "string") {
-      delete payload.bannerUrl;
+    if (typeof form.bannerImage == "string") {
+      delete form.bannerImage;
     }
-    if (typeof payload.videoUrl == "string") {
-      delete payload.videoUrl;
+    if (typeof form.bannerVideo == "string") {
+      delete form.bannerVideo;
     }
 
-    await sessionsStore.updateSession(props.session.id, payload);
+    await sessionsStore.updateSession(props.session.id, form);
     success({ message: "Session updated successfully" });
     emit("updateSessionList");
-    emit("closeSessionDrawer");
+    handleCloseSessionDrawer();
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to update session. Please try again.") });
@@ -255,6 +249,11 @@ async function handleUpdateSession(): Promise<void> {
   }
 }
 
+function handleCloseSessionDrawer(): void {
+  emit("closeSessionDrawer");
+  currentStep.value = 0;
+}
+
 watch(() => props.session, (newValue) => {
   if (newValue) {
     form.sessionName = newValue.name;
@@ -262,7 +261,7 @@ watch(() => props.session, (newValue) => {
     form.bannerImage = newValue.bannerUrl;
     form.bannerVideo = newValue.videoUrl;
     form.sessionDescription = newValue.description;
-    form.instructorName = newValue.instructor;
+    form.instructorId = newValue.instructorId;
     form.venue = newValue.venue;
     form.capacity = newValue.capacity;
     form.date = newValue.sessionDate || "";
@@ -272,6 +271,10 @@ watch(() => props.session, (newValue) => {
     form.isFreeSession = newValue.isFree;
   }
 }, { immediate: true });
+
+onMounted(() => {
+  void instructorsStore.fetchInstructors();
+});
 </script>
 
 <template>
@@ -279,7 +282,7 @@ watch(() => props.session, (newValue) => {
     :open="open"
     :drawer-width="600"
     title="Edit session"
-    @close="emit('closeSessionDrawer')"
+    @close="handleCloseSessionDrawer"
   >
     <UForm
       ref="formRef"
@@ -360,11 +363,13 @@ watch(() => props.session, (newValue) => {
           class="space-y-6"
         >
           <div class="grid gap-5 px-5">
-            <base-input
-              v-model="form.instructorName"
-              name="instructorName"
+            <base-select-searchable
+              v-model="form.instructorId"
+              name="instructorId"
               label="Instructor Name"
-              placeholder="Enter instructor name"
+              placeholder="Select instructor"
+              :options="instructorOptions"
+              :loading="instructorsStore.loading"
               required
             />
             <base-input
