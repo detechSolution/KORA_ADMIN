@@ -68,6 +68,11 @@ export const API_ENDPOINTS = {
     ITEMS_GET_LIST: "/api/v1/transactions/getItems",
     UPDATE: "/api/v1/transactions/updateStatus",
   },
+  BOOKINGS: {
+    BASE: "/api/v1/bookings",
+    GET_LIST: "/api/v1/bookings/getList",
+  },
+
   INSTRUCTORS: {
     BASE: "/api/v1/instructors",
     CREATE: "/api/v1/instructors",
@@ -80,7 +85,6 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/v1/members/${id}`,
     SUMMARY: "/api/v1/members/summary",
     DELETE: (id: number) => `/api/v1/members/${id}`,
-
   },
   // used
   MEMBERSHIP: {

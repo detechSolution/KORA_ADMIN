@@ -23,7 +23,6 @@ export const useInstructorsStore = defineStore("instructors", () => {
   const fetchInstructors = async () => {
     loading.value = true;
     try {
-      // const query = buildQueryString(payload);
       const endpoint = `${API_ENDPOINTS.INSTRUCTORS.BASE}`;
 
       const response = await http.get(endpoint) as ApiResponse<Instructor[]>;
@@ -38,9 +37,21 @@ export const useInstructorsStore = defineStore("instructors", () => {
     }
   };
 
+  const createInstructor = async (payload: { fullName: string; email: string; phoneNumber: string; bio: string; isActive: boolean }): Promise<void> => {
+    try {
+      const endpoint = `${API_ENDPOINTS.INSTRUCTORS.BASE}`;
+      await http.post(endpoint, payload);
+    }
+    catch (error) {
+      console.error("Error creating instructor:", error);
+      throw error;
+    }
+  };
+
   return {
     instructors,
     loading,
     fetchInstructors,
+    createInstructor,
   };
 });
