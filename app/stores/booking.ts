@@ -18,6 +18,7 @@ export const useBookingStore = defineStore("booking", () => {
       total: 0,
     },
   });
+  const bookingOptions = ref<any>(null);
 
   const getBookings = async (): Promise<void> => {
     try {
@@ -30,8 +31,21 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
+  const getBookingOptions = async (): Promise<void> => {
+    try {
+      const response = await http.get(API_ENDPOINTS.BOOKINGS.OPTIONS) as any;
+      bookingOptions.value = response;
+    }
+    catch (error: unknown) {
+      console.error("Error fetching booking options:", error);
+      throw error;
+    }
+  };
+
   return {
     bookings,
     getBookings,
+    bookingOptions,
+    getBookingOptions,
   };
 });

@@ -71,6 +71,7 @@ export const API_ENDPOINTS = {
   BOOKINGS: {
     BASE: "/api/v1/bookings",
     GET_LIST: "/api/v1/bookings/getList",
+    OPTIONS: "/api/v1/bookings/item-options",
   },
 
   INSTRUCTORS: {
