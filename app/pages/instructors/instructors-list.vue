@@ -115,7 +115,7 @@ onMounted(() => {
 
       <template #actions>
         <Nuxt-Link
-          to="/send-email/create-email"
+          to="/instructors/create-instructors"
           class="flex items-center gap-2"
         >
           <base-button
@@ -208,7 +208,12 @@ onMounted(() => {
             <base-dropdown-menu
               :items="[
                 {
-                  label: 'Download Invoice',
+                  label: 'View Details',
+                  // onSelect: () => openAdminDrawer(row.original),
+                  class: 'cursor-pointer',
+                },
+                {
+                  label: 'Edit Instructor',
                   // onSelect: () => openAdminDrawer(row.original),
                   class: 'cursor-pointer',
                 },
