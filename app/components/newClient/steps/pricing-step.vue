@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
+import { useBookingStore } from "~/stores/booking";
+
 import { ICONS } from "../../../config/icons";
-import { useBookingStore } from "../../../stores/bookingss";
 
 const form = defineModel<any>({ required: true });
 const bookingStore = useBookingStore();

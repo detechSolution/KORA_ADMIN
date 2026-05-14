@@ -2,9 +2,9 @@
 import { computed, reactive, ref } from "vue";
 import z from "zod";
 
-import type { CreateNewClientBookingPayload } from "../../stores/bookingss";
+import type { CreateNewClientBookingPayload } from "~/types/booking";
 
-import { useBookingStore } from "../../stores/bookingss";
+import { useBookingStore } from "~/stores/booking";
 
 /* ── State ──────────────────────────────────────────────── */
 

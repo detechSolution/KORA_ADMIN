@@ -2,8 +2,9 @@
 import { Time } from "@internationalized/date";
 import { computed, ref, watch } from "vue";
 
+import { useBookingStore } from "~/stores/booking";
+
 import { ICONS } from "../../../config/icons";
-import { useBookingStore } from "../../../stores/bookingss";
 
 const form = defineModel<any>({ required: true });
 const bookingStore = useBookingStore();

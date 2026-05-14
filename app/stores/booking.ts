@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 import type { ApiResponse } from "~/types/api";
-import type { Booking } from "~/types/booking";
+import type { Booking, BookingItemGroup } from "~/types/booking";
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
@@ -19,6 +19,8 @@ export const useBookingStore = defineStore("booking", () => {
     },
   });
   const bookingOptions = ref<any>(null);
+  const bookingItemOptions = ref<BookingItemGroup[]>([]);
+  const loading = ref(false);
 
   const getBookings = async (): Promise<void> => {
     try {
@@ -42,10 +44,76 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
+  const fetchBookingItemOptions = async (type?: string): Promise<void> => {
+    loading.value = true;
+    try {
+      const res = await http.get(`${API_ENDPOINTS.BOOKINGS.ITEM_OPTIONS}?type=${type}`) as { data?: BookingItemGroup[] };
+      bookingItemOptions.value = res.data ?? [];
+    }
+    catch (error: unknown) {
+      console.error(error, "Fetch Booking Item Options Error");
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
+  const clearBookingData = (): void => {
+    bookingItemOptions.value = [];
+  };
+
+  const validatePromoCode = async (code: string): Promise<PromoValidationResponse | null> => {
+    try {
+      const res = await http.post<PromoValidationResponse>(API_ENDPOINTS.PROMO_CODES.VALIDATE, {
+        code,
+      });
+      return res ?? null;
+    }
+    catch (error: unknown) {
+      console.error(error, "Validate Promo Code Error");
+      return null;
+    }
+  };
+
+  const fetchSpaTimeAvailability = async (params: { bookingDate: string; duration: number; timeUnit: string }): Promise<string[]> => {
+    try {
+      const qs = new URLSearchParams({
+        bookingDate: params.bookingDate,
+        duration: params.duration.toString(),
+        timeUnit: params.timeUnit,
+      }).toString();
+      const res = await http.get(`${API_ENDPOINTS.BOOKINGS.SPA_TIME_AVAILABILITY}?${qs}`) as { data?: string[] };
+      return res.data ?? [];
+    }
+    catch (error: unknown) {
+      console.error(error, "Fetch SPA Time Availability Error");
+      return [];
+    }
+  };
+
+  const createNewClientBooking = async (payload: CreateNewClientBookingPayload): Promise<any> => {
+    try {
+      const res = await http.post(API_ENDPOINTS.BOOKINGS.CREATE_NEW_CLIENT, payload);
+      return res;
+    }
+    catch (error: unknown) {
+      console.error(error, "Create New Client Booking Error");
+      throw error;
+    }
+  };
+
   return {
+    loading,
     bookings,
-    getBookings,
     bookingOptions,
+    bookingItemOptions,
+    getBookings,
     getBookingOptions,
+    fetchBookingItemOptions,
+    clearBookingData,
+    validatePromoCode,
+    fetchSpaTimeAvailability,
+    createNewClientBooking,
   };
 });

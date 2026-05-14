@@ -68,12 +68,7 @@ definePageMeta({
       </div>
 
       <bookings-existing-member v-if="selectedTab === 'existing'" />
-      <div
-        v-else
-        class="rounded-md border border-dashed border-stone-300 bg-white p-4 text-sm text-secondary-500"
-      >
-        New client booking form will go here.
-      </div>
+      <new-client-manual-booking-new-client v-else />
     </div>
   </div>
 </template>
