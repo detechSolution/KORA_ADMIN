@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
   CalendarDateTime,
+  DateValue,
   ZonedDateTime,
 } from "@internationalized/date";
 
@@ -43,6 +44,7 @@ type Props = {
   maxDate?: string;
   minDate?: string;
   noOfMonths?: number;
+  allowedWeekdays?: string[];
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -60,6 +62,7 @@ const props = withDefaults(defineProps<Props>(), {
   maxDate: undefined,
   minDate: undefined,
   noOfMonths: 2,
+  allowedWeekdays: () => [],
 });
 
 const emit = defineEmits<{
@@ -337,6 +340,29 @@ const minCalendarDate = computed(() => {
   const date = stringToDate(props.minDate);
   return date || undefined;
 });
+
+function isWeekendDisabled(date: DateValue) {
+  if (!props.allowedWeekdays.length)
+    return false;
+
+  const daysMap: Record<string, number> = {
+    sun: 0,
+    mon: 1,
+    tue: 2,
+    wed: 3,
+    thu: 4,
+    fri: 5,
+    sat: 6,
+  };
+
+  const allowedDays = new Set(
+    props.allowedWeekdays.map(d => daysMap[d.toLowerCase()]),
+  );
+
+  const dayOfWeek = new Date(date.year, date.month - 1, date.day).getDay();
+
+  return !allowedDays.has(dayOfWeek);
+}
 </script>
 
 <template>
@@ -371,6 +397,7 @@ const minCalendarDate = computed(() => {
         :multiple="multiple"
         :max-value="maxCalendarDate"
         :min-value="minCalendarDate"
+        :is-date-unavailable="isWeekendDisabled"
         :ui="calendarClasses"
         @update:model-value="handleCalendarChange"
       />

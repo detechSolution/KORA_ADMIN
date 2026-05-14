@@ -49,6 +49,7 @@ export const ICONS = {
   TRASH: "i-lucide-trash-2",
   USER_PLUS: "i-lucide-user-plus",
   ID_CARD: "i-lucide-id-card-lanyard",
+  MONEY: "i-lucide-banknote",
 
   // UI Elements
   ELLIPSIS_VERTICAL: "i-lucide-ellipsis-vertical",

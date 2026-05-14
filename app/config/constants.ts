@@ -81,8 +81,10 @@ export const API_ENDPOINTS = {
     BASE: "/api/v1/bookings",
     GET_LIST: "/api/v1/bookings/getList",
     OPTIONS: "/api/v1/bookings/item-options",
+    ITEM_OPTIONS: "/api/v1/bookings/item-options",
+    CREATE_NEW_CLIENT: "/api/v1/bookings/new-client",
+    SPA_TIME_AVAILABILITY: "/api/v1/bookings/spa-time-availability",
   },
-
   INSTRUCTORS: {
     BASE: "/api/v1/instructors",
     CREATE: "/api/v1/instructors",
@@ -118,6 +120,7 @@ export const API_ENDPOINTS = {
     GET_LIST: "/api/v1/promo-codes/getList",
     PREVIEW: "/api/v1/promo-codes/preview",
     UPDATE: (id: number) => `/api/v1/promo-codes/${id}`,
+    VALIDATE: "/api/v1/promo-codes/validate",
   },
   // used
   MAILS: {
