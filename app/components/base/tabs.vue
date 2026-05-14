@@ -13,6 +13,7 @@ type Props = {
   items: BaseTabItem[];
   orientation?: "horizontal" | "vertical";
   variant?: "solid" | "soft";
+  color?: "primary" | "secondary";
   contentClass?: string;
 };
 
@@ -20,6 +21,7 @@ const props = withDefaults(defineProps<Props>(), {
   orientation: "horizontal",
   variant: "solid",
   contentClass: "",
+  color: "primary",
 });
 
 const emit = defineEmits<{
@@ -33,41 +35,36 @@ const listClass = computed(() => {
   if (props.orientation === "vertical")
     return "flex-col gap-2";
 
-  return "gap-1 overflow-x-auto scroll-smooth hide-scrollbar";
+  return "gap-1 overflow-x-auto bg-stone-100 w-fit p-1 rounded-md scroll-smooth hide-scrollbar";
 });
 
+const colorMap = {
+  primary: {
+    solid: { active: "bg-primary text-white shadow-sm", inactive: "text-foreground hover:bg-muted" },
+    soft: { active: "bg-primary-50 text-primary", inactive: "text-foreground hover:bg-muted" },
+  },
+  secondary: {
+    solid: { active: "bg-secondary text-white shadow-sm", inactive: "text-foreground hover:bg-muted" },
+    soft: { active: "bg-secondary-50 text-secondary", inactive: "text-foreground hover:bg-muted" },
+  },
+};
+
+const sizeClasses = { sm: "px-3 py-1.5 text-xs", md: "px-4 py-2 text-sm", lg: "px-5 py-2.5 text-base" };
+
 function getTabClass(item: BaseTabItem): string {
-  const isActive = props.modelValue === item.value;
-
   if (item.disabled)
-    return "cursor-not-allowed text-muted-foreground/60 opacity-60";
-
-  if (props.variant === "soft") {
-    return isActive
-      ? "bg-primary-50 text-primary"
-      : "text-foreground hover:bg-muted";
-  }
-
-  return isActive
-    ? "bg-primary text-white shadow-sm"
-    : "text-foreground hover:bg-muted";
+    return "cursor-not-allowed opacity-50";
+  const isActive = props.modelValue === item.value;
+  const colorVariant = colorMap[props.color][props.variant];
+  const baseClass = isActive ? colorVariant.active : colorVariant.inactive;
+  return `${baseClass} ${sizeClasses[props.size]}`;
 }
 
 function getIconClass(item: BaseTabItem): string {
-  const isActive = props.modelValue === item.value;
-
   if (item.disabled)
     return "text-muted-foreground/60";
-
-  if (props.variant === "soft") {
-    return isActive
-      ? "text-primary"
-      : "text-muted-foreground group-hover:text-foreground";
-  }
-
-  return isActive
-    ? "text-white"
-    : "text-muted-foreground group-hover:text-foreground";
+  const isActive = props.modelValue === item.value;
+  return isActive ? (props.variant === "solid" ? "text-white" : `text-${props.color}`) : "text-muted-foreground";
 }
 
 function selectTab(item: BaseTabItem): void {
