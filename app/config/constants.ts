@@ -88,6 +88,9 @@ export const API_ENDPOINTS = {
     CREATE: "/api/v1/instructors",
     GET_LIST: "/api/v1/instructors/getList",
     GET_DETAILS: (id: number) => `/api/v1/instructors/${id}`,
+    UPDATE: (id: number) => `/api/v1/instructors/${id}`,
+    GET_ASSIGNED_SESSIONS: (id: number) => `/api/v1/instructors/${id}/assigned-sessions`,
+    GET_UPCOMING_SESSIONS: (id: number) => `/api/v1/instructors/${id}/upcoming-sessions`,
   },
   // used
   MEMBERS: {

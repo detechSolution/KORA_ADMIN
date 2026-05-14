@@ -62,6 +62,7 @@ definePageMeta({
           v-model="selectedTab"
           :items="items"
           variant="solid"
+          color="primary"
           orientation="vertical"
         />
       </div>

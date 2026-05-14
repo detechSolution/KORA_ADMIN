@@ -192,6 +192,12 @@ onMounted(() => {
         empty-title="No bookings found"
         empty-description="Bookings will appear here once created."
       >
+        <template #bookingCode-cell="{ row }">
+          <base-badge>
+            {{ row.original.bookingCode }}
+          </base-badge>
+        </template>
+
         <template #client-cell="{ row }">
           <div class="flex flex-col gap-1">
             <span class="text-sm font-medium text-secondary">
