@@ -47,6 +47,18 @@ export type CreateNewClientBookingPayload = {
   email: string;
   promoCode?: string;
   paymentMethod: string;
-  paymentStatus: string;
-  paymentPaidAt: string;
+};
+
+export type CreateExistingMemberBookingPayload = {
+  selectedMemberId: number;
+  item: {
+    id: number;
+    name: string;
+    type: string;
+  };
+  visitors: any[];
+  bookingDate: string;
+  bookingTime: string;
+  promoCode?: string;
+  paymentMethod: string;
 };

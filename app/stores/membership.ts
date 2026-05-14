@@ -147,6 +147,17 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
+  const getMembersOptions = async () => {
+    try {
+      const res = await http.get(API_ENDPOINTS.MEMBERS.OPTIONS) as any;
+      return res.data ?? [];
+    }
+    catch (error: unknown) {
+      console.error(error, "Get Members Options Error");
+      throw error;
+    }
+  };
+
   return {
     plans,
     loading,
@@ -157,5 +168,6 @@ export const useMembershipStore = defineStore("membership", () => {
     fetchMembersSummary,
     members,
     membersSummary,
+    getMembersOptions,
   };
 });

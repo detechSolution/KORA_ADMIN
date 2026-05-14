@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 import type { ApiResponse } from "~/types/api";
-import type { Booking, BookingItemGroup } from "~/types/booking";
+import type { Booking, BookingItemGroup, CreateExistingMemberBookingPayload, CreateNewClientBookingPayload, PromoValidationResponse } from "~/types/booking";
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
@@ -92,6 +92,17 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
+  const createExistingMemberBooking = async (payload: CreateExistingMemberBookingPayload): Promise<any> => {
+    try {
+      const res = await http.post(API_ENDPOINTS.BOOKINGS.MANUAL, payload);
+      return res;
+    }
+    catch (error: unknown) {
+      console.error(error, "Create Existing Member Booking Error");
+      throw error;
+    }
+  };
+
   const createNewClientBooking = async (payload: CreateNewClientBookingPayload): Promise<any> => {
     try {
       const res = await http.post(API_ENDPOINTS.BOOKINGS.CREATE_NEW_CLIENT, payload);
@@ -115,5 +126,6 @@ export const useBookingStore = defineStore("booking", () => {
     validatePromoCode,
     fetchSpaTimeAvailability,
     createNewClientBooking,
+    createExistingMemberBooking,
   };
 });

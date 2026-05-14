@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import type { Time } from "@internationalized/date";
-
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import z from "zod";
 
-import type { StepItem } from "~/types/booking";
+import type { CreateExistingMemberBookingPayload, StepItem } from "~/types/booking";
 
+import { findServiceGroup, findServiceItem } from "~/composables/services/use-booking";
+import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
+import { useMembershipStore } from "~/stores/membership";
 
 const steps: StepItem[] = [
   {
@@ -24,52 +25,17 @@ const steps: StepItem[] = [
   },
 ];
 
-const methods = {
-  cash: {
-    label: "Cash",
-    description: "paid at counter",
-    icon: ICONS.BANKNOTE,
-    value: "cash",
-  },
-  online: {
-    label: "Online",
-    description: "Fonepay/bank/card transfer",
-    icon: ICONS.WIFI,
-    value: "online",
-  },
-};
-
-function formatTimeValue(value: Time | undefined): string {
-  if (!value) {
-    return "";
-  }
-
-  return `${String(value.hour).padStart(2, "0")}:${String(value.minute).padStart(2, "0")}`;
-}
-function parseTimeValue(value: string): Time | undefined {
-  const normalizedValue = value.trim();
-  if (!normalizedValue) {
-    return undefined;
-  }
-
-  const [hours = "0", minutes = "0"] = normalizedValue.split(":");
-  const hour = Number(hours);
-  const minute = Number(minutes);
-
-  if (Number.isNaN(hour) || Number.isNaN(minute)) {
-    return undefined;
-  }
-
-  return new Time(hour, minute);
-}
-
 const bookingStore = useBookingStore();
+const { success } = useNotification();
+const membershipStore = useMembershipStore();
+
+const membersOptions = ref([]);
 const currentStep = ref(0);
 const loading = ref(false);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const stepOneSchema = z.object({
-  selectedMemberId: z.string().min(1, "Member is required"),
+  selectedMemberId: z.coerce.number().min(1, "Member is required"),
   visitors: z.array(
     z.object({
       fullName: z.string().min(1, "Full name is required"),
@@ -80,23 +46,36 @@ const stepOneSchema = z.object({
 });
 
 const stepTwoSchema = z.object({
-  selectedServiceId: z.string().min(1, "Service is required"),
-  item: z.object({
-    id: z.string().min(1, "Service ID is required"),
-    name: z.string().min(1, "Service name is required"),
-    type: z.enum(["session", "spa", "pass"], {
-      errorMap: () => ({ message: "Invalid service type" }),
-    }),
-  }),
-  bookingDate: z.string().min(1, "Date is required"),
-  bookingTime: z.string().min(1, "Time is required"),
+  serviceType: z.string().min(1, "Service type is required"),
+  serviceId: z.coerce.number().min(1, "Service selection is required"),
+  date: z.string().min(1, "Date is required"),
+  time: z.string().optional(),
+  durationId: z.number().nullable().optional(),
+}).superRefine((data, ctx) => {
+  if (data.serviceType === "spa") {
+    if (!data.time) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["time"],
+        message: "Time is required for SPA services",
+      });
+    }
+    else if (!data.time.includes(":")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["time"],
+        message: "Please enter a valid time in HH:mm format",
+      });
+    }
+  }
 });
 
 const stepThreeSchema = z.object({
-  selectedPaymentMethod: z.enum(["cash", "online"], {
-    errorMap: () => ({ message: "Payment method is required" }),
-  }),
   promoCode: z.string().optional(),
+  paymentMethod: z.string().min(1, "Payment method is required").refine(
+    v => ["cash", "online"].includes(v),
+    "Invalid payment method",
+  ),
 });
 
 type Step1Schema = z.infer<typeof stepOneSchema>;
@@ -105,25 +84,15 @@ type Step3Schema = z.infer<typeof stepThreeSchema>;
 type Booking = Step1Schema & Step2Schema & Step3Schema;
 
 const state = reactive<Partial<Booking>>({
-  selectedMemberId: "",
+  selectedMemberId: undefined,
   visitors: [],
-  selectedServiceId: "",
-  item: {
-    id: "",
-    name: "",
-    type: "session",
-  },
-  bookingDate: "",
-  bookingTime: "",
-  selectedPaymentMethod: "cash",
+  serviceType: "",
+  serviceId: undefined,
+  date: "",
+  time: "",
+  durationId: null,
   promoCode: "",
-});
-
-const bookingTimeModel = computed({
-  get: () => parseTimeValue(state.bookingTime ?? ""),
-  set: (value) => {
-    state.bookingTime = formatTimeValue(value);
-  },
+  paymentMethod: "cash",
 });
 
 // Get schema for current step only
@@ -139,16 +108,6 @@ const currentSchema = computed(() => {
       return stepOneSchema;
   }
 });
-
-const memberOptions = [
-  { label: "John Doe", value: "john-doe" },
-  { label: "Jane Smith", value: "jane-smith" },
-];
-
-const serviceOptions = [
-  { label: "Morning Yoga Session", value: "morning-yoga" },
-  { label: "Spa Day Pass", value: "spa-day-pass" },
-];
 
 function goToStep(step: number) {
   if (step > currentStep.value) {
@@ -198,18 +157,68 @@ function removeVisitor(index: number): void {
   state.visitors?.splice(index, 1);
 }
 
+function clearFormData(): void {
+  state.selectedMemberId = undefined;
+  state.visitors = [];
+  state.serviceType = "";
+  state.serviceId = undefined;
+  state.date = "";
+  state.time = "";
+  state.durationId = null;
+  state.promoCode = "";
+  state.paymentMethod = "cash";
+
+  currentStep.value = 0;
+}
+
 async function handleCreateBooking(): Promise<void> {
   loading.value = true;
   try {
-    await formRef.value?.validate();
+    loading.value = true;
 
-    const payload: any = {
-      ...state,
+    const serviceItem = findServiceItem(state.serviceId);
+    if (!serviceItem) {
+      console.warn("Service item not found");
+      return;
+    }
+
+    const serviceGroup = findServiceGroup(state.serviceId);
+    if (!serviceGroup) {
+      console.warn("Service group not found");
+      return;
+    }
+
+    const isSpa = serviceGroup.type?.toLowerCase() === "spa";
+    if (isSpa && !state.durationId) {
+      console.warn("Duration is required for spa services");
+      return;
+    }
+
+    const itemTypeId = isSpa ? state.durationId : state.serviceId;
+    if (!itemTypeId) {
+      console.warn("Item type id not found");
+      return;
+    }
+
+    const payload = {
+      selectedMemberId: state.selectedMemberId,
+      item: {
+        id: itemTypeId,
+        name: serviceItem.name,
+        type: serviceGroup.type,
+      },
+      visitors: state.visitors,
+      bookingDate: state.date,
+      bookingTime: state.time,
+      promoCode: state.promoCode || undefined,
+      paymentMethod: state.paymentMethod,
     };
-    await bookingStore.createBooking(payload);
+    if (payload.bookingTime === "")
+      delete payload.bookingTime;
+    await bookingStore.createExistingMemberBooking(payload as CreateExistingMemberBookingPayload);
+
     success({ message: "Booking created successfully" });
     clearFormData();
-    route.push("/bookings");
   }
   catch (error) {
     console.error("Validation failed:", error);
@@ -219,19 +228,17 @@ async function handleCreateBooking(): Promise<void> {
   }
 }
 
-async function fetchBookingOptions() {
-  try {
-    const response = bookingStore.getBookingOptions();
-    bookingOptions.value = response.data;
-  }
-  catch (error) {
-    console.error("Failed to fetch booking options:", error);
-  }
+async function fetchMembersOptions() {
+  const memberOptions = await membershipStore.getMembersOptions();
+
+  membersOptions.value = memberOptions.map((option: any) => ({
+    label: option.fullName,
+    value: option.memberId,
+    description: option.email,
+  }));
 }
 
-onMounted(() => {
-  fetchBookingOptions();
-});
+onMounted(() => fetchMembersOptions());
 </script>
 
 <template>
@@ -257,12 +264,12 @@ onMounted(() => {
             class="flex flex-col gap-6"
           >
             <div class="rounded-xl border border-border bg-muted/20 p-5 sm:p-6 shadow-sm">
-              <base-select
+              <base-select-menu
                 v-model="state.selectedMemberId"
                 name="selectedMemberId"
                 label="Select a existing member/guest*"
                 placeholder="Select a member"
-                :options="memberOptions"
+                :options="membersOptions"
               />
             </div>
 
@@ -273,20 +280,20 @@ onMounted(() => {
             >
               <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <base-input
-                  v-model="state.visitors![index].fullName"
+                  v-model="state.visitors[index].fullName"
                   :name="`visitors.${index}.fullName`"
                   label="Full Name*"
                   placeholder="Enter full name"
                 />
                 <base-input
-                  v-model="state.visitors![index].phoneNumber"
+                  v-model="state.visitors[index].phoneNumber"
                   :name="`visitors.${index}.phoneNumber`"
                   label="Phone Number*"
                   placeholder="Enter phone number"
                 />
               </div>
               <base-input
-                v-model="state.visitors![index].email"
+                v-model="state.visitors[index].email"
                 :name="`visitors.${index}.email`"
                 label="Email Address*"
                 placeholder="Enter email address"
@@ -310,134 +317,19 @@ onMounted(() => {
             </base-button>
           </section>
 
-          <section
+          <!-- Step 2: Schedule -->
+          <NewClientStepsScheduleStep
             v-else-if="currentStep === 1"
-            key="schedule"
-            class="flex flex-col gap-4 rounded-md bg-white p-4 shadow-sm ring-1 ring-stone-200"
-          >
-            <base-select
-              v-model="state.selectedServiceId"
-              name="selectedServiceId"
-              label="Select Session/Spa Service/Passes*"
-              :options="serviceOptions"
-              placeholder="Select a session/service"
-            />
+            key="step-2"
+            v-model="state"
+          />
 
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <base-date-picker
-                v-model="state.bookingDate"
-                name="bookingDate"
-                label="Date*"
-              />
-              <UFormField
-                label=" Time*"
-                name="bookingTime"
-                :ui="{
-                  error: 'mt-1 text-red-500 text-xs',
-                }"
-              >
-                <UInputTime
-                  v-model="bookingTimeModel"
-                  :trailing-icon="ICONS.CLOCK"
-                  label="Time"
-                  class="w-full"
-                />
-              </UFormField>
-            </div>
-          </section>
-
-          <section
-            v-else
-            key="pricing"
-            class="flex flex-col gap-4 rounded-md bg-white p-4 text-sm text-secondary-500 shadow-sm"
-          >
-            <div class="flex flex-col gap-4 bg-stone-50 p-4 rounded-md border border-stone-200">
-              <h2 class="text-base text-secondary font-medium">
-                Overview
-              </h2>
-              <div class="flex justify-between">
-                <p class="text-secondary">
-                  Selected Member
-                </p>
-                <p class="text-secondary font-medium text-xs">
-                  Rs. 2000
-                </p>
-              </div>
-              <div class="flex justify-between text-secondary font-normal text-xs">
-                <p class="text-secondary-500">
-                  Promo Discount
-                </p>
-                <p>
-                  N/A
-                </p>
-              </div>
-              <div class="flex justify-between text-secondary font-normal text-xs">
-                <p class="text-secondary-500">
-                  Membership Discount
-                </p>
-                <p>
-                  10%
-                </p>
-              </div>
-              <USeparator />
-              <div class="flex justify-between">
-                <p class="text-secondary font-medium">
-                  Total
-                </p>
-                <p class="text-secondary font-medium text-sm">
-                  Rs. 2000
-                </p>
-              </div>
-            </div>
-
-            <div class="flex justify-between gap-4 items-center">
-              <div class="w-full">
-                <base-input
-                  v-model="state.promoCode"
-                  name="promoCode"
-                  label="Promo Code"
-                  placeholder="e.g PROMO20"
-                />
-              </div>
-              <base-button
-                variant="outline"
-                class="self-end"
-              >
-                Apply
-              </base-button>
-            </div>
-
-            <div class="flex flex-col gap-4">
-              <h2 class="text-sm text-stone-900 font-medium">
-                Payment Method
-              </h2>
-
-              <div class="flex gap-4">
-                <button
-                  v-for="method in Object.values(methods)"
-                  :key="method.value"
-                  type="button"
-                  class="flex-1 p-4 rounded-lg border-2 transition-colors cursor-pointer"
-                  :class="[
-                    state.selectedPaymentMethod === method.value
-                      ? 'border-primary bg-primary/5'
-                      : 'border-stone-200 bg-white hover:border-primary/50',
-                  ]"
-                  @click="state.selectedPaymentMethod = method.value"
-                >
-                  <div class="flex flex-col gap-2 items-center">
-                    <UIcon :name="method.icon" class="w-6 h-6 text-primary" />
-                    <p class="text-sm font-medium text-stone-900">
-                      {{ method.label }}
-                    </p>
-                    <p class="text-xs text-stone-600">
-                      {{ method.description }}
-                    </p>
-                  </div>
-                </button>
-              </div>
-            </div>
-          </section>
+          <!-- Step 3: Pricing -->
+          <NewClientStepsPricingStep
+            v-else-if="currentStep === 2"
+            key="step-3"
+            v-model="state"
+          />
 
           <div
             class="flex items-center"

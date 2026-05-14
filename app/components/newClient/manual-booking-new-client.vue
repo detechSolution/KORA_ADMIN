@@ -4,6 +4,8 @@ import z from "zod";
 
 import type { CreateNewClientBookingPayload } from "~/types/booking";
 
+import { findServiceGroup, findServiceItem } from "~/composables/services/use-booking";
+import { useNotification } from "~/composables/use-notification";
 import { useBookingStore } from "~/stores/booking";
 
 /* ── State ──────────────────────────────────────────────── */
@@ -11,6 +13,7 @@ import { useBookingStore } from "~/stores/booking";
 const loading = ref(false);
 const currentStep = ref(0);
 const bookingStore = useBookingStore();
+const { success } = useNotification();
 
 const step2Ref = ref<any>(null);
 const step3Ref = ref<any>(null);
@@ -86,28 +89,6 @@ const form = reactive<FormState>({
   promoCode: "",
   paymentMethod: "cash",
 });
-
-/* ── Service helpers ────────────────────────────────────── */
-
-function findServiceItem(serviceId: number | undefined) {
-  if (!serviceId)
-    return undefined;
-  return bookingStore.bookingItemOptions
-    .flatMap((g: any) => g.items)
-    .find((item: any) =>
-      item.id === serviceId,
-    );
-}
-
-function findServiceGroup(serviceId: number | undefined) {
-  if (!serviceId)
-    return undefined;
-  return bookingStore.bookingItemOptions.find((g: any) =>
-    g.items?.some((item: any) =>
-      item.id === serviceId,
-    ),
-  );
-}
 
 /* ── Navigation ─────────────────────────────────────────── */
 
@@ -209,10 +190,11 @@ async function handleCreateBooking(): Promise<void> {
       promoCode: form.promoCode || undefined,
       paymentMethod: form.paymentMethod,
     };
+    if (payload.bookingTime === "")
+      delete payload.bookingTime;
     await bookingStore.createNewClientBooking(payload as CreateNewClientBookingPayload);
-    // console.warn("Booking created successfully:", result);
 
-    // Reset form after successful booking (optional, commented out in original)
+    success({ message: "Booking created successfully" });
     resetForm();
   }
   catch (error) {

@@ -80,6 +80,7 @@ export const API_ENDPOINTS = {
   BOOKINGS: {
     BASE: "/api/v1/bookings",
     GET_LIST: "/api/v1/bookings/getList",
+    MANUAL: "/api/v1/bookings/manual",
     OPTIONS: "/api/v1/bookings/item-options",
     ITEM_OPTIONS: "/api/v1/bookings/item-options",
     CREATE_NEW_CLIENT: "/api/v1/bookings/new-client",
@@ -100,6 +101,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/v1/members/${id}`,
     SUMMARY: "/api/v1/members/summary",
     DELETE: (id: number) => `/api/v1/members/${id}`,
+    OPTIONS: "/api/v1/members/options",
   },
   // used
   MEMBERSHIP: {
