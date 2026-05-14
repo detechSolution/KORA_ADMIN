@@ -134,6 +134,26 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
     badgeColor: "purple",
     className: "bg-purple-100 text-purple-800",
   },
+  spa: {
+    label: "Spa",
+    badgeColor: "blue",
+    className: "bg-blue-100 text-blue-800",
+  },
+  session: {
+    label: "Session",
+    badgeColor: "purple",
+    className: "bg-purple-100 text-purple-800",
+  },
+  pass: {
+    label: "Pass",
+    badgeColor: "emerald",
+    className: "bg-emerald-100 text-emerald-800",
+  },
+  confirmed: {
+    label: "Confirmed",
+    badgeColor: "emerald",
+    className: "bg-emerald-100 text-emerald-800",
+  },
 };
 
 function normalizeStatus(status: string | null | undefined): string {

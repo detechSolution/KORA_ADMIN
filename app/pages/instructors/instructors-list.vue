@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
+import type { Instructor } from "~/types/instructors";
+
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useInstructorsStore } from "~/stores/instructors";
@@ -21,6 +23,35 @@ const instructorsStore = useInstructorsStore();
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
 
+const isEditDrawerOpen = ref(false);
+const isDetailModalOpen = ref(false);
+const selectedInstructor = ref<Instructor | null>(null);
+
+function openEditDrawer(instructor: Instructor): void {
+  selectedInstructor.value = instructor;
+  isEditDrawerOpen.value = true;
+}
+
+function closeEditDrawer(): void {
+  isEditDrawerOpen.value = false;
+  selectedInstructor.value = null;
+}
+
+function openDetailModal(instructor: Instructor): void {
+  selectedInstructor.value = instructor;
+  isDetailModalOpen.value = true;
+}
+
+function closeDetailModal(): void {
+  isDetailModalOpen.value = false;
+  selectedInstructor.value = null;
+}
+
+async function handleInstructorUpdated(): Promise<void> {
+  closeEditDrawer();
+  await getInstructors();
+}
+
 const state = ref({
   search: "",
   status: "",
@@ -28,9 +59,8 @@ const state = ref({
 });
 
 const statusOptions = [
-  { label: "Draft", value: "draft" },
-  { label: "Sent", value: "sent" },
-  { label: "Failed", value: "failed" },
+  { label: "Active", value: "active" },
+  { label: "Inactive", value: "inactive" },
 ];
 
 const columns = ref([
@@ -54,6 +84,12 @@ const columns = ref([
     accessorKey: "upcomingSessions",
   },
   {
+    id: "status",
+    header: "Status",
+    accessorKey: "status",
+    accessorFn: (row: any) => (row.isActive ? "Active" : "Inactive"),
+  },
+  {
     id: "actions",
     header: "Actions",
     accessorKey: "actions",
@@ -62,24 +98,18 @@ const columns = ref([
 
 const instructors = computed(() => instructorsStore.instructors);
 
-async function fetchMails(): Promise<void> {
+async function getInstructors(): Promise<void> {
   try {
-    await instructorsStore.fetchInstructors({
-      pagination: {
-        page: pagination.value.page,
-        limit: pagination.value.pageSize,
-      },
-      search: state.value.search,
-    });
+    await instructorsStore.fetchInstructors();
   }
   catch (error: unknown) {
-    showError({ message: getApiErrorMessage(error, "Failed to load emails") });
+    showError({ message: getApiErrorMessage(error, "Failed to load instructors") });
   }
 }
 
 function handleSearchClick(): void {
   pagination.value.page = 1;
-  fetchMails();
+  getInstructors();
 }
 
 function clearFilters(): void {
@@ -98,8 +128,9 @@ function hasActiveFilters(): boolean {
   );
 }
 
+// FIX: Changed from fetchMails() to getInstructors()
 onMounted(() => {
-  fetchMails();
+  getInstructors();
 });
 </script>
 
@@ -114,8 +145,8 @@ onMounted(() => {
       </template>
 
       <template #actions>
-        <Nuxt-Link
-          to="/send-email/create-email"
+        <NuxtLink
+          to="/instructors/create-instructors"
           class="flex items-center gap-2"
         >
           <base-button
@@ -124,7 +155,7 @@ onMounted(() => {
           >
             Create Instructor
           </base-button>
-        </Nuxt-Link>
+        </NuxtLink>
       </template>
     </base-page-header>
 
@@ -184,14 +215,14 @@ onMounted(() => {
       </div>
 
       <base-table
-        :data="instructors.data"
+        :data="instructors.data || []"
         :columns="columns"
         :loading="instructorsStore.loading"
-        empty-title="No emails found"
-        empty-description="Sent emails will appear here once available."
+        empty-title="No instructors found"
+        empty-description="Instructors will appear here once available."
       >
         <template #client-cell="{ row }">
-          <div class="flex items-center">
+          <div class="flex items-center gap-2">
             <base-avatar :src="row?.original?.avatar" />
             <div class="flex flex-col gap-1">
               <span class="text-sm font-medium text-secondary">
@@ -203,13 +234,25 @@ onMounted(() => {
             </div>
           </div>
         </template>
-        <template #actions-cell>
+
+        <template #status-cell="{ row }">
+          <base-badge :color="row.original.isActive ? 'emerald' : 'red'">
+            {{ row.original.isActive ? "Active" : "Inactive" }}
+          </base-badge>
+        </template>
+
+        <template #actions-cell="{ row }">
           <div class="text-left">
             <base-dropdown-menu
               :items="[
                 {
-                  label: 'Download Invoice',
-                  // onSelect: () => openAdminDrawer(row.original),
+                  label: 'View Details',
+                  onSelect: () => openDetailModal(row.original),
+                  class: 'cursor-pointer',
+                },
+                {
+                  label: 'Edit Instructor',
+                  onSelect: () => openEditDrawer(row.original),
                   class: 'cursor-pointer',
                 },
               ]"
@@ -225,11 +268,25 @@ onMounted(() => {
 
       <base-pagination
         :page="pagination.page"
-        :total="instructors.meta.total"
+        :total="instructors.meta?.total || 0"
         :items-per-page="pagination.pageSize"
         :disabled="instructorsStore.loading"
-        @update:page="(v) => { pagination.page = v; fetchMails(); }"
+        @update:page="(v) => { pagination.page = v; getInstructors(); }"
       />
     </div>
+
+    <instructors-edit-instructors
+      :open="isEditDrawerOpen"
+      :instructor="selectedInstructor"
+      @close="closeEditDrawer"
+      @updated="handleInstructorUpdated"
+    />
+
+    <instructors-overview-modal
+      v-if="isDetailModalOpen"
+      :open="isDetailModalOpen"
+      :id="selectedInstructor.id"
+      @close="closeDetailModal"
+    />
   </div>
 </template>

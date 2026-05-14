@@ -23,3 +23,4 @@ logs
 .env.*
 .cursor
 !.env.example
+.env.local
