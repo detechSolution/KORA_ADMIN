@@ -3,18 +3,32 @@ import { computed } from "vue";
 
 import { ICONS } from "~/config/icons";
 
-type SelectOption = {
+/* ── Types ──────────────────────────────────────────────── */
+
+type BadgeColor = "primary" | "secondary" | "success" | "info" | "warning" | "error" | "neutral";
+type MetaColor = "success" | "error";
+
+export type SimpleOption = {
   label: string;
   value: any;
   description?: string;
   disabled?: boolean;
   icon?: string;
-  avatar?: {
-    src?: string;
-    alt?: string;
-    text?: string;
-  };
+  avatar?: { src?: string; alt?: string; text?: string };
 };
+
+export type LabelOption = { type: "label"; label: string };
+export type SeparatorOption = { type: "separator" };
+
+export type RichOption = SimpleOption & {
+  meta?: string;
+  metaColor?: MetaColor;
+  badge?: { label: string; color?: BadgeColor };
+};
+
+export type SelectOption = SimpleOption | LabelOption | SeparatorOption | RichOption;
+
+/* ── Props ──────────────────────────────────────────────── */
 
 type Props = {
   name: string;
@@ -31,13 +45,15 @@ type Props = {
   searchInput?: boolean | Record<string, any>;
   searchPlaceholder?: string;
   showCheckbox?: boolean;
+  showSelectAll?: boolean;
+  selectAllLabel?: string;
   hiddenSelectedValues?: any[];
 };
 
 const props = withDefaults(defineProps<Props>(), {
   label: "",
-  required: false,
   placeholder: "",
+  required: false,
   loading: false,
   disabled: false,
   multiple: false,
@@ -45,55 +61,44 @@ const props = withDefaults(defineProps<Props>(), {
   searchInput: true,
   searchPlaceholder: "Search...",
   showCheckbox: false,
+  showSelectAll: false,
+  selectAllLabel: "Select all",
   hiddenSelectedValues: () => [],
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits<{ "update:modelValue": [value: any] }>();
 
 const inputValue = computed({
   get: () => props.modelValue,
-  set: (value: any) => emit("update:modelValue", value),
+  set: v => emit("update:modelValue", v),
 });
 
-const menuItems = computed(() =>
-  props.options.map(option => ({
-    label: option.label,
-    value: option.value,
-    description: option.description,
-    disabled: option.disabled,
-    icon: option.icon,
-    avatar: option.avatar,
-  })),
-);
+/* ── Search config ──────────────────────────────────────── */
 
 const resolvedSearchInput = computed(() => {
-  if (props.searchInput === false) {
+  if (props.searchInput === false)
     return {};
-  }
 
-  const baseConfig = {
+  const base = {
     placeholder: props.searchPlaceholder,
     leadingIcon: ICONS.SEARCH,
     variant: "none",
   };
 
-  if (props.searchInput === true) {
-    return baseConfig;
-  }
-
-  return {
-    ...baseConfig,
-    ...props.searchInput,
-  };
+  return props.searchInput === true ? base : { ...base, ...props.searchInput };
 });
 
-function isSelected(value: any) {
-  if (props.multiple && Array.isArray(inputValue.value)) {
-    return inputValue.value.includes(value);
-  }
+/* ── Helpers ────────────────────────────────────────────── */
 
-  return inputValue.value === value;
+function isSelected(value: any): boolean {
+  return props.multiple && Array.isArray(inputValue.value)
+    ? inputValue.value.includes(value)
+    : inputValue.value === value;
 }
+
+const isLabelItem = (item: SelectOption): item is LabelOption => (item as any).type === "label";
+const isRichOption = (item: SelectOption): item is RichOption => !("type" in item) && ("meta" in item || "badge" in item);
+const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "value" in item;
 </script>
 
 <template>
@@ -101,27 +106,25 @@ function isSelected(value: any) {
     :label="props.label"
     :name="props.name"
     :required="props.required"
-    :ui="{
-      error: 'mt-1 text-red-500 text-xs',
-    }"
+    :ui="{ error: 'mt-1 text-red-500 text-xs' }"
   >
     <USelectMenu
       v-model="inputValue"
       value-key="value"
-      :items="menuItems"
+      :items="props.options"
       :placeholder="props.placeholder"
       :loading="props.loading"
       :disabled="props.disabled"
       :multiple="props.multiple"
       :clear="props.clearable"
       :search-input="resolvedSearchInput"
-      class="w-full"
       size="lg"
       variant="outline"
+      class="w-full"
       :selected-icon="props.showCheckbox ? undefined : ICONS.CHECK"
       :ui="{
         base: 'bg-white hover:bg-transparent ring-stone-300 placeholder:text-stone-400',
-        item: 'rounded-none border-b border-stone-200 last:border-b-0 hover:bg-stone-50 text-foreground cursor-pointer px-3 py-3',
+        item: 'rounded-none hover:bg-stone-50 text-foreground cursor-pointer px-3 py-3',
         itemLabel: 'text-sm text-secondary',
         itemDescription: 'text-xs text-secondary-500',
         content: 'bg-card border border-border overflow-hidden',
@@ -135,29 +138,78 @@ function isSelected(value: any) {
       <template v-if="props.leadingIcon" #leading>
         <UIcon :name="props.leadingIcon" />
       </template>
-      <template
-        v-if="props.showCheckbox"
-        #item-leading="{ item }"
-      >
-        <span class="flex items-center gap-3">
+
+      <template #item="{ item }">
+        <!-- Section label -->
+        <div
+          v-if="isLabelItem(item)"
+          class="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-stone-400"
+        >
+          {{ item.label }}
+        </div>
+
+        <!-- Selectable item -->
+        <div v-else class="flex w-full items-center justify-between gap-3">
+          <div class="flex min-w-0 items-center gap-2">
+            <!-- Checkbox -->
+            <span
+              v-if="props.showCheckbox"
+              class="flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border transition-colors"
+              :class="
+                isSelected(hasValue(item) ? item.value : null)
+                  ? 'border-primary bg-primary text-white'
+                  : 'border-stone-300 bg-white text-transparent'
+              "
+            >
+              <UIcon :name="ICONS.CHECK" class="h-3 w-3" />
+            </span>
+
+            <!-- Avatar -->
+            <UAvatar
+              v-if="item.avatar"
+              v-bind="item.avatar"
+              size="xs"
+              class="bg-stone-100 text-stone-500"
+            />
+
+            <!-- Icon (no avatar, no checkbox) -->
+            <UIcon
+              v-else-if="item.icon && !props.showCheckbox"
+              :name="item.icon"
+              class="h-4 w-4 shrink-0 text-stone-500"
+            />
+
+            <!-- Label + optional badge + description -->
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="truncate text-sm text-secondary">{{ item.label }}</span>
+
+                <base-badge
+                  v-if="item.badge?.label"
+                  :label="item.badge.label"
+                  size="xs"
+                  variant="soft"
+                  :color="item.badge.color"
+                >
+                  {{ item.badge.label }}
+                </base-badge>
+              </div>
+
+              <p v-if="item.description" class="text-xs text-stone-400">
+                {{ item.description }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Meta value -->
           <span
-            class="flex h-4 w-4 items-center justify-center rounded-[3px] border transition-colors"
-            :class="isSelected(item.value) ? 'border-primary bg-primary text-white' : 'border-stone-300 bg-white text-transparent'"
+            v-if="isRichOption(item) && item.meta"
+            class="shrink-0 text-xs font-medium"
+            :class="item.metaColor === 'error' ? 'text-red-500' : 'text-emerald-500'"
           >
-            <UIcon :name="ICONS.CHECK" class="h-3 w-3" />
+            {{ item.meta }}
           </span>
-          <UAvatar
-            v-if="item.avatar"
-            v-bind="item.avatar"
-            size="xs"
-            class="bg-stone-100 text-stone-500"
-          />
-          <UIcon
-            v-else-if="item.icon"
-            :name="item.icon"
-            class="h-4 w-4 text-stone-500"
-          />
-        </span>
+        </div>
       </template>
     </USelectMenu>
   </UFormField>
