@@ -22,9 +22,10 @@ export const useBookingStore = defineStore("booking", () => {
   const bookingItemOptions = ref<BookingItemGroup[]>([]);
   const loading = ref(false);
 
-  const getBookings = async (): Promise<void> => {
+  const getBookings = async (params: Record<string, any>): Promise<void> => {
     try {
-      const response = await http.get(API_ENDPOINTS.BOOKINGS.BASE) as any;
+      const qs = buildQueryString(params);
+      const response = await http.get(`${API_ENDPOINTS.BOOKINGS.BASE}?${qs}`) as any;
       bookings.value = response;
     }
     catch (error: unknown) {

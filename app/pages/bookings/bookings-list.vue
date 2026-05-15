@@ -18,6 +18,7 @@ definePageMeta({
 
 const { success, error: showError } = useNotification();
 const bookingStore = useBookingStore();
+const bookings = computed(() => bookingStore.bookings);
 const { pagination } = usePagination();
 
 const loading = ref(false);
@@ -71,8 +72,15 @@ const hasActiveFilters = computed(() => {
 async function fetchBookings(): Promise<void> {
   try {
     loading.value = true;
-
-    await bookingStore.getBookings();
+    const params = {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      q: filters.value.search || undefined,
+      status: filters.value.status === "" ? undefined : filters.value.status,
+      startDate: filters.value.dateRange.start || undefined,
+      endDate: filters.value.dateRange.end || undefined,
+    };
+    await bookingStore.getBookings(params);
   }
   catch (err: unknown) {
     showError({
@@ -194,14 +202,6 @@ onMounted(fetchBookings);
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
-              v-if="hasActiveFilters"
-              variant="outline"
-              class="flex-1 sm:flex-none"
-              @click="clearFilters"
-            >
-              Clear Filters
-            </base-button>
-            <base-button
               :loading="loading"
               variant="outline"
               class="flex-1 sm:flex-none"
@@ -209,6 +209,14 @@ onMounted(fetchBookings);
               @click="handleSearch"
             >
               Search
+            </base-button>
+            <base-button
+              v-if="hasActiveFilters"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="clearFilters"
+            >
+              Clear Filters
             </base-button>
           </div>
         </div>
@@ -275,7 +283,7 @@ onMounted(fetchBookings);
       </base-table>
       <base-pagination
         :page="pagination.page"
-        :total="Number(bookingStore.bookings.meta.total)"
+        :total="bookings.meta.total"
         :items-per-page="pagination.pageSize"
         :disabled="loading"
         @update:page="(v) => { pagination.page = v; fetchBookings(); }"
