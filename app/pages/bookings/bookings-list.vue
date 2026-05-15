@@ -16,16 +16,25 @@ definePageMeta({
   permission: "bookings.view",
 });
 
-const { error: showError } = useNotification();
+const { success, error: showError } = useNotification();
 const bookingStore = useBookingStore();
 const { pagination } = usePagination();
 
 const loading = ref(false);
+const loadingCancel = ref(false);
 
-const state = ref({
+const isDetailModalOpen = ref(false);
+const isCancelModalOpen = ref(false);
+
+const selectedBooking = ref<Booking | null>(null);
+
+const filters = ref({
   search: "",
   status: "",
-  dateRange: { start: null as string | null, end: null as string | null },
+  dateRange: {
+    start: null as string | null,
+    end: null as string | null,
+  },
 });
 
 const statusOptions = [
@@ -36,45 +45,39 @@ const statusOptions = [
 ];
 
 const columns = computed(() => [
-  {
-    accessorKey: "bookingCode",
-    header: "Booking ID",
-  },
-  {
-    accessorKey: "client",
-    header: "Client",
-  },
-  {
-    accessorKey: "itemName",
-    header: "Session/Service",
-  },
-  {
-    accessorKey: "itemType",
-    header: "Type",
-  },
+  { accessorKey: "bookingCode", header: "Booking ID" },
+  { accessorKey: "client", header: "Client" },
+  { accessorKey: "itemName", header: "Session/Service" },
+  { accessorKey: "itemType", header: "Type" },
   {
     accessorKey: "bookedDate",
     header: "Booked Date",
     accessorFn: (row: Booking) => formatDate(row.bookedDate),
   },
-  {
-    accessorKey: "status",
-    header: "Status",
-  },
-  {
-    accessorKey: "actions",
-    header: "Actions",
-  },
+  { accessorKey: "status", header: "Status" },
+  { accessorKey: "actions", header: "Actions" },
 ]);
 
-async function getBookings(): Promise<void> {
+const hasActiveFilters = computed(() => {
+  return (
+    filters.value.search
+    || filters.value.status
+    || filters.value.dateRange.start
+    || filters.value.dateRange.end
+  );
+},
+);
+
+async function fetchBookings(): Promise<void> {
   try {
     loading.value = true;
 
     await bookingStore.getBookings();
   }
-  catch (error: unknown) {
-    showError({ message: getApiErrorMessage(error, "Failed to get bookings") });
+  catch (err: unknown) {
+    showError({
+      message: getApiErrorMessage(err, "Failed to get bookings"),
+    });
   }
   finally {
     loading.value = false;
@@ -83,29 +86,61 @@ async function getBookings(): Promise<void> {
 
 function handleSearch(): void {
   pagination.value.page = 1;
-  getBookings();
+  fetchBookings();
 }
 
 function clearFilters(): void {
-  state.value.search = "";
-  state.value.status = "";
-  state.value.dateRange = { start: null, end: null };
+  filters.value = {
+    search: "",
+    status: "",
+    dateRange: { start: null, end: null },
+  };
+
   pagination.value.page = 1;
-  getBookings();
+  fetchBookings();
 }
 
-function hasActiveFilters(): boolean {
-  return !!(
-    state.value.search
-    || state.value.status
-    || state.value.dateRange.start
-    || state.value.dateRange.end
-  );
+function openCancelModal(booking: any): void {
+  selectedBooking.value = booking;
+  isCancelModalOpen.value = true;
 }
 
-onMounted(() => {
-  getBookings();
-});
+function openViewModal(booking: any): void {
+  selectedBooking.value = booking;
+  isDetailModalOpen.value = true;
+}
+
+async function handleRequestCancellation(): Promise<void> {
+  if (!selectedBooking.value?.id)
+    return;
+
+  try {
+    loadingCancel.value = true;
+
+    await bookingStore.requestBookingCancellation(
+      selectedBooking.value.id,
+    );
+
+    success({ message: "Cancellation requested successfully" });
+
+    await fetchBookings();
+  }
+  catch (err: unknown) {
+    showError({
+      message: getApiErrorMessage(
+        err,
+        "Failed to request booking cancellation",
+      ),
+    });
+  }
+  finally {
+    loadingCancel.value = false;
+    isCancelModalOpen.value = false;
+    selectedBooking.value = null;
+  }
+}
+
+onMounted(fetchBookings);
 </script>
 
 <template>
@@ -136,14 +171,14 @@ onMounted(() => {
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
           <base-input
-            v-model="state.search"
+            v-model="filters.search"
             name="search"
             placeholder="Search"
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
           />
 
           <base-date-picker
-            v-model="state.dateRange"
+            v-model="filters.dateRange"
             name="dateRange"
             placeholder="Select date range"
             range
@@ -151,7 +186,7 @@ onMounted(() => {
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
           />
           <base-select
-            v-model="state.status"
+            v-model="filters.status"
             name="status"
             placeholder="All statuses"
             :options="statusOptions"
@@ -159,7 +194,7 @@ onMounted(() => {
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
-              v-if="hasActiveFilters()"
+              v-if="hasActiveFilters"
               variant="outline"
               class="flex-1 sm:flex-none"
               @click="clearFilters"
@@ -210,14 +245,14 @@ onMounted(() => {
         </template>
 
         <template #itemType-cell="{ row }">
-          <base-badge :color="getStatusColor(row.original.itemType)">
-            {{ getStatusLabel(row.original.itemType) }}
+          <base-badge :color="getStatusColor(String(row.original.itemType))">
+            {{ getStatusLabel(String(row.original.itemType)) }}
           </base-badge>
         </template>
 
         <template #status-cell="{ row }">
-          <base-badge :color="getStatusColor(row.original.status)">
-            {{ getStatusLabel(row.original.status) }}
+          <base-badge :color="getStatusColor(String(row.original.status))">
+            {{ getStatusLabel(String(row.original.status)) }}
           </base-badge>
         </template>
 
@@ -227,12 +262,12 @@ onMounted(() => {
               {
                 label: 'Request Cancellation',
                 icon: ICONS.EYE,
-                action: () => navigateTo(`/booking/${row.original.id}`),
+                onSelect: () => openCancelModal(row.original),
               },
               {
                 label: 'View Details',
                 icon: ICONS.EYE,
-                action: () => navigateTo(`/booking/${row.original.id}`),
+                onSelect: () => openViewModal(row.original),
               },
             ]"
           />
@@ -243,7 +278,14 @@ onMounted(() => {
         :total="Number(bookingStore.bookings.meta.total)"
         :items-per-page="pagination.pageSize"
         :disabled="loading"
-        @update:page="(v) => { pagination.page = v; getBookings(); }"
+        @update:page="(v) => { pagination.page = v; fetchBookings(); }"
+      />
+
+      <bookings-delete-modal
+        :open="isCancelModalOpen"
+        :loading="loadingCancel"
+        @close="isCancelModalOpen = false"
+        @confirm="handleRequestCancellation"
       />
     </div>
   </div>

@@ -124,7 +124,7 @@ function createHttpClient(config: HttpClientConfig) {
     },
     patch<T>(
       endpoint: string,
-      data: any,
+      data?: any,
       headers?: Record<string, string>,
     ): Promise<T> {
       const body = data instanceof FormData ? data : JSON.stringify(data);

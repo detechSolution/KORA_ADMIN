@@ -85,6 +85,7 @@ export const API_ENDPOINTS = {
     ITEM_OPTIONS: "/api/v1/bookings/item-options",
     CREATE_NEW_CLIENT: "/api/v1/bookings/new-client",
     SPA_TIME_AVAILABILITY: "/api/v1/bookings/spa-time-availability",
+    REQUEST_CANCELLATION: (id: number) => `/api/v1/bookings/${id}/request-cancellation`,
   },
   INSTRUCTORS: {
     BASE: "/api/v1/instructors",
