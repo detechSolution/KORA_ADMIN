@@ -124,6 +124,17 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
+  const fetchBookingById = async (bookingId: number): Promise<any> => {
+    try {
+      const res = await http.get(API_ENDPOINTS.BOOKINGS.GET(bookingId));
+      return res;
+    }
+    catch (error: unknown) {
+      console.error(error, "Fetch BookingById Error");
+      throw error;
+    }
+  };
+
   return {
     loading,
     bookings,
@@ -138,5 +149,6 @@ export const useBookingStore = defineStore("booking", () => {
     createNewClientBooking,
     createExistingMemberBooking,
     requestBookingCancellation,
+    fetchBookingById,
   };
 });

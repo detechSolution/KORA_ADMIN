@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 import type { Booking } from "~/types/booking";
 
+import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { useBookingStore } from "~/stores/booking";
 import { formatDate } from "~/utils/common";
-import { getStatusMeta } from "~/utils/helpers";
+import { getApiErrorMessage } from "~/utils/error";
 
 type Props = {
   open: boolean;
@@ -25,6 +27,10 @@ const emit = defineEmits<{
 
 const selectedTab = ref("details");
 
+const { error: showError } = useNotification();
+const bookingDetails = ref<any>(null);
+const bookingStore = useBookingStore();
+
 const items = [
   { label: "Details", value: "details" },
   { label: "Guest Info", value: "guest_info" },
@@ -37,20 +43,6 @@ const guestColumns = [
 ];
 
 const searchQuery = ref("");
-
-const guests = computed(() => {
-  return (props.booking as any)?.visitors || [];
-});
-
-const filteredGuests = computed(() => {
-  if (!searchQuery.value)
-    return guests.value;
-  return guests.value.filter((g: any) =>
-    g.fullName?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    || g.email?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    || g.phoneNumber?.includes(searchQuery.value),
-  );
-});
 
 const bookingInfo = computed(() => {
   if (!props.booking)
@@ -73,25 +65,36 @@ function getInitials(name?: string) {
     .slice(0, 2);
 }
 
-function getStatusIndicatorColor(status?: string) {
-  const config = getStatusMeta(status);
-  switch (config.badgeColor) {
-    case "emerald":
-    case "success":
-      return "bg-emerald-500";
-    case "amber":
-    case "orange":
-      return "bg-amber-500";
-    case "red":
-      return "bg-red-500";
-    case "blue":
-    case "indigo":
-    case "sky":
-      return "bg-blue-500";
-    default:
-      return "bg-secondary-400";
+const filteredGuests = computed(() => {
+  if (!searchQuery.value)
+    return bookingDetails.value?.guests;
+  return bookingDetails.value?.guests.filter((g: any) =>
+    g.fullName?.toLowerCase().includes(searchQuery.value.toLowerCase())
+    || g.email?.toLowerCase().includes(searchQuery.value.toLowerCase())
+    || g.phoneNumber?.includes(searchQuery.value),
+  );
+});
+
+async function fetchBookingDetails() {
+  const id = props.booking?.id;
+  if (!id)
+    return;
+
+  try {
+    bookingDetails.value = await bookingStore.fetchBookingById(id);
+  }
+  catch (error) {
+    showError({
+      message: getApiErrorMessage(error, "Failed to load booking details"),
+    });
   }
 }
+
+watch(() => props.open, async (newValue) => {
+  if (newValue) {
+    await fetchBookingDetails();
+  }
+});
 </script>
 
 <template>
@@ -122,7 +125,7 @@ function getStatusIndicatorColor(status?: string) {
               </div>
               <div class="flex items-center gap-2">
                 <span class="text-base font-semibold text-secondary-900">{{ booking?.clientName }}</span>
-                <base-badge color="blue" class="text-[10px] px-1.5 py-0.5 rounded-md">
+                <base-badge color="blue" class="text-[10px]">
                   Member
                 </base-badge>
               </div>
@@ -145,8 +148,8 @@ function getStatusIndicatorColor(status?: string) {
           <div class="flex flex-col gap-2">
             <span class="text-xs  text-secondary-400 tracking-wider">Status</span>
             <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full" :class="getStatusIndicatorColor(booking?.status)" />
-              <span class="text-base  text-secondary-900">{{ getStatusLabel(booking?.status) }}</span>
+              <UChip :color="booking?.status === 'confirmed' ? 'success' : 'warning'" />
+              <span class="text-base capitalize text-secondary-900">{{ booking?.status }}</span>
             </div>
           </div>
         </div>
@@ -182,13 +185,16 @@ function getStatusIndicatorColor(status?: string) {
             <base-input
               v-model="searchQuery"
               name="search"
-              label="Search"
               placeholder="Search guest name"
               class="w-full max-w-xs"
               :leading-icon="ICONS.SEARCH"
             />
-            <base-button variant="outline" :leading-icon="ICONS.SEARCH">
-              Search
+            <base-button
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="searchQuery = ''"
+            >
+              Clear Filters
             </base-button>
           </div>
         </div>
@@ -198,7 +204,6 @@ function getStatusIndicatorColor(status?: string) {
           :data="filteredGuests"
           empty-title="No guests found"
           empty-description="This booking doesn't have any guests listed."
-          class="border border-secondary-100 rounded-lg overflow-hidden"
         >
           <template #fullName-cell="{ row }">
             <div class="flex items-center gap-3">
@@ -208,26 +213,7 @@ function getStatusIndicatorColor(status?: string) {
               <span class="text-sm font-medium text-secondary-900">{{ row.original.fullName }}</span>
             </div>
           </template>
-
-          <template #email-cell="{ row }">
-            <span class="text-sm text-secondary-600">{{ row.original.email || "-" }}</span>
-          </template>
-
-          <template #phoneNumber-cell="{ row }">
-            <span class="text-sm text-secondary-600">{{ row.original.phoneNumber || "-" }}</span>
-          </template>
         </base-table>
-
-        <div v-if="filteredGuests.length > 0" class="flex items-center justify-between">
-          <span class="text-sm text-secondary-500">
-            Showing 1-{{ Math.min(10, filteredGuests.length) }} of {{ filteredGuests.length }} entries
-          </span>
-          <base-pagination
-            :page="1"
-            :total="filteredGuests.length"
-            :items-per-page="10"
-          />
-        </div>
       </div>
     </base-tabs>
   </base-modal>
