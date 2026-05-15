@@ -119,3 +119,17 @@ body {
 .slideover-leave-to .slideover-panel {
   transform: translateX(100%);
 }
+
+/* Step Fade Transition */
+.step-fade-enter-active,
+.step-fade-leave-active {
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+
+.step-fade-enter-from,
+.step-fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}

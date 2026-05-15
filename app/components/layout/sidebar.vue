@@ -102,7 +102,7 @@ const rawItems: NavItemWithPermission[] = [{
 }, {
   label: "Bookings",
   icon: ICONS.INQUIRIES,
-  to: "/booking",
+  to: "/bookings/bookings-list",
   permission: PERMISSIONS_BOOKINGS.VIEW,
 }, {
   label: "Members",

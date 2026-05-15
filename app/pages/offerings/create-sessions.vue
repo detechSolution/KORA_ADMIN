@@ -110,7 +110,7 @@ const step2Schema = z.object({
 
 const step3Schema = z.object({
   isFreeSession: z.boolean(),
-  price: z.coerce.number({ message: "Price is required" }).int({ message: "Price must be a whole number" }),
+  price: z.coerce.number({ message: "Price is required" }),
 }).superRefine((data, ctx) => {
   if (data.isFreeSession) {
     if (data.price !== undefined && data.price !== 0) {
@@ -123,7 +123,7 @@ const step3Schema = z.object({
     return;
   }
 
-  if (data.price === undefined) {
+  if (data.price === undefined && !data.isFreeSession) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["price"],
