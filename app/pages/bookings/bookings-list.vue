@@ -31,18 +31,17 @@ const selectedBooking = ref<Booking | null>(null);
 
 const filters = ref({
   search: "",
-  status: "",
+  type: "",
   dateRange: {
     start: null as string | null,
     end: null as string | null,
   },
 });
 
-const statusOptions = [
-  { label: "Pending", value: "PENDING" },
-  { label: "Confirmed", value: "CONFIRMED" },
-  { label: "Cancelled", value: "CANCELLED" },
-  { label: "Completed", value: "COMPLETED" },
+const typeOptions = [
+  { label: "Session", value: "session" },
+  { label: "Spa", value: "spa" },
+  { label: "Passes", value: "pass" },
 ];
 
 const columns = computed(() => [
@@ -62,7 +61,7 @@ const columns = computed(() => [
 const hasActiveFilters = computed(() => {
   return (
     filters.value.search
-    || filters.value.status
+    || filters.value.type
     || filters.value.dateRange.start
     || filters.value.dateRange.end
   );
@@ -76,7 +75,7 @@ async function fetchBookings(): Promise<void> {
       page: pagination.value.page,
       limit: pagination.value.pageSize,
       q: filters.value.search || undefined,
-      status: filters.value.status === "" ? undefined : filters.value.status,
+      type: filters.value.type === "" ? undefined : filters.value.type,
       startDate: filters.value.dateRange.start || undefined,
       endDate: filters.value.dateRange.end || undefined,
     };
@@ -100,7 +99,7 @@ function handleSearch(): void {
 function clearFilters(): void {
   filters.value = {
     search: "",
-    status: "",
+    type: "",
     dateRange: { start: null, end: null },
   };
 
@@ -194,10 +193,10 @@ onMounted(fetchBookings);
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
           />
           <base-select
-            v-model="filters.status"
-            name="status"
-            placeholder="All statuses"
-            :options="statusOptions"
+            v-model="filters.type"
+            name="type"
+            placeholder="Select type"
+            :options="typeOptions"
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
           />
           <div class="flex gap-2 w-full sm:w-auto">
