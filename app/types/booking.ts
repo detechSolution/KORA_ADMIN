@@ -11,6 +11,7 @@ export type Booking = {
   clientName: string;
   clientEmail: string;
   clientPhoneNumber: string;
+  visitors?: any[];
 };
 
 export type BookingItemGroup = {

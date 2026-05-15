@@ -287,6 +287,12 @@ onMounted(fetchBookings);
         @close="isCancelModalOpen = false"
         @confirm="handleRequestCancellation"
       />
+
+      <bookings-detail-modal
+        :open="isDetailModalOpen"
+        :booking="selectedBooking"
+        @close="isDetailModalOpen = false"
+      />
     </div>
   </div>
 </template>
