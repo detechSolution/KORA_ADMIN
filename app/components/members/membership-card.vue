@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 
 import type { MembershipPlanOption } from "~/types/membership";
 
@@ -14,32 +14,49 @@ const emit = defineEmits<{
   select: [optionId: number];
 }>();
 
-const primaryOption = computed(() =>
-  props.options.find(option => option.isVisible) ?? props.options[0] ?? null,
+const defaultOption = props.options.find(option => option.isVisible) ?? props.options[0] ?? null;
+const selectedOptionId = ref<number | null>(defaultOption?.id ?? null);
+
+const selectedOption = computed(() =>
+  props.options.find(o => o.id === selectedOptionId.value) ?? null,
 );
 
 const priceLabel = computed(() => {
-  if (!primaryOption.value) {
-    return `${props.currency ?? "Rs."} 0/month`;
-  }
-
-  return `${props.currency ?? "Rs."} ${Number(primaryOption.value.price).toLocaleString()}/${primaryOption.value.frequency}`;
+  const price = selectedOption.value?.price;
+  const frequency = selectedOption.value?.frequency ?? "month";
+  const currency = props.currency ?? "Rs.";
+  if (price == null)
+    return `${currency} 0/month`;
+  return `${currency} ${Number(price).toLocaleString()}/${frequency}`;
 });
 
-function handleSelect() {
-  if (primaryOption.value) {
-    emit("select", primaryOption.value.id);
+const selectOptions = computed(() =>
+  props.options.map(option => ({
+    label: option.frequency.charAt(0).toUpperCase() + option.frequency.slice(1),
+    value: option.id,
+  })),
+);
+
+watch(selectedOptionId, (newId) => {
+  if (newId != null && props.isSelected) {
+    emit("select", newId);
+  }
+});
+
+function handleCardClick() {
+  if (selectedOptionId.value != null) {
+    emit("select", selectedOptionId.value);
   }
 }
 </script>
 
 <template>
   <div
-    class="w-full cursor-pointer rounded-2xl border px-4 py-5 text-left transition-colors sm:px-5"
+    class="w-full cursor-pointer rounded-md border px-4 py-5 text-left transition-colors sm:px-5"
     :class="isSelected
-      ? 'border-[#dfd6cb] bg-[#f7f3ee]'
-      : 'border-[#e8e0d8] bg-white hover:bg-[#faf7f3]'"
-    @click="handleSelect"
+      ? 'border-primary-300 bg-primary-50'
+      : 'border-stone-200 bg-white hover:bg-stone-50'"
+    @click="handleCardClick"
   >
     <div class="flex items-center justify-between gap-4">
       <div class="flex min-w-0 items-center gap-4">
@@ -53,10 +70,20 @@ function handleSelect() {
           />
         </span>
 
-        <div class="min-w-0">
-          <h3 class="truncate text-sm font-medium text-[#232126]">
+        <div class="min-w-0 flex flex-col gap-1">
+          <h3 class="truncate text-sm font-medium text-secondary">
             {{ name }}
           </h3>
+
+          <base-select
+            v-model="selectedOptionId"
+            :options="selectOptions"
+            value-attribute="value"
+            option-attribute="label"
+            name="membershipPlanOptionId"
+            class="w-30"
+            is-borderless
+          />
         </div>
       </div>
 

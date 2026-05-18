@@ -147,6 +147,23 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
+  const createMember = async (payload: any) => {
+    loading.value = true;
+    try {
+      await http.post(
+        API_ENDPOINTS.MEMBERS.BASE,
+        payload,
+      );
+    }
+    catch (error: unknown) {
+      console.error("Error creating membership plan:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
   return {
     plans,
     loading,
@@ -157,5 +174,6 @@ export const useMembershipStore = defineStore("membership", () => {
     fetchMembersSummary,
     members,
     membersSummary,
+    createMember,
   };
 });

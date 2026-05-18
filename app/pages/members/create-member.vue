@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import z from "zod";
 
-import type { CreateMemberPayload, MembershipPlan, MembershipPlanOption } from "~/types/membership";
+import type { MembershipPlan } from "~/types/membership";
 
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
@@ -27,6 +27,17 @@ const steps: StepItem[] = [
   { label: "Payment", description: "Payment & Create", title: "Finalize the payment details and create the membership.", icon: ICONS.CREDIT_CARD },
 ];
 
+const paymentOptions = [
+  {
+    label: "Cash",
+    value: "cash",
+  },
+  {
+    label: "Online",
+    value: "online",
+  },
+];
+
 const currentStep = ref(0);
 const membershipStore = useMembershipStore();
 const toast = useNotification();
@@ -40,7 +51,7 @@ const stepOneSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   phoneNumber: z.string().min(1, "Phone number is required"),
   email: z.string().email("Invalid email address"),
-  identificationDocument: z.instanceof(File).refine(file => file.size <= 4 * 1024 * 1024, "File must be less than 4MB").refine(file => ["image/jpeg", "image/png", "application/pdf"].includes(file.type), "Invalid file type"),
+  identificationDocument: z.file({ error: "Identification document is required" }),
 });
 
 const stepTwoSchema = z.object({
@@ -76,13 +87,8 @@ const state = reactive<Partial<CombinedSchema>>({
   paymentMethod: "",
 });
 
-function getPrimaryOption(plan: MembershipPlan): MembershipPlanOption | null {
-  return plan.options.find(option => option.isVisible) ?? plan.options[0] ?? null;
-}
-
 function isPlanSelected(plan: MembershipPlan): boolean {
-  const optionId = getPrimaryOption(plan)?.id;
-  return optionId != null && state.membershipPlanOptionId === optionId;
+  return plan.options.some(option => option.id === state.membershipPlanOptionId);
 }
 
 function handlePlanSelect(optionId: number | null): void {
@@ -143,18 +149,20 @@ async function handleCreatePlan() {
   try {
     loading.value = true;
     clearApiError();
-    const payload: CreateMemberPayload = {
-      fullName: state.fullName,
-      phoneNumber: state.phoneNumber,
-      email: state.email,
-      identificationDocument: state.identificationDocument,
-      membershipPlanOptionId: state.membershipPlanOptionId,
-      subscriptionStartDate: state.subscriptionStartDate,
-      paymentMethod: state.paymentMethod,
-    };
-    await membershipStore.createPlan(payload);
+
+    const formData = new FormData();
+
+    formData.append("fullName", state.fullName);
+    formData.append("phoneNumber", state.phoneNumber);
+    formData.append("email", state.email);
+    formData.append("membershipPlanOptionId", state.membershipPlanOptionId.toString());
+    formData.append("subscriptionStartDate", state.subscriptionStartDate);
+    formData.append("identificationDocument", state.identificationDocument);
+    formData.append("paymentMethod", state.paymentMethod);
+
+    await membershipStore.createMember(formData);
     toast.success({ message: "Membership plan created successfully" });
-    router.push("/members/plan");
+    router.push("/members/members-list");
   }
   catch (error: unknown) {
     const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
@@ -189,6 +197,16 @@ async function fetchMembershipPlanOptions() {
     loading.value = false;
   }
 }
+
+const selectedPlanOption = computed(() => {
+  for (const plan of membershipStore.plans.data) {
+    const option = plan.options.find(o => o.id === state.membershipPlanOptionId);
+    if (option) {
+      return { plan, option };
+    }
+  }
+  return null;
+});
 
 onMounted(() => {
   fetchMembershipPlanOptions();
@@ -225,7 +243,7 @@ onMounted(() => {
           aria-label="Session creation progress"
           @select="goToStep"
         />
-        <div class="flex-1 min-w-0 lg:pl-0">
+        <div class="flex-1 flex flex-col gap-4 min-w-0 lg:pl-0">
           <form-header-card
             :label="steps[currentStep]?.label ?? ''"
             :description="steps[currentStep]?.title ?? ''"
@@ -312,7 +330,6 @@ onMounted(() => {
                       name="startDate"
                       label="Start Date*"
                       placeholder="Select start date"
-                      number-of-months="1"
                     />
                   </div>
                 </div>
@@ -322,18 +339,21 @@ onMounted(() => {
                 v-else-if="currentStep === 2"
                 key="step-3"
               >
-                <div class="rounded-xl bg-muted/20 p-5 sm:p-6 shadow-xl">
+                <div class="rounded-xl flex flex-col gap-4 p-5 sm:p-6 shadow-xl">
                   <div class="flex flex-col bg-stone-50 p-4 border border-stone-200 rounded-md gap-2">
                     <h2 class="text-stone-900 font-medium text-base">
                       Overview
                     </h2>
+
                     <div class="flex justify-between">
                       <p class="text-secondary-500 text-xs">
-                        kora premium
+                        {{ selectedPlanOption?.plan.name }}
+                        ({{ selectedPlanOption?.option.frequency }})
                       </p>
 
                       <p class="text-secondary text-xs font-normal">
-                        Rs. 2000
+                        {{ selectedPlanOption?.plan.currency }}
+                        {{ Number(selectedPlanOption?.option.price).toLocaleString() }}
                       </p>
                     </div>
                     <USeparator />
@@ -342,10 +362,20 @@ onMounted(() => {
                         Total
                       </p>
                       <p class="text-secondary text-sm font-medium">
-                        Rs. 2000
+                        {{ selectedPlanOption?.plan.currency }}
+                        {{ Number(selectedPlanOption?.option.price).toLocaleString() }}
                       </p>
                     </div>
                   </div>
+                  <h2 class="text-stone-900 font-medium text-base">
+                    Payment Method
+                  </h2>
+
+                  <base-select
+                    v-model="state.paymentMethod"
+                    name="paymentMethod"
+                    :options="paymentOptions"
+                  />
                 </div>
               </section>
             </Transition>
