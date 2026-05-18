@@ -70,6 +70,14 @@ export const useSessionsStore = defineStore("sessions", () => {
       formData.append("price", String(payload.price));
       formData.append("file", payload.bannerImage);
       formData.append("video", payload.bannerVideo);
+      if (typeof payload.bannerImage === "string") {
+        formData.delete("file");
+        formData.append("fileUrl", payload.bannerImage);
+      }
+      if (typeof payload.bannerVideo === "string") {
+        formData.delete("video");
+        formData.append("videoUrl", payload.bannerVideo);
+      }
 
       await http.post(API_ENDPOINTS.SESSION.CREATE, formData);
     }

@@ -22,9 +22,10 @@ export const useBookingStore = defineStore("booking", () => {
   const bookingItemOptions = ref<BookingItemGroup[]>([]);
   const loading = ref(false);
 
-  const getBookings = async (): Promise<void> => {
+  const getBookings = async (params: Record<string, any>): Promise<void> => {
     try {
-      const response = await http.get(API_ENDPOINTS.BOOKINGS.BASE) as any;
+      const qs = buildQueryString(params);
+      const response = await http.get(`${API_ENDPOINTS.BOOKINGS.BASE}?${qs}`) as any;
       bookings.value = response;
     }
     catch (error: unknown) {
@@ -114,6 +115,27 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
+  const requestBookingCancellation = async (bookingId: number): Promise<void> => {
+    try {
+      await http.patch(API_ENDPOINTS.BOOKINGS.REQUEST_CANCELLATION(bookingId));
+    }
+    catch (error: unknown) {
+      console.error(error, "Request Booking Cancellation Error");
+      throw error;
+    }
+  };
+
+  const fetchBookingById = async (bookingId: number): Promise<any> => {
+    try {
+      const res = await http.get(API_ENDPOINTS.BOOKINGS.GET(bookingId));
+      return res;
+    }
+    catch (error: unknown) {
+      console.error(error, "Fetch BookingById Error");
+      throw error;
+    }
+  };
+
   return {
     loading,
     bookings,
@@ -127,5 +149,7 @@ export const useBookingStore = defineStore("booking", () => {
     fetchSpaTimeAvailability,
     createNewClientBooking,
     createExistingMemberBooking,
+    requestBookingCancellation,
+    fetchBookingById,
   };
 });
