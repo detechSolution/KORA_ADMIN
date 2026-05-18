@@ -106,17 +106,10 @@ async function handleCreateInstructor() {
     </base-page-header>
 
     <div class="flex flex-col gap-6 p-6 bg-white rounded-lg">
-      <div class="bg-stone-50 rounded-lg p-4 flex flex-col gap-2">
-        <div class="flex items-center gap-2">
-          <UIcon :name="ICONS.INFO" class="text-primary" />
-          <h3 class="text-sm text-secondary font-medium">
-            Basic Info
-          </h3>
-        </div>
-        <p class="text-secondary-500 text-xs">
-          Start by entering the instructor personal details and a short description.
-        </p>
-      </div>
+      <form-header-card
+        label="Basic Info"
+        description="Start by entering the instructor personal details and a short description."
+      />
 
       <UForm
         ref="formRef"

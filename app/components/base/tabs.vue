@@ -79,7 +79,7 @@ function selectTab(item: BaseTabItem): void {
 <template>
   <div class="flex min-h-0 flex-col gap-4">
     <div
-      class="shrink-0 overflow-hidden rounded-lg  p-1.5"
+      class="shrink-0 overflow-hidden rounded-lg"
       :class="{ 'w-full': orientation === 'horizontal' }"
     >
       <nav
