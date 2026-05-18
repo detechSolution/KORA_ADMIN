@@ -76,8 +76,8 @@ async function fetchBookings(): Promise<void> {
       limit: pagination.value.pageSize,
       q: filters.value.search || undefined,
       type: filters.value.type === "" ? undefined : filters.value.type,
-      startDate: filters.value.dateRange.start || undefined,
-      endDate: filters.value.dateRange.end || undefined,
+      bookedFrom: filters.value.dateRange.start || undefined,
+      bookedTo: filters.value.dateRange.end || undefined,
     };
     await bookingStore.getBookings(params);
   }
