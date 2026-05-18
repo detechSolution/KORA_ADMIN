@@ -32,7 +32,7 @@ export const useMembershipStore = defineStore("membership", () => {
   });
   const loading = ref(false);
 
-  const fetchPlans = async (payload: {
+  const fetchPlans = async (payload?: {
     pagination: {
       page: number;
       pageSize: number;
@@ -44,11 +44,11 @@ export const useMembershipStore = defineStore("membership", () => {
     loading.value = true;
     try {
       const query = buildQueryString({
-        page: payload.pagination.page,
-        limit: payload.pagination.pageSize,
-        q: payload.search,
-        type: payload.type,
-        status: payload.status,
+        page: payload?.pagination.page,
+        limit: payload?.pagination.pageSize,
+        q: payload?.search,
+        type: payload?.type,
+        status: payload?.status,
       });
       const response = await http.get(
         `${API_ENDPOINTS.MEMBERSHIP.GET_PLANS}?${query}`,
@@ -158,6 +158,23 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
+  const createMember = async (payload: any) => {
+    loading.value = true;
+    try {
+      await http.post(
+        API_ENDPOINTS.MEMBERS.BASE,
+        payload,
+      );
+    }
+    catch (error: unknown) {
+      console.error("Error creating membership plan:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
   return {
     plans,
     loading,
@@ -169,5 +186,6 @@ export const useMembershipStore = defineStore("membership", () => {
     members,
     membersSummary,
     getMembersOptions,
+    createMember,
   };
 });
