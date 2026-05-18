@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Time } from "@internationalized/date";
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import * as z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { useInstructorsStore } from "~/stores/instructors";
 import { useSessionsStore } from "~/stores/sessions";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -16,6 +17,7 @@ definePageMeta({
 
 const { success, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
+const instructorsStore = useInstructorsStore();
 
 const currentStep = ref(0);
 const loading = ref(false);
@@ -25,6 +27,13 @@ const sessionTypeOptions = [
   { label: "Event", value: "event" },
   { label: "Workshop", value: "workshop" },
 ];
+
+const instructorOptions = computed(() =>
+  instructorsStore.instructors.data.map(i => ({
+    label: i.fullName,
+    value: i.id,
+  })),
+);
 
 type ValidatableForm = {
   validate: () => Promise<void>;
@@ -74,13 +83,13 @@ function formatTimeValue(value: Time | undefined): string {
 const step1Schema = z.object({
   sessionName: z.string().trim().min(1, "Session name is required"),
   sessionType: sessionTypeSchema,
-  bannerImage: z.file({ error: "Banner image is required" }),
-  bannerVideo: z.file({ error: "Banner video is required" }),
+  bannerImage: z.string().or(z.instanceof(File)),
+  bannerVideo: z.string().or(z.instanceof(File)),
   sessionDescription: z.string().refine(v => stripHtml(v).length > 0, { message: "Description is required" }),
 });
 
 const step2Schema = z.object({
-  instructorName: z.string().trim().min(1, "Instructor name is required"),
+  instructorId: z.coerce.number().min(1, "Instructor id is required").int("Instructor id must be a whole number"),
   venue: z.string().trim().min(1, "Venue is required"),
   capacity: z.coerce.number({ message: "Capacity is required" }).int({ message: "Capacity must be a whole number" }).positive("Capacity must be a positive integer"),
   date: z.array(z.string().min(1, "Invalid date")).min(1, "At least one session date is required"),
@@ -101,7 +110,7 @@ const step2Schema = z.object({
 
 const step3Schema = z.object({
   isFreeSession: z.boolean(),
-  price: z.coerce.number({ message: "Price is required" }).int({ message: "Price must be a whole number" }).positive("Price must be a positive integer"),
+  price: z.coerce.number({ message: "Price is required" }),
 }).superRefine((data, ctx) => {
   if (data.isFreeSession) {
     if (data.price !== undefined && data.price !== 0) {
@@ -114,7 +123,7 @@ const step3Schema = z.object({
     return;
   }
 
-  if (data.price === undefined) {
+  if (data.price === undefined && !data.isFreeSession) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["price"],
@@ -144,7 +153,7 @@ const form = reactive<Partial<CombinedSchema>>({
   bannerVideo: undefined,
   sessionDescription: "",
   sessionType: "class",
-  instructorName: "",
+  instructorId: undefined,
   venue: "",
   capacity: 0,
   date: [],
@@ -220,7 +229,7 @@ function clearFormData(): void {
   form.sessionDescription = "";
   form.bannerImage = undefined;
   form.bannerVideo = undefined;
-  form.instructorName = "";
+  form.instructorId = undefined;
   form.venue = "";
   form.capacity = 0;
   form.date = [];
@@ -231,6 +240,13 @@ function clearFormData(): void {
 }
 
 async function handleCreateSession(): Promise<void> {
+  try {
+    await formRef.value?.validate();
+  }
+  catch {
+    return;
+  }
+
   try {
     loading.value = true;
     apiError.value = null;
@@ -251,6 +267,30 @@ async function handleCreateSession(): Promise<void> {
     loading.value = false;
   }
 }
+
+onMounted(async () => {
+  await instructorsStore.fetchInstructors();
+  if (sessionsStore.sessionToCopy) {
+    const s = sessionsStore.sessionToCopy;
+    form.sessionName = `${s.name} (Copy)`;
+    form.sessionType = s.type;
+    form.sessionDescription = s.description;
+    form.instructorId = s.instructorId;
+    form.venue = s.venue;
+    form.capacity = s.capacity;
+    // Date in list is usually a single string sessionDate, but create expects an array
+    form.date = s.sessionDate ? [s.sessionDate] : [];
+    form.startTime = s.startTime;
+    form.endTime = s.endTime;
+    form.price = s.price;
+    form.isFreeSession = s.isFree;
+    form.bannerImage = s.bannerUrl;
+    form.bannerVideo = s.videoUrl;
+
+    // Reset the copy state so it doesn't persist on next visit
+    sessionsStore.sessionToCopy = null;
+  }
+});
 </script>
 
 <template>
@@ -385,11 +425,13 @@ async function handleCreateSession(): Promise<void> {
               >
                 <div class="rounded-xl border border-border bg-muted/20 p-5 sm:p-6 shadow-sm space-y-6">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <base-input
-                      v-model="form.instructorName"
-                      name="instructorName"
+                    <base-select-searchable
+                      v-model="form.instructorId"
+                      name="instructorId"
                       label="Instructor Name"
-                      placeholder="Enter instructor name"
+                      placeholder="Select instructor"
+                      :options="instructorOptions"
+                      :loading="instructorsStore.loading"
                     />
                     <base-input
                       v-model="form.venue"

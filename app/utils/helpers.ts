@@ -22,121 +22,154 @@ type StatusConfig = {
 };
 
 const STATUS_CONFIG: Record<string, StatusConfig> = {
-  paid: {
+  "paid": {
     label: "Paid",
     badgeColor: "emerald",
     className: "bg-green-100 text-green-800",
   },
-  refunded: {
+  "refunded": {
     label: "Refunded",
     badgeColor: "amber",
     className: "bg-yellow-100 text-yellow-800",
   },
-  failed: {
+  "failed": {
     label: "Failed",
     badgeColor: "red",
     className: "bg-red-100 text-red-800",
   },
-  pending: {
+  "pending": {
     label: "Pending",
     badgeColor: "amber",
     className: "bg-amber-100 text-amber-800",
   },
-  partial: {
+  "partial": {
     label: "Partial",
     badgeColor: "orange",
     className: "bg-orange-100 text-orange-800",
   },
-  processing: {
+  "processing": {
     label: "Processing",
     badgeColor: "blue",
     className: "bg-blue-100 text-blue-800",
   },
-  completed: {
+  "completed": {
     label: "Completed",
     badgeColor: "success",
     className: "bg-emerald-100 text-emerald-800",
   },
-  cancelled: {
+  "cancelled": {
     label: "Cancelled",
     badgeColor: "muted",
     className: "bg-gray-100 text-gray-800",
   },
-  canceled: {
+  "canceled": {
     label: "Canceled",
     badgeColor: "muted",
     className: "bg-gray-100 text-gray-800",
   },
-  active: {
+  "active": {
     label: "Active",
     badgeColor: "emerald",
     className: "bg-emerald-100 text-emerald-800",
   },
-  inactive: {
+  "inactive": {
     label: "Inactive",
     badgeColor: "muted",
     className: "bg-gray-100 text-gray-800",
   },
-  cash: {
+  "cash": {
     label: "Cash",
     icon: ICONS.BANKNOTE,
     badgeColor: "purple",
     className: "bg-purple-100 text-purple-800",
   },
-  online: {
+  "online": {
     label: "Online",
     icon: ICONS.WIFI,
     badgeColor: "blue",
     className: "bg-blue-100 text-blue-800",
   },
-  class: {
+  "class": {
     label: "Class",
     badgeColor: "blue",
     className: "bg-blue-100 text-blue-800",
   },
-  event: {
+  "event": {
     label: "Event",
     badgeColor: "emerald",
     className: "bg-emerald-100 text-emerald-800",
   },
-  workshop: {
+  "workshop": {
     label: "Workshop",
     badgeColor: "purple",
     className: "bg-purple-100 text-purple-800",
   },
-  monthly: {
+  "monthly": {
     label: "Monthly",
     badgeColor: "blue",
     className: "bg-blue-100 text-blue-800",
   },
-  quarterly: {
+  "quarterly": {
     label: "Quarterly",
     badgeColor: "emerald",
     className: "bg-emerald-100 text-emerald-800",
   },
-  yearly: {
+  "yearly": {
     label: "Yearly",
     badgeColor: "orange",
     className: "bg-orange-100 text-orange-800",
   },
-  custom: {
+  "custom": {
     label: "Custom",
     badgeColor: "purple",
     className: "bg-purple-100 text-purple-800",
   },
-  guest: {
+  "guest": {
     label: "Guest",
     badgeColor: "purple",
     className: "bg-purple-100 text-purple-800",
   },
-  member: {
+  "member": {
     label: "Member",
     badgeColor: "purple",
     className: "bg-purple-100 text-purple-800",
   },
+  "spa": {
+    label: "Spa",
+    badgeColor: "blue",
+    className: "bg-blue-100 text-blue-800",
+  },
+  "session": {
+    label: "Session",
+    badgeColor: "purple",
+    className: "bg-purple-100 text-purple-800",
+  },
+  "pass": {
+    label: "Pass",
+    badgeColor: "emerald",
+    className: "bg-emerald-100 text-emerald-800",
+  },
+  "passes": {
+    label: "Passes",
+    badgeColor: "emerald",
+    className: "bg-emerald-100 text-emerald-800",
+  },
+  "confirmed": {
+    label: "Confirmed",
+    badgeColor: "emerald",
+    className: "bg-emerald-100 text-emerald-800",
+  },
+  "cancellation processing": {
+    label: "Cancellation Processing",
+    badgeColor: "amber",
+    className: "bg-amber-100 text-amber-800",
+  },
 };
 
 function normalizeStatus(status: string | null | undefined): string {
+  if (status?.includes("_")) {
+    return status.split("_").map(part => part.trim().toLowerCase()).join(" ");
+  }
   return String(status ?? "").trim().toLowerCase();
 }
 

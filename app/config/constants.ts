@@ -10,6 +10,15 @@ export const API_ENDPOINTS = {
     CREATE: "/api/v1/sessions",
     GET_LIST: "/api/v1/sessions",
     UPDATE: (id: number) => `/api/v1/sessions/${id}`,
+    GET_ATTENDANCE_LIST: (id: number) => `/api/v1/sessions/${id}/attendance`,
+    GET_ATTENDANCE_CANDIDATES: (id: number) => `/api/v1/sessions/${id}/attendance/candidates`,
+    SAVE_ATTENDANCE: (id: number) => `/api/v1/sessions/${id}/attendance`,
+    ADD_MEMBER: (id: number) => `/api/v1/sessions/${id}/attendance/replacements`,
+  },
+  KORA_PASSES: {
+    GET_LIST: "/api/v1/passes",
+    CREATE: "/api/v1/passes",
+    UPDATE: (id: number) => `/api/v1/passes/${id}`,
   },
   SPA: {
     GET_SPA: "/api/v1/spa",
@@ -68,11 +77,25 @@ export const API_ENDPOINTS = {
     ITEMS_GET_LIST: "/api/v1/transactions/getItems",
     UPDATE: "/api/v1/transactions/updateStatus",
   },
+  BOOKINGS: {
+    BASE: "/api/v1/bookings",
+    GET_LIST: "/api/v1/bookings/getList",
+    MANUAL: "/api/v1/bookings/manual",
+    OPTIONS: "/api/v1/bookings/item-options",
+    ITEM_OPTIONS: "/api/v1/bookings/item-options",
+    CREATE_NEW_CLIENT: "/api/v1/bookings/new-client",
+    SPA_TIME_AVAILABILITY: "/api/v1/bookings/spa-time-availability",
+    REQUEST_CANCELLATION: (id: number) => `/api/v1/bookings/${id}/request-cancellation`,
+    GET: (id: number) => `/api/v1/bookings/${id}`,
+  },
   INSTRUCTORS: {
     BASE: "/api/v1/instructors",
     CREATE: "/api/v1/instructors",
     GET_LIST: "/api/v1/instructors/getList",
     GET_DETAILS: (id: number) => `/api/v1/instructors/${id}`,
+    UPDATE: (id: number) => `/api/v1/instructors/${id}`,
+    GET_ASSIGNED_SESSIONS: (id: number) => `/api/v1/instructors/${id}/assigned-sessions`,
+    GET_UPCOMING_SESSIONS: (id: number) => `/api/v1/instructors/${id}/upcoming-sessions`,
   },
   // used
   MEMBERS: {
@@ -80,7 +103,7 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/v1/members/${id}`,
     SUMMARY: "/api/v1/members/summary",
     DELETE: (id: number) => `/api/v1/members/${id}`,
-
+    OPTIONS: "/api/v1/members/options",
   },
   // used
   MEMBERSHIP: {
@@ -101,6 +124,7 @@ export const API_ENDPOINTS = {
     GET_LIST: "/api/v1/promo-codes/getList",
     PREVIEW: "/api/v1/promo-codes/preview",
     UPDATE: (id: number) => `/api/v1/promo-codes/${id}`,
+    VALIDATE: "/api/v1/promo-codes/validate",
   },
   // used
   MAILS: {
@@ -201,9 +225,9 @@ export const SUBSCRIPTION_STATUS = {
  * Session Type Values
  */
 export const SESSION_TYPE = {
-  CLASS: "CLASS",
-  EVENT: "EVENT",
-  WORKSHOP: "WORKSHOP",
+  CLASS: "class",
+  EVENT: "event",
+  WORKSHOP: "workshop",
 } as const;
 
 /**

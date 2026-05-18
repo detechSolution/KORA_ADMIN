@@ -47,6 +47,9 @@ export const ICONS = {
   WIFI: "i-lucide-wifi",
   BANKNOTE: "i-lucide-banknote",
   TRASH: "i-lucide-trash-2",
+  USER_PLUS: "i-lucide-user-plus",
+  ID_CARD: "i-lucide-id-card-lanyard",
+  MONEY: "i-lucide-banknote",
 
   // UI Elements
   ELLIPSIS_VERTICAL: "i-lucide-ellipsis-vertical",
@@ -77,6 +80,7 @@ export const ICONS = {
   REGISTERED: "i-lucide-user-check",
   SAVE: "i-lucide-save",
   FLOWER: "i-lucide-flower",
+  IMAGE: "i-lucide-image",
   // arrow
   ARROW_LEFT: "i-lucide-arrow-left",
   ARROW_RIGHT: "i-lucide-arrow-right",

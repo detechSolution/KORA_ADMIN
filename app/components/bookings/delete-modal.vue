@@ -19,7 +19,7 @@ const emit = defineEmits<{
 <template>
   <base-modal
     :open="open"
-    title="Delete Spa Sub-type ?"
+    title="Request Booking Cancellation ?"
     description=""
     :modal-width="420"
     dismissible
@@ -27,7 +27,7 @@ const emit = defineEmits<{
   >
     <div class="flex flex-col gap-5 p-6">
       <p class="text-sm text-secondary-500">
-        Are you sure you want to delete this spa sub-type?
+        Are you sure you want to request booking cancellation?
       </p>
 
       <div class="flex justify-end gap-2">
@@ -46,7 +46,7 @@ const emit = defineEmits<{
           class="cursor-pointer font-semibold"
           @click="emit('confirm')"
         >
-          Yes, Delete
+          Yes, Request
         </UButton>
       </div>
     </div>

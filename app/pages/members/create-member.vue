@@ -14,13 +14,6 @@ definePageMeta({
   permission: "administration.admins.create",
 });
 
-type StepItem = {
-  label: string;
-  title: string;
-  description: string;
-  icon: string;
-};
-
 const steps: StepItem[] = [
   { label: "Basic Info", description: "Member name & details", title: "Start by entering the member's personal details.", icon: ICONS.INFO },
   { label: "Membership Plan", description: "Select a subscription plan", title: "Select the membership plan for the member", icon: ICONS.AWARD },

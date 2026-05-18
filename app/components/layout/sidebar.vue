@@ -97,11 +97,12 @@ const rawItems: NavItemWithPermission[] = [{
   children: [
     { label: "Sessions", to: "/offerings/session", icon: ICONS.CALENDAR, permission: PERMISSIONS_SESSIONS.VIEW },
     { label: "Spa", to: "/offerings/spa", icon: ICONS.FLOWER, permission: PERMISSIONS_SERVICES.VIEW },
+    { label: "Kora Passes", to: "/offerings/kora-passes", icon: ICONS.ID_CARD, permission: PERMISSIONS_SERVICES.VIEW },
   ],
 }, {
   label: "Bookings",
   icon: ICONS.INQUIRIES,
-  to: "/booking",
+  to: "/bookings/bookings-list",
   permission: PERMISSIONS_BOOKINGS.VIEW,
 }, {
   label: "Members",
