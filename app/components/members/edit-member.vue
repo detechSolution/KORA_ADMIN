@@ -78,18 +78,13 @@ async function handleSubmit(): Promise<void> {
       return;
     }
     loading.value = true;
+
     const payload: Record<string, unknown> = {
+      fullName: state.fullName,
+      phoneNumber: state.phoneNumber,
+      email: state.email,
       membershipPlanOptionId: membershipPlanOptionId.value,
     };
-
-    if (state.fullName !== props.plan.fullName)
-      payload.fullName = state.fullName;
-    if (state.phoneNumber !== props.plan.phoneNumber)
-      payload.phoneNumber = state.phoneNumber;
-    if (state.email !== props.plan.email)
-      payload.email = state.email;
-    if (membershipPlanOptionId.value !== props.plan.membershipPlanOptionId)
-      payload.membershipPlanOptionId = membershipPlanOptionId.value;
 
     await membershipStore.updateMember(props.plan.id, payload);
     success({ message: "Member updated successfully" });
