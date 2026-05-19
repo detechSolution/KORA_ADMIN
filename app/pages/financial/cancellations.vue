@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 import { ICONS } from "~/config/icons";
+import { useFinanceStore } from "~/stores/finance";
+import { formatDate } from "~/utils/common";
 
 definePageMeta({
   auth: true,
@@ -8,14 +12,30 @@ definePageMeta({
 });
 
 const columns = [
-  { id: "id", header: "Client", accessorKey: "id" },
-  { id: "customer", header: "Reference ID", accessorKey: "customer" },
-  { id: "date", header: "Requested Date", accessorKey: "date" },
-  { id: "status", header: "Refunded Date", accessorKey: "status" },
-  { id: "amount", header: "Amount", accessorKey: "amount" },
-  { id: "amount", header: "Status", accessorKey: "amount" },
-  { id: "amount", header: "Actions", accessorKey: "amount" },
+  { header: "Client", accessorKey: "client" },
+  { header: "Reference ID", accessorKey: "referenceCode" },
+  { header: "Requested Date", accessorKey: "requestedDate", accessorFn: row => formatDate(row.requestedDate) || "N/A" },
+  { header: "Refunded Date", accessorKey: "refundedDate", accessorFn: row => formatDate(row.refundedDate) || "N/A" },
+  { header: "Amount", accessorKey: "amount" },
+  { header: "Status", accessorKey: "status" },
+  { header: "Actions", accessorKey: "actions" },
 ];
+const { pagination } = usePagination();
+
+const financeStore = useFinanceStore();
+const loading = computed(() => financeStore.loading);
+const cancellations = computed(() => financeStore.cancellations);
+
+async function fetchCancellations() {
+  try {
+    await financeStore.fetchCancellations();
+  }
+  catch (error) {
+    console.error("Error fetching cancellations:", error);
+  }
+}
+
+fetchCancellations();
 </script>
 
 <template>
@@ -29,7 +49,7 @@ const columns = [
       </template>
     </base-page-header>
 
-    <div class="bg-white flex flex-col p-4 gap-4">
+    <div class="bg-white rounded-xl p-6 flex flex-col gap-4">
       <div>
         <h2 class="text-base font-semibold">
           Cancellations List
@@ -82,11 +102,55 @@ const columns = [
         </base-button>
       </div>
       <base-table
-        :data="[]"
+        :data="cancellations.data"
         :columns="columns"
-        :loading="false"
-        empty-title="No communities found"
-        empty-description="It looks like you haven't added any communities. Create one to get started."
+        :loading="loading"
+        empty-title="No cancellations found"
+        empty-description="It looks like you haven't added any cancellations. Create one to get started."
+      >
+        <template #client-cell="{ row }">
+          <div class="flex items-center">
+            <div class="flex flex-col gap-1">
+              <span class="text-sm font-medium text-secondary">
+                {{ row?.original?.clientName }}
+              </span>
+              <span class="text-xs text-muted">
+                {{ row?.original?.clientPhoneNumber }}
+              </span>
+            </div>
+          </div>
+        </template>
+        <template #referenceCode-cell="{ row }">
+          <base-badge>
+            {{ row?.original?.referenceCode }}
+          </base-badge>
+        </template>
+
+        <template #status-cell="{ row }">
+          <base-badge :color="getStatusColor(row?.original?.status)">
+            {{ getStatusLabel(row?.original?.status) }}
+          </base-badge>
+        </template>
+
+        <template #actions-cell>
+          <base-dropdown-menu
+            :items="[
+              {
+                label: 'View Cancellation Details',
+                icon: ICONS.THREE_VERTICAL_DOTS,
+                // action: () => handleViewClick(row?.original),
+              },
+            ]"
+          />
+        </template>
+      </base-table>
+
+      <base-pagination
+        :page="cancellations.meta.page"
+        :items-per-page="cancellations.meta.limit"
+        :total="cancellations.meta.total"
+        :loading="loading"
+        @update:page="(v) => { pagination.page = v; fetchCancellations(); }"
       />
     </div>
   </div>

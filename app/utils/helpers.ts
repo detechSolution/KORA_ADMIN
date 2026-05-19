@@ -164,6 +164,11 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
     badgeColor: "amber",
     className: "bg-amber-100 text-amber-800",
   },
+  "requested": {
+    label: "Requested",
+    badgeColor: "yellow",
+    className: "bg-yellow-100 text-yellow-800",
+  },
 };
 
 function normalizeStatus(status: string | null | undefined): string {

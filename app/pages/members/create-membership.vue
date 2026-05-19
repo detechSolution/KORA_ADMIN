@@ -149,7 +149,7 @@ async function handleCreatePlan() {
       </template>
 
       <template #actions>
-        <NuxtLink to="/members/plan">
+        <NuxtLink to="/members/plans">
           <base-button
             variant="outline"
             :leading-icon="ICONS.ARROW_LEFT"
@@ -161,17 +161,10 @@ async function handleCreatePlan() {
     </base-page-header>
 
     <div class="flex flex-col gap-6 p-6 bg-white rounded-lg">
-      <div class="bg-stone-50 rounded-lg p-4 flex flex-col gap-2">
-        <div class="flex items-center gap-2">
-          <UIcon :name="ICONS.INFO" class="text-primary" />
-          <h3 class="text-sm text-secondary font-medium">
-            Create Membership Plan
-          </h3>
-        </div>
-        <p class="text-secondary-500 text-xs">
-          Create a membership plan by adding basic details below.
-        </p>
-      </div>
+      <form-header-card
+        label="Create Membership Plan"
+        description="Create a membership plan by adding basic details below."
+      />
 
       <UForm
         ref="formRef"
