@@ -229,9 +229,9 @@ async function handleCreateBooking(): Promise<void> {
 }
 
 async function fetchMembersOptions() {
-  const memberOptions = await membershipStore.getMembersOptions();
+  await membershipStore.getMembersOptions();
 
-  membersOptions.value = memberOptions.map((option: any) => ({
+  membersOptions.value = membershipStore.membershipOptions.map((option: any) => ({
     label: option.fullName,
     value: option.memberId,
     description: option.email,

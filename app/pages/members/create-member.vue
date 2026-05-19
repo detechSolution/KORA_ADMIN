@@ -19,21 +19,14 @@ const steps: StepItem[] = [
   { label: "Membership Plan", description: "Select a subscription plan", title: "Select the membership plan for the member", icon: ICONS.AWARD },
   { label: "Payment", description: "Payment & Create", title: "Finalize the payment details and create the membership.", icon: ICONS.CREDIT_CARD },
 ];
-
-const paymentOptions = [
-  {
-    label: "Cash",
-    value: "cash",
-  },
-  {
-    label: "Online",
-    value: "online",
-  },
+const paymentMethods = [
+  { value: "cash", label: "Cash", description: "Paid at counter", icon: ICONS.MONEY },
+  { value: "online", label: "Online Transfer", description: "Card/Online Transfer", icon: ICONS.WIFI },
 ];
 
 const currentStep = ref(0);
 const membershipStore = useMembershipStore();
-const toast = useNotification();
+const { error: showError, success } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
@@ -42,7 +35,7 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const stepOneSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
+  phoneNumber: z.string().min(1, "Phone number is required").regex(/^\d{10}$/, "Phone number must be 10 digits"),
   email: z.string().email("Invalid email address"),
   identificationDocument: z.file({ error: "Identification document is required" }),
 });
@@ -124,10 +117,6 @@ function handleBack(): void {
   currentStep.value = Math.max(currentStep.value - 1, 0);
 }
 
-function setApiError(error: string): void {
-  apiError.value = error;
-}
-
 function clearApiError(): void {
   apiError.value = null;
 }
@@ -154,17 +143,11 @@ async function handleCreatePlan() {
     formData.append("paymentMethod", state.paymentMethod);
 
     await membershipStore.createMember(formData);
-    toast.success({ message: "Membership plan created successfully" });
+    success({ message: "Membership plan created successfully" });
     router.push("/members/members-list");
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
+    showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });
   }
   finally {
     loading.value = false;
@@ -178,13 +161,7 @@ async function fetchMembershipPlanOptions() {
     await membershipStore.fetchPlans();
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
+    showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });
   }
   finally {
     loading.value = false;
@@ -306,21 +283,27 @@ onMounted(() => {
                       Select a membership plan
                     </h2>
 
-                    <members-membership-card
-                      v-for="plan in membershipStore.plans.data"
-                      :key="plan.id"
-                      :name="plan.name"
-                      :currency="plan.currency"
-                      :options="plan.options"
-                      :is-selected="isPlanSelected(plan)"
-                      @select="handlePlanSelect"
-                    />
+                    <UFormField name="membershipPlanOptionId" label="Membership Plan*">
+                      <div
+                        class=" flex flex-col gap-2"
+                      >
+                        <members-membership-card
+                          v-for="plan in membershipStore.plans.data"
+                          :key="plan.id"
+                          :name="plan.name"
+                          :currency="plan.currency"
+                          :options="plan.options"
+                          :is-selected="isPlanSelected(plan)"
+                          @select="handlePlanSelect"
+                        />
+                      </div>
+                    </UFormField>
 
                     <USeparator />
 
                     <base-date-picker
                       v-model="state.subscriptionStartDate"
-                      name="startDate"
+                      name="subscriptionStartDate"
                       label="Start Date*"
                       placeholder="Select start date"
                     />
@@ -364,11 +347,30 @@ onMounted(() => {
                     Payment Method
                   </h2>
 
-                  <base-select
-                    v-model="state.paymentMethod"
-                    name="paymentMethod"
-                    :options="paymentOptions"
-                  />
+                  <!-- Payment method -->
+                  <div class="flex flex-col gap-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div
+                        v-for="method in paymentMethods"
+                        :key="method.value"
+                        class="border rounded-lg p-3 cursor-pointer flex items-center gap-3 transition-all"
+                        :class="
+                          state.paymentMethod === method.value
+                            ? 'border-stone-200 bg-[#F9F6F2]'
+                            : 'border-stone-200 hover:border-stone-300'
+                        "
+                        @click="state.paymentMethod = method.value"
+                      >
+                        <div class="bg-primary-700 p-2 rounded-full flex items-center justify-center">
+                          <UIcon :name="method.icon" class="w-5 h-5 text-white" />
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="text-sm font-semibold">{{ method.label }}</span>
+                          <span class="text-xs text-stone-500">{{ method.description }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </section>
             </Transition>

@@ -38,7 +38,7 @@ const selectOptions = computed(() =>
 );
 
 watch(selectedOptionId, (newId) => {
-  if (newId != null && props.isSelected) {
+  if (newId != null) {
     emit("select", newId);
   }
 });
@@ -80,7 +80,7 @@ function handleCardClick() {
             :options="selectOptions"
             value-attribute="value"
             option-attribute="label"
-            name="membershipPlanOptionId"
+            name=""
             class="w-30"
             is-borderless
           />

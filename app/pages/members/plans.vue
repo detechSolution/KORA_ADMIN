@@ -12,7 +12,7 @@ import { getStatusColor } from "~/utils/helpers";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  // permission: "COMMUNITIES.VIEW",
+  permission: "membership_plans.view",
 });
 
 const options = ref([

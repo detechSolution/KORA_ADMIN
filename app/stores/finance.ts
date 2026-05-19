@@ -18,6 +18,14 @@ export const useFinanceStore = defineStore("finance", () => {
       limit: 10,
     },
   });
+  const cancellations = ref<ApiResponse<any[]>>({
+    data: [],
+    meta: {
+      total: 0,
+      page: 1,
+      limit: 10,
+    },
+  });
   const loading = ref(false);
   const paymentSummary = ref<PaymentSummary | null>(null);
   const fetchPayments = async (payload: {
@@ -75,11 +83,59 @@ export const useFinanceStore = defineStore("finance", () => {
     }
   };
 
+  const fetchCancellations = async () => {
+    loading.value = true;
+    try {
+      const url = `${API_ENDPOINTS.CANCELLATIONS.BASE}`;
+      const response = await http.get(url) as ApiResponse;
+      cancellations.value = {
+        data: response.data as Payment[],
+        meta: {
+          total: response.meta.total,
+          page: response.meta.page,
+          limit: response.meta.limit,
+        },
+      };
+    }
+    catch (error) {
+      console.error("Error fetching payments:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
+  const refundPayment = async (id: number) => {
+    loading.value = true;
+    try {
+      const response = await http.patch(API_ENDPOINTS.CANCELLATIONS.REFUND(id)) as ApiResponse;
+      payments.value = {
+        data: response.data as Payment[],
+        meta: {
+          total: response.meta.total,
+          page: response.meta.page,
+          limit: response.meta.limit,
+        },
+      };
+    }
+    catch (error) {
+      console.error("Error fetching payments:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
   return {
     payments,
     fetchPayments,
     paymentSummary,
     fetchPaymentSummary,
     loading,
+    cancellations,
+    fetchCancellations,
+    refundPayment,
   };
 });
