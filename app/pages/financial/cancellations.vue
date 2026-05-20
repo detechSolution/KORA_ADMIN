@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
+import ViewCancellationDrawer from "~/components/Cancellations/view-cancellation.vue";
 import { ICONS } from "~/config/icons";
 import { useFinanceStore } from "~/stores/finance";
 import { formatDate } from "~/utils/common";
+import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
   auth: true,
@@ -31,8 +33,17 @@ async function fetchCancellations() {
     await financeStore.fetchCancellations();
   }
   catch (error) {
+    showError({ message: getApiErrorMessage(error, "Failed to fetch payments") });
     console.error("Error fetching cancellations:", error);
   }
+}
+
+const isViewCancellationDrawerOpen = ref(false);
+const selectedCancellation = ref(null);
+
+function handleViewClick(cancellation: any) {
+  selectedCancellation.value = cancellation;
+  isViewCancellationDrawerOpen.value = true;
 }
 
 fetchCancellations();
@@ -132,13 +143,13 @@ fetchCancellations();
           </base-badge>
         </template>
 
-        <template #actions-cell>
+        <template #actions-cell="{ row }">
           <base-dropdown-menu
             :items="[
               {
                 label: 'View Cancellation Details',
                 icon: ICONS.THREE_VERTICAL_DOTS,
-                // action: () => handleViewClick(row?.original),
+                onSelect: () => handleViewClick(row?.original),
               },
             ]"
           />
@@ -153,5 +164,12 @@ fetchCancellations();
         @update:page="(v) => { pagination.page = v; fetchCancellations(); }"
       />
     </div>
+
+    <ViewCancellationDrawer
+      v-if="isViewCancellationDrawerOpen"
+      :open="isViewCancellationDrawerOpen"
+      :cancellation="selectedCancellation"
+      @close="isViewCancellationDrawerOpen = false"
+    />
   </div>
 </template>

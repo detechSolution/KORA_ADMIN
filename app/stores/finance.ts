@@ -28,6 +28,8 @@ export const useFinanceStore = defineStore("finance", () => {
   });
   const loading = ref(false);
   const paymentSummary = ref<PaymentSummary | null>(null);
+  const cancellationDetails = ref<any | null>(null);
+
   const fetchPayments = async (payload: {
     pagination: {
       page: number;
@@ -128,6 +130,37 @@ export const useFinanceStore = defineStore("finance", () => {
     }
   };
 
+  const fetchCancellationDetails = async (id: number) => {
+    loading.value = true;
+    try {
+      const response = await http.get(API_ENDPOINTS.CANCELLATIONS.GET_DETAILS(id)) as any;
+      cancellationDetails.value = response as any;
+    }
+    catch (error) {
+      console.error("Error fetching payments:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
+  const updateRefund = async (id: number, payload: FormData) => {
+    loading.value = true;
+    try {
+      const response = await http.patch(API_ENDPOINTS.CANCELLATIONS.UPDATE_REFUND(id), payload) as any;
+      await fetchCancellationDetails(id);
+      return response;
+    }
+    catch (error) {
+      console.error("Error updating refund:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
   return {
     payments,
     fetchPayments,
@@ -137,5 +170,8 @@ export const useFinanceStore = defineStore("finance", () => {
     cancellations,
     fetchCancellations,
     refundPayment,
+    cancellationDetails,
+    fetchCancellationDetails,
+    updateRefund,
   };
 });

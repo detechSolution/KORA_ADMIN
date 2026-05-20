@@ -19,6 +19,7 @@ export const ICONS = {
   MAILS: "i-lucide-mails",
   BADGE_PERCENT: "i-lucide-badge-percent",
   USER_COG: "i-lucide-user-cog",
+  USER_PEN: "i-lucide-user-pen",
   INFO: "i-lucide-info",
   THREE_VERTICAL_DOTS: "i-lucide-ellipsis-vertical",
 
