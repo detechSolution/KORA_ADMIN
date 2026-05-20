@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import ViewCancellationDrawer from "~/components/Cancellations/view-cancellation.vue";
+import { useNotification } from "~/composables/use-notification";
+import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useFinanceStore } from "~/stores/finance";
 import { formatDate } from "~/utils/common";
@@ -16,13 +18,14 @@ definePageMeta({
 const columns = [
   { header: "Client", accessorKey: "client" },
   { header: "Reference ID", accessorKey: "referenceCode" },
-  { header: "Requested Date", accessorKey: "requestedDate", accessorFn: row => formatDate(row.requestedDate) || "N/A" },
-  { header: "Refunded Date", accessorKey: "refundedDate", accessorFn: row => formatDate(row.refundedDate) || "N/A" },
+  { header: "Requested Date", accessorKey: "requestedDate", accessorFn: (row: any) => formatDate(row.requestedDate) || "N/A" },
+  { header: "Refunded Date", accessorKey: "refundedDate", accessorFn: (row: any) => formatDate(row.refundedDate) || "N/A" },
   { header: "Amount", accessorKey: "amount" },
   { header: "Status", accessorKey: "status" },
   { header: "Actions", accessorKey: "actions" },
 ];
 const { pagination } = usePagination();
+const { error: showError } = useNotification();
 
 const financeStore = useFinanceStore();
 const loading = computed(() => financeStore.loading);
@@ -46,7 +49,14 @@ function handleViewClick(cancellation: any) {
   isViewCancellationDrawerOpen.value = true;
 }
 
-fetchCancellations();
+function handleCloseAndRefetch() {
+  isViewCancellationDrawerOpen.value = false;
+  fetchCancellations();
+}
+
+onMounted(() => {
+  fetchCancellations();
+});
 </script>
 
 <template>
@@ -168,8 +178,9 @@ fetchCancellations();
     <ViewCancellationDrawer
       v-if="isViewCancellationDrawerOpen"
       :open="isViewCancellationDrawerOpen"
-      :cancellation="selectedCancellation"
+      :cancellation-id="selectedCancellation?.id"
       @close="isViewCancellationDrawerOpen = false"
+      @close-and-refetch="handleCloseAndRefetch"
     />
   </div>
 </template>

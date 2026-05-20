@@ -8,7 +8,7 @@ import { getApiErrorMessage } from "~/utils/error";
 
 type Props = {
   open: boolean;
-  cancellation: Record<string, any> | null;
+  cancellationId: number;
 };
 
 type FormState = {
@@ -31,6 +31,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   (e: "close"): void;
+  (e: "closeAndRefetch"): void;
 }>();
 
 const financeStore = useFinanceStore();
@@ -74,13 +75,9 @@ const cancellationDetails_ = computed<DetailItem[]>(() => {
   ];
 });
 
-const refundedByName = computed(
-  () => cancellationDetails.value?.request?.processedBy ?? "N/A",
-);
-
 async function fetchCancellationDetails(): Promise<void> {
   try {
-    await financeStore.fetchCancellationDetails(props.cancellation?.id);
+    await financeStore.fetchCancellationDetails(props.cancellationId);
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to fetch cancellation details") });
@@ -88,7 +85,7 @@ async function fetchCancellationDetails(): Promise<void> {
 }
 
 async function handleUpdate(): Promise<void> {
-  if (!props.cancellation?.id)
+  if (!props.cancellationId)
     return;
 
   try {
@@ -98,9 +95,9 @@ async function handleUpdate(): Promise<void> {
       formData.append("file", state.refundReceipt);
     }
 
-    await financeStore.updateRefund(props.cancellation.id, formData);
+    await financeStore.updateRefund(props.cancellationId, formData);
     showSuccess({ message: "Cancellation updated successfully" });
-    emit("close");
+    emit("closeAndRefetch");
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to update cancellation") });
@@ -108,7 +105,7 @@ async function handleUpdate(): Promise<void> {
 }
 
 onMounted(() => {
-  if (props.cancellation?.id) {
+  if (props.cancellationId) {
     fetchCancellationDetails();
   }
 });
@@ -195,12 +192,13 @@ watch(cancellationDetails, (details) => {
 
           <div class="flex items-center gap-2">
             <UAvatar
-              :src="refundedByName"
-              :alt="refundedByName"
+              v-show="cancellationDetails?.request?.processedBy"
+              :src="cancellationDetails?.request?.processedBy"
+              :alt="cancellationDetails?.request?.processedBy"
               class="bg-secondary-50"
             />
             <p class="text-sm font-medium">
-              {{ refundedByName }}
+              {{ cancellationDetails?.request?.processedBy || "N/A" }}
             </p>
           </div>
         </div>
