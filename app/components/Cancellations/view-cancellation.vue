@@ -195,8 +195,8 @@ watch(cancellationDetails, (details) => {
 
           <div class="flex items-center gap-2">
             <UAvatar
-              :src="cancellation?.refundedBy?.avatar"
-              :alt="cancellation?.refundedBy?.name"
+              :src="refundedByName"
+              :alt="refundedByName"
               class="bg-secondary-50"
             />
             <p class="text-sm font-medium">
@@ -216,6 +216,7 @@ watch(cancellationDetails, (details) => {
 
         <base-file-upload
           v-model="state.refundReceipt"
+          accept="image"
           label="Refund Receipt"
           name="refundReceipt"
           :max-file-size="REFUND_RECEIPT_CONFIG.maxFileSize"
