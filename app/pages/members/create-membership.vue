@@ -22,7 +22,7 @@ const frequencyOptions = [
 ];
 
 const membershipStore = useMembershipStore();
-const toast = useNotification();
+const { success, error: showError } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
@@ -88,16 +88,11 @@ function removeOption(index: number) {
   }
 }
 
-function setApiError(error: string): void {
-  apiError.value = error;
-}
-
 function clearApiError(): void {
   apiError.value = null;
 }
 
 async function handleCreatePlan() {
-  console.log("Creating plan with state:", state);
   try {
     await formRef.value?.validate();
   }
@@ -120,17 +115,11 @@ async function handleCreatePlan() {
       })),
     };
     await membershipStore.createPlan(payload);
-    toast.success({ message: "Membership plan created successfully" });
-    router.push("/members/plan");
+    success({ message: "Membership plan created successfully" });
+    router.push("/members/plans");
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
+    showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });
   }
   finally {
     loading.value = false;
