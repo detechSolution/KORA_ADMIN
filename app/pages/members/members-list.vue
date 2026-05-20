@@ -52,6 +52,7 @@ const { pagination } = usePagination();
 const { error: showError } = useNotification();
 
 const editDrawerOpen = ref(false);
+const isDetailModalOpen = ref(false);
 const selectedMember = ref(null);
 
 const state = ref({
@@ -81,8 +82,19 @@ async function fetchMembers(): Promise<void> {
 }
 
 function openEditDrawer(member: any): void {
+  console.log("🚀 ~ openEditDrawer ~ member:", member);
   selectedMember.value = member;
   editDrawerOpen.value = true;
+}
+
+function openDetailModal(member: any): void {
+  selectedMember.value = member;
+  isDetailModalOpen.value = true;
+}
+
+function closeDetailModal(): void {
+  isDetailModalOpen.value = false;
+  selectedMember.value = null;
 }
 
 onMounted(() => {
@@ -204,16 +216,18 @@ const kpiData = computed(() => [
       <base-table
         :data="members.data"
         :columns="columns"
-        :loading="false"
+        :loading="membersStore.loading"
         empty-title="No communities found"
         empty-description="It looks like you haven't added any communities. Create one to get started."
       >
         <template #user-cell="{ row }">
           <div class="flex items-center gap-2">
-            <img src="" alt="">
+            <UAvatar
+              :alt="row.original?.user?.fullName.toUpperCase()"
+            />
             <div>
               <h2
-                class="text-sm font-medium text-secondary"
+                class="text-sm font-medium text-secondary capitalize"
               >
                 {{ row.original?.user?.fullName }}
               </h2>
@@ -251,7 +265,7 @@ const kpiData = computed(() => [
                 },
                 {
                   label: 'View Details',
-                  // onSelect: () => openAdminDrawer(row.original),
+                  onSelect: () => openDetailModal(row.original),
                   class: 'cursor-pointer',
                 },
               ]"
@@ -275,11 +289,19 @@ const kpiData = computed(() => [
     </div>
 
     <members-edit-member
+      v-if="editDrawerOpen"
       :open="editDrawerOpen"
       :plan="selectedMember"
       title="Edit Member"
       @close="editDrawerOpen = false"
       @updated="fetchMembers()"
+    />
+
+    <members-member-detail
+      v-if="isDetailModalOpen"
+      :open="isDetailModalOpen"
+      :member="selectedMember"
+      @close="closeDetailModal"
     />
   </div>
 </template>

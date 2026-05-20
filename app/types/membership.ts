@@ -3,7 +3,6 @@ export type MembershipPlanOption = {
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;
-  membershipPlanId?: number;
   frequency: string;
   customDays?: number | null;
   price: number;
@@ -11,6 +10,8 @@ export type MembershipPlanOption = {
   isVisible: boolean;
   sortOrder?: number;
   durationDays?: number;
+  membershipPlanOptionId?: number;
+  membershipPlanId?: number;
 };
 
 export type PlanOption = MembershipPlanOption;
@@ -57,6 +58,8 @@ export type Member = {
   updatedAt: string;
   deletedAt: string | null;
   user: User;
+  membershipPlanOptionId?: number;
+  membershipPlanId?: number;
 };
 
 export type CreateMemberPayload = {

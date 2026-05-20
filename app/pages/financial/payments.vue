@@ -6,7 +6,6 @@ import { ICONS } from "~/config/icons";
 import { useFinanceStore } from "~/stores/finance";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
-import { getStatusColor, getStatusMeta } from "~/utils/helpers";
 
 definePageMeta({
   auth: true,

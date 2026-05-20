@@ -30,6 +30,9 @@ export const useMembershipStore = defineStore("membership", () => {
     totalMembers: 0,
     activeMembers: 0,
   });
+  const membershipOptions = ref([]);
+  const memberBookings = ref([]);
+  const memberPayments = ref([]);
   const loading = ref(false);
 
   const fetchPlans = async (payload?: {
@@ -130,13 +133,30 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
+  const updateMember = async (id: number, payload: any) => {
+    loading.value = true;
+    try {
+      await http.patch(
+        API_ENDPOINTS.MEMBERS.UPDATE(id),
+        payload,
+      );
+    }
+    catch (error: unknown) {
+      console.error("Error updating membership plan:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
   const fetchMembersSummary = async () => {
     loading.value = true;
     try {
       const response = await http.get(
         API_ENDPOINTS.MEMBERS.SUMMARY,
       ) as ApiResponse<MembershipPlan[]>;
-      membersSummary.value = response;
+      membersSummary.value = response as any;
     }
     catch (error) {
       console.error("Error fetching membership plans:", error);
@@ -150,7 +170,7 @@ export const useMembershipStore = defineStore("membership", () => {
   const getMembersOptions = async () => {
     try {
       const res = await http.get(API_ENDPOINTS.MEMBERS.OPTIONS) as any;
-      return res.data ?? [];
+      membershipOptions.value = res.data ?? [];
     }
     catch (error: unknown) {
       console.error(error, "Get Members Options Error");
@@ -175,6 +195,40 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
+  const fetchMemberBookings = async (id: number) => {
+    loading.value = true;
+    try {
+      const response = await http.get(
+        API_ENDPOINTS.MEMBERS.GET_MEMBER_BOOKINGS(id),
+      ) as ApiResponse<any[]>;
+      memberBookings.value = response as any;
+    }
+    catch (error) {
+      console.error("Error fetching membership plans:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
+  const fetchMemberPayments = async (id: number) => {
+    loading.value = true;
+    try {
+      const response = await http.get(
+        API_ENDPOINTS.MEMBERS.GET_MEMBER_PAYMENTS(id),
+      ) as ApiResponse<any[]>;
+      memberPayments.value = response as any;
+    }
+    catch (error) {
+      console.error("Error fetching membership plans:", error);
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
   return {
     plans,
     loading,
@@ -187,5 +241,11 @@ export const useMembershipStore = defineStore("membership", () => {
     membersSummary,
     getMembersOptions,
     createMember,
+    membershipOptions,
+    updateMember,
+    fetchMemberBookings,
+    memberBookings,
+    fetchMemberPayments,
+    memberPayments,
   };
 });

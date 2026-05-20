@@ -88,6 +88,12 @@ export const API_ENDPOINTS = {
     REQUEST_CANCELLATION: (id: number) => `/api/v1/bookings/${id}/request-cancellation`,
     GET: (id: number) => `/api/v1/bookings/${id}`,
   },
+  CANCELLATIONS: {
+    BASE: "/api/v1/cancellations",
+    REFUND: (id: number) => `/api/v1/cancellations/${id}/refund`,
+    GET_DETAILS: (id: number) => `/api/v1/cancellations/${id}`,
+    UPDATE_REFUND: (id: number) => `/api/v1/cancellations/${id}/refund`,
+  },
   INSTRUCTORS: {
     BASE: "/api/v1/instructors",
     CREATE: "/api/v1/instructors",
@@ -104,6 +110,8 @@ export const API_ENDPOINTS = {
     SUMMARY: "/api/v1/members/summary",
     DELETE: (id: number) => `/api/v1/members/${id}`,
     OPTIONS: "/api/v1/members/options",
+    GET_MEMBER_BOOKINGS: (id: number) => `/api/v1/members/${id}/bookings`,
+    GET_MEMBER_PAYMENTS: (id: number) => `/api/v1/members/${id}/payments`,
   },
   // used
   MEMBERSHIP: {

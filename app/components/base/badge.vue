@@ -12,7 +12,8 @@ type Color
     | "sky"
     | "muted"
     | "success"
-    | "purple";
+    | "purple"
+    | "yellow";
 
 type Props = {
   color?: Color;
@@ -37,6 +38,7 @@ const colorClasses = computed(() => {
     muted: "bg-muted text-muted-foreground border border-border",
     success: "bg-emerald-500/10 text-emerald-600 border border-emerald-500",
     purple: "bg-purple-500/10 text-purple-600 border border-purple-500",
+    yellow: "bg-yellow-500/10 text-yellow-600 border border-yellow-500",
   };
 
   return colorMap[props.color] || colorMap.primary;

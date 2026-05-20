@@ -165,6 +165,7 @@ async function handleLogin(): Promise<void> {
             name="email"
             label="Email"
             placeholder="Enter Your Email"
+            @input="clearApiError"
           />
           <base-input
             v-model="state.password"
