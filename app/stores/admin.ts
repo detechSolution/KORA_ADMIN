@@ -13,11 +13,6 @@ import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
 import { buildQueryString } from "~/utils/common";
 
-type AdminDateRange = {
-  start: string | null;
-  end?: string | null;
-};
-
 export const useAdminStore = defineStore("admin", () => {
   const http = getHttp();
   const roles = ref<SystemAdminRole[]>([]);
