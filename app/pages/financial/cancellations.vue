@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 
+import ViewCancellationDrawer from "~/components/Cancellations/view-cancellation.vue";
+import { useNotification } from "~/composables/use-notification";
+import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useFinanceStore } from "~/stores/finance";
 import { formatDate } from "~/utils/common";
+import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
   auth: true,
@@ -14,13 +18,14 @@ definePageMeta({
 const columns = [
   { header: "Client", accessorKey: "client" },
   { header: "Reference ID", accessorKey: "referenceCode" },
-  { header: "Requested Date", accessorKey: "requestedDate", accessorFn: row => formatDate(row.requestedDate) || "N/A" },
-  { header: "Refunded Date", accessorKey: "refundedDate", accessorFn: row => formatDate(row.refundedDate) || "N/A" },
+  { header: "Requested Date", accessorKey: "requestedDate", accessorFn: (row: any) => formatDate(row.requestedDate) || "N/A" },
+  { header: "Refunded Date", accessorKey: "refundedDate", accessorFn: (row: any) => formatDate(row.refundedDate) || "N/A" },
   { header: "Amount", accessorKey: "amount" },
   { header: "Status", accessorKey: "status" },
   { header: "Actions", accessorKey: "actions" },
 ];
 const { pagination } = usePagination();
+const { error: showError } = useNotification();
 
 const financeStore = useFinanceStore();
 const loading = computed(() => financeStore.loading);
@@ -31,11 +36,27 @@ async function fetchCancellations() {
     await financeStore.fetchCancellations();
   }
   catch (error) {
+    showError({ message: getApiErrorMessage(error, "Failed to fetch payments") });
     console.error("Error fetching cancellations:", error);
   }
 }
 
-fetchCancellations();
+const isViewCancellationDrawerOpen = ref(false);
+const selectedCancellation = ref(null);
+
+function handleViewClick(cancellation: any) {
+  selectedCancellation.value = cancellation;
+  isViewCancellationDrawerOpen.value = true;
+}
+
+function handleCloseAndRefetch() {
+  isViewCancellationDrawerOpen.value = false;
+  fetchCancellations();
+}
+
+onMounted(() => {
+  fetchCancellations();
+});
 </script>
 
 <template>
@@ -132,13 +153,13 @@ fetchCancellations();
           </base-badge>
         </template>
 
-        <template #actions-cell>
+        <template #actions-cell="{ row }">
           <base-dropdown-menu
             :items="[
               {
                 label: 'View Cancellation Details',
                 icon: ICONS.THREE_VERTICAL_DOTS,
-                // action: () => handleViewClick(row?.original),
+                onSelect: () => handleViewClick(row?.original),
               },
             ]"
           />
@@ -153,5 +174,13 @@ fetchCancellations();
         @update:page="(v) => { pagination.page = v; fetchCancellations(); }"
       />
     </div>
+
+    <ViewCancellationDrawer
+      v-if="isViewCancellationDrawerOpen"
+      :open="isViewCancellationDrawerOpen"
+      :cancellation-id="selectedCancellation?.id"
+      @close="isViewCancellationDrawerOpen = false"
+      @close-and-refetch="handleCloseAndRefetch"
+    />
   </div>
 </template>

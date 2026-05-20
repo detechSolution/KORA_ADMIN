@@ -216,7 +216,7 @@ const kpiData = computed(() => [
       <base-table
         :data="members.data"
         :columns="columns"
-        :loading="false"
+        :loading="membersStore.loading"
         empty-title="No communities found"
         empty-description="It looks like you haven't added any communities. Create one to get started."
       >

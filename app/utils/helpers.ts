@@ -169,6 +169,16 @@ const STATUS_CONFIG: Record<string, StatusConfig> = {
     badgeColor: "yellow",
     className: "bg-yellow-100 text-yellow-800",
   },
+  "approved": {
+    label: "Approved",
+    badgeColor: "emerald",
+    className: "bg-emerald-100 text-emerald-800",
+  },
+  "rejected": {
+    label: "Rejected",
+    badgeColor: "red",
+    className: "bg-red-100 text-red-800",
+  },
 };
 
 function normalizeStatus(status: string | null | undefined): string {

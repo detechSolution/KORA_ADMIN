@@ -91,6 +91,8 @@ export const API_ENDPOINTS = {
   CANCELLATIONS: {
     BASE: "/api/v1/cancellations",
     REFUND: (id: number) => `/api/v1/cancellations/${id}/refund`,
+    GET_DETAILS: (id: number) => `/api/v1/cancellations/${id}`,
+    UPDATE_REFUND: (id: number) => `/api/v1/cancellations/${id}/refund`,
   },
   INSTRUCTORS: {
     BASE: "/api/v1/instructors",
