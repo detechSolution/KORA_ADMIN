@@ -20,16 +20,16 @@ export const usePromoCodeStore = defineStore("promo-code", () => {
     },
   });
 
-  const getPromoCodes = async (params?: Record<string, any>) => {
+  const getPromoCodes = async (params: Record<string, any>) => {
     loading.value = true;
     try {
-      const qs = params ? buildQueryString(params) : "";
-      const url = qs ? `${API_ENDPOINTS.PROMO_CODES.BASE}?${qs}` : API_ENDPOINTS.PROMO_CODES.BASE;
-      const response = await http.get(url) as ApiResponse<any>;
+      const qs = buildQueryString(params);
+      const response = await http.get(`${API_ENDPOINTS.PROMO_CODES.BASE}?${qs}`) as ApiResponse<any>;
       promoCodes.value = response;
     }
     catch (error) {
       console.error("Failed to fetch promo codes:", error);
+      throw error;
     }
     finally {
       loading.value = false;

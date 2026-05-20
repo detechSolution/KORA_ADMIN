@@ -59,8 +59,8 @@ const state = ref({
 });
 
 const statusOptions = [
-  { label: "Active", value: "active" },
-  { label: "Inactive", value: "inactive" },
+  { label: "Active", value: "true" },
+  { label: "Inactive", value: "false" },
 ];
 
 const columns = ref([
@@ -97,13 +97,26 @@ const columns = ref([
 ]);
 
 const instructors = computed(() => instructorsStore.instructors);
+const loading = ref(false);
 
 async function getInstructors(): Promise<void> {
   try {
-    await instructorsStore.fetchInstructors();
+    loading.value = true;
+    const params = {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      q: state.value.search,
+      isActive: state.value.status,
+      refundFrom: state.value.dateRange.start,
+      refundTo: state.value.dateRange.end,
+    };
+    await instructorsStore.fetchInstructors(params);
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to load instructors") });
+  }
+  finally {
+    loading.value = false;
   }
 }
 
@@ -194,21 +207,21 @@ onMounted(() => {
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              :leading-icon="ICONS.SEARCH"
+              :loading="loading"
+              @click="handleSearchClick"
+            >
+              Search
+            </base-button>
+            <base-button
               v-if="hasActiveFilters()"
               variant="outline"
               class="flex-1 sm:flex-none"
               @click="clearFilters"
             >
               Clear Filters
-            </base-button>
-            <base-button
-              variant="outline"
-              class="flex-1 sm:flex-none"
-              :leading-icon="ICONS.SEARCH"
-              :loading="instructorsStore.loading"
-              @click="handleSearchClick"
-            >
-              Search
             </base-button>
           </div>
         </div>
@@ -217,7 +230,7 @@ onMounted(() => {
       <base-table
         :data="instructors.data || []"
         :columns="columns"
-        :loading="instructorsStore.loading"
+        :loading="loading"
         empty-title="No instructors found"
         empty-description="Instructors will appear here once available."
       >
@@ -284,8 +297,8 @@ onMounted(() => {
 
     <instructors-overview-modal
       v-if="isDetailModalOpen"
-      :open="isDetailModalOpen"
       :id="selectedInstructor.id"
+      :open="isDetailModalOpen"
       @close="closeDetailModal"
     />
   </div>

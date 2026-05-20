@@ -16,7 +16,6 @@ definePageMeta({
 const options = ref([
   { label: "Paid", value: "paid" },
   { label: "Refunded", value: "refunded" },
-  { label: "Failed", value: "failed" },
 ]);
 
 const financeStore = useFinanceStore();
@@ -36,7 +35,7 @@ const columns = [
   { id: "user", header: "Client", accessorKey: "user" },
   { id: "referenceCode", header: "Reference ID", accessorKey: "referenceCode" },
   { id: "amount", header: "Amount", accessorKey: "amount" },
-  { id: "paidAt", header: "Paid Date", accessorKey: "paidAt", accessorFn: row => formatDate(row.paidAt) },
+  { id: "paidAt", header: "Paid Date", accessorKey: "paidAt", accessorFn: (row: any) => formatDate(row.paidAt) },
   { id: "method", header: "Method", accessorKey: "method" },
   { id: "status", header: "Status", accessorKey: "status" },
   { id: "actions", header: "Actions", accessorKey: "actions" },
@@ -47,15 +46,16 @@ const paymentSummary = computed(() => financeStore.paymentSummary);
 
 async function fetchPayments(): Promise<void> {
   try {
-    await financeStore.fetchPayments({
-      pagination: {
-        page: pagination.value.page,
-        pageSize: pagination.value.pageSize,
-      },
-      search: state.value.search,
-      dateRange: state.value.dateRange,
+    const params = {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      q: state.value.search,
+      paidFrom: state.value.dateRange.start,
+      paidTo: state.value.dateRange.end,
       status: state.value.status,
-    });
+    };
+
+    await financeStore.fetchPayments(params);
     await financeStore.fetchPaymentSummary();
   }
   catch (error: unknown) {

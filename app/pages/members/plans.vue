@@ -16,8 +16,8 @@ definePageMeta({
 });
 
 const options = ref([
-  { label: "Active", value: "active" },
-  { label: "Inactive", value: "inactive" },
+  { label: "Active", value: "true" },
+  { label: "Inactive", value: "false" },
 ]);
 
 const detailsOption = ref([
@@ -62,15 +62,14 @@ const plans = computed(() => planStore.plans);
 
 async function fetchPlans(): Promise<void> {
   try {
-    await planStore.fetchPlans({
-      pagination: {
-        page: pagination.value.page,
-        pageSize: pagination.value.pageSize,
-      },
-      search: state.value.search,
-      type: state.value.type,
-      status: state.value.status,
-    });
+    const params = {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      q: state.value.search,
+      frequency: state.value.type,
+      isActive: state.value.status,
+    };
+    await planStore.fetchPlans(params);
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to fetch plans") });
@@ -135,6 +134,7 @@ onMounted(() => {
           :leading-icon="ICONS.SEARCH"
           placeholder="Search plans"
           class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+          @keyup.enter="handleSearchClick"
         />
         <base-select
           v-model="state.type"
