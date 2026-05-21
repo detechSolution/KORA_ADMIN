@@ -31,7 +31,7 @@ type SessionCardProps = {
         </p>
       </div>
 
-      <base-badge :color="getStatusColor(type)">
+      <base-badge :status="type">
         {{ type }}
       </base-badge>
     </div>

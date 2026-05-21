@@ -195,8 +195,8 @@ onMounted(() => {
         </template>
 
         <template #status-cell="{ row }">
-          <base-badge :color="getStatusColor(row?.original?.status)">
-            {{ getStatusLabel(row?.original?.status) }}
+          <base-badge :status="row?.original?.status">
+            {{ row?.original?.status }}
           </base-badge>
         </template>
 

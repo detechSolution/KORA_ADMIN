@@ -220,15 +220,8 @@ const kpiCards = computed(() => [
         </template>
 
         <template #method-cell="{ row }">
-          <base-badge :color="getStatusMeta(row?.original?.method).badgeColor">
-            <span class="inline-flex items-center gap-1">
-              <UIcon
-                v-if="getStatusMeta(row?.original?.method).icon"
-                :name="getStatusMeta(row?.original?.method).icon!"
-                class="h-3.5 w-3.5"
-              />
-              {{ getStatusMeta(row?.original?.method).label }}
-            </span>
+          <base-badge :status="row?.original?.method">
+            {{ row?.original?.method }}
           </base-badge>
         </template>
 

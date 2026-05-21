@@ -273,15 +273,15 @@ onMounted(() => {
 
         <template #type-cell="{ row }">
           <div class="flex items-center gap-2">
-            <base-badge :color="getStatusColor(row.original?.user?.role)">
-              {{ getStatusLabel(row.original?.user?.role) }}
+            <base-badge :status="row.original?.user?.role">
+              {{ row.original?.user?.role }}
             </base-badge>
           </div>
         </template>
 
         <template #status-cell="{ row }">
           <div class="flex items-center gap-2">
-            <base-badge :color="row.original?.user?.isActive ? 'success' : 'red'">
+            <base-badge :status="row.original?.user?.isActive ? 'active' : 'inactive'">
               {{ row.original?.user?.isActive ? 'Active' : 'Inactive' }}
             </base-badge>
           </div>

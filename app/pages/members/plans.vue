@@ -7,7 +7,6 @@ import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
 import { getApiErrorMessage } from "~/utils/error";
-import { getStatusColor } from "~/utils/helpers";
 
 definePageMeta({
   auth: true,
@@ -182,9 +181,9 @@ onMounted(() => {
             <base-badge
               v-for="(option, index) in row.original.options.slice(0, 2)"
               :key="index"
-              :color="getStatusColor(option.frequency)"
+              :status="option.frequency"
             >
-              {{ `${option.frequency[0].toUpperCase() + option.frequency.slice(1)}: Rs. ${option.price}` }}
+              {{ `${option.frequency}: Rs. ${option.price}` }}
             </base-badge>
             <div
               v-if="row.original.options.length > 2"

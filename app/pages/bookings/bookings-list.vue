@@ -253,14 +253,14 @@ onMounted(fetchBookings);
         </template>
 
         <template #itemType-cell="{ row }">
-          <base-badge :color="getStatusColor(String(row.original.itemType))">
-            {{ getStatusLabel(String(row.original.itemType)) }}
+          <base-badge :status="row.original.itemType">
+            {{ row.original.itemType }}
           </base-badge>
         </template>
 
         <template #status-cell="{ row }">
-          <base-badge :color="getStatusColor(String(row.original.status))">
-            {{ getStatusLabel(String(row.original.status)) }}
+          <base-badge :status="row.original.status">
+            {{ row.original.status }}
           </base-badge>
         </template>
 
