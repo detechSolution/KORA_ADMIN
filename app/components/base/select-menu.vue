@@ -149,7 +149,10 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
         </div>
 
         <!-- Selectable item -->
-        <div v-else class="flex w-full items-center justify-between gap-3">
+        <div
+          v-else
+          class="flex w-full items-center justify-between gap-3"
+        >
           <div class="flex min-w-0 items-center gap-2">
             <!-- Checkbox -->
             <span

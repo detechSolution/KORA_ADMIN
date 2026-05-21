@@ -40,7 +40,7 @@ export const useMembershipStore = defineStore("membership", () => {
     try {
       const qs = params ? buildQueryString(params) : "";
       const response = await http.get(
-        `${API_ENDPOINTS.MEMBERSHIP.GET_PLANS}${qs}`,
+        `${API_ENDPOINTS.MEMBERSHIP.GET_PLANS}?${qs}`,
       ) as ApiResponse<MembershipPlan[]>;
       plans.value = response;
     }

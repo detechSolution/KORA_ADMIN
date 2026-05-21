@@ -55,7 +55,7 @@ const REFUND_RECEIPT_CONFIG = {
   allowedFileTypes: ["image/*", "application/pdf"],
 } as const;
 
-const loading = computed(() => financeStore.loading);
+const loading = ref(false);
 const cancellationDetails = computed(() => financeStore.cancellationDetails);
 
 const customerInformation = computed<InfoItem[]>(() => [
@@ -87,7 +87,7 @@ async function fetchCancellationDetails(): Promise<void> {
 async function handleUpdate(): Promise<void> {
   if (!props.cancellationId)
     return;
-
+  loading.value = true;
   try {
     const formData = new FormData();
     formData.append("refundStatus", state.status);
@@ -101,6 +101,9 @@ async function handleUpdate(): Promise<void> {
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to update cancellation") });
+  }
+  finally {
+    loading.value = false;
   }
 }
 
@@ -210,6 +213,7 @@ watch(cancellationDetails, (details) => {
           label="Status"
           name="refundStatus"
           placeholder="Select status"
+          :disabled="state.status !== 'requested'"
         />
 
         <base-file-upload
@@ -237,6 +241,7 @@ watch(cancellationDetails, (details) => {
           size="md"
           type="submit"
           :loading="loading"
+          :disabled="state.status !== 'requested'"
         >
           Update Cancellation
         </base-button>
