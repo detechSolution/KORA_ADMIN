@@ -182,6 +182,7 @@ onMounted(fetchBookings);
             name="search"
             placeholder="Search"
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            @keyup.enter="handleSearch"
           />
 
           <base-date-picker

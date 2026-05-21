@@ -7,8 +7,6 @@ import type { Instructor } from "~/types/instructors";
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
 
-// import { buildQueryString } from "~/utils/common";
-
 export const useInstructorsStore = defineStore("instructors", () => {
   const http = getHttp();
   const instructors = ref <ApiResponse<Instructor[]>> ({
@@ -24,12 +22,11 @@ export const useInstructorsStore = defineStore("instructors", () => {
   const assignedSessions = ref<any>(null);
   const loading = ref(false);
 
-  const fetchInstructors = async () => {
+  const fetchInstructors = async (params: Record<string, any>) => {
     loading.value = true;
     try {
-      const endpoint = `${API_ENDPOINTS.INSTRUCTORS.BASE}`;
-
-      const response = await http.get(endpoint) as ApiResponse<Instructor[]>;
+      const qs = params ? buildQueryString(params) : "";
+      const response = await http.get(`${API_ENDPOINTS.INSTRUCTORS.BASE}?${qs}`) as ApiResponse<Instructor[]>;
       instructors.value = response;
     }
     catch (error) {

@@ -15,6 +15,12 @@ definePageMeta({
   permission: "refunds.manage",
 });
 
+const options = [
+  { label: "Requested", value: "requested" },
+  { label: "Approved", value: "approved" },
+  { label: "Rejected", value: "rejected" },
+];
+
 const columns = [
   { header: "Client", accessorKey: "client" },
   { header: "Reference ID", accessorKey: "referenceCode" },
@@ -27,17 +33,39 @@ const columns = [
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
 
+const state = ref({
+  search: "",
+  dateRange: {
+    start: null,
+    end: null,
+  },
+  status: null,
+});
+
 const financeStore = useFinanceStore();
-const loading = computed(() => financeStore.loading);
+const loading = ref(false);
 const cancellations = computed(() => financeStore.cancellations);
 
 async function fetchCancellations() {
   try {
-    await financeStore.fetchCancellations();
+    loading.value = true;
+    const params = {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      q: state.value.search,
+      status: state.value.status,
+      refundFrom: state.value.dateRange.start,
+      refundTo: state.value.dateRange.end,
+    };
+
+    await financeStore.fetchCancellations(params);
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to fetch payments") });
     console.error("Error fetching cancellations:", error);
+  }
+  finally {
+    loading.value = false;
   }
 }
 
@@ -52,6 +80,18 @@ function handleViewClick(cancellation: any) {
 function handleCloseAndRefetch() {
   isViewCancellationDrawerOpen.value = false;
   fetchCancellations();
+}
+
+function handleSearchClick() {
+  pagination.value.page = 1;
+  fetchCancellations();
+}
+
+function clearFilters() {
+  state.value.search = "";
+  state.value.status = null;
+  state.value.dateRange = { start: null, end: null };
+  handleSearchClick();
 }
 
 onMounted(() => {
@@ -80,13 +120,16 @@ onMounted(() => {
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
           <base-input
+            v-model="state.search"
             name="search"
             placeholder="Search"
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
             :leading-icon="ICONS.SEARCH"
+            @keyup.enter="handleSearchClick"
           />
 
           <base-date-picker
+            v-model="state.dateRange"
             name="dateRange"
             placeholder="Select date range"
             range
@@ -94,23 +137,27 @@ onMounted(() => {
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
           />
           <base-select
+            v-model="state.status"
             name="status"
             placeholder="All statuses"
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            :options="options"
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
               variant="outline"
               class="flex-1 sm:flex-none"
+              :leading-icon="ICONS.SEARCH"
+              @click="handleSearchClick"
             >
-              Clear Filters
+              Search
             </base-button>
             <base-button
               variant="outline"
               class="flex-1 sm:flex-none"
-              :leading-icon="ICONS.SEARCH"
+              @click="clearFilters"
             >
-              Search
+              Clear Filters
             </base-button>
           </div>
         </div>

@@ -30,28 +30,11 @@ export const useFinanceStore = defineStore("finance", () => {
   const paymentSummary = ref<PaymentSummary | null>(null);
   const cancellationDetails = ref<any | null>(null);
 
-  const fetchPayments = async (payload: {
-    pagination: {
-      page: number;
-      pageSize: number;
-    };
-    search: string;
-    dateRange: {
-      start: Date | null;
-      end: Date | null;
-    };
-    status: string | null;
-  }) => {
+  const fetchPayments = async (params: Record<string, any>) => {
     loading.value = true;
     try {
-      const query = buildQueryString({
-        page: payload.pagination.page,
-        limit: payload.pagination.pageSize,
-        q: payload.search,
-        status: payload.status,
-      });
-      const url = `${API_ENDPOINTS.PAYMENTS.BASE}?${query}`;
-      const response = await http.get(url) as ApiResponse;
+      const qs = buildQueryString(params);
+      const response = await http.get(`${API_ENDPOINTS.PAYMENTS.BASE}?${qs}`) as ApiResponse;
       payments.value = {
         data: response.data as Payment[],
         meta: {
@@ -85,11 +68,11 @@ export const useFinanceStore = defineStore("finance", () => {
     }
   };
 
-  const fetchCancellations = async () => {
+  const fetchCancellations = async (params: Record<string, any>) => {
     loading.value = true;
     try {
-      const url = `${API_ENDPOINTS.CANCELLATIONS.BASE}`;
-      const response = await http.get(url) as ApiResponse;
+      const qs = buildQueryString(params);
+      const response = await http.get(`${API_ENDPOINTS.CANCELLATIONS.BASE}?${qs}`) as ApiResponse;
       cancellations.value = {
         data: response.data as Payment[],
         meta: {

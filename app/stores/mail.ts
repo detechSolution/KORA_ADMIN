@@ -1,17 +1,11 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-import type { ApiListResponse, ApiResponse } from "~/types/api";
 import type { Mail } from "~/types/mail";
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
 import { buildQueryString } from "~/utils/common";
-
-type MailDateRange = {
-  start: string | null;
-  end?: string | null;
-};
 
 export const useMailStore = defineStore("mail", () => {
   const http = getHttp();
@@ -24,28 +18,11 @@ export const useMailStore = defineStore("mail", () => {
   });
   const loading = ref(false);
 
-  const fetchMails = async (payload: {
-    pagination: { page: number; limit: number };
-    search?: string;
-    status?: string | null;
-    dateRange?: MailDateRange | null;
-  }): Promise<void> => {
+  const fetchMails = async (params: Record<string, any>): Promise<void> => {
     loading.value = true;
     try {
-      const query = buildQueryString({
-        page: payload.pagination.page,
-        limit: payload.pagination.limit,
-        q: payload.search?.trim(),
-        status: payload.status || undefined,
-        createdFrom: payload.dateRange?.start || undefined,
-        createdTo: payload.dateRange?.end || undefined,
-      });
-
-      const endpoint = query
-        ? `${API_ENDPOINTS.MAILS.BASE}?${query}`
-        : API_ENDPOINTS.MAILS.BASE;
-
-      const response = await http.get<ApiListResponse<Mail> & Partial<ApiResponse<Mail[]>> & { total?: number }>(endpoint);
+      const qs = buildQueryString(params);
+      const response = await http.get(`${API_ENDPOINTS.MAILS.BASE}?${qs}`) as any;
 
       mails.value = {
         data: response.data || [],

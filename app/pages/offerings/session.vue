@@ -153,6 +153,7 @@ onMounted(() => {
           name="search"
           placeholder="Search by session"
           class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+          @keyup.enter="handleSearch"
         />
         <base-date-picker
           v-model="state.referenceDateRange"
@@ -196,7 +197,7 @@ onMounted(() => {
     <div class=" rounded-b-xl  grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-4 ">
       <!-- Skeleton Loading -->
       <session-card-skeleton
-        v-if="sessionsStore.loading"
+        v-if="loading"
         :count="pagination.pageSize"
       />
 

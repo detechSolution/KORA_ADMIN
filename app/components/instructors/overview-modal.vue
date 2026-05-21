@@ -104,7 +104,7 @@ watch(
     <!-- Loading state need to change later -->
     <div v-if="loading" class="p-6 flex items-center justify-center min-h-60">
       <div class="flex flex-col items-center gap-2">
-        <UIcon name="i-heroicons-arrow-path" class="animate-spin w-6 h-6" />
+        <UIcon :name="ICONS.LOADING" class="animate-spin w-6 h-6" />
         <p class="text-sm text-muted-foreground">
           Loading...
         </p>
@@ -163,7 +163,7 @@ watch(
       </div>
 
       <!-- Assigned Sessions Tab -->
-      <div v-else-if="selectedTab === 'assigned'" class="p-6">
+      <div v-else-if="selectedTab === 'assigned'">
         <div v-if="assignedSessions?.length" class="space-y-2">
           <div
             v-for="session in assignedSessions"
@@ -184,10 +184,7 @@ watch(
       </div>
 
       <!-- Upcoming Sessions Tab -->
-      <div v-else-if="selectedTab === 'upcoming'" class="p-6">
-        <h3 class="font-semibold mb-4">
-          Upcoming Sessions
-        </h3>
+      <div v-else-if="selectedTab === 'upcoming'">
         <div v-if="upcomingSessions?.length" class="space-y-2">
           <div
             v-for="session in upcomingSessions"
