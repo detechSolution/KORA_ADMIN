@@ -82,8 +82,8 @@ async function fetchPromoCodes(): Promise<void> {
       limit: pagination.value.pageSize,
       q: state.value.search || undefined,
       status: state.value.status === "" ? undefined : state.value.status,
-      startDate: state.value.dateRange.start || undefined,
-      endDate: state.value.dateRange.end || undefined,
+      fromDate: state.value.dateRange.start || undefined,
+      toDate: state.value.dateRange.end || undefined,
     };
     await promoCodeStore.getPromoCodes(params);
   }
@@ -190,14 +190,6 @@ onMounted(() => {
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
-              v-if="hasActiveFilters()"
-              variant="outline"
-              class="flex-1 sm:flex-none"
-              @click="clearFilters"
-            >
-              Clear Filters
-            </base-button>
-            <base-button
               variant="outline"
               class="flex-1 sm:flex-none"
               :leading-icon="ICONS.SEARCH"
@@ -205,6 +197,14 @@ onMounted(() => {
               @click="handleSearchClick"
             >
               Search
+            </base-button>
+            <base-button
+              v-if="hasActiveFilters()"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="clearFilters"
+            >
+              Clear Filters
             </base-button>
           </div>
         </div>
@@ -261,9 +261,9 @@ onMounted(() => {
     <promo-code-edit-drawer
       :open="editDrawerOpen"
       :promo-code="selectedPromoCode"
+      title="Edit Promo Code"
       @close="closeEditDrawer"
       @updated="handlePromoCodeUpdated"
-      title="Edit Promo Code"
     />
   </div>
 </template>

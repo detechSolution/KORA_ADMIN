@@ -64,15 +64,15 @@ const mails = computed(() => mailStore.mails);
 
 async function fetchMails(): Promise<void> {
   try {
-    await mailStore.fetchMails({
-      pagination: {
-        page: pagination.value.page,
-        limit: pagination.value.pageSize,
-      },
-      search: state.value.search,
+    const params = {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      q: state.value.search,
       status: state.value.status,
-      dateRange: state.value.dateRange,
-    });
+      fromDate: state.value.dateRange.start,
+      toDate: state.value.dateRange.end,
+    };
+    await mailStore.fetchMails(params);
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to load emails") });

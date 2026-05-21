@@ -13,11 +13,6 @@ import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
 import { buildQueryString } from "~/utils/common";
 
-type AdminDateRange = {
-  start: string | null;
-  end?: string | null;
-};
-
 export const useAdminStore = defineStore("admin", () => {
   const http = getHttp();
   const roles = ref<SystemAdminRole[]>([]);
@@ -71,25 +66,11 @@ export const useAdminStore = defineStore("admin", () => {
     }
   };
 
-  const fetchAdmins = async (payload: {
-    pagination: { page: number };
-    search?: string;
-    status?: string | null;
-    dateRange?: AdminDateRange | null;
-  }): Promise<void> => {
-    const search = payload.search?.trim();
-    const query = buildQueryString({
-      q: search,
-      status: payload.status || undefined,
-      isActive: payload.status === "active" ? true : payload.status === "inactive" ? false : undefined,
-      createdFrom: payload.dateRange?.start,
-      createdTo: payload.dateRange?.end,
-    });
-    const endpoint = query
-      ? `${API_ENDPOINTS.SYSTEM_ADMIN.ADMINS.GET_ADMINS}?${query}`
-      : API_ENDPOINTS.SYSTEM_ADMIN.ADMINS.GET_ADMINS;
+  const fetchAdmins = async (payload: Record<string, any>): Promise<void> => {
+    const qs = buildQueryString(payload);
+
     try {
-      const response = await http.get(endpoint) as ApiResponse;
+      const response = await http.get(`${API_ENDPOINTS.SYSTEM_ADMIN.ADMINS.GET_ADMINS}?${qs}`) as ApiResponse;
 
       admins.value = {
         data: (response?.data || []) as SystemAdmin[],

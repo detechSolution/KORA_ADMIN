@@ -4,13 +4,19 @@ import { computed, onMounted, ref } from "vue";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
+import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  // permission: "COMMUNITIES.CREATE",
+  permission: "members.view",
 });
+
+const options = [
+  { label: "Active", value: "active" },
+  { label: "Inactive", value: "inactive" },
+];
 
 const columns = [
   {
@@ -57,7 +63,10 @@ const selectedMember = ref(null);
 
 const state = ref({
   search: "",
-  dateRange: null,
+  dateRange: {
+    start: null as string | null,
+    end: null as string | null,
+  },
   status: null,
 });
 
@@ -66,14 +75,15 @@ const members = computed(() => membersStore.members);
 
 async function fetchMembers(): Promise<void> {
   try {
-    await membersStore.fetchMembers({
-      pagination: {
-        page: 1,
-        pageSize: 10,
-      },
-      search: "",
-      status: null,
-    });
+    const params = {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      q: state.value.search,
+      status: state.value.status,
+      joinedFrom: state.value.dateRange.start,
+      joinedTo: state.value.dateRange.end,
+    };
+    await membersStore.fetchMembers(params);
     await membersStore.fetchMembersSummary();
   }
   catch (error) {
@@ -82,7 +92,6 @@ async function fetchMembers(): Promise<void> {
 }
 
 function openEditDrawer(member: any): void {
-  console.log("🚀 ~ openEditDrawer ~ member:", member);
   selectedMember.value = member;
   editDrawerOpen.value = true;
 }
@@ -96,10 +105,6 @@ function closeDetailModal(): void {
   isDetailModalOpen.value = false;
   selectedMember.value = null;
 }
-
-onMounted(() => {
-  fetchMembers();
-});
 
 const kpiData = computed(() => [
   {
@@ -121,6 +126,30 @@ const kpiData = computed(() => [
     link: { path: "/members/list" },
   },
 ]);
+
+function clearFilters(): void {
+  state.value = {
+    search: "",
+    status: null,
+    dateRange: { start: null, end: null },
+  };
+
+  pagination.value.page = 1;
+  fetchMembers();
+}
+
+const hasActiveFilters = computed(() => {
+  return (
+    state.value.search
+    || state.value.status
+    || state.value.dateRange.start
+    || state.value.dateRange.end
+  );
+});
+
+onMounted(() => {
+  fetchMembers();
+});
 </script>
 
 <template>
@@ -172,6 +201,7 @@ const kpiData = computed(() => [
             placeholder="Search"
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
             :leading-icon="ICONS.SEARCH"
+            @keyup.enter="fetchMembers"
           />
 
           <base-date-picker
@@ -185,23 +215,26 @@ const kpiData = computed(() => [
           <base-select
             v-model="state.status"
             name="status"
-            placeholder="All statuses"
+            :options="options"
+            placeholder="Select Status"
             class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
-            :options="[{ label: 'Active', value: 'active' }, { label: 'Inactive', value: 'inactive' }]"
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
               variant="outline"
               class="flex-1 sm:flex-none"
-            >
-              Clear Filters
-            </base-button>
-            <base-button
-              variant="outline"
-              class="flex-1 sm:flex-none"
               :leading-icon="ICONS.SEARCH"
+              @click="fetchMembers"
             >
               Search
+            </base-button>
+            <base-button
+              v-if="hasActiveFilters"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="clearFilters"
+            >
+              Clear Filters
             </base-button>
           </div>
         </div>

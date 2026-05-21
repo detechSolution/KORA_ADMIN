@@ -35,26 +35,12 @@ export const useMembershipStore = defineStore("membership", () => {
   const memberPayments = ref([]);
   const loading = ref(false);
 
-  const fetchPlans = async (payload?: {
-    pagination: {
-      page: number;
-      pageSize: number;
-    };
-    search: string;
-    type: string | null;
-    status: string | null;
-  }) => {
+  const fetchPlans = async (params?: Record<string, any>) => {
     loading.value = true;
     try {
-      const query = buildQueryString({
-        page: payload?.pagination.page,
-        limit: payload?.pagination.pageSize,
-        q: payload?.search,
-        type: payload?.type,
-        status: payload?.status,
-      });
+      const qs = params ? buildQueryString(params) : "";
       const response = await http.get(
-        `${API_ENDPOINTS.MEMBERSHIP.GET_PLANS}?${query}`,
+        `${API_ENDPOINTS.MEMBERSHIP.GET_PLANS}${qs}`,
       ) as ApiResponse<MembershipPlan[]>;
       plans.value = response;
     }
@@ -101,26 +87,12 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
-  const fetchMembers = async (payload: {
-    pagination: {
-      page: number;
-      pageSize: number;
-    };
-    search: string;
-    type: string | null;
-    status: string | null;
-  }) => {
+  const fetchMembers = async (params: Record<string, any>) => {
     loading.value = true;
     try {
-      const query = buildQueryString({
-        page: payload.pagination.page,
-        limit: payload.pagination.pageSize,
-        q: payload.search,
-        type: payload.type,
-        status: payload.status,
-      });
+      const qs = buildQueryString(params);
       const response = await http.get(
-        `${API_ENDPOINTS.MEMBERS.BASE}?${query}`,
+        `${API_ENDPOINTS.MEMBERS.BASE}?${qs}`,
       ) as ApiResponse<MembershipPlan[]>;
       members.value = response;
     }

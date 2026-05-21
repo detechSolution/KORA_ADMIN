@@ -91,14 +91,15 @@ const columns = [
 async function fetchAdmins(): Promise<void> {
   try {
     loadingAdmins.value = true;
-    await adminStore.fetchAdmins({
-      pagination: {
-        page: pagination.value.page,
-      },
-      search: state.search,
+    const params = {
+      page: pagination.value.page,
+      limit: pagination.value.pageSize,
+      q: state.search,
       status: state.status,
-      dateRange: state.dateRange,
-    });
+      createdFrom: state.dateRange.start,
+      createdTo: state.dateRange.end,
+    };
+    await adminStore.fetchAdmins(params);
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to load admins") });

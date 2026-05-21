@@ -45,6 +45,9 @@ export const API_ENDPOINTS = {
     REFRESH: "/api/v1/auth/refresh-token",
     UPDATE_PASSWORD: "/api/v1/auth/update-password",
     UPDATE_PROFILE: "/api/v1/auth/update-profile",
+    FORGOT_PASSWORD: "/api/v1/password-reset/forgot-password",
+    VERIFY_OTP: "/api/v1/password-reset/verify-code",
+    RESET_PASSWORD: "/api/v1/password-reset/reset-password",
   },
   CONFIGURATION: {
     BILLABLE_ITEMS: "/api/v1/billable-items/getList",

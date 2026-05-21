@@ -209,6 +209,36 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
+  const forgotPassword = async (payload: { email: string }): Promise<void> => {
+    try {
+      return await http.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, payload) as any;
+    }
+    catch (error: unknown) {
+      console.error(error, "Forgot Password Error");
+      throw error;
+    }
+  };
+
+  const verifyResetOtp = async (payload: { email: string; code: string }): Promise<void> => {
+    try {
+      return await http.post(API_ENDPOINTS.AUTH.VERIFY_OTP, payload) as any;
+    }
+    catch (error: unknown) {
+      console.error(error, "Verify OTP Error");
+      throw error;
+    }
+  };
+
+  const resetPassword = async (payload: { code: string; newPassword: string }): Promise<void> => {
+    try {
+      return await http.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, payload) as any;
+    }
+    catch (error: unknown) {
+      console.error(error, "Reset Password Error");
+      throw error;
+    }
+  };
+
   return {
     isAuthenticated,
     isCheckingAuth,
@@ -222,5 +252,8 @@ export const useAuthStore = defineStore("auth", () => {
     updatePassword,
     setUnAuthorizedError,
     updateProfile,
+    forgotPassword,
+    verifyResetOtp,
+    resetPassword,
   };
 });
