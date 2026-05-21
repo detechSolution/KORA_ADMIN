@@ -25,7 +25,7 @@ export const useInstructorsStore = defineStore("instructors", () => {
   const fetchInstructors = async (params: Record<string, any>) => {
     loading.value = true;
     try {
-      const qs = buildQueryString(params);
+      const qs = params ? buildQueryString(params) : "";
       const response = await http.get(`${API_ENDPOINTS.INSTRUCTORS.BASE}?${qs}`) as ApiResponse<Instructor[]>;
       instructors.value = response;
     }
