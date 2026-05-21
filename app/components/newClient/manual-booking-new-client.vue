@@ -7,13 +7,14 @@ import type { CreateNewClientBookingPayload } from "~/types/booking";
 import { findServiceGroup, findServiceItem } from "~/composables/services/use-booking";
 import { useNotification } from "~/composables/use-notification";
 import { useBookingStore } from "~/stores/booking";
+import { getApiErrorMessage } from "~/utils/error";
 
 /* ── State ──────────────────────────────────────────────── */
 
 const loading = ref(false);
 const currentStep = ref(0);
 const bookingStore = useBookingStore();
-const { success } = useNotification();
+const { success, error: showError } = useNotification();
 
 const step2Ref = ref<any>(null);
 const step3Ref = ref<any>(null);
@@ -199,6 +200,7 @@ async function handleCreateBooking(): Promise<void> {
   }
   catch (error) {
     console.warn("Error creating booking:", error);
+    showError({ message: getApiErrorMessage(error, "Failed to create booking") });
   }
   finally {
     loading.value = false;

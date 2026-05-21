@@ -50,9 +50,9 @@ const columns = computed(() => [
   { accessorKey: "itemName", header: "Session/Service" },
   { accessorKey: "itemType", header: "Type" },
   {
-    accessorKey: "bookedDate",
+    accessorKey: "bookedFor",
     header: "Booked Date",
-    accessorFn: (row: Booking) => formatDate(row.bookedDate),
+    accessorFn: (row: Booking) => formatDate(row.bookedFor),
   },
   { accessorKey: "status", header: "Status" },
   { accessorKey: "actions", header: "Actions" },

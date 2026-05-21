@@ -9,6 +9,7 @@ import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 import { useMembershipStore } from "~/stores/membership";
+import { getApiErrorMessage } from "~/utils/error";
 
 const steps: StepItem[] = [
   {
@@ -26,7 +27,7 @@ const steps: StepItem[] = [
 ];
 
 const bookingStore = useBookingStore();
-const { success } = useNotification();
+const { success, error: showError } = useNotification();
 const membershipStore = useMembershipStore();
 
 const membersOptions = ref([]);
@@ -222,6 +223,7 @@ async function handleCreateBooking(): Promise<void> {
   }
   catch (error) {
     console.error("Validation failed:", error);
+    showError({ message: getApiErrorMessage(error, "Failed to create booking") });
   }
   finally {
     loading.value = false;

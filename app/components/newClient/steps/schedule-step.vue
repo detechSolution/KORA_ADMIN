@@ -44,7 +44,7 @@ type BadgeColor = "primary" | "secondary" | "success" | "info" | "warning" | "er
 type SelectOption
   = | { type: "label"; label: string }
     | { type: "separator" }
-    | { label: string; value: number; description?: string; meta?: string; badge?: { label: string; color?: BadgeColor } };
+    | { label: string; value: number; description?: string; metaColor?: string; meta?: string; badge?: { label: string; color?: BadgeColor } };
 
 function findServiceItem(serviceId: number | undefined) {
   if (!serviceId)
@@ -75,6 +75,7 @@ const serviceOptions = computed<SelectOption[]>(() =>
       description: item.sessionDate,
       meta: group.type === "session" ? `${item.occupied}/${item.capacity}` : undefined,
       badge: { label: item.sessionType },
+      metaColor: item.occupied === item.capacity ? "error" : "success",
     })),
     ...(i < arr.length - 1 ? [{ type: "separator" } as SelectOption] : []),
   ]),

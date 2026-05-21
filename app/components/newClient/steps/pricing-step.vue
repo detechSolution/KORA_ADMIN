@@ -7,9 +7,14 @@ import { ICONS } from "../../../config/icons";
 
 const form = defineModel<any>({ required: true });
 const bookingStore = useBookingStore();
-
+const { error: showError, success } = useNotification();
 const promoLoading = ref(false);
 const appliedPromo = ref<any>(null);
+const promoValidation = computed<"success" | "error" | "" | null>(() => {
+  if (!appliedPromo.value?.isValid)
+    return "error";
+  return "success";
+});
 
 const paymentMethods = [
   { value: "cash", label: "Cash", description: "Paid at counter", icon: ICONS.MONEY },
@@ -94,15 +99,19 @@ async function applyPromoCode(): Promise<void> {
     const data = await bookingStore.validatePromoCode(form.value.promoCode);
 
     if (data?.isValid) {
+      promoValidation.value = "success";
       appliedPromo.value = {
         code: data.code,
         type: data.type,
         amount: data.amount,
         isValid: true,
       };
+      success({ message: "Promo code applied successfully" });
     }
     else {
+      promoValidation.value = "error";
       appliedPromo.value = null;
+      showError({ message: "Invalid promo code" });
     }
   }
   catch (error) {
@@ -157,15 +166,21 @@ defineExpose({
         </div>
 
         <!-- Promo code -->
-        <div class="flex gap-2 items-end">
-          <base-input
-            v-model="form.promoCode"
-            name="promoCode"
-            label="Promo Code"
-            placeholder="e.g PROMO20"
-            class="flex-1"
-            @update:model-value="removePromo"
-          />
+        <div class="flex gap-2 flex-row items-end">
+          <div class="relative w-full">
+            <base-input
+              v-model="form.promoCode"
+              name="promoCode"
+              label="Promo Code"
+              placeholder="e.g PROMO20"
+              class="flex-1"
+              @update:model-value="removePromo"
+              @keypress.enter="applyPromoCode"
+            />
+            <div v-if="promoValidation === 'success'" class="absolute right-2 bottom-0.5 ">
+              <UIcon :name="ICONS.CIRCLE_CHECK" class="w-5 h-5 text-green-500" />
+            </div>
+          </div>
           <base-button
             variant="outline"
             :loading="promoLoading"

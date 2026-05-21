@@ -22,7 +22,7 @@ export const useInstructorsStore = defineStore("instructors", () => {
   const assignedSessions = ref<any>(null);
   const loading = ref(false);
 
-  const fetchInstructors = async (params: Record<string, any>) => {
+  const fetchInstructors = async (params?: Record<string, any>) => {
     loading.value = true;
     try {
       const qs = params ? buildQueryString(params) : "";
