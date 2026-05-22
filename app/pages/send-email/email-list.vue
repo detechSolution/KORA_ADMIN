@@ -165,14 +165,6 @@ onMounted(() => {
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
-              v-if="hasActiveFilters()"
-              variant="outline"
-              class="flex-1 sm:flex-none"
-              @click="clearFilters"
-            >
-              Clear Filters
-            </base-button>
-            <base-button
               variant="outline"
               class="flex-1 sm:flex-none"
               :leading-icon="ICONS.SEARCH"
@@ -180,6 +172,14 @@ onMounted(() => {
               @click="handleSearchClick"
             >
               Search
+            </base-button>
+            <base-button
+              v-if="hasActiveFilters()"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="clearFilters"
+            >
+              Clear Filters
             </base-button>
           </div>
         </div>

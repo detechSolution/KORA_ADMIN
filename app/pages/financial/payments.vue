@@ -163,20 +163,20 @@ const kpiCards = computed(() => [
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
-              v-if="state.search || state.dateRange.start || state.dateRange.end || state.status"
-              variant="outline"
-              class="flex-1 sm:flex-none"
-              @click="clearFilters"
-            >
-              Clear Filters
-            </base-button>
-            <base-button
               variant="outline"
               class="flex-1 sm:flex-none"
               :leading-icon="ICONS.SEARCH"
               @click="handleSearchClick"
             >
               Search
+            </base-button>
+            <base-button
+              v-if="state.search || state.dateRange.start || state.dateRange.end || state.status"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="clearFilters"
+            >
+              Clear Filters
             </base-button>
           </div>
         </div>

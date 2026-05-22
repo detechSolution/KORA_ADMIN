@@ -29,6 +29,7 @@ export const useMembershipStore = defineStore("membership", () => {
   const membersSummary = ref({
     totalMembers: 0,
     activeMembers: 0,
+    activeGuests: 0,
   });
   const membershipOptions = ref([]);
   const memberBookings = ref([]);

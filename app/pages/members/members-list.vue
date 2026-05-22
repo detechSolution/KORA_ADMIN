@@ -110,19 +110,19 @@ const kpiData = computed(() => [
   {
     title: "Total Clients",
     icon: ICONS.USERS,
-    value: 20,
+    value: membersStore.membersSummary?.totalMembers,
     link: { path: "/members/list" },
   },
   {
     title: "Members Count",
     icon: ICONS.USERS,
-    value: 10,
+    value: membersStore.membersSummary?.activeMembers,
     link: { path: "/members/list" },
   },
   {
     title: "Guests Count",
     icon: ICONS.USERS,
-    value: 3,
+    value: membersStore.membersSummary?.activeGuests,
     link: { path: "/members/list" },
   },
 ]);

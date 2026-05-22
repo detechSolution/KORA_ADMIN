@@ -93,6 +93,10 @@ function openEditDrawer(plan: MembershipPlan): void {
   editDrawerOpen.value = true;
 }
 
+function hasActiveFilters(): boolean {
+  return !!(state.value.search || state.value.type || state.value.status);
+}
+
 onMounted(() => {
   fetchPlans();
 });
@@ -152,13 +156,6 @@ onMounted(() => {
 
         <div class="flex gap-2 w-full sm:w-auto">
           <base-button
-            variant="outline"
-            class="flex-1 sm:flex-none"
-            @click="handleClearFilters"
-          >
-            Clear Filters
-          </base-button>
-          <base-button
             class="flex-1 sm:flex-none"
             variant="outline"
             :leading-icon="ICONS.SEARCH"
@@ -166,6 +163,14 @@ onMounted(() => {
             @keyup.enter="handleSearchClick"
           >
             Search
+          </base-button>
+          <base-button
+            v-if="hasActiveFilters()"
+            variant="outline"
+            class="flex-1 sm:flex-none"
+            @click="handleClearFilters"
+          >
+            Clear Filters
           </base-button>
         </div>
       </div>
