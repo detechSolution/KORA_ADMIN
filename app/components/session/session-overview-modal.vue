@@ -44,7 +44,7 @@ function openPreview(type: "image" | "video", url: string) {
           </div>
         </div>
         <base-badge
-          :color="getStatusColor(session.type)"
+          :status="session.type"
           variant="subtle"
           size="md"
         >
@@ -115,7 +115,7 @@ function openPreview(type: "image" | "video", url: string) {
           </div>
         </div>
         <base-badge
-          :color="getStatusColor('Paid')"
+          status="Paid"
           variant="subtle"
         >
           Rs. {{ session.price }}

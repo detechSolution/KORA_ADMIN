@@ -189,7 +189,7 @@ onMounted(() => {
           </div>
         </template>
         <template #referenceCode-cell="{ row }">
-          <base-badge>
+          <base-badge uppercase>
             {{ row?.original?.referenceCode }}
           </base-badge>
         </template>

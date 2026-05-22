@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, useSlots } from "vue";
 
 import { ICONS } from "~/config/icons";
 
@@ -20,60 +20,109 @@ type BadgeColor
 type Props = {
   color?: BadgeColor;
   status?: string;
-  label?: string;
   class?: string;
+  uppercase?: boolean;
 };
 
 const props = withDefaults(defineProps<Props>(), {
   color: undefined,
   status: undefined,
-  label: undefined,
   class: "",
+  uppercase: false,
 });
 
-// All status configs in one place
+const slots = useSlots();
+
 const STATUS_MAP: Record<string, { color: BadgeColor; label: string; icon?: string }> = {
-  paid: { color: "emerald", label: "Paid" },
-  refunded: { color: "amber", label: "Refunded" },
-  failed: { color: "red", label: "Failed" },
-  pending: { color: "amber", label: "Pending" },
-  processing: { color: "blue", label: "Processing" },
-  completed: { color: "success", label: "Completed" },
-  cancelled: { color: "red", label: "Cancelled" },
-  canceled: { color: "red", label: "Canceled" },
-  active: { color: "emerald", label: "Active" },
-  inactive: { color: "muted", label: "Inactive" },
-  cash: { color: "purple", label: "Cash", icon: ICONS.BANKNOTE },
-  online: { color: "blue", label: "Online", icon: ICONS.WIFI },
-  class: { color: "blue", label: "Class" },
-  event: { color: "emerald", label: "Event" },
-  workshop: { color: "purple", label: "Workshop" },
-  confirmed: { color: "emerald", label: "Confirmed" },
-  requested: { color: "yellow", label: "Requested" },
-  approved: { color: "emerald", label: "Approved" },
-  rejected: { color: "red", label: "Rejected" },
-  session: { color: "purple", label: "Session" },
-  spa: { color: "blue", label: "Spa" },
-  pass: { color: "emerald", label: "Pass" },
-  member: { color: "blue", label: "Member" },
-  guest: { color: "purple", label: "Guest" },
-  monthly: { color: "blue", label: "Monthly" },
-  yearly: { color: "emerald", label: "Yearly" },
-  quarterly: { color: "orange", label: "Quarterly" },
-  approved: { color: "emerald", label: "Approved" },
-  rejected: { color: "red", label: "Rejected" },
-  requested: { color: "yellow", label: "Requested" },
+  "paid": { color: "emerald", label: "Paid" },
+  "refunded": { color: "amber", label: "Refunded" },
+  "failed": { color: "red", label: "Failed" },
+  "pending": { color: "amber", label: "Pending" },
+  "processing": { color: "blue", label: "Processing" },
+  "completed": { color: "success", label: "Completed" },
+  "cancelled": { color: "red", label: "Cancelled" },
+  "canceled": { color: "red", label: "Canceled" },
+  "cancellation processing": { color: "amber", label: "Cancellation Processing" },
+  "active": { color: "emerald", label: "Active" },
+  "inactive": { color: "muted", label: "Inactive" },
+  "cash": { color: "purple", label: "Cash", icon: ICONS.BANKNOTE },
+  "online": { color: "blue", label: "Online", icon: ICONS.WIFI },
+  "class": { color: "blue", label: "Class" },
+  "event": { color: "emerald", label: "Event" },
+  "workshop": { color: "purple", label: "Workshop" },
+  "confirmed": { color: "emerald", label: "Confirmed" },
+  "requested": { color: "yellow", label: "Requested" },
+  "approved": { color: "emerald", label: "Approved" },
+  "rejected": { color: "red", label: "Rejected" },
+  "session": { color: "purple", label: "Session" },
+  "spa": { color: "blue", label: "Spa" },
+  "pass": { color: "emerald", label: "Pass" },
+  "member": { color: "blue", label: "Member" },
+  "guest": { color: "purple", label: "Guest" },
+  "monthly": { color: "blue", label: "Monthly" },
+  "yearly": { color: "emerald", label: "Yearly" },
+  "quarterly": { color: "orange", label: "Quarterly" },
 };
+
+function formatText(text: string): string {
+  return text
+    .replace(/_/g, " ")
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function getSlotText(): string | null {
+  if (!slots.default)
+    return null;
+  const slotContent = slots.default();
+  if (!slotContent || slotContent.length === 0)
+    return null;
+
+  const firstChild = slotContent[0];
+  if (typeof firstChild.children === "string") {
+    return firstChild.children.trim();
+  }
+  return null;
+}
 
 const statusConfig = computed(() => {
   if (!props.status)
     return null;
-  const normalized = props.status.toLowerCase().replace(/_/g, " ");
-  return STATUS_MAP[normalized];
+  const key = props.status.toLowerCase().replace(/_/g, " ");
+  return STATUS_MAP[key] || null;
 });
 
-const badgeColor = computed(() => props.color ?? statusConfig.value?.color ?? "primary");
-const badgeLabel = computed(() => props.label ?? statusConfig.value?.label ?? "");
+const badgeColor = computed(() => {
+  if (props.color)
+    return props.color;
+  if (statusConfig.value)
+    return statusConfig.value.color;
+  return "primary";
+});
+
+const badgeLabel = computed(() => {
+  const slotText = getSlotText();
+
+  // If slot has content, format it
+  if (slotText) {
+    // Check if it's in the map
+    const key = slotText.toLowerCase().replace(/_/g, " ");
+    if (STATUS_MAP[key]) {
+      return STATUS_MAP[key].label;
+    }
+    // Otherwise format it
+    return formatText(slotText);
+  }
+
+  // No slot, use status prop
+  if (statusConfig.value)
+    return statusConfig.value.label;
+  if (props.status)
+    return formatText(props.status);
+  return "";
+});
+
 const badgeIcon = computed(() => statusConfig.value?.icon);
 
 const colorClasses = computed(() => {
@@ -96,12 +145,15 @@ const colorClasses = computed(() => {
 </script>
 
 <template>
-  <span class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium shadow-sm capitalize" :class="[colorClasses, props.class]">
+  <span
+    class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium shadow-sm"
+    :class="[colorClasses, props.class, { uppercase }]"
+  >
     <UIcon
       v-if="badgeIcon"
       :name="badgeIcon"
       class="h-3 w-3"
     />
-    <slot>{{ badgeLabel }}</slot>
+    {{ badgeLabel }}
   </span>
 </template>

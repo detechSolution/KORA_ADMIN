@@ -210,7 +210,7 @@ const kpiCards = computed(() => [
         </template>
 
         <template #referenceCode-cell="{ row }">
-          <base-badge>
+          <base-badge uppercase>
             {{ row?.original?.referenceCode || "-" }}
           </base-badge>
         </template>
@@ -226,8 +226,8 @@ const kpiCards = computed(() => [
         </template>
 
         <template #status-cell="{ row }">
-          <base-badge :color="getStatusColor(row?.original?.status)">
-            {{ (row?.original?.status) ? row.original.status.charAt(0).toUpperCase() + row.original.status.slice(1) : "-" }}
+          <base-badge :status="row?.original?.status">
+            {{ row?.original?.status }}
           </base-badge>
         </template>
 

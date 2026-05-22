@@ -168,7 +168,7 @@ watch(() => props.open, async (newValue) => {
               <span>{{ detail.label }}</span>
             </div>
             <span v-if="detail.label === 'Booking Id'" class="text-sm font-medium text-secondary-700">
-              <base-badge color="amber" class="w-fit text-[11px] font-semibold">
+              <base-badge uppercase color="amber">
                 {{ booking?.bookingCode }}
               </base-badge>
             </span>

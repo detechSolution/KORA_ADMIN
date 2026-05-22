@@ -236,7 +236,7 @@ onMounted(fetchBookings);
         empty-description="Bookings will appear here once created."
       >
         <template #bookingCode-cell="{ row }">
-          <base-badge>
+          <base-badge uppercase>
             {{ row.original.bookingCode }}
           </base-badge>
         </template>
