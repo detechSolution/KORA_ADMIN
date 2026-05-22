@@ -13,7 +13,7 @@ definePageMeta({
 });
 
 const instructorStore = useInstructorsStore();
-const toast = useNotification();
+const { success, error: showError } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
@@ -38,9 +38,9 @@ const state = reactive<Partial<createInstructorSchema>>({
   isActive: true,
 });
 
-function setApiError(error: string): void {
-  apiError.value = error;
-}
+// function setApiError(error: string): void {
+//   apiError.value = error;
+// }
 
 function clearApiError(): void {
   apiError.value = null;
@@ -64,18 +64,11 @@ async function handleCreateInstructor() {
       isActive: true,
     };
     await instructorStore.createInstructor(payload as { fullName: string; email: string; phoneNumber: string; bio: string; isActive: boolean });
-    toast.success({ message: "Instructor created successfully" });
-    formRef.value?.reset();
-    router.push({ name: "instructors/instructors-list" });
+    success({ message: "Instructor created successfully" });
+    router.push("/instructors/instructors-list");
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
+    showError({ message: getApiErrorMessage(error, "Failed to create instructor") });
   }
   finally {
     loading.value = false;

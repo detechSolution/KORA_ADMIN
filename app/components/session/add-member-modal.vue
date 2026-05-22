@@ -22,8 +22,6 @@ const selectedMemberId = ref<number | null>(null);
 
 async function fetchMembers() {
   try {
-    loading.value = true;
-
     await sessionsStore.getMembers(props.session.id);
     memberOptions.value = memberOrPassUser.value.data.map((item: any) => ({
       label: item.name,
@@ -35,9 +33,6 @@ async function fetchMembers() {
     showError({
       message: getApiErrorMessage(error, "Failed to load members"),
     });
-  }
-  finally {
-    loading.value = false;
   }
 }
 

@@ -94,6 +94,10 @@ function clearFilters() {
   handleSearchClick();
 }
 
+function hasActiveFilters(): boolean {
+  return !!(state.value.search || state.value.status || state.value.dateRange.start || state.value.dateRange.end);
+}
+
 onMounted(() => {
   fetchCancellations();
 });
@@ -153,6 +157,7 @@ onMounted(() => {
               Search
             </base-button>
             <base-button
+              v-if="hasActiveFilters()"
               variant="outline"
               class="flex-1 sm:flex-none"
               @click="clearFilters"

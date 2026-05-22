@@ -191,14 +191,6 @@ function clearFilters(): void {
         />
         <div class="flex gap-2 w-full sm:w-auto">
           <base-button
-            v-if="state.referenceNumber !== ''"
-            variant="outline"
-            class="flex-1 sm:flex-none"
-            @click="clearFilters"
-          >
-            Clear Filters
-          </base-button>
-          <base-button
             variant="outline"
             size="md"
             :leading-icon="ICONS.SEARCH"
@@ -206,6 +198,14 @@ function clearFilters(): void {
             @click="fetchSpaData"
           >
             Search
+          </base-button>
+          <base-button
+            v-if="state.referenceNumber !== ''"
+            variant="outline"
+            class="flex-1 sm:flex-none"
+            @click="clearFilters"
+          >
+            Clear Filters
           </base-button>
         </div>
       </div>
