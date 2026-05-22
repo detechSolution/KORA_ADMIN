@@ -65,11 +65,6 @@ async function handleCreateInstructor() {
     };
     await instructorStore.createInstructor(payload as { fullName: string; email: string; phoneNumber: string; bio: string; isActive: boolean });
     success({ message: "Instructor created successfully" });
-    state.fullName = "";
-    state.email = "";
-    state.phoneNumber = "";
-    state.bio = "";
-    state.isActive = true;
     router.push("/instructors/instructors-list");
   }
   catch (error: unknown) {
