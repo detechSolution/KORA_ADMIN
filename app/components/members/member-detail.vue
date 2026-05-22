@@ -102,9 +102,9 @@ watch(
                 </p>
                 <base-badge
                   v-if="member?.user?.role"
-                  :color="getStatusColor(member?.user?.role)"
+                  :status="member?.user?.role"
                 >
-                  {{ getStatusLabel(member?.user?.role) }}
+                  {{ member?.user?.role }}
                 </base-badge>
               </div>
             </div>
@@ -181,7 +181,7 @@ watch(
                 {{ formatDate(booking.bookedFor) }}
               </p>
             </div>
-            <base-badge :color="getStatusColor(booking.status)">
+            <base-badge :status="booking.status">
               {{ booking.status }}
             </base-badge>
           </div>
@@ -214,7 +214,7 @@ watch(
               </p>
             </div>
 
-            <base-badge :color="getStatusColor(payment.status)">
+            <base-badge :status="payment.status">
               {{ payment.status }}
             </base-badge>
           </div>

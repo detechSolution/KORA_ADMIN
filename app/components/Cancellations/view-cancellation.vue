@@ -213,7 +213,7 @@ watch(cancellationDetails, (details) => {
           label="Status"
           name="refundStatus"
           placeholder="Select status"
-          :disabled="state.status !== 'requested'"
+          :disabled="cancellationDetails?.refund?.status !== 'requested'"
         />
 
         <base-file-upload
@@ -241,7 +241,7 @@ watch(cancellationDetails, (details) => {
           size="md"
           type="submit"
           :loading="loading"
-          :disabled="state.status !== 'requested'"
+          :disabled="cancellationDetails?.refund?.status !== 'requested'"
         >
           Update Cancellation
         </base-button>

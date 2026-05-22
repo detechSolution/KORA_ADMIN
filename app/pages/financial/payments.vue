@@ -210,7 +210,7 @@ const kpiCards = computed(() => [
         </template>
 
         <template #referenceCode-cell="{ row }">
-          <base-badge>
+          <base-badge uppercase>
             {{ row?.original?.referenceCode || "-" }}
           </base-badge>
         </template>
@@ -220,21 +220,14 @@ const kpiCards = computed(() => [
         </template>
 
         <template #method-cell="{ row }">
-          <base-badge :color="getStatusMeta(row?.original?.method).badgeColor">
-            <span class="inline-flex items-center gap-1">
-              <UIcon
-                v-if="getStatusMeta(row?.original?.method).icon"
-                :name="getStatusMeta(row?.original?.method).icon!"
-                class="h-3.5 w-3.5"
-              />
-              {{ getStatusMeta(row?.original?.method).label }}
-            </span>
+          <base-badge :status="row?.original?.method">
+            {{ row?.original?.method }}
           </base-badge>
         </template>
 
         <template #status-cell="{ row }">
-          <base-badge :color="getStatusColor(row?.original?.status)">
-            {{ (row?.original?.status) ? row.original.status.charAt(0).toUpperCase() + row.original.status.slice(1) : "-" }}
+          <base-badge :status="row?.original?.status">
+            {{ row?.original?.status }}
           </base-badge>
         </template>
 
