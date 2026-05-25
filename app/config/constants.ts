@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
     GET_STATS: "/api/v1/analytics/summary",
     GET_SESSIONS_TREND: "/api/v1/analytics/bookings-by-sessions",
     GET_REVENUE_TREND: "/api/v1/analytics/revenue-trend",
+    GET_CONSISTENT_MEMBER: "/api/v1/members/consistent",
   },
   SESSION: {
     CREATE: "/api/v1/sessions",

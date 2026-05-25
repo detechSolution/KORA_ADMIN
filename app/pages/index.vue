@@ -27,12 +27,14 @@ const analyticsLoading = ref(false);
 const sessionsLoading = ref(false);
 const bookingsBySessionsLoading = ref(false);
 const revenueTrendLoading = ref(false);
+const consistentMembersLoading = ref(false);
 
 const analyticsData = computed(() => analyticsStore.analyticsStats);
 const recentBookings = computed(() => bookingsStore.bookings.data as any[]);
 const todaySessions = computed(() => sessionStore.sessions.data);
 const bookingsBySessions = ref<any>(null);
 const revenueTrend = ref<any>(null);
+const consistentMembers = ref<any>(null);
 
 async function getRecentBookings() {
   try {
@@ -70,8 +72,8 @@ async function getTodaySessions() {
     const params = {
       page: 1,
       limit: 5,
-      startDate: new Date().toISOString().split("T")[0], // "2026-05-22"
-      endDate: new Date().toISOString().split("T")[0], // "2026-05-22"
+      startDate: new Date().toISOString().split("T")[0],
+      endDate: new Date().toISOString().split("T")[0],
     };
     await sessionStore.getSessions(params);
   }
@@ -111,6 +113,20 @@ async function getRevenueTrend() {
   }
 }
 
+async function getConsistentMembers() {
+  try {
+    consistentMembersLoading.value = true;
+    const res = await analyticsStore.getConsistentMembers();
+    consistentMembers.value = res.data;
+  }
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Failed to load analytics") });
+  }
+  finally {
+    consistentMembersLoading.value = false;
+  }
+}
+
 const { revenueCategories: RevenueCategoriesMultple } = useChartColors();
 
 onMounted(() => {
@@ -120,6 +136,7 @@ onMounted(() => {
     getTodaySessions(),
     getBookingsBySessions(),
     getRevenueTrend(),
+    getConsistentMembers(),
   ]);
 });
 
@@ -139,7 +156,7 @@ const recentInquiriesColumns = [
 const consistentMembersColumns = [
   { accessorKey: "member", header: "Member" },
   { accessorKey: "phoneNumber", header: "Phone" },
-  { accessorKey: "totalBookings", header: "Bookings Count" },
+  { accessorKey: "bookingCount", header: "Bookings Count" },
   { accessorKey: "attendedBookings", header: "Attended Bookings" },
 ];
 
@@ -276,13 +293,34 @@ const kpiData = computed(() => [
         </div>
 
         <base-table
-          :data="[]"
+          :data="consistentMembers"
           :columns="consistentMembersColumns"
-          :loading="false"
+          :loading="consistentMembersLoading"
           :skeleton-rows="5"
           empty-title="No consistent members yet"
           empty-description="New consistent members will appear here once created."
-        />
+        >
+          <template #member-cell="{ row }">
+            <div class="flex flex-col gap-1">
+              <span class="text-sm font-medium text-secondary">
+                {{ row.original.fullName || "-" }}
+              </span>
+              <span class="text-xs text-secondary-400">
+                {{ row.original.email || "-" }}
+              </span>
+            </div>
+          </template>
+
+          <template #totalBookings-cell="{ row }">
+            <base-badge uppercase>
+              {{ row.original.bookingCount }}
+            </base-badge>
+          </template>
+
+          <template #attendedBookings-cell="{ row }">
+            {{ row.original.attendedBookings }}
+          </template>
+        </base-table>
       </div>
     </div>
 
@@ -308,9 +346,21 @@ const kpiData = computed(() => [
         </NuxtLink>
       </div>
 
-      <div class="border-t border-border py-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-2">
+      <div class="border-t border-border py-4 grid overflow-x-auto  gap-2">
+        <div
+          v-if="todaySessions.length === 0"
+        >
+          <UEmpty
+            icon="i-lucide-file"
+            title="No sessions scheduled for today"
+            description="New sessions will appear here once created."
+            class="ring-0 bg-transparent"
+          />
+        </div>
+
         <dashboard-session-card
           v-for="(session, index) in todaySessions"
+          v-else
           :key="index"
           :title="session.name"
           :date="session.startsAt"

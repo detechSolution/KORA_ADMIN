@@ -47,10 +47,22 @@ export const useAnalyticsStore = defineStore("analytics", () => {
     }
   };
 
+  const getConsistentMembers = async (): Promise<any> => {
+    try {
+      const res = await http.get(API_ENDPOINTS.ANALYTICS.GET_CONSISTENT_MEMBER) as any;
+      return res;
+    }
+    catch (error: unknown) {
+      console.error(error, "Get Analytics Stats Error");
+      throw error;
+    }
+  };
+
   return {
     analyticsStats,
     getAnalyticsStats,
     getBookingsBySessions,
     getRevenueTrend,
+    getConsistentMembers,
   };
 });
