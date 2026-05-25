@@ -4,7 +4,9 @@
  */
 export const API_ENDPOINTS = {
   ANALYTICS: {
-    GET_STATS: "/api/v1/analytics/getSummary",
+    GET_STATS: "/api/v1/analytics/summary",
+    GET_SESSIONS_TREND: "/api/v1/analytics/bookings-by-sessions",
+    GET_REVENUE_TREND: "/api/v1/analytics/revenue-trend",
   },
   SESSION: {
     CREATE: "/api/v1/sessions",

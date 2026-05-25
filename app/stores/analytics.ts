@@ -7,23 +7,39 @@ import { API_ENDPOINTS } from "~/config/constants";
 export const useAnalyticsStore = defineStore("analytics", () => {
   const http = getHttp();
   const analyticsStats = ref<any>({
-    inquiry_total_count: 0,
-    community_total_count: 0,
-    total_invoiced: 0,
-    total_paid: 0,
+    todayBookings: 0,
+    todaySessions: 0,
+    totalMembers: 0,
+    todayRevenue: 0,
+    currency: "",
   });
 
   const getAnalyticsStats = async (): Promise<any> => {
     try {
       const res = await http.get(API_ENDPOINTS.ANALYTICS.GET_STATS) as any;
-      if (res?.data) {
-        analyticsStats.value = {
-          inquiry_total_count: res.data.inquiry_total_count ?? 0,
-          community_total_count: res.data.community_total_count ?? 0,
-          total_invoiced: res.data.total_invoiced ?? 0,
-          total_paid: res.data.total_paid ?? 0,
-        };
-      }
+      analyticsStats.value = res;
+    }
+    catch (error: unknown) {
+      console.error(error, "Get Analytics Stats Error");
+      throw error;
+    }
+  };
+
+  const getBookingsBySessions = async (): Promise<any> => {
+    try {
+      const res = await http.get(API_ENDPOINTS.ANALYTICS.GET_SESSIONS_TREND) as any;
+      return res;
+    }
+    catch (error: unknown) {
+      console.error(error, "Get Analytics Stats Error");
+      throw error;
+    }
+  };
+
+  const getRevenueTrend = async (): Promise<any> => {
+    try {
+      const res = await http.get(API_ENDPOINTS.ANALYTICS.GET_REVENUE_TREND) as any;
+      return res;
     }
     catch (error: unknown) {
       console.error(error, "Get Analytics Stats Error");
@@ -34,5 +50,7 @@ export const useAnalyticsStore = defineStore("analytics", () => {
   return {
     analyticsStats,
     getAnalyticsStats,
+    getBookingsBySessions,
+    getRevenueTrend,
   };
 });
