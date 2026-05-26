@@ -13,11 +13,10 @@ definePageMeta({
 });
 
 const mailStore = useMailStore();
-const toast = useNotification();
+const { error: showError, success } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
-const apiError = ref<string | null>(null);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const schema = z.object({
@@ -48,24 +47,17 @@ async function handleCreateMail() {
   }
   try {
     loading.value = true;
-    apiError.value = null;
     await mailStore.createMail({
       subject: state.subject?.trim() ?? "",
       title: state.title?.trim() ?? "",
       htmlContent: state.htmlContent ?? "",
       recipientEmails: state.recipientEmails ?? [],
     });
-    toast.success({ message: "Mail created successfully" });
-    router.push({ name: "send-email/email-list" });
+    success({ message: "Mail created successfully" });
+    router.push({ name: "/send-email/email-list" });
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      apiError.value = message;
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
+    showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });
   }
   finally {
     loading.value = false;
