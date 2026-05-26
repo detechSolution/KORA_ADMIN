@@ -9,7 +9,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   layout: "dashboard",
   auth: true,
-  permission: "administration.roles.create",
+  permission: "instructors.create",
 });
 
 const instructorStore = useInstructorsStore();

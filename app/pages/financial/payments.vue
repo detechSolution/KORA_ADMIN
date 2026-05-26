@@ -75,6 +75,10 @@ function clearFilters(): void {
   handleSearchClick();
 }
 
+function handleDownloadInvoice(url: string): void {
+  window.open(url, "_blank");
+}
+
 onMounted(() => {
   fetchPayments();
 });
@@ -192,8 +196,8 @@ const kpiCards = computed(() => [
         :data="payments.data"
         :columns="columns"
         :loading="financeStore.loading"
-        empty-title="No communities found"
-        empty-description="It looks like you haven't added any communities. Create one to get started."
+        empty-title="No payments found"
+        empty-description="It looks like you haven't added any payments. Create one to get started."
       >
         <template #user-cell="{ row } ">
           <div class="flex items-center">
@@ -231,13 +235,13 @@ const kpiCards = computed(() => [
           </base-badge>
         </template>
 
-        <template #actions-cell>
+        <template #actions-cell="{ row }">
           <div class="text-left">
             <base-dropdown-menu
               :items="[
                 {
-                  label: 'Download Invoice',
-                  // onSelect: () => openAdminDrawer(row.original),
+                  label: 'View Document',
+                  onSelect: () => { handleDownloadInvoice(row.original.identificationDocumentUrl); },
                   class: 'cursor-pointer',
                 },
               ]"

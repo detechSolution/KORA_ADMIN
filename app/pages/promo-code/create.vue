@@ -11,7 +11,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   layout: "dashboard",
   auth: true,
-  permission: "administration.admins.create",
+  permission: "promo_codes.create",
 });
 
 const discountTypeOptions = [

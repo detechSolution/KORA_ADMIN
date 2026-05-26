@@ -7,7 +7,7 @@ import { useKoraPassesStore } from "~/stores/kora-passes";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "offerings.sessions.view",
+  permission: "offerings.kora_passes.view",
 });
 
 const koraPassesStore = useKoraPassesStore();

@@ -12,7 +12,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "offerings.services.view",
+  permission: "offerings.spa.create",
 });
 
 type StepItem = {

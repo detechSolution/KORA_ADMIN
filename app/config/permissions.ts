@@ -60,6 +60,22 @@ export const PERMISSIONS_SESSIONS = {
   VIEW: "offerings.sessions.view",
 } as const;
 
+// ——— Spa Sub-Types ———
+export const PERMISSIONS_SPA = {
+  CREATE: "offerings.spa.create",
+  DELETE: "offerings.spa.delete",
+  UPDATE: "offerings.spa.update",
+  VIEW: "offerings.spa.view",
+} as const;
+
+// ——— Kora Passes ———
+export const PERMISSIONS_KORA_PASSES = {
+  CREATE: "offerings.kora_passes.create",
+  DELETE: "offerings.kora_passes.delete",
+  UPDATE: "offerings.kora_passes.update",
+  VIEW: "offerings.kora_passes.view",
+} as const;
+
 // ——— Payments ———
 export const PERMISSIONS_PAYMENTS = {
   VIEW: "payments.view",
@@ -81,6 +97,13 @@ export const PERMISSIONS_REFUNDS = {
 // ——— Uploads ———
 export const PERMISSIONS_UPLOADS = {
   CREATE: "uploads.create",
+} as const;
+
+export const PERMISSIONS_INSTRUCTORS = {
+  CREATE: "instructors.create",
+  DELETE: "instructors.delete",
+  UPDATE: "instructors.update",
+  VIEW: "instructors.view",
 } as const;
 
 // ——— Mails ———

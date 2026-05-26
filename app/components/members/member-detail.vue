@@ -144,6 +144,25 @@ watch(
           </div>
         </div>
 
+        <div class="border border-stone-200 rounded-md p-3 flex justify-between items-center">
+          <div class="flex flex-col gap-2">
+            <h2>
+              {{ member?.membershipPlan?.name }}
+            </h2>
+            <p class="text-secondary-400 font-normal text-xs">
+              {{ member?.subscriptionStartDate }} - {{ member?.subscriptionEndDate }}
+            </p>
+
+            <base-badge class="w-fit" :status="member?.membershipPlanOption?.frequency">
+              {{ member?.membershipPlanOption?.frequency }}
+            </base-badge>
+          </div>
+
+          <p class="text-secondary-400 font-semibold text-xs">
+            Rs. {{ member?.membershipPlanOption?.price }}
+          </p>
+        </div>
+
         <USeparator />
 
         <!-- Additional Info Cards -->
@@ -187,7 +206,10 @@ watch(
           </div>
         </div>
         <div v-else class="text-muted-foreground">
-          No bookings
+          <UEmpty
+            title="No bookings"
+            description="No bookings found for this member"
+          />
         </div>
       </section>
 
@@ -220,7 +242,10 @@ watch(
           </div>
         </div>
         <div v-else class="text-muted-foreground">
-          No payments
+          <UEmpty
+            title="No payments"
+            description="No payments found for this member"
+          />
         </div>
       </section>
     </base-tabs>

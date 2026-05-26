@@ -11,7 +11,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "mails.view",
+  permission: "instructors.view",
 });
 
 type DateRangeFilter = {
