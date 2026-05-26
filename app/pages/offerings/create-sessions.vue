@@ -12,7 +12,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "offerings.services.create",
+  permission: "offerings.sessions.create",
 });
 
 const { success, error: showError } = useNotification();

@@ -173,7 +173,7 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <base-select
             v-model="state.status"
@@ -207,8 +207,8 @@ onMounted(() => {
         :data="admins.data"
         :columns="columns"
         :loading="loadingAdmins"
-        empty-title="No communities found"
-        empty-description="It looks like you haven't added any communities. Create one to get started."
+        empty-title="No admins found"
+        empty-description="It looks like you haven't added any admins. Create one to get started."
       >
         <template #fullName-cell="{ row }">
           <div class="flex flex-col gap-1">

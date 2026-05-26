@@ -11,7 +11,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   layout: "dashboard",
   auth: true,
-  permission: "administration.admins.create",
+  permission: "members.create",
 });
 
 const steps: StepItem[] = [
@@ -141,6 +141,7 @@ async function handleCreatePlan() {
     formData.append("subscriptionStartDate", state.subscriptionStartDate);
     formData.append("identificationDocument", state.identificationDocument);
     formData.append("paymentMethod", state.paymentMethod);
+    formData.append("paymentPaidAt", new Date().toISOString());
 
     await membershipStore.createMember(formData);
     success({ message: "Membership plan created successfully" });

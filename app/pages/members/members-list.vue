@@ -250,8 +250,8 @@ onMounted(() => {
         :data="members.data"
         :columns="columns"
         :loading="membersStore.loading"
-        empty-title="No communities found"
-        empty-description="It looks like you haven't added any communities. Create one to get started."
+        empty-title="No members found"
+        empty-description="It looks like you haven't added any members. Create one to get started."
       >
         <template #user-cell="{ row }">
           <div class="flex items-center gap-2">

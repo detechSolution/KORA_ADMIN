@@ -211,7 +211,6 @@ onMounted(() => {
         v-if="loading"
         :count="pagination.pageSize"
       />
-
       <!-- Session Cards -->
       <session-card
         v-for="(session, index) in sessions.data"
