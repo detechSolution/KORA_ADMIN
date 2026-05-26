@@ -9,10 +9,11 @@ import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
 import {
   PERMISSIONS_BOOKINGS,
+  PERMISSIONS_KORA_PASSES,
   PERMISSIONS_MEMBERSHIP_PLANS,
   PERMISSIONS_PAYMENTS,
-  PERMISSIONS_SERVICES,
   PERMISSIONS_SESSIONS,
+  PERMISSIONS_SPA,
 } from "~/config/permissions";
 import { useAuthStore } from "~/stores/auth";
 
@@ -96,8 +97,8 @@ const rawItems: NavItemWithPermission[] = [{
   defaultOpen: true,
   children: [
     { label: "Sessions", to: "/offerings/session", icon: ICONS.CALENDAR, permission: PERMISSIONS_SESSIONS.VIEW },
-    { label: "Spa", to: "/offerings/spa", icon: ICONS.FLOWER, permission: PERMISSIONS_SERVICES.VIEW },
-    { label: "Kora Passes", to: "/offerings/kora-passes", icon: ICONS.ID_CARD, permission: PERMISSIONS_SERVICES.VIEW },
+    { label: "Spa", to: "/offerings/spa", icon: ICONS.FLOWER, permission: PERMISSIONS_SPA.VIEW },
+    { label: "Kora Passes", to: "/offerings/kora-passes", icon: ICONS.ID_CARD, permission: PERMISSIONS_KORA_PASSES.VIEW },
   ],
 }, {
   label: "Bookings",

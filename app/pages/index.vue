@@ -140,7 +140,7 @@ onMounted(() => {
   ]);
 });
 
-const recentInquiriesColumns = [
+const recentBookingsColumns = [
   { accessorKey: "bookingCode", header: "Booking ID" },
   { accessorKey: "client", header: "Client" },
   { accessorKey: "itemName", header: "Session/Service" },
@@ -241,11 +241,11 @@ const kpiData = computed(() => [
         </div>
         <base-table
           :data="recentBookings"
-          :columns="recentInquiriesColumns"
+          :columns="recentBookingsColumns"
           :loading="bookingsLoading"
           :skeleton-rows="5"
-          empty-title="No inquiries yet"
-          empty-description="New inquiries will appear here once created."
+          empty-title="No bookings yet"
+          empty-description="New bookings will appear here once created."
         >
           <template #bookingCode-cell="{ row }">
             <base-badge uppercase>
