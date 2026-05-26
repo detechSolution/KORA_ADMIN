@@ -3,7 +3,7 @@ import { computed, ref, watch } from "vue";
 
 import { useMailStore } from "~/stores/mail";
 
-type Item = { value: string; label: string; initials: string };
+type Item = { value: string; label: string };
 type Props = { name: string; label?: string; modelValue: string[] };
 
 const props = withDefaults(defineProps<Props>(), { label: "" });
@@ -32,7 +32,7 @@ async function load() {
       .map((r: any) => {
         const email = r.email ?? r.recipient_email ?? "";
         const name = r.name ?? r.full_name ?? email;
-        return { value: email, label: name, initials: getInitials(name) };
+        return { value: email, label: name };
       })
       .filter((r: Item) => r.value);
   }
@@ -73,10 +73,6 @@ const inputValue = computed({
 function isSelected(value: string) {
   return value === SELECT_ALL ? allSelected.value : props.modelValue.includes(value);
 }
-
-function getInitials(name: string) {
-  return name.split(" ").filter(Boolean).slice(0, 2).map(p => p[0]?.toUpperCase() ?? "").join("");
-}
 </script>
 
 <template>
@@ -94,7 +90,6 @@ function getInitials(name: string) {
       placeholder="Search and select recipients"
       :search-input="{ placeholder: 'Search & Select Recipients' }"
       size="xl"
-      variant="outline"
       class="w-full"
     >
       <template #default>
