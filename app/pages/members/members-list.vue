@@ -254,8 +254,10 @@ onMounted(() => {
       >
         <template #user-cell="{ row }">
           <div class="flex items-center gap-2">
-            <UAvatar
-              :alt="row.original?.user?.fullName.toUpperCase()"
+            <base-avatar
+              :src="row.original?.user?.avatar"
+              :alt="row.original?.user?.fullName || 'Unknown'"
+              size="sm"
             />
             <div>
               <h2

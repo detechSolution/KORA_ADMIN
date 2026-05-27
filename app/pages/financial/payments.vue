@@ -199,8 +199,12 @@ const kpiCards = computed(() => [
         empty-title="No payments found"
       >
         <template #user-cell="{ row } ">
-          <div class="flex items-center">
-            <base-avatar :src="row?.original?.member?.user?.avatar" />
+          <div class="flex items-center gap-2">
+            <base-avatar
+              :src="row?.original?.member?.user?.avatar"
+              :alt="row?.original?.member?.user?.fullName || 'Unknown'"
+              size="sm"
+            />
             <div class="flex flex-col gap-1">
               <span class="text-sm font-medium text-secondary">
                 {{ row?.original?.member?.user?.fullName || "-" }}

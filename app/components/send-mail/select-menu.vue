@@ -127,8 +127,7 @@ function isSelected(value: string) {
             class="pointer-events-none"
           />
           <template v-if="item.value !== SELECT_ALL">
-            <UAvatar
-              class="capitalize"
+            <base-avatar
               :src="item.label"
               :alt="item.label"
             />
