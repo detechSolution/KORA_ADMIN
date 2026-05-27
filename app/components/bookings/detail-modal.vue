@@ -203,7 +203,6 @@ watch(() => props.open, async (newValue) => {
           :columns="guestColumns"
           :data="filteredGuests"
           empty-title="No guests found"
-          empty-description="This booking doesn't have any guests listed."
         >
           <template #fullName-cell="{ row }">
             <div class="flex items-center gap-3">

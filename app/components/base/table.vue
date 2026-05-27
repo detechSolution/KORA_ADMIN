@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   skeletonRows: 10,
   emptyTitle: "No data found",
-  emptyDescription: "It looks like you haven't added any data. Create one to get started.",
+  emptyDescription: "There's currently nothing available to display.",
 });
 
 const skeletonColumnCount = computed(() => {
@@ -72,14 +72,10 @@ const showSkeleton = computed(() => props.loading);
       </template>
       <template v-if="!$slots.empty" #empty>
         <slot name="empty-state">
-          <div class="py-8 text-center text-sm text-muted-foreground">
-            <UEmpty
-              icon="i-lucide-file"
-              :title="emptyTitle"
-              :description="emptyDescription"
-              class="ring-0 bg-transparent"
-            />
-          </div>
+          <base-empty
+            :title="emptyTitle"
+            :description="emptyDescription"
+          />
         </slot>
       </template>
     </UTable>

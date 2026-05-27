@@ -23,7 +23,7 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 const schema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   email: z.string().email("Invalid email address"),
-  phoneNumber: z.string().min(10, "Phone number is required"),
+  phoneNumber: z.string().min(10, "Phone number must be of 10 digits").max(10, "Phone number must be of 10 digits"),
   bio: z.string().min(10, "Bio is required"),
   isActive: z.boolean().default(true),
 });
@@ -124,6 +124,7 @@ async function handleCreateInstructor() {
               name="phoneNumber"
               label="Phone Number*"
               placeholder="Enter phone number"
+
               class="w-full"
             />
           </div>

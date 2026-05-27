@@ -31,7 +31,10 @@ function onPageChange(value: number): void {
 </script>
 
 <template>
-  <div class="flex items-center justify-between gap-2">
+  <div
+    v-if="total > 0"
+    class="flex items-center justify-between gap-2"
+  >
     <div class="text-sm text-secondary-500 flex gap-1 items-center">
       Showing
       <span>{{ rangeStart }}</span>

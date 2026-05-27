@@ -179,7 +179,7 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 md:w-64"
+            class="w-full sm:w-auto sm:flex-1 "
           />
           <base-select
             v-model="state.status"
@@ -222,7 +222,6 @@ onMounted(() => {
         :columns="columns"
         :loading="promoCodeStore.loading"
         empty-title="No promo codes found"
-        empty-description="It looks like you haven't added any promo codes. Create one to get started."
       >
         <template #isActive-cell="{ row }">
           <base-badge :color="row.original.isActive ? 'emerald' : 'red'">

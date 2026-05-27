@@ -205,10 +205,9 @@ watch(
             </base-badge>
           </div>
         </div>
-        <div v-else class="text-muted-foreground">
-          <UEmpty
+        <div v-else>
+          <base-empty
             title="No bookings"
-            description="No bookings found for this member"
           />
         </div>
       </section>
@@ -241,10 +240,9 @@ watch(
             </base-badge>
           </div>
         </div>
-        <div v-else class="text-muted-foreground">
-          <UEmpty
+        <div v-else>
+          <base-empty
             title="No payments"
-            description="No payments found for this member"
           />
         </div>
       </section>

@@ -205,16 +205,24 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class=" rounded-b-xl  grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-4 ">
-      <!-- Skeleton Loading -->
-      <session-card-skeleton
-        v-if="loading"
-        :count="pagination.pageSize"
-      />
-      <!-- Session Cards -->
+    <div
+      v-if="loading"
+      class="rounded-b-xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+    >
+      <session-card-skeleton :count="pagination.pageSize" />
+    </div>
+
+    <base-empty
+      v-else-if="sessions.data.length === 0"
+      title="No sessions found"
+    />
+
+    <div
+      v-else
+      class="rounded-b-xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+    >
       <session-card
         v-for="(session, index) in sessions.data"
-        v-else
         :id="session.id"
         :key="index"
         :title="session.name"
