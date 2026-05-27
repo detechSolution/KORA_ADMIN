@@ -243,7 +243,6 @@ onMounted(() => {
         :columns="columns"
         :loading="loading"
         empty-title="No admins found"
-        empty-description="Admins will appear here when added."
       />
       <base-pagination
         :page="pagination.page"

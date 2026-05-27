@@ -179,7 +179,6 @@ onMounted(() => {
         :columns="columns"
         :loading="planStore.loading"
         empty-title="No plans found"
-        empty-description="It looks like you haven't added any plans. Create one to get started."
       >
         <template #details-cell="{ row }">
           <div class="flex items-center gap-2">

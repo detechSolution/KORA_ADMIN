@@ -68,6 +68,12 @@ function handleSuccess() {
         />
       </div>
 
+      <!-- Empty State -->
+      <base-empty
+        v-else-if="!koraPasses.data.length"
+        title="No passes found"
+      />
+
       <!-- Passes Cards -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <OfferingsKoraPassCard

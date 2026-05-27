@@ -181,7 +181,7 @@ onMounted(fetchBookings);
             v-model="filters.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             @keyup.enter="handleSearch"
           />
 
@@ -191,14 +191,14 @@ onMounted(fetchBookings);
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <base-select
             v-model="filters.type"
             name="type"
             placeholder="Select type"
             :options="typeOptions"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
@@ -233,7 +233,6 @@ onMounted(fetchBookings);
         :columns="columns"
         :loading="loading"
         empty-title="No bookings found"
-        empty-description="Bookings will appear here once created."
       >
         <template #bookingCode-cell="{ row }">
           <base-badge uppercase>

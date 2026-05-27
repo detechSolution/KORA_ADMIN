@@ -56,7 +56,7 @@ async function handleCreateMail() {
       recipientEmails: state.recipientEmails ?? [],
     });
     success({ message: "Mail created successfully" });
-    router.push({ name: "/send-email/email-list" });
+    router.push("/instructors/instructors-list");
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });
@@ -140,6 +140,7 @@ async function handleCreateMail() {
           <div class="flex justify-end">
             <base-button
               variant="solid"
+              :loading="loading"
               @click="handleCreateMail"
             >
               Create Mail

@@ -127,7 +127,7 @@ onMounted(() => {
             v-model="state.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearchClick"
           />
@@ -138,13 +138,13 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1"
           />
           <base-select
             v-model="state.status"
             name="status"
             placeholder="All statuses"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :options="options"
           />
           <div class="flex gap-2 w-full sm:w-auto">
@@ -179,7 +179,6 @@ onMounted(() => {
         :columns="columns"
         :loading="loading"
         empty-title="No cancellations found"
-        empty-description="It looks like you haven't added any cancellations. Create one to get started."
       >
         <template #client-cell="{ row }">
           <div class="flex items-center">

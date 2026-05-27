@@ -199,7 +199,7 @@ onMounted(() => {
             v-model="state.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="fetchMembers"
           />
@@ -210,14 +210,14 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <base-select
             v-model="state.status"
             name="status"
             :options="options"
             placeholder="Select Status"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
@@ -251,7 +251,6 @@ onMounted(() => {
         :columns="columns"
         :loading="membersStore.loading"
         empty-title="No members found"
-        empty-description="It looks like you haven't added any members. Create one to get started."
       >
         <template #user-cell="{ row }">
           <div class="flex items-center gap-2">

@@ -201,7 +201,6 @@ watch(
           :loading="loading"
           :skeleton-rows="5"
           empty-title="No admins found"
-          empty-description="No community admins have been assigned yet."
         />
       </div>
       <base-pagination

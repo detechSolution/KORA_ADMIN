@@ -87,21 +87,21 @@ const kpiCards = computed(() => [
   {
     title: "Cash Payments",
     value: paymentSummary?.value?.cashPayments || 0,
-    icon: ICONS.CREDIT_CARD,
+    icon: ICONS.MONEY,
     color: "text-blue-500",
     bg: "bg-blue-50",
   },
   {
     title: "Online Payments",
     value: paymentSummary?.value?.onlinePayments || 0,
-    icon: ICONS.REFRESH_CW,
+    icon: ICONS.WIFI,
     color: "text-red-500",
     bg: "bg-red-50",
   },
   {
     title: "Refunded",
     value: paymentSummary?.value?.refunded || 0,
-    icon: ICONS.CLOCK,
+    icon: ICONS.REFRESH_CW,
     color: "text-yellow-500",
     bg: "bg-yellow-50",
   },
@@ -145,7 +145,7 @@ const kpiCards = computed(() => [
             v-model="state.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearchClick"
           />
@@ -156,14 +156,14 @@ const kpiCards = computed(() => [
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 "
           />
           <base-select
             v-model="state.status"
             name="status"
             placeholder="All statuses"
             :options="options"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
@@ -197,7 +197,6 @@ const kpiCards = computed(() => [
         :columns="columns"
         :loading="financeStore.loading"
         empty-title="No payments found"
-        empty-description="It looks like you haven't added any payments. Create one to get started."
       >
         <template #user-cell="{ row } ">
           <div class="flex items-center">

@@ -178,10 +178,9 @@ watch(
             </p>
           </div>
         </div>
-        <div v-else class="text-muted-foreground">
-          <UEmpty
+        <div v-else>
+          <base-empty
             title="No assigned sessions"
-            description="No assigned sessions found for this instructor"
           />
         </div>
       </div>
@@ -202,10 +201,9 @@ watch(
             </p>
           </div>
         </div>
-        <div v-else class="text-muted-foreground">
-          <UEmpty
+        <div v-else>
+          <base-empty
             title="No upcoming sessions"
-            description="No upcoming sessions found for this instructor"
           />
         </div>
       </div>

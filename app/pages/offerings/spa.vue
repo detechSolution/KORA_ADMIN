@@ -280,7 +280,15 @@ function clearFilters(): void {
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <base-empty
+      v-if="!loading && spadata.length === 0"
+      title="No spa sub-types found"
+    />
+
+    <div
+      v-else
+      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+    >
       <service-card
         v-for="service in spadata"
         :id="service.id"

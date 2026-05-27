@@ -245,7 +245,6 @@ const kpiData = computed(() => [
           :loading="bookingsLoading"
           :skeleton-rows="5"
           empty-title="No bookings yet"
-          empty-description="New bookings will appear here once created."
         >
           <template #bookingCode-cell="{ row }">
             <base-badge uppercase>
@@ -298,7 +297,6 @@ const kpiData = computed(() => [
           :loading="consistentMembersLoading"
           :skeleton-rows="5"
           empty-title="No consistent members yet"
-          empty-description="New consistent members will appear here once created."
         >
           <template #member-cell="{ row }">
             <div class="flex flex-col gap-1">
@@ -347,16 +345,10 @@ const kpiData = computed(() => [
       </div>
 
       <div class="border-t border-border py-4 grid overflow-x-auto  gap-2">
-        <div
+        <base-empty
           v-if="todaySessions.length === 0"
-        >
-          <UEmpty
-            icon="i-lucide-file"
-            title="No sessions scheduled for today"
-            description="New sessions will appear here once created."
-            class="ring-0 bg-transparent"
-          />
-        </div>
+          title="No sessions scheduled for today"
+        />
 
         <dashboard-session-card
           v-for="(session, index) in todaySessions"
