@@ -241,13 +241,20 @@ onMounted(fetchBookings);
         </template>
 
         <template #client-cell="{ row }">
-          <div class="flex flex-col gap-1">
-            <span class="text-sm font-medium text-secondary">
-              {{ row.original.clientName || "-" }}
-            </span>
-            <span class="text-xs text-secondary-400">
-              {{ row.original.clientEmail || "-" }}
-            </span>
+          <div class="flex items-center gap-2">
+            <base-avatar
+              :src="row.original.avatar"
+              :alt="row.original.fullName || 'Unknown'"
+              size="sm"
+            />
+            <div class="flex flex-col gap-1">
+              <span class="text-sm font-medium text-secondary">
+                {{ row.original.clientName || "-" }}
+              </span>
+              <span class="text-xs text-secondary-400">
+                {{ row.original.clientEmail || "-" }}
+              </span>
+            </div>
           </div>
         </template>
 

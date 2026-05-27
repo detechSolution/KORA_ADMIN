@@ -181,7 +181,12 @@ onMounted(() => {
         empty-title="No cancellations found"
       >
         <template #client-cell="{ row }">
-          <div class="flex items-center">
+          <div class="flex items-center gap-2">
+            <base-avatar
+              :src="row.original.avatar"
+              :alt="row.original.fullName || 'Unknown'"
+              size="sm"
+            />
             <div class="flex flex-col gap-1">
               <span class="text-sm font-medium text-secondary">
                 {{ row?.original?.clientName }}
