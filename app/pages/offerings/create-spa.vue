@@ -378,7 +378,7 @@ onMounted(async () => {
                             class="rounded-[6px] border border-stone-200 bg-stone-50 p-4"
                           >
                             <div
-                              class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end"
+                              class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]"
                             >
                               <base-input
                                 v-model="row.duration"
