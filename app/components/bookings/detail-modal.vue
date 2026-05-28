@@ -55,16 +55,6 @@ const bookingInfo = computed(() => {
   ];
 });
 
-function getInitials(name?: string) {
-  if (!name)
-    return "??";
-  return name
-    .split(" ")
-    .map(n => n[0])
-    .join("")
-    .slice(0, 2);
-}
-
 const filteredGuests = computed(() => {
   if (!searchQuery.value)
     return bookingDetails.value?.guests;
@@ -120,11 +110,11 @@ watch(() => props.open, async (newValue) => {
           <div class="flex flex-col gap-2">
             <span class="text-xs  text-secondary-400 tracking-wider">Client Name</span>
             <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 rounded-full bg-secondary-50 flex items-center justify-center text-secondary-600 font-semibold text-sm"
-              >
-                {{ getInitials(booking?.clientName) }}
-              </div>
+              <base-avatar
+                :src="booking?.clientName"
+                :alt="booking?.clientName || 'Unknown'"
+                size="sm"
+              />
               <div class="flex items-center gap-2">
                 <span class="text-base font-semibold text-secondary-900">{{ booking?.clientName }}</span>
                 <base-badge color="blue" class="text-[10px]">
@@ -217,12 +207,12 @@ watch(() => props.open, async (newValue) => {
         >
           <template #fullName-cell="{ row }">
             <div class="flex items-center gap-3">
-              <div
-                class="w-8 h-8 rounded-full bg-secondary-50 flex items-center justify-center text-secondary-600 font-semibold text-xs"
-              >
-                {{ getInitials(row.original.fullName) }}
-              </div>
-              <span class="text-sm font-medium text-secondary-900">{{ row.original.fullName }}</span>
+              <base-avatar
+                :src="row.original.clientName"
+                :alt="row.original.clientName || 'Unknown'"
+                size="sm"
+              />
+              <span class="text-sm font-medium text-secondary-900">{{ row.original.clientName }}</span>
             </div>
           </template>
         </base-table>
