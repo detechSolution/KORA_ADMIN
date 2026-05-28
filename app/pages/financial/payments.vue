@@ -18,11 +18,21 @@ const options = ref([
   { label: "Refunded", value: "refunded" },
 ]);
 
+const summaryOptions = ref([
+  { label: "Today", value: "today" },
+  { label: "Yesterday", value: "yesterday" },
+  { label: "This Week", value: "this_week" },
+  { label: "Last Week", value: "last_week" },
+  { label: "This Month", value: "this_month" },
+  { label: "Last Month", value: "last_month" },
+]);
+
 const financeStore = useFinanceStore();
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
 
 const state = ref({
+  summaryOption: "today",
   search: "",
   dateRange: {
     start: null,
@@ -56,10 +66,18 @@ async function fetchPayments(): Promise<void> {
     };
 
     await financeStore.fetchPayments(params);
-    await financeStore.fetchPaymentSummary();
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to fetch payments") });
+  }
+}
+
+async function fetchPaymentsSummary(): Promise<void> {
+  try {
+    await financeStore.fetchPaymentSummary(state.value.summaryOption);
+  }
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Failed to fetch payment summary") });
   }
 }
 
@@ -81,6 +99,7 @@ function handleDownloadInvoice(url: string): void {
 
 onMounted(() => {
   fetchPayments();
+  fetchPaymentsSummary();
 });
 
 const kpiCards = computed(() => [
@@ -120,6 +139,16 @@ const kpiCards = computed(() => [
     </base-page-header>
 
     <div class="bg-white flex flex-col gap-4 p-4">
+      <base-select
+        v-model="state.summaryOption"
+        :options="summaryOptions"
+        name="summary"
+        placeholder="Select summary"
+        is-borderless
+        class="w-32"
+        @update:model-value="fetchPaymentsSummary()"
+      />
+
       <div class="grid bg-stone-50 rounded border border-border p-4 sm:p-6 py-6 grid-cols-1 md:grid-cols-3  gap-y-6 md:gap-y-8 gap-x-0 ">
         <dashboard-kpi-card
           v-for="(card, index) in kpiCards"

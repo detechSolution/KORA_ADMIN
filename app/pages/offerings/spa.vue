@@ -225,7 +225,7 @@ function clearFilters(): void {
                   Capacity / Slot
                 </p>
                 <p class="text-lg font-semibold text-secondary">
-                  {{ spaInfo.capacityPerSlot }} clients
+                  {{ spaInfo.capacityPerSlot ?? 0 }} clients
                 </p>
               </div>
             </div>

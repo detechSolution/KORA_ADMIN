@@ -243,8 +243,8 @@ onMounted(fetchBookings);
         <template #client-cell="{ row }">
           <div class="flex items-center gap-2">
             <base-avatar
-              :src="row.original.avatar"
-              :alt="row.original.fullName || 'Unknown'"
+              :src="row.original.clientName"
+              :alt="row.original.clientName || 'Unknown'"
               size="sm"
             />
             <div class="flex flex-col gap-1">
@@ -276,6 +276,7 @@ onMounted(fetchBookings);
               {
                 label: 'Request Cancellation',
                 icon: ICONS.EYE,
+                disabled: row.original.status !== 'confirmed',
                 onSelect: () => openCancelModal(row.original),
               },
               {

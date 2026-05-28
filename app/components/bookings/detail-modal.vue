@@ -120,7 +120,9 @@ watch(() => props.open, async (newValue) => {
           <div class="flex flex-col gap-2">
             <span class="text-xs  text-secondary-400 tracking-wider">Client Name</span>
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-secondary-50 flex items-center justify-center text-secondary-600 font-semibold text-sm">
+              <div
+                class="w-10 h-10 rounded-full bg-secondary-50 flex items-center justify-center text-secondary-600 font-semibold text-sm"
+              >
                 {{ getInitials(booking?.clientName) }}
               </div>
               <div class="flex items-center gap-2">
@@ -148,7 +150,16 @@ watch(() => props.open, async (newValue) => {
           <div class="flex flex-col gap-2">
             <span class="text-xs  text-secondary-400 tracking-wider">Status</span>
             <div class="flex items-center gap-2">
-              <UChip :color="booking?.status === 'confirmed' ? 'success' : 'warning'" />
+              <UChip
+                :color="booking?.status === 'confirmed'
+                  ? 'success'
+                  : booking?.status === 'cancellation_processing'
+                    ? 'warning'
+                    : booking?.status === 'cancelled'
+                      ? 'error'
+                      : 'neutral'
+                "
+              />
               <span class="text-base capitalize text-secondary-900">{{ booking?.status }}</span>
             </div>
           </div>
@@ -206,7 +217,9 @@ watch(() => props.open, async (newValue) => {
         >
           <template #fullName-cell="{ row }">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-secondary-50 flex items-center justify-center text-secondary-600 font-semibold text-xs">
+              <div
+                class="w-8 h-8 rounded-full bg-secondary-50 flex items-center justify-center text-secondary-600 font-semibold text-xs"
+              >
                 {{ getInitials(row.original.fullName) }}
               </div>
               <span class="text-sm font-medium text-secondary-900">{{ row.original.fullName }}</span>
@@ -218,6 +231,4 @@ watch(() => props.open, async (newValue) => {
   </base-modal>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
