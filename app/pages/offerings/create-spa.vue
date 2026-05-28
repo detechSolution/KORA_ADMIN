@@ -385,7 +385,7 @@ onMounted(async () => {
                                 :name="`prices.${index}.duration`"
                                 label="Duration"
                                 placeholder="Enter duration"
-                                required     
+                                required
                                 @update:model-value="clearApiError"
                               />
 
