@@ -274,7 +274,7 @@ function clearFilters(): void {
             :leading-icon="ICONS.PEN_LINE"
             @click="openSettingsDrawer"
           >
-            Edit
+            Configure
           </base-button>
         </div>
       </div>

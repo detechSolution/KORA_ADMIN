@@ -66,8 +66,11 @@ export const useSpaStore = defineStore("spa", () => {
       formData.append("availableToTime", payload.availableToTime);
       formData.append("capacityPerSlot", String(payload.capacityPerSlot));
 
-      if (payload.videoFile) {
-        formData.append("video", payload.videoFile);
+      if (payload.video) {
+        formData.append("video", payload.video);
+      }
+      if (payload.file) {
+        formData.append("file", payload.file);
       }
 
       await http.patch(API_ENDPOINTS.SPA.UPDATE_SPA, formData);

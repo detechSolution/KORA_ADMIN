@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { Time } from "@internationalized/date";
 import { computed, onMounted, reactive, ref, watch } from "vue";
-import z, { success } from "zod";
+import z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useInstructorsStore } from "~/stores/instructors";
 import { useSessionsStore } from "~/stores/sessions";
+import { formatTimeValue, parseTimeValue } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 const props = defineProps<Props>();
@@ -52,31 +52,6 @@ function stripHtml(input: string | undefined | null): string {
     .replace(/&nbsp;|\u00A0/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-}
-
-function formatTimeValue(value: Time | undefined): string {
-  if (!value) {
-    return "";
-  }
-
-  return `${String(value.hour).padStart(2, "0")}:${String(value.minute).padStart(2, "0")}`;
-}
-
-function parseTimeValue(value: string): Time | undefined {
-  const normalizedValue = value.trim();
-  if (!normalizedValue) {
-    return undefined;
-  }
-
-  const [hours = "0", minutes = "0"] = normalizedValue.split(":");
-  const hour = Number(hours);
-  const minute = Number(minutes);
-
-  if (Number.isNaN(hour) || Number.isNaN(minute)) {
-    return undefined;
-  }
-
-  return new Time(hour, minute);
 }
 
 const sessionTypeSchema = z.string().min(1, "Session type is required");
