@@ -43,6 +43,7 @@ const schema = z.object({
     .min(1, "Select at least one day"),
   availableFromTime: z.string().min(1, "Please select a valid time"),
   availableToTime: z.string().min(1, "Please select a valid time"),
+  description: z.string().min(1, "Description is required"),
   capacityPerSlot: z.preprocess(
     (value) => {
       if (typeof value === "string") {
@@ -109,6 +110,7 @@ const form = reactive<Partial<Schema>>({
   capacityPerSlot: undefined,
   videoFile: undefined,
   imageFile: undefined,
+  description: "",
 });
 
 const availableFromTimeModel = computed({
@@ -165,6 +167,7 @@ async function handleSubmit(): Promise<void> {
       capacityPerSlot: form.capacityPerSlot ?? 0,
       video: form.videoFile,
       file: form.imageFile,
+      description: form.description,
     };
 
     if (typeof payload.file === "string")
@@ -296,6 +299,13 @@ watch(
               e.g. 3 clients at once
             </p>
           </div>
+
+          <base-text-editor
+            v-model="form.description"
+            label="Description"
+            name="description"
+            required
+          />
         </div>
       </div>
 

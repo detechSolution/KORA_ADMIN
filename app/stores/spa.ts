@@ -65,6 +65,7 @@ export const useSpaStore = defineStore("spa", () => {
       formData.append("availableFromTime", payload.availableFromTime);
       formData.append("availableToTime", payload.availableToTime);
       formData.append("capacityPerSlot", String(payload.capacityPerSlot));
+      formData.append("description", payload.description);
 
       if (payload.video) {
         formData.append("video", payload.video);
