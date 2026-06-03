@@ -29,7 +29,7 @@ const selectedSession = ref(null);
 
 const state = ref({
   search: "",
-  status: "",
+  status: "active",
   referenceNumber: "",
   selectedSessionType: "",
   referenceDateRange: { start: null, end: null },
@@ -39,6 +39,11 @@ const sessionTypeOptions = [
   { label: "Class", value: SESSION_TYPE.CLASS },
   { label: "Event", value: SESSION_TYPE.EVENT },
   { label: "Workshop", value: SESSION_TYPE.WORKSHOP },
+];
+
+const sessionStatusOption = [
+  { label: "Active", value: "active" },
+  { label: "Inactive", value: "inactive" },
 ];
 
 async function loadSessions(): Promise<void> {
@@ -105,7 +110,7 @@ function handleOpenAddMemberModal(id: number) {
 
 function clearFilters(): void {
   state.value.search = "";
-  state.value.status = "";
+  state.value.status = "active";
   state.value.referenceDateRange = { start: null, end: null };
   state.value.selectedSessionType = "";
   pagination.value.page = 1;
@@ -113,7 +118,7 @@ function clearFilters(): void {
 }
 
 function hasActiveFilters(): boolean {
-  return !!(state.value.search || state.value.status || state.value.referenceDateRange.start || state.value.referenceDateRange.end || state.value.selectedSessionType);
+  return !!(state.value.search || state.value.status !== "active" || state.value.referenceDateRange.start || state.value.referenceDateRange.end || state.value.selectedSessionType);
 }
 
 onMounted(() => {
@@ -170,17 +175,15 @@ onMounted(() => {
           class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
           :options="sessionTypeOptions"
         />
+        <base-select
+          v-model="state.status"
+          name="status"
+          placeholder="Select session status"
+          class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+          :options="sessionStatusOption"
+        />
 
         <div class="flex gap-2 w-full sm:w-auto">
-          <base-button
-            v-if="hasActiveFilters()"
-            variant="outline"
-            class="flex-1 sm:flex-none"
-            @click="clearFilters"
-          >
-            Clear Filters
-          </base-button>
-
           <base-button
             variant="outline"
             :loading="loading"
@@ -190,21 +193,36 @@ onMounted(() => {
           >
             Search
           </base-button>
+          <base-button
+            v-if="hasActiveFilters()"
+            variant="outline"
+            class="flex-1 sm:flex-none"
+            @click="clearFilters"
+          >
+            Clear Filters
+          </base-button>
         </div>
       </div>
     </div>
 
-    <div class=" rounded-b-xl  grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-4 ">
-      <!-- Skeleton Loading -->
-      <session-card-skeleton
-        v-if="loading"
-        :count="pagination.pageSize"
-      />
+    <div
+      v-if="loading"
+      class="rounded-b-xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+    >
+      <session-card-skeleton :count="pagination.pageSize" />
+    </div>
 
-      <!-- Session Cards -->
+    <base-empty
+      v-else-if="sessions.data.length === 0"
+      title="No sessions found"
+    />
+
+    <div
+      v-else
+      class="rounded-b-xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+    >
       <session-card
         v-for="(session, index) in sessions.data"
-        v-else
         :id="session.id"
         :key="index"
         :title="session.name"

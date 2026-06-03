@@ -38,14 +38,12 @@ export const useMailStore = defineStore("mail", () => {
     }
   };
 
-  const getRecipients = async (search?: string): Promise<any[]> => {
+  const getRecipients = async ({ group }: { group: string }): Promise<any[]> => {
     try {
       const query = buildQueryString({
-        q: search?.trim() || undefined,
+        group,
       });
-      const endpoint = query
-        ? `${API_ENDPOINTS.MAILS.GET_RECIPIENTS}?${query}`
-        : API_ENDPOINTS.MAILS.GET_RECIPIENTS;
+      const endpoint = `${API_ENDPOINTS.MAILS.GET_RECIPIENTS}?${query}`;
       const response = await http.get(endpoint) as any;
       return response?.data ?? response ?? [];
     }

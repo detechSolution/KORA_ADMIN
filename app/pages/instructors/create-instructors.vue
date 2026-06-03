@@ -9,11 +9,11 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   layout: "dashboard",
   auth: true,
-  permission: "administration.roles.create",
+  permission: "instructors.create",
 });
 
 const instructorStore = useInstructorsStore();
-const toast = useNotification();
+const { success, error: showError } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
@@ -23,7 +23,7 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 const schema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   email: z.string().email("Invalid email address"),
-  phoneNumber: z.string().min(10, "Phone number is required"),
+  phoneNumber: z.string().min(10, "Phone number must be of 10 digits").max(10, "Phone number must be of 10 digits"),
   bio: z.string().min(10, "Bio is required"),
   isActive: z.boolean().default(true),
 });
@@ -38,9 +38,9 @@ const state = reactive<Partial<createInstructorSchema>>({
   isActive: true,
 });
 
-function setApiError(error: string): void {
-  apiError.value = error;
-}
+// function setApiError(error: string): void {
+//   apiError.value = error;
+// }
 
 function clearApiError(): void {
   apiError.value = null;
@@ -64,18 +64,11 @@ async function handleCreateInstructor() {
       isActive: true,
     };
     await instructorStore.createInstructor(payload as { fullName: string; email: string; phoneNumber: string; bio: string; isActive: boolean });
-    toast.success({ message: "Instructor created successfully" });
-    formRef.value?.reset();
-    router.push({ name: "instructors/instructors-list" });
+    success({ message: "Instructor created successfully" });
+    router.push("/instructors/instructors-list");
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
+    showError({ message: getApiErrorMessage(error, "Failed to create instructor") });
   }
   finally {
     loading.value = false;
@@ -131,6 +124,7 @@ async function handleCreateInstructor() {
               name="phoneNumber"
               label="Phone Number*"
               placeholder="Enter phone number"
+
               class="w-full"
             />
           </div>

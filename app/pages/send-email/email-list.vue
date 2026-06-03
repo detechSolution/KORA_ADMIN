@@ -143,7 +143,7 @@ onMounted(() => {
             v-model="state.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearchClick"
           />
@@ -154,24 +154,16 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1"
           />
           <base-select
             v-model="state.status"
             name="status"
             placeholder="All statuses"
             :options="statusOptions"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <div class="flex gap-2 w-full sm:w-auto">
-            <base-button
-              v-if="hasActiveFilters()"
-              variant="outline"
-              class="flex-1 sm:flex-none"
-              @click="clearFilters"
-            >
-              Clear Filters
-            </base-button>
             <base-button
               variant="outline"
               class="flex-1 sm:flex-none"
@@ -180,6 +172,14 @@ onMounted(() => {
               @click="handleSearchClick"
             >
               Search
+            </base-button>
+            <base-button
+              v-if="hasActiveFilters()"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="clearFilters"
+            >
+              Clear Filters
             </base-button>
           </div>
         </div>
@@ -190,7 +190,6 @@ onMounted(() => {
         :columns="columns"
         :loading="mailStore.loading"
         empty-title="No emails found"
-        empty-description="Sent emails will appear here once available."
       >
         <template #status-cell="{ row }">
           <base-badge :color="row.original.status === 'sent' ? 'emerald' : 'red'">

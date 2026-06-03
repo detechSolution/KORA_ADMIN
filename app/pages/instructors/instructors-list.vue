@@ -11,7 +11,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "mails.view",
+  permission: "instructors.view",
 });
 
 type DateRangeFilter = {
@@ -185,7 +185,7 @@ onMounted(() => {
             v-model="state.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearchClick"
           />
@@ -196,14 +196,14 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1"
           />
           <base-select
             v-model="state.status"
             name="status"
             placeholder="All statuses"
             :options="statusOptions"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
@@ -232,11 +232,14 @@ onMounted(() => {
         :columns="columns"
         :loading="loading"
         empty-title="No instructors found"
-        empty-description="Instructors will appear here once available."
       >
         <template #client-cell="{ row }">
           <div class="flex items-center gap-2">
-            <base-avatar :src="row?.original?.avatar" />
+            <base-avatar
+              :src="row.original.avatar"
+              :alt="row.original.fullName || 'Unknown'"
+              size="sm"
+            />
             <div class="flex flex-col gap-1">
               <span class="text-sm font-medium text-secondary">
                 {{ row?.original?.fullName || "-" }}

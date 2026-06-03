@@ -11,7 +11,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "offerings.services.view",
+  permission: "offerings.spa.view",
 });
 
 const state = ref({
@@ -191,14 +191,6 @@ function clearFilters(): void {
         />
         <div class="flex gap-2 w-full sm:w-auto">
           <base-button
-            v-if="state.referenceNumber !== ''"
-            variant="outline"
-            class="flex-1 sm:flex-none"
-            @click="clearFilters"
-          >
-            Clear Filters
-          </base-button>
-          <base-button
             variant="outline"
             size="md"
             :leading-icon="ICONS.SEARCH"
@@ -206,6 +198,14 @@ function clearFilters(): void {
             @click="fetchSpaData"
           >
             Search
+          </base-button>
+          <base-button
+            v-if="state.referenceNumber !== ''"
+            variant="outline"
+            class="flex-1 sm:flex-none"
+            @click="clearFilters"
+          >
+            Clear Filters
           </base-button>
         </div>
       </div>
@@ -225,7 +225,7 @@ function clearFilters(): void {
                   Capacity / Slot
                 </p>
                 <p class="text-lg font-semibold text-secondary">
-                  {{ spaInfo.capacityPerSlot }} clients
+                  {{ spaInfo.capacityPerSlot ?? 0 }} clients
                 </p>
               </div>
             </div>
@@ -274,13 +274,21 @@ function clearFilters(): void {
             :leading-icon="ICONS.PEN_LINE"
             @click="openSettingsDrawer"
           >
-            Edit
+            Configure
           </base-button>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <base-empty
+      v-if="!loading && spadata.length === 0"
+      title="No spa sub-types found"
+    />
+
+    <div
+      v-else
+      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+    >
       <service-card
         v-for="service in spadata"
         :id="service.id"

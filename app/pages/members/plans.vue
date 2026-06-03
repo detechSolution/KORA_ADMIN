@@ -7,7 +7,6 @@ import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
 import { getApiErrorMessage } from "~/utils/error";
-import { getStatusColor } from "~/utils/helpers";
 
 definePageMeta({
   auth: true,
@@ -94,6 +93,10 @@ function openEditDrawer(plan: MembershipPlan): void {
   editDrawerOpen.value = true;
 }
 
+function hasActiveFilters(): boolean {
+  return !!(state.value.search || state.value.type || state.value.status);
+}
+
 onMounted(() => {
   fetchPlans();
 });
@@ -153,13 +156,6 @@ onMounted(() => {
 
         <div class="flex gap-2 w-full sm:w-auto">
           <base-button
-            variant="outline"
-            class="flex-1 sm:flex-none"
-            @click="handleClearFilters"
-          >
-            Clear Filters
-          </base-button>
-          <base-button
             class="flex-1 sm:flex-none"
             variant="outline"
             :leading-icon="ICONS.SEARCH"
@@ -168,6 +164,14 @@ onMounted(() => {
           >
             Search
           </base-button>
+          <base-button
+            v-if="hasActiveFilters()"
+            variant="outline"
+            class="flex-1 sm:flex-none"
+            @click="handleClearFilters"
+          >
+            Clear Filters
+          </base-button>
         </div>
       </div>
       <base-table
@@ -175,16 +179,15 @@ onMounted(() => {
         :columns="columns"
         :loading="planStore.loading"
         empty-title="No plans found"
-        empty-description="It looks like you haven't added any plans. Create one to get started."
       >
         <template #details-cell="{ row }">
           <div class="flex items-center gap-2">
             <base-badge
               v-for="(option, index) in row.original.options.slice(0, 2)"
               :key="index"
-              :color="getStatusColor(option.frequency)"
+              :status="option.frequency"
             >
-              {{ `${option.frequency[0].toUpperCase() + option.frequency.slice(1)}: Rs. ${option.price}` }}
+              {{ `${option.frequency}: Rs. ${option.price}` }}
             </base-badge>
             <div
               v-if="row.original.options.length > 2"

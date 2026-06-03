@@ -128,7 +128,7 @@ watch(() => props.open, (newVal) => {
 
       <!-- Attendance List -->
       <div class="flex-1 px-6">
-        <div v-if="loading" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
+        <div v-if="sessionsStore.loading" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
           <UIcon :name="ICONS.REFRESH_CW" class="w-8 h-8 animate-spin" />
           <span class="text-sm">Loading participants...</span>
         </div>

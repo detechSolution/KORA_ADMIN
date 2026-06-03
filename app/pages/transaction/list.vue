@@ -352,7 +352,6 @@ onMounted(() => {
         :columns="columns"
         :loading="loading"
         empty-title="No transactions found"
-        empty-description="Transactions will appear here when created."
       />
       <base-pagination
         :page="pagination.page"

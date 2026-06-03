@@ -19,7 +19,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: false },
   spaLoadingTemplate: "./loading-screen.html",
-  modules: ["@nuxt/eslint", "@nuxt/ui", "@pinia/nuxt"],
+  modules: ["@nuxt/eslint", "@nuxt/ui", "@pinia/nuxt", "nuxt-charts"],
   css: ["~/assets/css/main.css"],
 
   // Icon configuration - Iconify (see ~/config/icons)

@@ -83,6 +83,9 @@ export const ICONS = {
   SAVE: "i-lucide-save",
   FLOWER: "i-lucide-flower",
   IMAGE: "i-lucide-image",
+  CIRCLE_CHECK: "i-lucide-circle-check",
+  FILE: "i-lucide-file",
+
   // arrow
   ARROW_LEFT: "i-lucide-arrow-left",
   ARROW_RIGHT: "i-lucide-arrow-right",

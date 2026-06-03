@@ -50,9 +50,9 @@ const columns = computed(() => [
   { accessorKey: "itemName", header: "Session/Service" },
   { accessorKey: "itemType", header: "Type" },
   {
-    accessorKey: "bookedDate",
+    accessorKey: "bookedFor",
     header: "Booked Date",
-    accessorFn: (row: Booking) => formatDate(row.bookedDate),
+    accessorFn: (row: Booking) => formatDate(row.bookedFor),
   },
   { accessorKey: "status", header: "Status" },
   { accessorKey: "actions", header: "Actions" },
@@ -181,7 +181,7 @@ onMounted(fetchBookings);
             v-model="filters.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             @keyup.enter="handleSearch"
           />
 
@@ -191,14 +191,14 @@ onMounted(fetchBookings);
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <base-select
             v-model="filters.type"
             name="type"
             placeholder="Select type"
             :options="typeOptions"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
@@ -233,34 +233,40 @@ onMounted(fetchBookings);
         :columns="columns"
         :loading="loading"
         empty-title="No bookings found"
-        empty-description="Bookings will appear here once created."
       >
         <template #bookingCode-cell="{ row }">
-          <base-badge>
+          <base-badge uppercase>
             {{ row.original.bookingCode }}
           </base-badge>
         </template>
 
         <template #client-cell="{ row }">
-          <div class="flex flex-col gap-1">
-            <span class="text-sm font-medium text-secondary">
-              {{ row.original.clientName || "-" }}
-            </span>
-            <span class="text-xs text-secondary-400">
-              {{ row.original.clientEmail || "-" }}
-            </span>
+          <div class="flex items-center gap-2">
+            <base-avatar
+              :src="row.original.clientName"
+              :alt="row.original.clientName || 'Unknown'"
+              size="sm"
+            />
+            <div class="flex flex-col gap-1">
+              <span class="text-sm font-medium text-secondary">
+                {{ row.original.clientName || "-" }}
+              </span>
+              <span class="text-xs text-secondary-400">
+                {{ row.original.clientEmail || "-" }}
+              </span>
+            </div>
           </div>
         </template>
 
         <template #itemType-cell="{ row }">
-          <base-badge :color="getStatusColor(String(row.original.itemType))">
-            {{ getStatusLabel(String(row.original.itemType)) }}
+          <base-badge :status="row.original.itemType">
+            {{ row.original.itemType }}
           </base-badge>
         </template>
 
         <template #status-cell="{ row }">
-          <base-badge :color="getStatusColor(String(row.original.status))">
-            {{ getStatusLabel(String(row.original.status)) }}
+          <base-badge :status="row.original.status">
+            {{ row.original.status }}
           </base-badge>
         </template>
 
@@ -270,6 +276,7 @@ onMounted(fetchBookings);
               {
                 label: 'Request Cancellation',
                 icon: ICONS.EYE,
+                disabled: row.original.status !== 'confirmed',
                 onSelect: () => openCancelModal(row.original),
               },
               {

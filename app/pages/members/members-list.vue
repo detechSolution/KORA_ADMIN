@@ -110,19 +110,19 @@ const kpiData = computed(() => [
   {
     title: "Total Clients",
     icon: ICONS.USERS,
-    value: 20,
+    value: membersStore.membersSummary?.totalMembers,
     link: { path: "/members/list" },
   },
   {
     title: "Members Count",
     icon: ICONS.USERS,
-    value: 10,
+    value: membersStore.membersSummary?.activeMembers,
     link: { path: "/members/list" },
   },
   {
     title: "Guests Count",
     icon: ICONS.USERS,
-    value: 3,
+    value: membersStore.membersSummary?.activeGuests,
     link: { path: "/members/list" },
   },
 ]);
@@ -199,7 +199,7 @@ onMounted(() => {
             v-model="state.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="fetchMembers"
           />
@@ -210,14 +210,14 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <base-select
             v-model="state.status"
             name="status"
             :options="options"
             placeholder="Select Status"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
@@ -250,13 +250,14 @@ onMounted(() => {
         :data="members.data"
         :columns="columns"
         :loading="membersStore.loading"
-        empty-title="No communities found"
-        empty-description="It looks like you haven't added any communities. Create one to get started."
+        empty-title="No members found"
       >
         <template #user-cell="{ row }">
           <div class="flex items-center gap-2">
-            <UAvatar
-              :alt="row.original?.user?.fullName.toUpperCase()"
+            <base-avatar
+              :src="row.original?.user?.avatar"
+              :alt="row.original?.user?.fullName || 'Unknown'"
+              size="sm"
             />
             <div>
               <h2
@@ -273,15 +274,15 @@ onMounted(() => {
 
         <template #type-cell="{ row }">
           <div class="flex items-center gap-2">
-            <base-badge :color="getStatusColor(row.original?.user?.role)">
-              {{ getStatusLabel(row.original?.user?.role) }}
+            <base-badge :status="row.original?.user?.role">
+              {{ row.original?.user?.role }}
             </base-badge>
           </div>
         </template>
 
         <template #status-cell="{ row }">
           <div class="flex items-center gap-2">
-            <base-badge :color="row.original?.user?.isActive ? 'success' : 'red'">
+            <base-badge :status="row.original?.user?.isActive ? 'active' : 'inactive'">
               {{ row.original?.user?.isActive ? 'Active' : 'Inactive' }}
             </base-badge>
           </div>

@@ -25,7 +25,7 @@ type DashboardSessionCardProps = {
 
       <div class="flex gap-2 text-secondary-500 items-center">
         <p class="text-xs">
-          {{ date }}
+          {{ formatDate(date) }}
         </p>
         <div class="h-1 w-1 bg-secondary-500 rounded-full" />
         <p class="text-xs">

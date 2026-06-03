@@ -178,8 +178,10 @@ watch(
             </p>
           </div>
         </div>
-        <div v-else class="text-muted-foreground">
-          No assigned sessions
+        <div v-else>
+          <base-empty
+            title="No assigned sessions"
+          />
         </div>
       </div>
 
@@ -199,8 +201,10 @@ watch(
             </p>
           </div>
         </div>
-        <div v-else class="text-muted-foreground">
-          No upcoming sessions
+        <div v-else>
+          <base-empty
+            title="No upcoming sessions"
+          />
         </div>
       </div>
     </base-tabs>

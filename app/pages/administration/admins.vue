@@ -162,7 +162,7 @@ onMounted(() => {
             v-model="state.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearchClick"
           />
@@ -173,24 +173,16 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <base-select
             v-model="state.status"
             :options="statusOptions"
             name="status"
             placeholder="All statuses"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <div class="flex gap-2 w-full sm:w-auto">
-            <base-button
-              v-if="state.status !== '' || state.search !== '' || state.dateRange.start || state.dateRange.end"
-              variant="outline"
-              class="flex-1 sm:flex-none"
-              @click="clearFilters"
-            >
-              Clear Filters
-            </base-button>
             <base-button
               variant="outline"
               class="flex-1 sm:flex-none"
@@ -198,6 +190,14 @@ onMounted(() => {
               @click="handleSearchClick"
             >
               Search
+            </base-button>
+            <base-button
+              v-if="state.status !== '' || state.search !== '' || state.dateRange.start || state.dateRange.end"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="clearFilters"
+            >
+              Clear Filters
             </base-button>
           </div>
         </div>
@@ -207,17 +207,23 @@ onMounted(() => {
         :data="admins.data"
         :columns="columns"
         :loading="loadingAdmins"
-        empty-title="No communities found"
-        empty-description="It looks like you haven't added any communities. Create one to get started."
+        empty-title="No admins found"
       >
         <template #fullName-cell="{ row }">
-          <div class="flex flex-col gap-1">
-            <span class="text-sm font-medium text-secondary">
-              {{ row.original.fullName || "-" }}
-            </span>
-            <span class="text-xs text-secondary-400">
-              {{ row.original.email || "-" }}
-            </span>
+          <div class="flex items-center gap-2">
+            <base-avatar
+              :src="row.original.avatar"
+              :alt="row.original.fullName || 'Unknown'"
+              size="sm"
+            />
+            <div class="flex flex-col gap-1">
+              <span class="text-sm font-medium text-secondary">
+                {{ row.original.fullName || "-" }}
+              </span>
+              <span class="text-xs text-secondary-400">
+                {{ row.original.email || "-" }}
+              </span>
+            </div>
           </div>
         </template>
 

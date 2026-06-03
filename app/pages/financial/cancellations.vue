@@ -94,6 +94,10 @@ function clearFilters() {
   handleSearchClick();
 }
 
+function hasActiveFilters(): boolean {
+  return !!(state.value.search || state.value.status || state.value.dateRange.start || state.value.dateRange.end);
+}
+
 onMounted(() => {
   fetchCancellations();
 });
@@ -123,7 +127,7 @@ onMounted(() => {
             v-model="state.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearchClick"
           />
@@ -134,13 +138,13 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1"
           />
           <base-select
             v-model="state.status"
             name="status"
             placeholder="All statuses"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :options="options"
           />
           <div class="flex gap-2 w-full sm:w-auto">
@@ -153,6 +157,7 @@ onMounted(() => {
               Search
             </base-button>
             <base-button
+              v-if="hasActiveFilters()"
               variant="outline"
               class="flex-1 sm:flex-none"
               @click="clearFilters"
@@ -174,10 +179,14 @@ onMounted(() => {
         :columns="columns"
         :loading="loading"
         empty-title="No cancellations found"
-        empty-description="It looks like you haven't added any cancellations. Create one to get started."
       >
         <template #client-cell="{ row }">
-          <div class="flex items-center">
+          <div class="flex items-center gap-2">
+            <base-avatar
+              :src="row.original.avatar"
+              :alt="row.original.fullName || 'Unknown'"
+              size="sm"
+            />
             <div class="flex flex-col gap-1">
               <span class="text-sm font-medium text-secondary">
                 {{ row?.original?.clientName }}
@@ -189,14 +198,14 @@ onMounted(() => {
           </div>
         </template>
         <template #referenceCode-cell="{ row }">
-          <base-badge>
+          <base-badge uppercase>
             {{ row?.original?.referenceCode }}
           </base-badge>
         </template>
 
         <template #status-cell="{ row }">
-          <base-badge :color="getStatusColor(row?.original?.status)">
-            {{ getStatusLabel(row?.original?.status) }}
+          <base-badge :status="row?.original?.status">
+            {{ row?.original?.status }}
           </base-badge>
         </template>
 

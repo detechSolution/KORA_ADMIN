@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Time } from "@internationalized/date";
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import * as z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
@@ -12,7 +12,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "offerings.services.create",
+  permission: "offerings.sessions.create",
 });
 
 const { success, error: showError } = useNotification();
@@ -110,25 +110,22 @@ const step2Schema = z.object({
 
 const step3Schema = z.object({
   isFreeSession: z.boolean(),
-  price: z.coerce.number({ message: "Price is required" }),
+  price: z.coerce.number().optional(),
 }).superRefine((data, ctx) => {
+  // If it's a free session, no price validation needed
   if (data.isFreeSession) {
-    if (data.price !== undefined && data.price !== 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["price"],
-        message: "Free sessions should not have a price",
-      });
-    }
     return;
   }
 
-  if (data.price === undefined && !data.isFreeSession) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["price"],
-      message: "Price is required",
-    });
+  // If it's NOT a free session, price must be provided and greater than 0
+  if (!data.isFreeSession) {
+    if (data.price === undefined || data.price === null || data.price <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["price"],
+        message: "Price is required and must be greater than 0",
+      });
+    }
   }
 });
 
@@ -268,6 +265,12 @@ async function handleCreateSession(): Promise<void> {
   }
 }
 
+watch(() => form.isFreeSession, (isFree) => {
+  if (isFree) {
+    form.price = 0;
+  }
+});
+
 onMounted(async () => {
   await instructorsStore.fetchInstructors();
   if (sessionsStore.sessionToCopy) {
@@ -317,7 +320,7 @@ onMounted(async () => {
       </template>
     </base-page-header>
 
-    <div class="bg-card border-x border-b border-border rounded-b-xl shadow-sm p-4 sm:p-6 page-content-height">
+    <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 page-content-height">
       <div class="flex flex-col lg:flex-row gap-6">
         <FormStepper
           :steps="steps"

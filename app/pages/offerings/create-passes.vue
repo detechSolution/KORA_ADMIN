@@ -11,7 +11,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permission: "offerings.sessions.view",
+  permission: "offerings.kora_passes.create",
 });
 
 const router = useRouter();

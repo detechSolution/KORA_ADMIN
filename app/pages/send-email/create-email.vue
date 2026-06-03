@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 import z from "zod";
 
+import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useMailStore } from "~/stores/mail";
 import { getApiErrorMessage } from "~/utils/error";
@@ -9,60 +11,15 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   layout: "dashboard",
   auth: true,
-  permission: "administration.roles.create",
+  permission: "mails.create",
 });
 
 const mailStore = useMailStore();
-const toast = useNotification();
+const { error: showError, success } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
-const apiError = ref<string | null>(null);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
-const recipients = ref<any[]>([]);
-
-const ALL_RECIPIENTS_VALUE = "__newsletter_subscribers__";
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(part => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
-const individualRecipientOptions = computed(() =>
-  recipients.value
-    .map((recipient: any) => {
-      const email = recipient?.email ?? recipient?.recipient_email ?? recipient?.value ?? "";
-      const label = recipient?.name ?? recipient?.full_name ?? recipient?.label ?? email;
-
-      if (!email) {
-        return null;
-      }
-
-      return {
-        value: email,
-        label,
-        description: email === label ? undefined : email,
-        avatar: label ? { text: getInitials(label) } : undefined,
-      };
-    })
-    .filter(Boolean),
-);
-
-const recipientEmailValues = computed(() =>
-  individualRecipientOptions.value.map(option => option?.value),
-);
-
-const recipientOptions = computed(() => [
-  {
-    value: ALL_RECIPIENTS_VALUE,
-    label: "Newsletter Subscribers",
-  },
-  ...individualRecipientOptions.value,
-]);
 
 const schema = z.object({
   subject: z.string().min(1, "Mail subject is required"),
@@ -71,68 +28,19 @@ const schema = z.object({
   recipientEmails: z.array(z.string().email("Invalid email address")).min(1, "At least one recipient is required"),
 });
 
-type createRoleSchema = z.output<typeof schema>;
+type MailSchema = z.output<typeof schema>;
 
-const state = reactive<Partial<createRoleSchema>>({
+const recipientEmails = ref<string[]>([]);
+
+const state = reactive<Partial<MailSchema>>({
   subject: "",
   title: "",
   htmlContent: "",
-  recipientEmails: [],
+  get recipientEmails() { return recipientEmails.value; },
+  set recipientEmails(v) { recipientEmails.value = v; },
 });
 
-const recipientSelection = computed({
-  get: () => {
-    const selectedEmails = state.recipientEmails ?? [];
-    const allRecipientsSelected = recipientEmailValues.value.length > 0
-      && recipientEmailValues.value.every(email => selectedEmails.includes(email));
-
-    if (!allRecipientsSelected) {
-      return selectedEmails;
-    }
-
-    return [ALL_RECIPIENTS_VALUE, ...selectedEmails];
-  },
-
-  set: (values: string[] = []) => {
-    const selectedValues = values.filter((value): value is string => typeof value === "string");
-    const selectedEmails = selectedValues.filter(value => value !== ALL_RECIPIENTS_VALUE);
-    const allRecipientsSelected = recipientEmailValues.value.length > 0
-      && recipientEmailValues.value.every(email => (state.recipientEmails ?? []).includes(email));
-    const includesSelectAll = selectedValues.includes(ALL_RECIPIENTS_VALUE);
-
-    if (includesSelectAll && !allRecipientsSelected) {
-      state.recipientEmails = [...recipientEmailValues.value];
-      return;
-    }
-
-    if (!includesSelectAll && allRecipientsSelected && selectedEmails.length === recipientEmailValues.value.length) {
-      state.recipientEmails = [];
-      return;
-    }
-
-    state.recipientEmails = selectedEmails;
-  },
-});
-
-function setApiError(error: string): void {
-  apiError.value = error;
-}
-
-function clearApiError(): void {
-  apiError.value = null;
-}
-
-async function fetchRecipients() {
-  try {
-    recipients.value = await mailStore.getRecipients();
-  }
-  catch (error) {
-    const message = getApiErrorMessage(error, "Failed to fetch recipients.");
-    toast.error({ message });
-  }
-}
-
-async function handleCreateRole() {
+async function handleCreateMail() {
   try {
     await formRef.value?.validate();
   }
@@ -141,34 +49,22 @@ async function handleCreateRole() {
   }
   try {
     loading.value = true;
-    clearApiError();
-    const payload = {
+    await mailStore.createMail({
       subject: state.subject?.trim() ?? "",
       title: state.title?.trim() ?? "",
       htmlContent: state.htmlContent ?? "",
       recipientEmails: state.recipientEmails ?? [],
-    };
-    await mailStore.createMail(payload as { subject: string; title: string; htmlContent: string; recipientEmails: string[] });
-    toast.success({ message: "Mail created successfully" });
-    router.push({ name: "send-email/email-list" });
+    });
+    success({ message: "Mail created successfully" });
+    router.push("/instructors/instructors-list");
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
+    showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });
   }
   finally {
     loading.value = false;
   }
 }
-
-onMounted(() => {
-  fetchRecipients();
-});
 </script>
 
 <template>
@@ -235,25 +131,17 @@ onMounted(() => {
 
           <USeperator class="border-t border-stone-200 border-0.5" />
 
-          <div class="flex flex-col gap-4">
-            <base-select-menu
-              v-model="recipientSelection"
-              name="recipientEmails"
-              label="Select Recipients*"
-              placeholder="Select recipients"
-              :options="recipientOptions"
-              search-placeholder="Search & Recipients"
-              :multiple="true"
-              :show-checkbox="true"
-              :hidden-selected-values="[ALL_RECIPIENTS_VALUE]"
-              class="w-full"
-            />
-          </div>
+          <send-mail-select-menu
+            v-model="recipientEmails"
+            name="recipientEmails"
+            label="Select Recipients*"
+          />
 
           <div class="flex justify-end">
             <base-button
               variant="solid"
-              @click="handleCreateRole"
+              :loading="loading"
+              @click="handleCreateMail"
             >
               Create Mail
             </base-button>

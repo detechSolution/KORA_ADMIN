@@ -18,11 +18,21 @@ const options = ref([
   { label: "Refunded", value: "refunded" },
 ]);
 
+const summaryOptions = ref([
+  { label: "Today", value: "today" },
+  { label: "Yesterday", value: "yesterday" },
+  { label: "This Week", value: "this_week" },
+  { label: "Last Week", value: "last_week" },
+  { label: "This Month", value: "this_month" },
+  { label: "Last Month", value: "last_month" },
+]);
+
 const financeStore = useFinanceStore();
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
 
 const state = ref({
+  summaryOption: "today",
   search: "",
   dateRange: {
     start: null,
@@ -56,10 +66,18 @@ async function fetchPayments(): Promise<void> {
     };
 
     await financeStore.fetchPayments(params);
-    await financeStore.fetchPaymentSummary();
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to fetch payments") });
+  }
+}
+
+async function fetchPaymentsSummary(): Promise<void> {
+  try {
+    await financeStore.fetchPaymentSummary(state.value.summaryOption);
+  }
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Failed to fetch payment summary") });
   }
 }
 
@@ -75,29 +93,34 @@ function clearFilters(): void {
   handleSearchClick();
 }
 
+function handleDownloadInvoice(url: string): void {
+  window.open(url, "_blank");
+}
+
 onMounted(() => {
   fetchPayments();
+  fetchPaymentsSummary();
 });
 
 const kpiCards = computed(() => [
   {
     title: "Cash Payments",
     value: paymentSummary?.value?.cashPayments || 0,
-    icon: ICONS.CREDIT_CARD,
+    icon: ICONS.MONEY,
     color: "text-blue-500",
     bg: "bg-blue-50",
   },
   {
     title: "Online Payments",
     value: paymentSummary?.value?.onlinePayments || 0,
-    icon: ICONS.REFRESH_CW,
+    icon: ICONS.WIFI,
     color: "text-red-500",
     bg: "bg-red-50",
   },
   {
     title: "Refunded",
     value: paymentSummary?.value?.refunded || 0,
-    icon: ICONS.CLOCK,
+    icon: ICONS.REFRESH_CW,
     color: "text-yellow-500",
     bg: "bg-yellow-50",
   },
@@ -116,6 +139,16 @@ const kpiCards = computed(() => [
     </base-page-header>
 
     <div class="bg-white flex flex-col gap-4 p-4">
+      <base-select
+        v-model="state.summaryOption"
+        :options="summaryOptions"
+        name="summary"
+        placeholder="Select summary"
+        is-borderless
+        class="w-32"
+        @update:model-value="fetchPaymentsSummary()"
+      />
+
       <div class="grid bg-stone-50 rounded border border-border p-4 sm:p-6 py-6 grid-cols-1 md:grid-cols-3  gap-y-6 md:gap-y-8 gap-x-0 ">
         <dashboard-kpi-card
           v-for="(card, index) in kpiCards"
@@ -141,7 +174,7 @@ const kpiCards = computed(() => [
             v-model="state.search"
             name="search"
             placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearchClick"
           />
@@ -152,24 +185,16 @@ const kpiCards = computed(() => [
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 "
           />
           <base-select
             v-model="state.status"
             name="status"
             placeholder="All statuses"
             :options="options"
-            class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <div class="flex gap-2 w-full sm:w-auto">
-            <base-button
-              v-if="state.search || state.dateRange.start || state.dateRange.end || state.status"
-              variant="outline"
-              class="flex-1 sm:flex-none"
-              @click="clearFilters"
-            >
-              Clear Filters
-            </base-button>
             <base-button
               variant="outline"
               class="flex-1 sm:flex-none"
@@ -177,6 +202,14 @@ const kpiCards = computed(() => [
               @click="handleSearchClick"
             >
               Search
+            </base-button>
+            <base-button
+              v-if="state.search || state.dateRange.start || state.dateRange.end || state.status"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="clearFilters"
+            >
+              Clear Filters
             </base-button>
           </div>
         </div>
@@ -192,12 +225,15 @@ const kpiCards = computed(() => [
         :data="payments.data"
         :columns="columns"
         :loading="financeStore.loading"
-        empty-title="No communities found"
-        empty-description="It looks like you haven't added any communities. Create one to get started."
+        empty-title="No payments found"
       >
         <template #user-cell="{ row } ">
-          <div class="flex items-center">
-            <base-avatar :src="row?.original?.member?.user?.avatar" />
+          <div class="flex items-center gap-2">
+            <base-avatar
+              :src="row?.original?.member?.user?.avatar"
+              :alt="row?.original?.member?.user?.fullName || 'Unknown'"
+              size="sm"
+            />
             <div class="flex flex-col gap-1">
               <span class="text-sm font-medium text-secondary">
                 {{ row?.original?.member?.user?.fullName || "-" }}
@@ -210,7 +246,7 @@ const kpiCards = computed(() => [
         </template>
 
         <template #referenceCode-cell="{ row }">
-          <base-badge>
+          <base-badge uppercase>
             {{ row?.original?.referenceCode || "-" }}
           </base-badge>
         </template>
@@ -220,31 +256,24 @@ const kpiCards = computed(() => [
         </template>
 
         <template #method-cell="{ row }">
-          <base-badge :color="getStatusMeta(row?.original?.method).badgeColor">
-            <span class="inline-flex items-center gap-1">
-              <UIcon
-                v-if="getStatusMeta(row?.original?.method).icon"
-                :name="getStatusMeta(row?.original?.method).icon!"
-                class="h-3.5 w-3.5"
-              />
-              {{ getStatusMeta(row?.original?.method).label }}
-            </span>
+          <base-badge :status="row?.original?.method">
+            {{ row?.original?.method }}
           </base-badge>
         </template>
 
         <template #status-cell="{ row }">
-          <base-badge :color="getStatusColor(row?.original?.status)">
-            {{ (row?.original?.status) ? row.original.status.charAt(0).toUpperCase() + row.original.status.slice(1) : "-" }}
+          <base-badge :status="row?.original?.status">
+            {{ row?.original?.status }}
           </base-badge>
         </template>
 
-        <template #actions-cell>
+        <template #actions-cell="{ row }">
           <div class="text-left">
             <base-dropdown-menu
               :items="[
                 {
-                  label: 'Download Invoice',
-                  // onSelect: () => openAdminDrawer(row.original),
+                  label: 'View Document',
+                  onSelect: () => { handleDownloadInvoice(row.original.identificationDocumentUrl); },
                   class: 'cursor-pointer',
                 },
               ]"

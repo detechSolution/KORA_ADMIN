@@ -102,9 +102,9 @@ watch(
                 </p>
                 <base-badge
                   v-if="member?.user?.role"
-                  :color="getStatusColor(member?.user?.role)"
+                  :status="member?.user?.role"
                 >
-                  {{ getStatusLabel(member?.user?.role) }}
+                  {{ member?.user?.role }}
                 </base-badge>
               </div>
             </div>
@@ -144,6 +144,25 @@ watch(
           </div>
         </div>
 
+        <div class="border border-stone-200 rounded-md p-3 flex justify-between items-center">
+          <div class="flex flex-col gap-2">
+            <h2>
+              {{ member?.membershipPlan?.name }}
+            </h2>
+            <p class="text-secondary-400 font-normal text-xs">
+              {{ member?.subscriptionStartDate }} - {{ member?.subscriptionEndDate }}
+            </p>
+
+            <base-badge class="w-fit" :status="member?.membershipPlanOption?.frequency">
+              {{ member?.membershipPlanOption?.frequency }}
+            </base-badge>
+          </div>
+
+          <p class="text-secondary-400 font-semibold text-xs">
+            Rs. {{ member?.membershipPlanOption?.price }}
+          </p>
+        </div>
+
         <USeparator />
 
         <!-- Additional Info Cards -->
@@ -181,13 +200,15 @@ watch(
                 {{ formatDate(booking.bookedFor) }}
               </p>
             </div>
-            <base-badge :color="getStatusColor(booking.status)">
+            <base-badge :status="booking.status">
               {{ booking.status }}
             </base-badge>
           </div>
         </div>
-        <div v-else class="text-muted-foreground">
-          No bookings
+        <div v-else>
+          <base-empty
+            title="No bookings"
+          />
         </div>
       </section>
 
@@ -214,13 +235,15 @@ watch(
               </p>
             </div>
 
-            <base-badge :color="getStatusColor(payment.status)">
+            <base-badge :status="payment.status">
               {{ payment.status }}
             </base-badge>
           </div>
         </div>
-        <div v-else class="text-muted-foreground">
-          No payments
+        <div v-else>
+          <base-empty
+            title="No payments"
+          />
         </div>
       </section>
     </base-tabs>

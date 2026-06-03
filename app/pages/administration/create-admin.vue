@@ -13,7 +13,7 @@ definePageMeta({
 });
 
 const adminStore = useAdminStore();
-const toast = useNotification();
+const { error: showError, success } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
@@ -38,10 +38,6 @@ const state = reactive<Partial<createRoleSchema>>({
   isActive: false,
 });
 
-function setApiError(error: string): void {
-  apiError.value = error;
-}
-
 function clearApiError(): void {
   apiError.value = null;
 }
@@ -64,17 +60,11 @@ async function handleCreateRole() {
       isActive: state.isActive,
     };
     await adminStore.createAdmin(payload as { fullName: string; phoneNumber: string; email: string; adminRoleId: string; isActive: boolean });
-    toast.success({ message: "Admin created successfully" });
-    router.push({ name: "administration/admins" });
+    success({ message: "Admin created successfully" });
+    router.push("/administration/admins");
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
-      formRef.value?.validate();
-      return;
-    }
-    toast.error({ message });
+    showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });
   }
   finally {
     loading.value = false;
@@ -169,6 +159,7 @@ onMounted(() => {
             <div class="flex justify-end">
               <base-button
                 variant="solid"
+                :loading="loading"
                 @click="handleCreateRole"
               >
                 Create Admin

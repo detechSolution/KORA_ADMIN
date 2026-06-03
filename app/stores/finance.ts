@@ -53,10 +53,10 @@ export const useFinanceStore = defineStore("finance", () => {
     }
   };
 
-  const fetchPaymentSummary = async () => {
+  const fetchPaymentSummary = async (range: string) => {
     loading.value = true;
     try {
-      const response = await http.get(API_ENDPOINTS.PAYMENTS.SUMMARY) as PaymentSummary;
+      const response = await http.get(`${API_ENDPOINTS.PAYMENTS.SUMMARY}?range=${range}`) as PaymentSummary;
       paymentSummary.value = response;
     }
     catch (error) {
