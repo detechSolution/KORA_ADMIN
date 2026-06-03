@@ -70,4 +70,5 @@ export type UpdateSpaPayload = {
   availableToTime: string;
   capacityPerSlot: number;
   videoFile?: File | null;
+  description: string;
 };

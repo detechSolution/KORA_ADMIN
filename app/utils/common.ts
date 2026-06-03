@@ -8,6 +8,8 @@
  * @param maxFractionDigits - (Optional) Maximum fraction digits (default: 2).
  * @returns A formatted string. Returns an empty string if the input is not a valid number.
  */
+import { Time } from "@internationalized/date";
+
 export function formatNumber(
   value: number | string,
   locale: string = "en-US",
@@ -104,6 +106,35 @@ function parseToLocalDate(date: string | number | null | undefined): Date | null
 
   const parsed = new Date(s);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+export function formatTimeValue(value: Time | undefined): string {
+  if (!value)
+    return "";
+  return `${String(value.hour).padStart(2, "0")}:${String(value.minute).padStart(2, "0")}`;
+}
+
+export function parseTimeValue(value: string): Time | undefined {
+  const normalizedValue = value.trim();
+  if (!normalizedValue)
+    return undefined;
+
+  const twelveHourMatch = normalizedValue.match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i);
+  if (twelveHourMatch) {
+    const [, rawHours = "0", rawMinutes = "0", meridiem = "AM"] = twelveHourMatch;
+    const parsedHours = Number(rawHours);
+    const minute = Number(rawMinutes);
+    if (Number.isNaN(parsedHours) || Number.isNaN(minute))
+      return undefined;
+    return new Time((parsedHours % 12) + (meridiem.toUpperCase() === "PM" ? 12 : 0), minute);
+  }
+
+  const [hours = "0", minutes = "0"] = normalizedValue.split(":");
+  const hour = Number(hours);
+  const minute = Number(minutes);
+  if (Number.isNaN(hour) || Number.isNaN(minute))
+    return undefined;
+  return new Time(hour, minute);
 }
 
 export function formatDate(date: string | number | null | undefined): string {

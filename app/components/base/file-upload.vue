@@ -152,14 +152,14 @@ function getDefaultDescription(fileType: FileType): string {
           :key="index"
           class="flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white p-3 shadow-sm"
         >
-          <div class="flex items-center gap-3 overflow-hidden">
+          <div class="flex min-w-0 items-center gap-3 overflow-hidden">
             <div class="flex h-10 shrink-0 items-center justify-center rounded-full bg-stone-100">
               <UIcon
                 :name="accept === 'video' ? 'i-lucide-video' : 'i-lucide-image'"
-                class="h-5 w-5 text-stone-500"
+                class="h-5 w-5 text-stone-500 p-4"
               />
             </div>
-            <div class="flex flex-col overflow-hidden">
+            <div class="flex min-w-0 flex-col overflow-hidden">
               <span class="truncate text-sm font-medium text-stone-900">
                 {{ getFileName(file) }}
               </span>
