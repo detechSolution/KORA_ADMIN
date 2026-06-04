@@ -48,7 +48,7 @@ const columns = [
   { id: "paidAt", header: "Paid Date", accessorKey: "paidAt", accessorFn: (row: any) => formatDate(row.paidAt) },
   { id: "method", header: "Method", accessorKey: "method" },
   { id: "status", header: "Status", accessorKey: "status" },
-  { id: "actions", header: "Actions", accessorKey: "actions" },
+  // { id: "actions", header: "Actions", accessorKey: "actions" },
 ];
 
 const payments = computed(() => financeStore.payments);
@@ -91,10 +91,6 @@ function clearFilters(): void {
   state.value.status = null;
   state.value.dateRange = { start: null, end: null };
   handleSearchClick();
-}
-
-function handleDownloadInvoice(url: string): void {
-  window.open(url, "_blank");
 }
 
 onMounted(() => {
@@ -267,7 +263,7 @@ const kpiCards = computed(() => [
           </base-badge>
         </template>
 
-        <template #actions-cell="{ row }">
+        <!-- <template #actions-cell="{ row }">
           <div class="text-left">
             <base-dropdown-menu
               :items="[
@@ -284,7 +280,7 @@ const kpiCards = computed(() => [
               />
             </base-dropdown-menu>
           </div>
-        </template>
+        </template> -->
       </base-table>
       <base-pagination
         :page="payments.meta.page"
