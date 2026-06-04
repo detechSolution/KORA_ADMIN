@@ -355,9 +355,9 @@ const kpiData = computed(() => [
           v-else
           :key="index"
           :title="session.name"
-          :date="session.startsAt"
-          :time="session.startTime"
           :capacity="session.capacity"
+          :starts-at="session.startsAt"
+          :occupied="session.occupied"
         />
       </div>
     </div>
