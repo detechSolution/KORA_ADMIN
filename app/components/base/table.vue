@@ -66,6 +66,9 @@ const showSkeleton = computed(() => props.loading);
       :columns="props.columns"
       :data="props.data"
       :loading="props.loading"
+      :ui="{
+        th: 'bg-stone-50',
+      }"
     >
       <template v-for="(_, name) in $slots" #[name]="slotData">
         <slot :name="name" v-bind="slotData || {}" />

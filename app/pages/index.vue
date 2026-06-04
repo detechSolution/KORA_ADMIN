@@ -344,7 +344,7 @@ const kpiData = computed(() => [
         </NuxtLink>
       </div>
 
-      <div class="border-t border-border py-4 grid overflow-x-auto  gap-2">
+      <div class="border-t border-border py-4 flex overflow-x-auto  gap-2">
         <base-empty
           v-if="todaySessions.length === 0"
           title="No sessions scheduled for today"

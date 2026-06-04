@@ -140,7 +140,7 @@ onMounted(() => {
         <NuxtLink to="/administration/create-admin">
           <base-button
             variant="solid"
-            size="md"
+            size="lg"
             :trailing-icon="ICONS.PLUS"
           >
             Create Admin

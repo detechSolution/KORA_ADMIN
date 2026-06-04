@@ -199,7 +199,7 @@ const items = computed(() => [filterByPermission([...rawItems])]);
         tooltip
         :ui="{
           list: 'flex flex-col gap-2',
-          link: 'px-2 gap-3 text-foreground rounded-md transition-colors',
+          link: 'px-2 gap-3 text-foreground rounded-md transition-colors hover:bg-stone-50',
           linkLeadingIcon: 'text-foreground ',
           linkTrailingIcon: 'text-foreground ',
           item: 'flex flex-col gap-2',
