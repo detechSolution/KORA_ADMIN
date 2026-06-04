@@ -134,6 +134,7 @@ function populateForm(spa: Spa | null): void {
   form.capacityPerSlot = spa?.capacityPerSlot;
   form.videoFile = spa?.videoUrl ?? undefined;
   form.imageFile = spa?.bannerUrl ?? undefined;
+  form.description = spa?.description ?? "";
 }
 
 function closeDrawer(): void {

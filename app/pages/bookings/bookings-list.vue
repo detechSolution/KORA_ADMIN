@@ -41,7 +41,7 @@ const filters = ref({
 const typeOptions = [
   { label: "Session", value: "session" },
   { label: "Spa", value: "spa" },
-  { label: "Passes", value: "pass" },
+  { label: "Passes", value: "passes" },
 ];
 
 const columns = computed(() => [

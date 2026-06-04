@@ -146,7 +146,7 @@ onMounted(() => {
         <NuxtLink to="/promo-code/create">
           <base-button
             variant="solid"
-            size="md"
+            size="lg"
             :trailing-icon="ICONS.PLUS"
           >
             Create Promo Code

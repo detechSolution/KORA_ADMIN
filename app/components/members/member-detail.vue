@@ -115,7 +115,7 @@ watch(
                 Phone
               </p>
               <p class="text-sm font-medium">
-                {{ member?.user?.phoneNumber || member?.phoneNumber || "-" }}
+                {{ member?.user?.phoneNumber || member?.phoneNumber || "N/A" }}
               </p>
             </div>
           </div>
@@ -127,7 +127,7 @@ watch(
                 Email
               </p>
               <p class="text-sm font-medium">
-                {{ member?.user?.email || "-" }}
+                {{ member?.user?.email || "N/A" }}
               </p>
             </div>
 
@@ -144,7 +144,10 @@ watch(
           </div>
         </div>
 
-        <div class="border border-stone-200 rounded-md p-3 flex justify-between items-center">
+        <div
+          v-if="member?.membershipPlan"
+          class="border border-stone-200 rounded-md p-3 flex justify-between items-center"
+        >
           <div class="flex flex-col gap-2">
             <h2>
               {{ member?.membershipPlan?.name }}

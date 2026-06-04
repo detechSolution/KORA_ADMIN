@@ -49,7 +49,7 @@ function handleSuccess() {
         >
           <base-button
             variant="solid"
-            size="md"
+            size="lg"
             :leading-icon="ICONS.PLUS"
           >
             Create Pass
