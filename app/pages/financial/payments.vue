@@ -186,7 +186,7 @@ const kpiCards = computed(() => [
           <base-select
             v-model="state.status"
             name="status"
-            placeholder="All statuses"
+            placeholder="Status"
             :options="options"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />

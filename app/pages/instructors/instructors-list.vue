@@ -201,7 +201,7 @@ onMounted(() => {
           <base-select
             v-model="state.status"
             name="status"
-            placeholder="All statuses"
+            placeholder="Status"
             :options="statusOptions"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />

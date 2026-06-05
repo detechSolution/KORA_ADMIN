@@ -143,7 +143,7 @@ onMounted(() => {
           <base-select
             v-model="state.status"
             name="status"
-            placeholder="All statuses"
+            placeholder="Select status"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
             :options="options"
           />
@@ -183,8 +183,8 @@ onMounted(() => {
         <template #client-cell="{ row }">
           <div class="flex items-center gap-2">
             <base-avatar
-              :src="row.original.avatar"
-              :alt="row.original.fullName || 'Unknown'"
+              :src="row.original.clientAvatar"
+              :alt="row.original.clientName || 'Unknown'"
               size="sm"
             />
             <div class="flex flex-col gap-1">

@@ -248,9 +248,23 @@ onMounted(fetchBookings);
               size="sm"
             />
             <div class="flex flex-col gap-1">
-              <span class="text-sm font-medium text-secondary">
-                {{ row.original.clientName || "-" }}
-              </span>
+              <div class="flex flex-row gap-2 items-center">
+                <span class="text-sm font-medium text-secondary">
+                  {{ row.original.clientName || "-" }}
+                </span>
+
+                <UTooltip
+                  v-if="row.original.visitorCount"
+                  arrow
+                  :text="`${row.original.visitorCount} Visitors`"
+                >
+                  <span
+                    class="text-xs bg-red-50 border border-red-300 px-1 rounded-full text-red-500"
+                  >
+                    +  {{ row.original.visitorCount }}
+                  </span>
+                </UTooltip>
+              </div>
               <span class="text-xs text-secondary-400">
                 {{ row.original.clientEmail || "-" }}
               </span>
