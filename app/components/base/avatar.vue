@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
     :src="props.src || undefined"
     :alt="props.name"
     :size="props.size"
-    class="capitalize"
+    class="uppercase"
     :class="[props.class]"
     :ui="{
       root: 'bg-secondary-50',
