@@ -238,17 +238,17 @@ export const DEFAULT_PAGE_SIZE = 10;
 /**
  * Session Type Values
  */
-// export const SESSION_TYPE = {
-//   CLASS: "class",
-//   EVENT: "event",
-//   WORKSHOP: "workshop",
-// } as const;
+export const SESSION_TYPE = {
+  CLASS: "class",
+  EVENT: "event",
+  WORKSHOP: "workshop",
+} as const;
 
 /**
  * Type exports for TypeScript
  */
 // export type CommunityType = typeof COMMUNITY_TYPE[keyof typeof COMMUNITY_TYPE];
-// export type SessionType = typeof SESSION_TYPE[keyof typeof SESSION_TYPE];
+export type SessionType = typeof SESSION_TYPE[keyof typeof SESSION_TYPE];
 // export type InquirySource = typeof INQUIRY_SOURCE[keyof typeof INQUIRY_SOURCE];
 // export type PaymentStatus = typeof PAYMENT_STATUS[keyof typeof PAYMENT_STATUS];
 // export type SubscriptionInterval = typeof SUBSCRIPTION_INTERVAL[keyof typeof SUBSCRIPTION_INTERVAL];
