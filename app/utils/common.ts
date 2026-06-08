@@ -163,3 +163,11 @@ export function formatDateTime(date: string | number | null | undefined): string
   });
   return formatter.format(d);
 }
+
+// helper
+export function formatDateTimeWithDot(date: string) {
+  if (!date)
+    return "";
+  const d = new Date(date);
+  return `${d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} • ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}`;
+}

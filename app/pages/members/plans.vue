@@ -112,12 +112,10 @@ onMounted(() => {
         Create and manage membership plans
       </template>
       <template #actions>
-        <NuxtLink
-          to="/members/create-membership"
-        >
+        <NuxtLink to="/members/create-membership">
           <base-button
             variant="solid"
-            size="md"
+            size="lg"
             :trailing-icon="ICONS.PLUS"
           >
             Create Plan
@@ -189,12 +187,28 @@ onMounted(() => {
             >
               {{ `${option.frequency}: Rs. ${option.price}` }}
             </base-badge>
-            <div
+
+            <UTooltip
               v-if="row.original.options.length > 2"
-              class="bg-[#F9F6F2] rounded-full p-2 text-secondary"
+              arrow
+              :ui="{
+                content: 'bg-white py-4 ',
+              }"
             >
-              +{{ row.original.options.length - 2 }}
-            </div>
+              <div class="bg-[#F9F6F2] rounded-full text-xs h-6 w-6 p-1 text-secondary">
+                +{{ row.original.options.length - 2 }}
+              </div>
+
+              <template #content>
+                <div
+                  v-for="(option, index) in row.original.options.slice(2)"
+                  :key="index"
+                  :status="option.frequency"
+                >
+                  {{ `${option.frequency}: Rs. ${option.price}` }}
+                </div>
+              </template>
+            </UTooltip>
           </div>
         </template>
         <template #isActive-cell="{ row }">
@@ -214,10 +228,7 @@ onMounted(() => {
                 },
               ]"
             >
-              <base-button
-                :icon="ICONS.ELLIPSIS_VERTICAL"
-                variant="ghost"
-              />
+              <base-button :icon="ICONS.ELLIPSIS_VERTICAL" variant="ghost" />
             </base-dropdown-menu>
           </div>
         </template>

@@ -165,7 +165,7 @@ onMounted(() => {
         <NuxtLink to="/members/create-member">
           <base-button
             variant="solid"
-            size="md"
+            size="lg"
             :leading-icon="ICONS.PLUS"
           >
             Create Member

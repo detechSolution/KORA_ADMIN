@@ -16,7 +16,7 @@ type AreaChartItem = {
 };
 
 const categories = {
-  desktop: { name: "Desktop", color: "#3b82f6" },
+  amount: { name: "Revenue", color: "#966F33" },
 };
 
 const AreaChartData = computed<AreaChartItem[]>(() => props.data?.series ?? []);
@@ -41,11 +41,11 @@ function xFormatter(tick: number, _i?: number, _ticks?: number[]): string {
       :y-grid-line="true"
       :hide-legend="true"
       :marker-config="{
-        desktop: {
+        amount: {
           type: 'circle',
           size: 6,
           strokeWidth: 2,
-          color: '#3b82f6',
+          color: '#966F33',
         },
       }"
       :x-formatter="xFormatter"
@@ -54,7 +54,7 @@ function xFormatter(tick: number, _i?: number, _ticks?: number[]): string {
 </template>
 
 <style scoped>
-.markers:deep(*[stroke="#3b82f6"]) {
-  marker: url("#circle-marker-desktop");
+.markers:deep(*[stroke="#966F33"]) {
+  marker: url("#circle-marker-amount");
 }
 </style>

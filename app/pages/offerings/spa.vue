@@ -172,7 +172,7 @@ function clearFilters(): void {
         <NuxtLink to="/offerings/create-spa">
           <base-button
             variant="solid"
-            size="md"
+            size="lg"
             :leading-icon="ICONS.PLUS"
           >
             Create Sub-Type

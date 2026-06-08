@@ -10,7 +10,7 @@ definePageMeta({
 });
 
 const authStore = useAuthStore();
-const toast = useNotification();
+const { error: showError } = useNotification();
 const router = useRouter();
 const rememberMe = ref(false);
 
@@ -64,13 +64,14 @@ async function handleLogin(): Promise<void> {
     router.push({ name: "index" });
   }
   catch (error: unknown) {
-    const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-    if (message !== "Something went wrong. Please try again.") {
-      setApiError(message);
+    const errorMessage = getApiErrorMessage(error, "Something went wrong. Please try again.");
+    if (errorMessage !== "Something went wrong. Please try again.") {
+      setApiError(errorMessage);
       formRef.value?.validate();
       return;
     }
-    toast.error({ message });
+    console.log("error message", errorMessage);
+    showError({ message: errorMessage });
   }
   finally {
     loading.value = false;

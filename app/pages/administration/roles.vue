@@ -267,7 +267,7 @@ onMounted(() => {
         <NuxtLink to="/administration/create-role">
           <base-button
             variant="solid"
-            size="md"
+            size="lg"
             :trailing-icon="ICONS.PLUS"
           >
             Create Role

@@ -146,7 +146,7 @@ onMounted(() => {
         <NuxtLink to="/promo-code/create">
           <base-button
             variant="solid"
-            size="md"
+            size="lg"
             :trailing-icon="ICONS.PLUS"
           >
             Create Promo Code
@@ -184,7 +184,7 @@ onMounted(() => {
           <base-select
             v-model="state.status"
             name="status"
-            placeholder="All statuses"
+            placeholder="Status"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
             :options="statusOptions"
           />

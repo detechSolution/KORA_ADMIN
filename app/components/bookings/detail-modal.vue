@@ -6,7 +6,7 @@ import type { Booking } from "~/types/booking";
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
-import { formatDate } from "~/utils/common";
+import { formatDateTimeWithDot } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 type Props = {
@@ -50,7 +50,7 @@ const bookingInfo = computed(() => {
 
   return [
     { label: "Booking Id", value: props.booking?.bookingCode as string, icon: ICONS.ID_CARD },
-    { label: "Booked Date", value: formatDate(props.booking?.bookedDate) as string, icon: ICONS.CALENDAR },
+    { label: "Booked Date & Time", value: formatDateTimeWithDot(props.booking?.bookedFor as string) as string, icon: ICONS.CALENDAR },
     { label: "Session/Service", value: props.booking?.itemName as string, icon: ICONS.BRIEFCASE },
   ];
 });
@@ -208,11 +208,14 @@ watch(() => props.open, async (newValue) => {
           <template #fullName-cell="{ row }">
             <div class="flex items-center gap-3">
               <base-avatar
-                :src="row.original.clientName"
-                :alt="row.original.clientName || 'Unknown'"
+                :src="row.original.fullName"
+                :alt="row.original.fullName || 'Unknown'"
                 size="sm"
               />
-              <span class="text-sm font-medium text-secondary-900">{{ row.original.clientName }}</span>
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-secondary-900">{{ row.original.fullName }}</span>
+                <span class="text-xs text-secondary-400">{{ row.original.phoneNumber }}</span>
+              </div>
             </div>
           </template>
         </base-table>

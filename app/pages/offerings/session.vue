@@ -141,7 +141,7 @@ onMounted(() => {
         >
           <base-button
             variant="solid"
-            size="md"
+            size="lg"
             :leading-icon="ICONS.PLUS"
           >
             Create Session

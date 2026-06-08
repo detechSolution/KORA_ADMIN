@@ -52,9 +52,9 @@ const profileEditInfo = computed(() => {
     return [];
 
   return [
-    { label: "Created By", value: formatDate(InstructorDetails.value?.createdAt as string), avatar: true, icon: ICONS.USER_PLUS },
-    { label: "Last Edited By", value: InstructorDetails.value?.updatedBy?.fullName as string, avatar: true, icon: ICONS.USER_PLUS },
-    { label: "Last Edit Date", value: formatDate(InstructorDetails.value?.updatedAt as string), avatar: false, icon: ICONS.CALENDAR },
+    { label: "Created By", value: InstructorDetails.value?.createdBy.fullName, avatar: true, icon: ICONS.USER_PLUS },
+    { label: "Last Edited By", value: InstructorDetails.value?.updatedBy?.fullName, avatar: true, icon: ICONS.USER_PLUS },
+    { label: "Last Edit Date", value: formatDate(InstructorDetails.value?.updatedAt), avatar: false, icon: ICONS.CALENDAR },
   ];
 });
 
@@ -150,12 +150,12 @@ watch(
               <span>{{ profile.label }}</span>
             </div>
             <div class="flex items-center gap-3">
-              <div
+              <base-avatar
                 v-if="profile.avatar"
-                class="w-5 h-5 rounded-full bg-stone-200 overflow-hidden text-[8px] flex items-center justify-center font-bold text-secondary-500"
-              >
-                JD
-              </div>
+                :name="profile.value"
+                :src="profile.value"
+                :alt="profile.value"
+              />
               <span class="text-sm font-medium text-secondary-700">{{ profile.value }}</span>
             </div>
           </div>
