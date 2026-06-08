@@ -27,13 +27,6 @@ export type SystemAdminRole = {
 
 export type RolesCatalog = Record<string, string[]>;
 
-export type ModuleTreeItem = {
-  label: string;
-  id: number;
-  children?: ModuleTreeItem[];
-  defaultExpanded?: boolean;
-};
-
 export type SystemAdmin = {
   id: number;
   adminRoleId: number | null;
@@ -46,19 +39,6 @@ export type SystemAdmin = {
   role_name: string;
 };
 
-export type CreateRolePayload = {
-  name: string;
-};
-
-export type CreateAdminPayload = {
-  role_id: number | null;
-  email: string;
-  password: string;
-  name: string;
-  phone: string | null;
-  is_active?: boolean;
-};
-
 export type UpdateAdminPayload = {
   admin_id: number;
   fullName?: string;
@@ -69,21 +49,4 @@ export type UpdateAdminPayload = {
   role_id?: number | null;
   phone?: string | null;
   is_active?: boolean;
-};
-
-/** Role module (privilege) from modules/getList */
-export type RoleModule = {
-  id: number;
-  name: string;
-  display_name: string;
-  parent_id: number | null;
-  sort_order: number;
-  created_at?: string;
-  children: RoleModule[];
-};
-
-/** Response from modules/getList (with optional role_id for allowedModules) */
-export type RoleModulesResponse = {
-  list: RoleModule[];
-  allowedModules: number[];
 };
