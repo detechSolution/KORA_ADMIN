@@ -1,20 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
-import type { RoleModule } from "~/types/system-admin";
+import type { ModuleTreeItem, RoleModule } from "~/types/system-admin";
 
+import { useNotification } from "~/composables/use-notification";
 import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_ADMINS } from "~/config/permissions";
 import { useSystemAdminStore } from "~/stores/system-admin";
 import { getApiErrorMessage } from "~/utils/error";
-
-type ModuleTreeItem = {
-  label: string;
-  id: number;
-  children?: ModuleTreeItem[];
-  defaultExpanded?: boolean;
-};
 
 definePageMeta({
   auth: true,

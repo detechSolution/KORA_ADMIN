@@ -8,7 +8,7 @@ import { ICONS } from "~/config/icons";
 type BadgeColor = "primary" | "secondary" | "success" | "info" | "warning" | "error" | "neutral";
 type MetaColor = "success" | "error";
 
-export type SimpleOption = {
+type SimpleOption = {
   label: string;
   value: any;
   description?: string;
@@ -17,16 +17,16 @@ export type SimpleOption = {
   avatar?: { src?: string; alt?: string; text?: string };
 };
 
-export type LabelOption = { type: "label"; label: string };
-export type SeparatorOption = { type: "separator" };
+type LabelOption = { type: "label"; label: string };
+type SeparatorOption = { type: "separator" };
 
-export type RichOption = SimpleOption & {
+type RichOption = SimpleOption & {
   meta?: string;
   metaColor?: MetaColor;
   badge?: { label: string; color?: BadgeColor };
 };
 
-export type SelectOption = SimpleOption | LabelOption | SeparatorOption | RichOption;
+type SelectOption = SimpleOption | LabelOption | SeparatorOption | RichOption;
 
 /* ── Props ──────────────────────────────────────────────── */
 

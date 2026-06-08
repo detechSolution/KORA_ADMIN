@@ -1,5 +1,5 @@
 /** Badge color type aligned with base-badge */
-export type PaymentStatusColor = "muted" | "emerald" | "red" | "amber" | "orange";
+type PaymentStatusColor = "muted" | "emerald" | "red" | "amber" | "orange";
 
 export type PaymentStatusConfig = {
   label: string;
