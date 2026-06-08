@@ -2,7 +2,8 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import z from "zod";
 
-import type { CreateExistingMemberBookingPayload, StepItem } from "~/types/booking";
+import type { CreateExistingMemberBookingPayload } from "~/types/booking";
+import type { StepItem } from "~/types/stepper";
 
 import { findServiceGroup, findServiceItem } from "~/composables/services/use-booking";
 import { useNotification } from "~/composables/use-notification";
