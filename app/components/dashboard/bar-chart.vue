@@ -37,8 +37,8 @@ function tooltipDatum(raw: unknown): RevenueDataItem {
 
 const xFormatter = (i: number): string => `${RevenueData.value[i]?.label ?? ""}`;
 
-function yFormatter(tick: number, _i?: number, _ticks?: number[]) {
-  return Math.round(tick).toString();
+function yFormatter(tick: number): string {
+  return Number.isInteger(tick) ? tick.toString() : "";
 }
 </script>
 
