@@ -65,6 +65,7 @@ export const useInstructorsStore = defineStore("instructors", () => {
     try {
       const endpoint = `${API_ENDPOINTS.INSTRUCTORS.GET_DETAILS(id)}`;
       const response = await http.get(endpoint) as Instructor;
+      console.log("response", response);
       InstructorDetails.value = response;
     }
     catch (error) {
