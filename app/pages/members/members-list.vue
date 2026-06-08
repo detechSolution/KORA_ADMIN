@@ -28,6 +28,7 @@ const columns = [
     id: "phoneNumber",
     accessorKey: "phoneNumber",
     header: "Phone",
+    accessorFn: (row: any) => row.phoneNumber || "N/A",
   },
   {
     accessorKey: "joinedAt",
@@ -37,6 +38,7 @@ const columns = [
   {
     accessorKey: "strikes",
     header: "Strikes",
+    accessorFn: (row: any) => row.original?.strikes || "N/A",
   },
   {
     accessorKey: "type",

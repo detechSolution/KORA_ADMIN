@@ -45,7 +45,7 @@ const columns = [
   { id: "user", header: "Client", accessorKey: "user" },
   { id: "referenceCode", header: "Reference ID", accessorKey: "referenceCode" },
   { id: "amount", header: "Amount", accessorKey: "amount" },
-  { id: "paidAt", header: "Paid Date", accessorKey: "paidAt", accessorFn: (row: any) => formatDate(row.paidAt) },
+  { id: "paidAt", header: "Paid Date", accessorKey: "createdAt", accessorFn: (row: any) => formatDate(row.createdAt) || "N/A" },
   { id: "method", header: "Method", accessorKey: "method" },
   { id: "status", header: "Status", accessorKey: "status" },
   // { id: "actions", header: "Actions", accessorKey: "actions" },
