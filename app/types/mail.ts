@@ -1,4 +1,4 @@
-export type MailStatus = "draft" | "sent" | "failed" | string;
+type MailStatus = "draft" | "sent" | "failed" | string;
 
 export type Mail = {
   id: number;

@@ -1,5 +1,5 @@
 /** Badge color type aligned with base-badge */
-export type TransactionStatusColor = "muted" | "amber" | "emerald" | "red";
+type TransactionStatusColor = "muted" | "amber" | "emerald" | "red";
 
 export type TransactionStatusConfig = {
   label: string;
