@@ -52,7 +52,7 @@ const columns = computed(() => [
   {
     accessorKey: "bookedFor",
     header: "Booked Date",
-    accessorFn: (row: Booking) => formatDate(row.bookedFor),
+    accessorFn: (row: Booking) => formatDate(row.bookedFor) || "N/A",
   },
   { accessorKey: "status", header: "Status" },
   { accessorKey: "actions", header: "Actions" },
@@ -266,7 +266,7 @@ onMounted(fetchBookings);
                 </UTooltip>
               </div>
               <span class="text-xs text-secondary-400">
-                {{ row.original.clientEmail || "-" }}
+                {{ row.original.clientEmail || "N/A" }}
               </span>
             </div>
           </div>

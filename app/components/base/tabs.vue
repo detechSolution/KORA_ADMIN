@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-export type BaseTabItem = {
+type BaseTabItem = {
   label: string;
   value: string;
   icon?: string;

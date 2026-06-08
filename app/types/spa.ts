@@ -1,6 +1,6 @@
 export type Day = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
-export type TimeUnit = "minutes" | "hours";
+type TimeUnit = "minutes" | "hours";
 
 export type Spa = {
   id: number;
@@ -41,7 +41,7 @@ export type SpaSubType = {
   prices: SpaPrice[];
 };
 
-export type SpaPrice = {
+type SpaPrice = {
   id: number;
   createdAt: string;
   updatedAt: string;

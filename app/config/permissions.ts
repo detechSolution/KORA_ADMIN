@@ -5,22 +5,22 @@
  */
 
 // ——— Dashboard ———
-export const DASHBOARD = {
-  VIEW: "dashboard.view",
-} as const;
+// export const DASHBOARD = {
+//   VIEW: "dashboard.view",
+// } as const;
 
 // ——— Administration ———
-export const PERMISSIONS_ADMINISTRATION = {
-  ADMINS_CREATE: "administration.admins.create",
-  ADMINS_DELETE: "administration.admins.delete",
-  ADMINS_UPDATE: "administration.admins.update",
-  ADMINS_VIEW: "administration.admins.view",
+// const PERMISSIONS_ADMINISTRATION = {
+//   ADMINS_CREATE: "administration.admins.create",
+//   ADMINS_DELETE: "administration.admins.delete",
+//   ADMINS_UPDATE: "administration.admins.update",
+//   ADMINS_VIEW: "administration.admins.view",
 
-  ROLES_CREATE: "administration.roles.create",
-  ROLES_DELETE: "administration.roles.delete",
-  ROLES_UPDATE: "administration.roles.update",
-  ROLES_VIEW: "administration.roles.view",
-} as const;
+//   ROLES_CREATE: "administration.roles.create",
+//   ROLES_DELETE: "administration.roles.delete",
+//   ROLES_UPDATE: "administration.roles.update",
+//   ROLES_VIEW: "administration.roles.view",
+// } as const;
 
 // ——— Bookings ———
 export const PERMISSIONS_BOOKINGS = {
@@ -29,12 +29,12 @@ export const PERMISSIONS_BOOKINGS = {
 } as const;
 
 // ——— Members ———
-export const PERMISSIONS_MEMBERS = {
-  CREATE: "members.create",
-  DELETE: "members.delete",
-  UPDATE: "members.update",
-  VIEW: "members.view",
-} as const;
+// const PERMISSIONS_MEMBERS = {
+//   CREATE: "members.create",
+//   DELETE: "members.delete",
+//   UPDATE: "members.update",
+//   VIEW: "members.view",
+// } as const;
 
 // ——— Membership Plans ———
 export const PERMISSIONS_MEMBERSHIP_PLANS = {
@@ -45,12 +45,12 @@ export const PERMISSIONS_MEMBERSHIP_PLANS = {
 } as const;
 
 // ——— Services ———
-export const PERMISSIONS_SERVICES = {
-  CREATE: "offerings.services.create",
-  DELETE: "offerings.services.delete",
-  UPDATE: "offerings.services.update",
-  VIEW: "offerings.services.view",
-} as const;
+// const PERMISSIONS_SERVICES = {
+//   CREATE: "offerings.services.create",
+//   DELETE: "offerings.services.delete",
+//   UPDATE: "offerings.services.update",
+//   VIEW: "offerings.services.view",
+// } as const;
 
 // ——— Sessions ———
 export const PERMISSIONS_SESSIONS = {
@@ -82,59 +82,59 @@ export const PERMISSIONS_PAYMENTS = {
 } as const;
 
 // ——— Promo Codes ———
-export const PERMISSIONS_PROMO_CODES = {
-  CREATE: "promo_codes.create",
-  DELETE: "promo_codes.delete",
-  UPDATE: "promo_codes.update",
-  VIEW: "promo_codes.view",
-} as const;
+// const PERMISSIONS_PROMO_CODES = {
+//   CREATE: "promo_codes.create",
+//   DELETE: "promo_codes.delete",
+//   UPDATE: "promo_codes.update",
+//   VIEW: "promo_codes.view",
+// } as const;
 
 // ——— Refunds ———
-export const PERMISSIONS_REFUNDS = {
-  MANAGE: "refunds.manage",
-} as const;
+// const PERMISSIONS_REFUNDS = {
+//   MANAGE: "refunds.manage",
+// } as const;
 
 // ——— Uploads ———
-export const PERMISSIONS_UPLOADS = {
-  CREATE: "uploads.create",
-} as const;
+// export const PERMISSIONS_UPLOADS = {
+//   CREATE: "uploads.create",
+// } as const;
 
-export const PERMISSIONS_INSTRUCTORS = {
-  CREATE: "instructors.create",
-  DELETE: "instructors.delete",
-  UPDATE: "instructors.update",
-  VIEW: "instructors.view",
-} as const;
+// export const PERMISSIONS_INSTRUCTORS = {
+//   CREATE: "instructors.create",
+//   DELETE: "instructors.delete",
+//   UPDATE: "instructors.update",
+//   VIEW: "instructors.view",
+// } as const;
 
 // ——— Mails ———
-export const PERMISSIONS_MAILS = {
-  CREATE: "mails.create",
-  VIEW: "mails.view",
-} as const;
+// const PERMISSIONS_MAILS = {
+//   CREATE: "mails.create",
+//   VIEW: "mails.view",
+// } as const;
 
 /** Flat map of all permission strings for sidebar and simple checks. */
-export const PERMISSIONS_NAV = {
-  DASHBOARD: null,
+// export const PERMISSIONS_NAV = {
+//   DASHBOARD: null,
 
-  ADMINS: PERMISSIONS_ADMINISTRATION.ADMINS_VIEW,
-  ROLES: PERMISSIONS_ADMINISTRATION.ROLES_VIEW,
+//   ADMINS: PERMISSIONS_ADMINISTRATION.ADMINS_VIEW,
+//   ROLES: PERMISSIONS_ADMINISTRATION.ROLES_VIEW,
 
-  BOOKINGS: PERMISSIONS_BOOKINGS.VIEW,
-  MEMBERS: PERMISSIONS_MEMBERS.VIEW,
-  MEMBERSHIP_PLANS: PERMISSIONS_MEMBERSHIP_PLANS.VIEW,
+//   BOOKINGS: PERMISSIONS_BOOKINGS.VIEW,
+//   MEMBERS: PERMISSIONS_MEMBERS.VIEW,
+//   MEMBERSHIP_PLANS: PERMISSIONS_MEMBERSHIP_PLANS.VIEW,
 
-  SERVICES: PERMISSIONS_SERVICES.VIEW,
-  SESSIONS: PERMISSIONS_SESSIONS.VIEW,
+//   SERVICES: PERMISSIONS_SERVICES.VIEW,
+//   SESSIONS: PERMISSIONS_SESSIONS.VIEW,
 
-  PAYMENTS: PERMISSIONS_PAYMENTS.VIEW,
-  PROMO_CODES: PERMISSIONS_PROMO_CODES.VIEW,
-  REFUNDS: PERMISSIONS_REFUNDS.MANAGE,
+//   PAYMENTS: PERMISSIONS_PAYMENTS.VIEW,
+//   PROMO_CODES: PERMISSIONS_PROMO_CODES.VIEW,
+//   REFUNDS: PERMISSIONS_REFUNDS.MANAGE,
 
-  MAILS: PERMISSIONS_MAILS.VIEW,
-} as const;
+//   MAILS: PERMISSIONS_MAILS.VIEW,
+// } as const;
 
-type Permission = string;
+// type Permission = string;
 
-export function hasPermission(userPermissions: Permission[], key: Permission) {
-  return userPermissions.includes(key);
-}
+// export function hasPermission(userPermissions: Permission[], key: Permission) {
+//   return userPermissions.includes(key);
+// }

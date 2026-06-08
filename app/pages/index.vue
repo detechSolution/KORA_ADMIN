@@ -148,14 +148,14 @@ const recentBookingsColumns = [
   {
     accessorKey: "bookedFor",
     header: "Booked Date",
-    accessorFn: (row: Booking) => formatDate(row.bookedFor),
+    accessorFn: (row: Booking) => formatDate(row.bookedFor) || "N/A",
   },
   { accessorKey: "status", header: "Status" },
 ];
 
 const consistentMembersColumns = [
   { accessorKey: "member", header: "Member" },
-  { accessorKey: "phoneNumber", header: "Phone" },
+  { header: "Phone", accessorKey: "phoneNumber", accessorFn: (row: any) => row.phoneNumber || "N/A" },
   { accessorKey: "bookingCount", header: "Bookings Count" },
   { accessorKey: "attendedBookings", header: "Attended Bookings" },
 ];

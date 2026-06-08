@@ -14,8 +14,6 @@ export type MembershipPlanOption = {
   membershipPlanId?: number;
 };
 
-export type PlanOption = MembershipPlanOption;
-
 export type MembershipPlan = {
   id: number;
   currency?: string;
@@ -35,7 +33,7 @@ export type CreateMembershipPlanPayload = {
   options: MembershipPlanOption[];
 };
 
-export type User = {
+type User = {
   id: number;
   fullName: string;
   phoneNumber: string;
@@ -60,16 +58,6 @@ export type Member = {
   user: User;
   membershipPlanOptionId?: number;
   membershipPlanId?: number;
-};
-
-export type CreateMemberPayload = {
-  fullName: string;
-  phoneNumber: string;
-  email: string;
-  identificationDocument: File;
-  membershipPlanOptionId: number;
-  subscriptionStartDate: string;
-  paymentMethod: string;
 };
 
 export type UpdateMembershipPlanPayload = CreateMembershipPlanPayload;

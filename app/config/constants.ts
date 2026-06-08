@@ -182,11 +182,11 @@ export const API_ENDPOINTS = {
 /**
  * Community Type Values
  */
-export const COMMUNITY_TYPE = {
-  APARTMENT: "APARTMENT",
-  HOUSING: "HOUSING",
-  OTHER: "OTHER",
-} as const;
+// export const COMMUNITY_TYPE = {
+//   APARTMENT: "APARTMENT",
+//   HOUSING: "HOUSING",
+//   OTHER: "OTHER",
+// } as const;
 
 /**
  * Default Pagination Values
@@ -196,44 +196,44 @@ export const DEFAULT_PAGE_SIZE = 10;
 /**
  * Inquiry Source Values
  */
-export const INQUIRY_SOURCE = {
-  OFFLINE: "OFFLINE",
-  OTHER: "OTHER",
-  REFERRAL: "REFERRAL",
-  SOCIAL_MEDIA: "SOCIAL_MEDIA",
-  WEBSITE: "WEBSITE",
-} as const;
+// export const INQUIRY_SOURCE = {
+//   OFFLINE: "OFFLINE",
+//   OTHER: "OTHER",
+//   REFERRAL: "REFERRAL",
+//   SOCIAL_MEDIA: "SOCIAL_MEDIA",
+//   WEBSITE: "WEBSITE",
+// } as const;
 
 /**
  * Payment Status Values
  */
-export const PAYMENT_STATUS = {
-  FAILED: "FAILED",
-  PARTIAL: "PARTIAL",
-  PAID: "PAID",
-  PENDING: "PENDING",
-} as const;
+// export const PAYMENT_STATUS = {
+//   FAILED: "FAILED",
+//   PARTIAL: "PARTIAL",
+//   PAID: "PAID",
+//   PENDING: "PENDING",
+// } as const;
 
 /**
  * Subscription Interval Values
  */
-export const SUBSCRIPTION_INTERVAL = {
-  CUSTOM: "CUSTOM",
-  MONTHLY: "MONTHLY",
-  QUARTERLY: "QUARTERLY",
-  YEARLY: "YEARLY",
-} as const;
+// export const SUBSCRIPTION_INTERVAL = {
+//   CUSTOM: "CUSTOM",
+//   MONTHLY: "MONTHLY",
+//   QUARTERLY: "QUARTERLY",
+//   YEARLY: "YEARLY",
+// } as const;
 
 /**
  * Subscription Status Values
  */
-export const SUBSCRIPTION_STATUS = {
-  ACTIVE: "ACTIVE",
-  CANCELED: "CANCELED",
-  EXPIRED: "EXPIRED",
-  INACTIVE: "INACTIVE",
-  PAST_DUE: "PAST_DUE",
-} as const;
+// export const SUBSCRIPTION_STATUS = {
+//   ACTIVE: "ACTIVE",
+//   CANCELED: "CANCELED",
+//   EXPIRED: "EXPIRED",
+//   INACTIVE: "INACTIVE",
+//   PAST_DUE: "PAST_DUE",
+// } as const;
 
 /**
  * Session Type Values
@@ -247,9 +247,9 @@ export const SESSION_TYPE = {
 /**
  * Type exports for TypeScript
  */
-export type CommunityType = typeof COMMUNITY_TYPE[keyof typeof COMMUNITY_TYPE];
+// export type CommunityType = typeof COMMUNITY_TYPE[keyof typeof COMMUNITY_TYPE];
 export type SessionType = typeof SESSION_TYPE[keyof typeof SESSION_TYPE];
-export type InquirySource = typeof INQUIRY_SOURCE[keyof typeof INQUIRY_SOURCE];
-export type PaymentStatus = typeof PAYMENT_STATUS[keyof typeof PAYMENT_STATUS];
-export type SubscriptionInterval = typeof SUBSCRIPTION_INTERVAL[keyof typeof SUBSCRIPTION_INTERVAL];
-export type SubscriptionStatus = typeof SUBSCRIPTION_STATUS[keyof typeof SUBSCRIPTION_STATUS];
+// export type InquirySource = typeof INQUIRY_SOURCE[keyof typeof INQUIRY_SOURCE];
+// export type PaymentStatus = typeof PAYMENT_STATUS[keyof typeof PAYMENT_STATUS];
+// export type SubscriptionInterval = typeof SUBSCRIPTION_INTERVAL[keyof typeof SUBSCRIPTION_INTERVAL];
+// export type SubscriptionStatus = typeof SUBSCRIPTION_STATUS[keyof typeof SUBSCRIPTION_STATUS];

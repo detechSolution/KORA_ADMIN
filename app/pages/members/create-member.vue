@@ -141,7 +141,6 @@ async function handleCreatePlan() {
     formData.append("subscriptionStartDate", state.subscriptionStartDate);
     formData.append("identificationDocument", state.identificationDocument);
     formData.append("paymentMethod", state.paymentMethod);
-    formData.append("paymentPaidAt", new Date().toISOString());
 
     await membershipStore.createMember(formData);
     success({ message: "Membership plan created successfully" });
@@ -269,6 +268,8 @@ onMounted(() => {
                       name="identificationDocument"
                       label="Identification Document*"
                       placeholder="Drop your image here"
+                      :max-file-size="5 * 1024 * 1024"
+                      accept="image"
                     />
                   </div>
                 </div>
