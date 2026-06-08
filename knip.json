@@ -1,0 +1,9 @@
+{
+  "entry": ["nuxt.config.ts"],
+  "project": [
+    "app/components/**/*",
+    "app/pages/**/*",
+    "app/composables/**/*",
+    "app/stores/**/*"
+  ]
+}
