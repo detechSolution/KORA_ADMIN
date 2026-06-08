@@ -253,13 +253,34 @@ const kpiData = computed(() => [
           </template>
 
           <template #client-cell="{ row }">
-            <div class="flex flex-col gap-1">
-              <span class="text-sm font-medium text-secondary">
-                {{ row.original.clientName || "-" }}
-              </span>
-              <span class="text-xs text-secondary-400">
-                {{ row.original.clientEmail || "-" }}
-              </span>
+            <div class="flex items-center gap-2">
+              <base-avatar
+                :src="row.original.clientName"
+                :alt="row.original.clientName || 'Unknown'"
+                size="sm"
+              />
+              <div class="flex flex-col gap-1">
+                <div class="flex flex-row gap-2 items-center">
+                  <span class="text-sm font-medium text-secondary">
+                    {{ row.original.clientName || "-" }}
+                  </span>
+
+                  <UTooltip
+                    v-if="row.original.visitorCount"
+                    arrow
+                    :text="`${row.original.visitorCount} Visitors`"
+                  >
+                    <span
+                      class="text-xs bg-red-50 border border-red-300 px-1 rounded-full text-red-500"
+                    >
+                      +  {{ row.original.visitorCount }}
+                    </span>
+                  </UTooltip>
+                </div>
+                <span class="text-xs text-secondary-400">
+                  {{ row.original.clientEmail || "-" }}
+                </span>
+              </div>
             </div>
           </template>
 
@@ -344,11 +365,15 @@ const kpiData = computed(() => [
         </NuxtLink>
       </div>
 
-      <div class="border-t border-border py-4 flex overflow-x-auto  gap-2">
-        <base-empty
+      <div class="border-t h-fit border-border py-4 flex overflow-x-auto  gap-2">
+        <div
           v-if="todaySessions.length === 0"
-          title="No sessions scheduled for today"
-        />
+          class="flex justify-center items-center w-full"
+        >
+          <base-empty
+            title="No sessions scheduled for today"
+          />
+        </div>
 
         <dashboard-session-card
           v-for="(session, index) in todaySessions"

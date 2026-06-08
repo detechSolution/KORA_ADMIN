@@ -208,11 +208,14 @@ watch(() => props.open, async (newValue) => {
           <template #fullName-cell="{ row }">
             <div class="flex items-center gap-3">
               <base-avatar
-                :src="row.original.clientName"
-                :alt="row.original.clientName || 'Unknown'"
+                :src="row.original.fullName"
+                :alt="row.original.fullName || 'Unknown'"
                 size="sm"
               />
-              <span class="text-sm font-medium text-secondary-900">{{ row.original.clientName }}</span>
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-secondary-900">{{ row.original.fullName }}</span>
+                <span class="text-xs text-secondary-400">{{ row.original.phoneNumber }}</span>
+              </div>
             </div>
           </template>
         </base-table>

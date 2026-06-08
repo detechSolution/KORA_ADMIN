@@ -8,13 +8,13 @@ export type Instructor = {
   upcomingSessions: number;
   createdAt: string;
   updatedAt: string;
-  createdBy?: {
+  createdBy: {
     fullName: string;
     email: string;
     phoneNumber: string;
     isActive: boolean;
   };
-  updatedBy?: {
+  updatedBy: {
     fullName: string;
     email: string;
     phoneNumber: string;

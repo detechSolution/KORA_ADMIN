@@ -15,7 +15,7 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-  <div class="flex items-center justify-center py-16">
+  <div class="flex items-center justify-center">
     <UEmpty
       :title="title"
       :description="description"
