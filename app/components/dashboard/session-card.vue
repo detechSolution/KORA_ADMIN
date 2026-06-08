@@ -1,16 +1,16 @@
 <script setup lang="ts">
 withDefaults(defineProps<DashboardSessionCardProps>(), {
   title: "",
-  capacity: "",
+  capacity: undefined,
   startsAt: "",
-  occupied: "",
+  occupied: undefined,
 });
 
 type DashboardSessionCardProps = {
   title?: string;
-  capacity?: string;
+  capacity?: number;
   startsAt?: string;
-  occupied?: string;
+  occupied?: number;
 };
 </script>
 
@@ -29,7 +29,7 @@ type DashboardSessionCardProps = {
     </div>
     <div class="bg-primary-50 flex self-end w-fit h-fit rounded-full px-2 py-1">
       <p class="text-[10px] font-medium text-primary">
-        {{ occupied }}/ {{ capacity }}
+        {{ occupied }} / {{ capacity }}
       </p>
     </div>
   </div>
