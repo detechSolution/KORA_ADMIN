@@ -52,6 +52,7 @@ export const ICONS = {
   ID_CARD: "i-lucide-id-card-lanyard",
   MONEY: "i-lucide-banknote",
   LOADING: "i-lucide-loader",
+  PERCENT: "i-lucide-percent",
 
   // UI Elements
   ELLIPSIS_VERTICAL: "i-lucide-ellipsis-vertical",
