@@ -446,12 +446,12 @@ const kpiData = computed(() => [
         <dashboard-area-chart :data="revenueTrend" show-title />
         <USeparator />
 
-        <div v-if="revenueTrend" class="flex items-center justify-between p-6">
+        <div v-if="revenueTrend" class="flex text-sm items-center justify-between p-6">
           <div class="text-right">
             <p class="text-xs text-muted-foreground">
               7-Day Total
             </p>
-            <p class="text-lg font-semibold text-secondary">
+            <p class=" font-semibold text-secondary">
               Rs. {{ revenueTrend.totalRevenue }}
             </p>
           </div>
@@ -459,7 +459,7 @@ const kpiData = computed(() => [
             <p class="text-xs text-muted-foreground">
               Peak Day
             </p>
-            <p class="text-lg font-semibold text-secondary">
+            <p class=" font-semibold text-secondary">
               {{ revenueTrend.peakDay?.label }} - Rs. {{ revenueTrend.peakDay?.amount }}
             </p>
           </div>
@@ -467,8 +467,12 @@ const kpiData = computed(() => [
             <p class="text-xs text-muted-foreground">
               Today vs Avg
             </p>
-            <p class="text-lg font-semibold text-secondary">
-              {{ revenueTrend.todayVsAveragePercent }}
+            <p
+              class="text-base font-semibold"
+              :class="revenueTrend.todayVsAveragePercent >= 0 ? 'text-green-600' : 'text-red-600'"
+            >
+              {{ revenueTrend.todayVsAveragePercent >= 0 ? '↑' : '↓' }}
+              {{ revenueTrend.todayVsAveragePercent }} %
             </p>
           </div>
         </div>

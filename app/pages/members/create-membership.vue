@@ -231,6 +231,7 @@ async function handleCreatePlan() {
               placeholder="Enter member benefit"
               class="w-full md:w-1/2"
               type="number"
+              :trailing-icon="ICONS.PERCENT"
             />
           </div>
 

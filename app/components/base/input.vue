@@ -89,7 +89,7 @@ function togglePasswordVisibility() {
         <UIcon
           v-if="props.trailingIcon"
           :name="props.trailingIcon"
-          class="h-5 w-5"
+          class="h-5 w-5 text-stone-400"
         />
         <UIcon
           v-else
