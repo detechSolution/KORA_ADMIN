@@ -62,6 +62,7 @@ const STATUS_MAP: Record<string, { color: BadgeColor; label: string; icon?: stri
   "monthly": { color: "blue", label: "Monthly" },
   "yearly": { color: "emerald", label: "Yearly" },
   "quarterly": { color: "orange", label: "Quarterly" },
+  "expired": { color: "red", label: "Expired" },
 };
 
 function formatText(text: string): string {
