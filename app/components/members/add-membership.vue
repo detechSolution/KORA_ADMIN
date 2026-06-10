@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import z from "zod";
 
-import type { Member } from "~/types/membership";
+import type { Member, MembershipPlan } from "~/types/membership";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
@@ -59,16 +59,15 @@ const currentSchema = computed(() =>
   currentStep.value === 0 ? stepOneSchema : stepTwoSchema,
 );
 
-const flattenedPlans = computed(() =>
-  membershipStore.plans.data.flatMap(plan =>
-    plan.options.map(option => ({
-      planId: plan.id,
-      planName: plan.name,
-      currency: plan.currency,
-      option,
-    })),
-  ),
-);
+function isPlanSelected(plan: MembershipPlan): boolean {
+  return plan.options.some(option => option.id === state.membershipPlanOptionId);
+}
+
+function handlePlanSelect(optionId: number | null): void {
+  if (optionId != null) {
+    state.membershipPlanOptionId = optionId;
+  }
+}
 
 const selectedPlanOption = computed(() => {
   for (const plan of membershipStore.plans.data) {
@@ -171,7 +170,7 @@ watch(
       :validate-on="['input', 'change', 'blur']"
       class="flex min-h-0 justify-between flex-1 flex-col"
     >
-      <div>
+      <div class="flex-1 overflow-y-auto min-h-0">
         <FormEditStepper
           :steps="steps"
           :current-step="currentStep"
@@ -183,36 +182,23 @@ watch(
           class="space-y-6 p-6"
         >
           <div class="flex flex-col gap-4">
-            <h2 class="text-stone-900 text-base font-medium">
-              Membership Plans
+            <h2 class="text-stone-900 font-medium text-base">
+              Select a membership plan
             </h2>
 
-            <div class="flex flex-col gap-2 max-h-[45vh] overflow-y-auto">
-              <div
-                v-for="item in flattenedPlans"
-                :key="item.option.id"
-                class="flex justify-between items-center p-3 rounded-sm cursor-pointer border transition-colors"
-                :class="state.membershipPlanOptionId === item.option.id
-                  ? 'border-primary-500 bg-primary-50'
-                  : 'border-stone-200 hover:border-stone-300'"
-                @click="state.membershipPlanOptionId = item.option.id"
-              >
-                <div class="flex flex-col gap-1">
-                  <h2 class="font-medium text-xs">
-                    {{ item.planName }}
-                  </h2>
-                  <p class="text-secondary-400 text-xs">
-                    {{ item.option.durationDays }} days
-                  </p>
-                  <base-badge class="w-fit">
-                    {{ item.option.frequency.charAt(0).toUpperCase() + item.option.frequency.slice(1) }}
-                  </base-badge>
-                </div>
-                <p class="text-stone-500 text-xs font-semibold">
-                  {{ item.currency }} {{ Number(item.option.price).toLocaleString() }}/{{ item.option.frequency }}
-                </p>
+            <UFormField name="membershipPlanOptionId">
+              <div class="flex flex-col gap-2">
+                <members-membership-card
+                  v-for="plan in membershipStore.plans.data"
+                  :key="plan.id"
+                  :name="plan.name"
+                  :currency="plan.currency"
+                  :options="plan.options"
+                  :is-selected="isPlanSelected(plan)"
+                  @select="handlePlanSelect"
+                />
               </div>
-            </div>
+            </UFormField>
 
             <USeparator />
 
@@ -228,58 +214,60 @@ watch(
         <!-- Step 2: Overview + Payment Method -->
         <section
           v-else-if="currentStep === 1"
-          class="space-y-6 p-6"
+          class="p-6"
         >
-          <div class="flex flex-col bg-stone-50 p-4 border border-stone-200 rounded-md gap-2">
-            <h2 class="text-stone-900 font-medium text-base">
-              Overview
-            </h2>
+          <div class="rounded-xl flex flex-col gap-4 p-5 shadow-xl">
+            <div class="flex flex-col bg-stone-50 p-4 border border-stone-200 rounded-md gap-2">
+              <h2 class="text-stone-900 font-medium text-base">
+                Overview
+              </h2>
 
-            <div class="flex justify-between">
-              <p class="text-secondary-500 text-xs">
-                {{ selectedPlanOption?.plan.name }}
-                ({{ selectedPlanOption?.option.frequency }})
-              </p>
-              <p class="text-secondary text-xs font-normal">
-                {{ selectedPlanOption?.plan.currency }}
-                {{ Number(selectedPlanOption?.option.price).toLocaleString() }}
-              </p>
+              <div class="flex justify-between">
+                <p class="text-secondary-500 text-xs">
+                  {{ selectedPlanOption?.plan.name }}
+                  ({{ selectedPlanOption?.option.frequency }})
+                </p>
+                <p class="text-secondary text-xs font-normal">
+                  {{ selectedPlanOption?.plan.currency }}
+                  {{ Number(selectedPlanOption?.option.price).toLocaleString() }}
+                </p>
+              </div>
+
+              <USeparator />
+
+              <div class="flex justify-between">
+                <p class="text-secondary font-medium text-sm">
+                  Total
+                </p>
+                <p class="text-secondary text-sm font-medium">
+                  {{ selectedPlanOption?.plan.currency }}
+                  {{ Number(selectedPlanOption?.option.price).toLocaleString() }}
+                </p>
+              </div>
             </div>
 
-            <USeparator />
-
-            <div class="flex justify-between">
-              <p class="text-secondary font-medium text-sm">
-                Total
-              </p>
-              <p class="text-secondary text-sm font-medium">
-                {{ selectedPlanOption?.plan.currency }}
-                {{ Number(selectedPlanOption?.option.price).toLocaleString() }}
-              </p>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-3">
             <h2 class="text-stone-900 font-medium text-base">
               Payment Method
             </h2>
 
-            <div class="grid grid-cols-2 gap-3">
-              <div
-                v-for="method in paymentMethods"
-                :key="method.value"
-                class="border rounded-lg p-3 cursor-pointer flex items-center gap-3 transition-all"
-                :class="state.paymentMethod === method.value
-                  ? 'border-primary-500 bg-primary-50'
-                  : 'border-stone-200 hover:border-stone-300'"
-                @click="state.paymentMethod = method.value"
-              >
-                <div class="bg-primary-700 p-2 rounded-full flex items-center justify-center">
-                  <UIcon :name="method.icon" class="w-4 h-4 text-white" />
-                </div>
-                <div class="flex flex-col">
-                  <span class="text-xs font-semibold">{{ method.label }}</span>
-                  <span class="text-xs text-stone-500">{{ method.description }}</span>
+            <div class="flex flex-col gap-2">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div
+                  v-for="method in paymentMethods"
+                  :key="method.value"
+                  class="border rounded-lg p-3 cursor-pointer flex items-center gap-3 transition-all"
+                  :class="state.paymentMethod === method.value
+                    ? 'border-stone-200 bg-[#F9F6F2]'
+                    : 'border-stone-200 hover:border-stone-300'"
+                  @click="state.paymentMethod = method.value"
+                >
+                  <div class="bg-primary-700 p-2 rounded-full flex items-center justify-center">
+                    <UIcon :name="method.icon" class="w-5 h-5 text-white" />
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-sm font-semibold">{{ method.label }}</span>
+                    <span class="text-xs text-stone-500">{{ method.description }}</span>
+                  </div>
                 </div>
               </div>
             </div>
