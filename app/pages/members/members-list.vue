@@ -38,7 +38,7 @@ const columns = [
   {
     accessorKey: "strikes",
     header: "Strikes",
-    accessorFn: (row: any) => row.original?.strikes || "N/A",
+    accessorFn: (row: any) => row.sessionAttendances?.filter((item: any) => item.attendanceStatus === "no_show").length ?? 0,
   },
   {
     accessorKey: "type",
@@ -60,6 +60,7 @@ const { pagination } = usePagination();
 const { error: showError } = useNotification();
 
 const editDrawerOpen = ref(false);
+const addMembershipDrawerOpen = ref(false);
 const isDetailModalOpen = ref(false);
 const selectedMember = ref(null);
 
@@ -96,6 +97,11 @@ async function fetchMembers(): Promise<void> {
 function openEditDrawer(member: any): void {
   selectedMember.value = member;
   editDrawerOpen.value = true;
+}
+
+function openAddMembershipDrawer(member: any): void {
+  selectedMember.value = member;
+  addMembershipDrawerOpen.value = true;
 }
 
 function openDetailModal(member: any): void {
@@ -284,8 +290,8 @@ onMounted(() => {
 
         <template #status-cell="{ row }">
           <div class="flex items-center gap-2">
-            <base-badge :status="row.original?.user?.isActive ? 'active' : 'inactive'">
-              {{ row.original?.user?.isActive ? 'Active' : 'Inactive' }}
+            <base-badge :status="row.original?.isActive ? 'active' : 'expired'">
+              {{ row.original?.isActive ? 'Active' : 'Expired' }}
             </base-badge>
           </div>
         </template>
@@ -302,6 +308,12 @@ onMounted(() => {
                 {
                   label: 'View Details',
                   onSelect: () => openDetailModal(row.original),
+                  class: 'cursor-pointer',
+                },
+                {
+                  label: 'Add Membership',
+                  disabled: row.original?.isActive,
+                  onSelect: () => openAddMembershipDrawer(row.original),
                   class: 'cursor-pointer',
                 },
               ]"
@@ -330,6 +342,14 @@ onMounted(() => {
       :plan="selectedMember"
       title="Edit Member"
       @close="editDrawerOpen = false"
+      @updated="fetchMembers()"
+    />
+
+    <members-add-membership
+      v-if="addMembershipDrawerOpen && selectedMember"
+      :open="addMembershipDrawerOpen"
+      :member="selectedMember"
+      @close="addMembershipDrawerOpen = false"
       @updated="fetchMembers()"
     />
 

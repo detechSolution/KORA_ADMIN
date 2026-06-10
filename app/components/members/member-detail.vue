@@ -145,7 +145,7 @@ watch(
         </div>
 
         <div
-          v-if="member?.membershipPlan"
+          v-if="member?.membershipPlan && member?.isActive"
           class="border border-stone-200 rounded-md p-3 flex justify-between items-center"
         >
           <div class="flex flex-col gap-2">
@@ -229,7 +229,7 @@ watch(
               <div class="font-medium flex gap-2 items-center text-sm text-secondary">
                 {{ payment.title }}
 
-                <base-badge>
+                <base-badge uppercase>
                   {{ payment.bookingCode || payment.referenceCode }}
                 </base-badge>
               </div>

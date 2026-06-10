@@ -285,7 +285,7 @@ onMounted(() => {
                       Select a membership plan
                     </h2>
 
-                    <UFormField name="membershipPlanOptionId" label="Membership Plan*">
+                    <UFormField name="membershipPlanOptionId">
                       <div
                         class=" flex flex-col gap-2"
                       >
