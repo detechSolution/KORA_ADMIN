@@ -287,7 +287,7 @@ function clearFilters(): void {
 
     <div
       v-else
-      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
     >
       <service-card
         v-for="service in spadata"

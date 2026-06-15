@@ -155,10 +155,11 @@ function openPreview(type: "image" | "video", url: string) {
             <span>Created By</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-5 h-5 rounded-full bg-stone-200 overflow-hidden text-[8px] flex items-center justify-center font-bold text-secondary-500">
-              JD
-            </div>
-            <span class="text-xs font-semibold text-secondary-700">John Doe</span>
+            <base-avatar
+              :name="session.createdBy.fullName"
+              :src="session.createdBy.fullName"
+            />
+            <span class="text-xs font-semibold text-secondary-700">{{ session.createdBy.fullName }}</span>
           </div>
         </div>
         <div class="p-3 rounded-xl border border-stone-100 bg-stone-50/50 flex flex-col gap-1">
@@ -167,10 +168,11 @@ function openPreview(type: "image" | "video", url: string) {
             <span>Last Edited By</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-5 h-5 rounded-full bg-stone-200 overflow-hidden text-[8px] flex items-center justify-center font-bold text-secondary-500">
-              JD
-            </div>
-            <span class="text-xs font-semibold text-secondary-700">John Doe</span>
+            <base-avatar
+              :name="session.updatedBy.fullName"
+              :src="session.updatedBy.fullName"
+            />
+            <span class="text-xs font-semibold text-secondary-700">{{ session.updatedBy.fullName }}</span>
           </div>
         </div>
         <div class="p-3 rounded-xl border border-stone-100 bg-stone-50/50 flex flex-col gap-1">

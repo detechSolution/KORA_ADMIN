@@ -32,8 +32,8 @@ const profileEditInfo = computed(() => {
   if (!props.member)
     return [];
   return [
-    { label: "Created By", value: formatDate(props.member?.joinedAt as string), icon: ICONS.CALENDAR },
-    { label: "Last Edited By", value: props.member?.user?.role || "-", icon: ICONS.USER_PLUS },
+    { label: "Created At", value: formatDate(props.member?.joinedAt as string), icon: ICONS.CALENDAR },
+    // { label: "Last Edited By", value: props.member?.user?.role || "-", icon: ICONS.USER_PLUS },
     { label: "Last Edited Date", value: formatDate(props.member?.updatedAt as string), icon: ICONS.CALENDAR },
   ];
 });
@@ -97,6 +97,11 @@ watch(
                 Name
               </p>
               <div class="flex items-center gap-2">
+                <base-avatar
+                  key=""
+                  :name="member?.user?.fullName"
+                  :src="member?.user?.fullName"
+                />
                 <p class="text-sm font-medium">
                   {{ member?.user?.fullName }}
                 </p>
@@ -173,7 +178,7 @@ watch(
           <div
             v-for="profile in profileEditInfo"
             :key="profile.label"
-            class="flex flex-col w-full gap-2 p-3 border border-stone-200 bg-stone-50 rounded-md"
+            class="flex flex-col w-full gap-2 p-3 rounded-md"
           >
             <div class="text-secondary-400 text-xs flex gap-2 items-center">
               <UIcon :name="profile.icon" class="w-4 h-4" />

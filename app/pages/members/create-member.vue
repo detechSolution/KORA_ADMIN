@@ -290,7 +290,7 @@ onMounted(() => {
                         class=" flex flex-col gap-2"
                       >
                         <members-membership-card
-                          v-for="plan in membershipStore.plans.data"
+                          v-for="plan in membershipStore.plans.data.filter(p => p.isActive)"
                           :key="plan.id"
                           :name="plan.name"
                           :currency="plan.currency"

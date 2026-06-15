@@ -204,7 +204,7 @@ watch(() => props.open, (newVal) => {
       </div>
 
       <!-- Footer -->
-      <div class="py-6 border-t border-stone-200 bg-white flex justify-end shrink-0">
+      <div class="p-6 border-t border-stone-200 bg-white flex justify-end shrink-0">
         <base-button
           variant="solid"
           size="md"

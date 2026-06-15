@@ -182,6 +182,7 @@ onMounted(fetchBookings);
             name="search"
             placeholder="Search"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
+            :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearch"
           />
 

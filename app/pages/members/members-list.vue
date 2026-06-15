@@ -15,7 +15,7 @@ definePageMeta({
 
 const options = [
   { label: "Active", value: "active" },
-  { label: "Inactive", value: "inactive" },
+  { label: "Expired", value: "expired" },
 ];
 
 const columns = [
@@ -94,10 +94,10 @@ async function fetchMembers(): Promise<void> {
   }
 }
 
-function openEditDrawer(member: any): void {
-  selectedMember.value = member;
-  editDrawerOpen.value = true;
-}
+// function openEditDrawer(member: any): void {
+//   selectedMember.value = member;
+//   editDrawerOpen.value = true;
+// }
 
 function openAddMembershipDrawer(member: any): void {
   selectedMember.value = member;
@@ -300,11 +300,11 @@ onMounted(() => {
           <div class="text-left">
             <base-dropdown-menu
               :items="[
-                {
-                  label: 'Edit Client',
-                  onSelect: () => openEditDrawer(row.original),
-                  class: 'cursor-pointer',
-                },
+                // {
+                //   label: 'Edit Client',
+                //   onSelect: () => openEditDrawer(row.original),
+                //   class: 'cursor-pointer',
+                // },
                 {
                   label: 'View Details',
                   onSelect: () => openDetailModal(row.original),
