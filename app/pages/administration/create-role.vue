@@ -57,7 +57,7 @@ async function handleCreateRole() {
     };
     await adminStore.createRole(payload as { name: string; description: string; permissions: string[] });
     toast.success({ message: "Role created successfully" });
-    router.push({ name: "administration/roles" });
+    router.push("/administration/roles");
   }
   catch (error: unknown) {
     const message = getApiErrorMessage(error, "Something went wrong. Please try again.");

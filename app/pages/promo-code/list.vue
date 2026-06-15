@@ -173,14 +173,14 @@ onMounted(() => {
             @keyup.enter="handleSearchClick"
           />
 
-          <base-date-picker
+          <!-- <base-date-picker
             v-model="state.dateRange"
             name="dateRange"
             placeholder="Select date range"
             range
             :no-of-months="2"
             class="w-full sm:w-auto sm:flex-1 "
-          />
+          /> -->
           <base-select
             v-model="state.status"
             name="status"

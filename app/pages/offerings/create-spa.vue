@@ -296,7 +296,7 @@ onMounted(async () => {
       </template>
     </base-page-header>
 
-    <div class="bg-card border-x border-b border-border rounded-b-xl shadow-sm p-4 sm:p-6 page-content-height">
+    <div class=" bg-white  rounded-xl p-4 sm:p-6 page-content-height">
       <div class="flex flex-col lg:flex-row gap-6">
         <FormStepper
           :steps="steps"

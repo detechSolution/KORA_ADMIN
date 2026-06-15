@@ -89,10 +89,10 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  instructorId: z.coerce.number().min(1, "Instructor id is required").int("Instructor id must be a whole number"),
-  venue: z.string().trim().min(1, "Venue is required"),
-  capacity: z.coerce.number({ message: "Capacity is required" }).int({ message: "Capacity must be a whole number" }).positive("Capacity must be a positive integer"),
-  date: z.array(z.string().min(1, "Invalid date")).min(1, "At least one session date is required"),
+  instructorId: z.coerce.number().min(1, "Please select an instructor").int("Please select a valid instructor"),
+  venue: z.string().trim().min(1, "Please enter a venue"),
+  capacity: z.coerce.number({ message: "Please enter a capacity" }).int({ message: "Capacity must be a number" }).positive("Capacity must be at least 1"),
+  date: z.array(z.string().min(1, "Please select a valid date")).min(1, "Please add at least one date"),
   startTime: timeValueSchema,
   endTime: timeValueSchema,
 }).superRefine((data, ctx) => {
