@@ -215,23 +215,33 @@ async function fetchRolesCatalog(): Promise<void> {
   }
 }
 
-function handleSaveChanges(): void {
+async function handleSaveChanges(): Promise<void> {
   if (!selectedRole.value)
     return;
 
-  savingPermissions.value = true;
+  try {
+    savingPermissions.value = true;
+    await adminStore.updateRole(selectedRole.value.id, {
+      name: selectedRole.value.name,
+      description: selectedRole.value.description,
+      permissions: draftPermissions.value,
+      isActive: selectedRole.value.isActive,
+    });
 
-  // Apply changes to selected role and update comparison references to remove alert
-  selectedRole.value.permissions = [...draftPermissions.value];
-  savedPermissions.value = [...draftPermissions.value];
-
-  isEditing.value = false;
-  success({ message: "Permissions updated successfully" });
-  savingPermissions.value = false;
+    selectedRole.value.permissions = [...draftPermissions.value];
+    savedPermissions.value = [...draftPermissions.value];
+    isEditing.value = false;
+    success({ message: "Permissions updated successfully" });
+  }
+  catch (error) {
+    showError({ message: getApiErrorMessage(error, "Failed to update permissions") });
+  }
+  finally {
+    savingPermissions.value = false;
+  }
 }
 
 // --- Watchers & Lifecycle ---
-
 watch(roles, (value) => {
   if (value.length === 0) {
     selectedRoleId.value = null;
