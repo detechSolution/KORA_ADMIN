@@ -136,6 +136,18 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
+  const fetchBookingsSummary = async (params: Record<string, any>): Promise<any> => {
+    try {
+      const qs = buildQueryString(params);
+      const res = await http.get(`${API_ENDPOINTS.BOOKINGS.SUMMARY}?${qs}`);
+      return res;
+    }
+    catch (error: unknown) {
+      console.error(error, "Fetch Bookings Summary Error");
+      throw error;
+    }
+  };
+
   return {
     loading,
     bookings,
@@ -151,5 +163,6 @@ export const useBookingStore = defineStore("booking", () => {
     createExistingMemberBooking,
     requestBookingCancellation,
     fetchBookingById,
+    fetchBookingsSummary,
   };
 });
