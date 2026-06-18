@@ -300,23 +300,27 @@ onMounted(() => {
           <div class="text-left">
             <base-dropdown-menu
               :items="[
-                // {
-                //   label: 'Edit Client',
-                //   onSelect: () => openEditDrawer(row.original),
-                //   class: 'cursor-pointer',
-                // },
                 {
                   label: 'View Details',
                   onSelect: () => openDetailModal(row.original),
                   class: 'cursor-pointer',
                 },
-                {
+                !row.original?.isActive && {
                   label: 'Add Membership',
-                  disabled: row.original?.isActive,
                   onSelect: () => openAddMembershipDrawer(row.original),
                   class: 'cursor-pointer',
                 },
-              ]"
+                row.original?.membershipPlan?.isFreezable && {
+                  label: 'Freeze Membership',
+                  onSelect: () => openAddMembershipDrawer(row.original),
+                  class: 'cursor-pointer',
+                },
+                row.original?.isFrozen && {
+                  label: 'Unfreeze Membership',
+                  onSelect: () => openAddMembershipDrawer(row.original),
+                  class: 'cursor-pointer',
+                },
+              ].filter(Boolean)"
             >
               <base-button
                 :icon="ICONS.ELLIPSIS_VERTICAL"

@@ -34,27 +34,31 @@ const frequencyOptions = [
   { label: "Custom", value: "custom" },
 ];
 
+function pct(label: string) {
+  return z
+    .number({ error: `${label} must be a number` })
+    .min(0, `${label} cannot be negative`)
+    .max(100, `${label} cannot exceed 100%`);
+}
+
 const optionSchema = z.object({
   frequency: z.string().min(1, "Frequency is required"),
   customDays: z.number().nullable(),
-  price: z.number().min(0, "Price must be a positive number"),
-  memberBenefit: z.number().min(0, "Member benefit must be a positive number"),
+  price: z.number({ error: "Price must be a number" }).min(0, "Price cannot be negative"),
   isVisible: z.boolean(),
 }).refine(
-  (data) => {
-    if (data.frequency === "custom") {
-      return data.customDays !== null && data.customDays >= 1;
-    }
-    return true;
-  },
-  {
-    message: "Custom days must be at least 1",
-    path: ["customDays"],
-  },
+  data => data.frequency !== "custom" || (data.customDays !== null && data.customDays >= 1),
+  { message: "Custom days must be at least 1", path: ["customDays"] },
 );
 
 const schema = z.object({
   name: z.string().min(1, "Plan name is required"),
+  freezeDays: z.number({ error: "Freeze days must be a number" }).min(0, "Freeze days cannot be negative"),
+  maxVisitors: z.number({ error: "Max visitors must be a number" }).min(0, "Max visitors cannot be negative"),
+  spaBenefit: pct("Spa benefit"),
+  classBenefit: pct("Class benefit"),
+  eventBenefit: pct("Event benefit"),
+  workshopBenefit: pct("Workshop benefit"),
   description: z.string().min(1, "Description is required"),
   isActive: z.boolean(),
   options: z.array(optionSchema).min(1, "At least one frequency option is required"),
@@ -64,6 +68,12 @@ type EditPlanSchema = z.output<typeof schema>;
 
 const state = reactive<Partial<EditPlanSchema>>({
   name: "",
+  freezeDays: 0,
+  maxVisitors: 0,
+  spaBenefit: 0,
+  classBenefit: 0,
+  eventBenefit: 0,
+  workshopBenefit: 0,
   description: "",
   isActive: true,
   options: [],
@@ -74,7 +84,6 @@ function addOption() {
     frequency: "monthly",
     customDays: null,
     price: 0,
-    memberBenefit: 0,
     isVisible: true,
   });
 }
@@ -86,12 +95,18 @@ function removeOption(index: number) {
 }
 
 function populateForm(plan: MembershipPlan | null): void {
-  state.name = plan?.name;
-  state.description = plan?.description;
-  state.isActive = plan?.isActive;
+  state.name = plan?.name ?? "";
+  state.description = plan?.description ?? "";
+  state.isActive = plan?.isActive ?? true;
+  state.freezeDays = plan?.freezeDays ?? 0;
+  state.maxVisitors = plan?.maxVisitors ?? 0;
+  state.spaBenefit = plan?.spaBenefit ?? 0;
+  state.classBenefit = plan?.classBenefit ?? 0;
+  state.eventBenefit = plan?.eventBenefit ?? 0;
+  state.workshopBenefit = plan?.workshopBenefit ?? 0;
   state.options = plan?.options?.map(opt => ({
     frequency: opt.frequency,
-    customDays: opt.customDays,
+    customDays: opt.customDays ?? null,
     price: opt.price,
     memberBenefit: opt.memberBenefit,
     isVisible: opt.isVisible,
@@ -128,11 +143,17 @@ async function handleSubmit(): Promise<void> {
       name: state.name!,
       description: state.description!,
       isActive: state.isActive!,
+      isFreezable: (state.freezeDays ?? 0) > 0,
+      freezeDays: state.freezeDays!,
+      maxVisitors: state.maxVisitors!,
+      spaBenefit: state.spaBenefit!,
+      classBenefit: state.classBenefit!,
+      eventBenefit: state.eventBenefit!,
+      workshopBenefit: state.workshopBenefit!,
       options: (state.options ?? []).map(opt => ({
         frequency: opt.frequency,
         ...(opt.frequency === "custom" && { customDays: opt.customDays }),
         price: opt.price,
-        memberBenefit: opt.memberBenefit,
         isVisible: opt.isVisible,
       })),
     };
@@ -184,6 +205,58 @@ watch(
             label="Plan Name*"
             placeholder="Enter plan name"
           />
+          <base-input
+            v-model="state.freezeDays"
+            name="freezeDays"
+            label="Freeze Days*"
+            placeholder="Enter freeze days"
+            type="number"
+          />
+          <base-input
+            v-model="state.maxVisitors"
+            name="maxVisitors"
+            label="Max Visitors*"
+            placeholder="Enter max visitors"
+            type="number"
+          />
+
+          <USeparator />
+
+          <div class="flex justify-between gap-4">
+            <base-input
+              v-model="state.spaBenefit"
+              name="spaBenefit"
+              label="Spa Discount*"
+              placeholder="Enter spa discount"
+              type="number"
+            />
+            <base-input
+              v-model="state.classBenefit"
+              name="classBenefit"
+              label="Class Discount*"
+              placeholder="Enter class discount"
+              type="number"
+            />
+          </div>
+
+          <div class="flex justify-between gap-4">
+            <base-input
+              v-model="state.eventBenefit"
+              name="eventBenefit"
+              label="Event Discount*"
+              placeholder="Enter event discount"
+              type="number"
+            />
+            <base-input
+              v-model="state.workshopBenefit"
+              name="workshopBenefit"
+              label="Workshop Discount*"
+              placeholder="Enter workshop discount"
+              type="number"
+            />
+          </div>
+
+          <USeparator />
 
           <div class="w-full overflow-auto">
             <base-text-editor
@@ -230,25 +303,14 @@ watch(
                 />
               </div>
 
-              <div class="flex gap-4 w-full flex-col md:flex-row">
-                <base-input
-                  v-if="option.frequency === 'custom'"
-                  v-model="option.customDays"
-                  :name="`options.${index}.customDays`"
-                  label="Enter custom days*"
-                  placeholder="Enter number of days"
-                  type="number"
-                  class="w-full md:w-1/2"
-                />
-                <base-input
-                  v-model="option.memberBenefit"
-                  :name="`options.${index}.memberBenefit`"
-                  label="Member Benefit"
-                  placeholder="Enter member benefit"
-                  class="w-full md:w-1/2"
-                  type="number"
-                />
-              </div>
+              <base-input
+                v-if="option.frequency === 'custom'"
+                v-model="option.customDays"
+                :name="`options.${index}.customDays`"
+                label="Enter custom days*"
+                placeholder="Enter number of days"
+                type="number"
+              />
 
               <div class="flex items-center justify-between gap-4">
                 <base-switch
