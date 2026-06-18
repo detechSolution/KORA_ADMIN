@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
+import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
@@ -62,6 +63,7 @@ const { error: showError } = useNotification();
 const editDrawerOpen = ref(false);
 const addMembershipDrawerOpen = ref(false);
 const isDetailModalOpen = ref(false);
+const isFreezeModalOpen = ref(false);
 const selectedMember = ref(null);
 
 const state = ref({
@@ -102,6 +104,11 @@ async function fetchMembers(): Promise<void> {
 function openAddMembershipDrawer(member: any): void {
   selectedMember.value = member;
   addMembershipDrawerOpen.value = true;
+}
+
+function openFreezeModal(member: any): void {
+  selectedMember.value = member;
+  isFreezeModalOpen.value = true;
 }
 
 function openDetailModal(member: any): void {
@@ -310,14 +317,9 @@ onMounted(() => {
                   onSelect: () => openAddMembershipDrawer(row.original),
                   class: 'cursor-pointer',
                 },
-                row.original?.membershipPlan?.isFreezable && {
+                row.original?.membershipPlan?.isFreezable && !row.original?.isFrozen && !row.original?.isFrozen && {
                   label: 'Freeze Membership',
-                  onSelect: () => openAddMembershipDrawer(row.original),
-                  class: 'cursor-pointer',
-                },
-                row.original?.isFrozen && {
-                  label: 'Unfreeze Membership',
-                  onSelect: () => openAddMembershipDrawer(row.original),
+                  onSelect: () => openFreezeModal(row.original),
                   class: 'cursor-pointer',
                 },
               ].filter(Boolean)"
@@ -362,6 +364,14 @@ onMounted(() => {
       :open="isDetailModalOpen"
       :member="selectedMember"
       @close="closeDetailModal"
+    />
+
+    <members-freeze-membership
+      v-if="isFreezeModalOpen && selectedMember"
+      :open="isFreezeModalOpen"
+      :member="selectedMember"
+      @close="isFreezeModalOpen = false"
+      @updated="fetchMembers()"
     />
   </div>
 </template>

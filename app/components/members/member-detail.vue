@@ -154,9 +154,17 @@ watch(
           class="border border-stone-200 rounded-md p-3 flex justify-between items-center"
         >
           <div class="flex flex-col gap-2">
-            <h2>
-              {{ member?.membershipPlan?.name }}
-            </h2>
+            <div class="flex items-center gap-2">
+              <h2>
+                {{ member?.membershipPlan?.name }}
+              </h2>
+
+              <base-badge
+                v-if="member?.isFrozen"
+              >
+                Freezed
+              </base-badge>
+            </div>
             <p class="text-secondary-400 font-normal text-xs">
               {{ member?.subscriptionStartDate }} - {{ member?.subscriptionEndDate }}
             </p>
