@@ -5,6 +5,7 @@ export type MembershipPlanOption = {
   deletedAt?: string | null;
   frequency: string;
   customDays?: number | null;
+  isFreezeable: boolean;
   price: number;
   memberBenefit: number;
   isVisible: boolean;
@@ -22,15 +23,42 @@ export type MembershipPlan = {
   deletedAt: string | null;
   name: string;
   description: string;
+  freezeDays: number;
+  spaBenefit: number;
+  classBenefit: number;
+  eventBenefit: number;
+  workshopBenefit: number;
+  maxVisitors: number;
+
   isActive: boolean;
   options: MembershipPlanOption[];
+};
+
+export type MemberBenefits = {
+  spa: number;
+  class: number;
+  event: number;
+  workshop: number;
 };
 
 export type CreateMembershipPlanPayload = {
   name: string;
   description: string;
   isActive: boolean;
-  options: MembershipPlanOption[];
+  // capacity: number;
+  isFreezable: boolean;
+  maxVisitors: number;
+  freezeDays: number;
+  spaBenefit: number;
+  classBenefit: number;
+  eventBenefit: number;
+  workshopBenefit: number;
+  options: Array<{
+    frequency: string;
+    customDays?: number | null;
+    price: number;
+    isVisible: boolean;
+  }>;
 };
 
 type User = {
