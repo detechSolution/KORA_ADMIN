@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { reactive, ref } from "vue";
 import z from "zod";
 
 import type { Member } from "~/types/membership";
@@ -61,7 +61,7 @@ async function handleSubmit(): Promise<void> {
     });
     success({ message: "Membership frozen successfully" });
     emit("updated");
-    emit("close");
+    handleClose();
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to freeze membership.") });
@@ -71,14 +71,10 @@ async function handleSubmit(): Promise<void> {
   }
 }
 
-watch(
-  () => props.open,
-  (open) => {
-    if (open) {
-      resetForm();
-    }
-  },
-);
+function handleClose(): void {
+  resetForm();
+  emit("close");
+}
 </script>
 
 <template>
@@ -87,7 +83,7 @@ watch(
     title="Freeze Membership"
     :modal-width="600"
     dismissible
-    @close="emit('close')"
+    @close="handleClose"
   >
     <UForm
       ref="formRef"
@@ -136,7 +132,7 @@ watch(
           <base-button
             variant="outline"
             size="md"
-            @click="emit('close')"
+            @click="handleClose"
           >
             Cancel
           </base-button>
