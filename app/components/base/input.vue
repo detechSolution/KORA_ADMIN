@@ -52,6 +52,7 @@ function togglePasswordVisibility() {
     :required="props.required"
     :ui="{
       error: 'mt-1 text-red-500 text-xs',
+      label: 'text-sm font-medium text-stone-900',
     }"
   >
     <UTextarea

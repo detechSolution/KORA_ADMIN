@@ -120,7 +120,6 @@ export const API_ENDPOINTS = {
     GET_MEMBER_BOOKINGS: (id: number) => `/api/v1/members/${id}/bookings`,
     GET_MEMBER_PAYMENTS: (id: number) => `/api/v1/members/${id}/payments`,
     FREEZE: (id: number) => `/api/v1/members/${id}/membership-freeze`,
-    UNFREEZE: (id: number) => `/api/v1/members/${id}/membership-unfreeze`,
   },
   // used
   MEMBERSHIP: {
