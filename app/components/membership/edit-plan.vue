@@ -59,6 +59,10 @@ const schema = z.object({
   classBenefit: pct("Class benefit"),
   eventBenefit: pct("Event benefit"),
   workshopBenefit: pct("Workshop benefit"),
+  spaGuestBenefit: pct("Spa guest benefit"),
+  classGuestBenefit: pct("Class guest benefit"),
+  eventGuestBenefit: pct("Event guest benefit"),
+  workshopGuestBenefit: pct("Workshop guest benefit"),
   description: z.string().min(1, "Description is required"),
   isActive: z.boolean(),
   options: z.array(optionSchema).min(1, "At least one frequency option is required"),
@@ -74,6 +78,10 @@ const state = reactive<Partial<EditPlanSchema>>({
   classBenefit: 0,
   eventBenefit: 0,
   workshopBenefit: 0,
+  spaGuestBenefit: 0,
+  classGuestBenefit: 0,
+  eventGuestBenefit: 0,
+  workshopGuestBenefit: 0,
   description: "",
   isActive: true,
   options: [],
@@ -104,6 +112,10 @@ function populateForm(plan: MembershipPlan | null): void {
   state.classBenefit = plan?.classBenefit ?? 0;
   state.eventBenefit = plan?.eventBenefit ?? 0;
   state.workshopBenefit = plan?.workshopBenefit ?? 0;
+  state.spaGuestBenefit = plan?.spaGuestBenefit ?? 0;
+  state.classGuestBenefit = plan?.classGuestBenefit ?? 0;
+  state.eventGuestBenefit = plan?.eventGuestBenefit ?? 0;
+  state.workshopGuestBenefit = plan?.workshopGuestBenefit ?? 0;
   state.options = plan?.options?.map(opt => ({
     frequency: opt.frequency,
     customDays: opt.customDays ?? null,
@@ -150,6 +162,10 @@ async function handleSubmit(): Promise<void> {
       classBenefit: state.classBenefit!,
       eventBenefit: state.eventBenefit!,
       workshopBenefit: state.workshopBenefit!,
+      spaGuestBenefit: state.spaGuestBenefit!,
+      classGuestBenefit: state.classGuestBenefit!,
+      eventGuestBenefit: state.eventGuestBenefit!,
+      workshopGuestBenefit: state.workshopGuestBenefit!,
       options: (state.options ?? []).map(opt => ({
         frequency: opt.frequency,
         ...(opt.frequency === "custom" && { customDays: opt.customDays }),
@@ -222,37 +238,105 @@ watch(
 
           <USeparator />
 
-          <div class="flex justify-between gap-4">
+          <div class="flex flex-col gap-0.5">
+            <h3 class="text-sm text-secondary font-medium">
+              Member Benefit
+            </h3>
+            <p class="text-secondary-500 text-xs">
+              Set a discount percentage for members on this plan. Leave as 0 if no discount applies.
+            </p>
+          </div>
+
+          <div class="flex justify-between gap-4 w-full">
             <base-input
               v-model="state.spaBenefit"
               name="spaBenefit"
-              label="Spa Discount*"
-              placeholder="Enter spa discount"
+              label="Spa*"
+              placeholder="0"
               type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
             />
             <base-input
               v-model="state.classBenefit"
               name="classBenefit"
-              label="Class Discount*"
-              placeholder="Enter class discount"
+              label="Class*"
+              placeholder="0"
               type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
             />
           </div>
 
-          <div class="flex justify-between gap-4">
+          <div class="flex justify-between gap-4 w-full">
             <base-input
               v-model="state.eventBenefit"
               name="eventBenefit"
-              label="Event Discount*"
-              placeholder="Enter event discount"
+              label="Event*"
+              placeholder="0"
               type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
             />
             <base-input
               v-model="state.workshopBenefit"
               name="workshopBenefit"
-              label="Workshop Discount*"
-              placeholder="Enter workshop discount"
+              label="Workshop*"
+              placeholder="0"
               type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+          </div>
+          <USeparator />
+
+          <div class="flex flex-col gap-0.5">
+            <h3 class="text-sm text-secondary font-medium">
+              Guest Benefit
+            </h3>
+            <p class="text-secondary-500 text-xs">
+              Set a discount percentage for member’s guest. For services that do not require a benefit discount, please leave the value as 0
+            </p>
+          </div>
+
+          <div class="flex gap-4 w-full">
+            <base-input
+              v-model="state.spaGuestBenefit"
+              name="spaGuestBenefit"
+              label="Spa*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+            <base-input
+              v-model="state.classGuestBenefit"
+              name="classGuestBenefit"
+              label="Class*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+          </div>
+          <div class="flex gap-4 w-full">
+            <base-input
+              v-model="state.eventGuestBenefit"
+              name="eventGuestBenefit"
+              label="Event*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+            <base-input
+              v-model="state.workshopGuestBenefit"
+              name="workshopGuestBenefit"
+              label="Workshop*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
             />
           </div>
 
