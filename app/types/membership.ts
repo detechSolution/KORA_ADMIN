@@ -53,6 +53,10 @@ export type CreateMembershipPlanPayload = {
   classBenefit: number;
   eventBenefit: number;
   workshopBenefit: number;
+  spaGuestBenefit: number;
+  classGuestBenefit: number;
+  eventGuestBenefit: number;
+  workshopGuestBenefit: number;
   options: Array<{
     frequency: string;
     customDays?: number | null;

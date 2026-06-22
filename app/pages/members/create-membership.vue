@@ -55,11 +55,14 @@ const schema = z.object({
   classBenefit: pct("Class benefit"),
   eventBenefit: pct("Event benefit"),
   workshopBenefit: pct("Workshop benefit"),
+  spaGuestBenefit: pct("Spa guest benefit"),
+  classGuestBenefit: pct("Class guest benefit"),
+  eventGuestBenefit: pct("Event guest benefit"),
+  workshopGuestBenefit: pct("Workshop guest benefit"),
   options: z.array(optionSchema).min(1, "At least one frequency option is required"),
 });
 
 type CreatePlanSchema = z.output<typeof schema>;
-
 const state = reactive<CreatePlanSchema>({
   name: "",
   description: "",
@@ -70,6 +73,10 @@ const state = reactive<CreatePlanSchema>({
   classBenefit: 0,
   eventBenefit: 0,
   workshopBenefit: 0,
+  spaGuestBenefit: 0,
+  classGuestBenefit: 0,
+  eventGuestBenefit: 0,
+  workshopGuestBenefit: 0,
   options: [{ frequency: "", customDays: null, price: 0, isVisible: true }],
 });
 
@@ -103,6 +110,10 @@ async function handleCreatePlan() {
       classBenefit: state.classBenefit,
       eventBenefit: state.eventBenefit,
       workshopBenefit: state.workshopBenefit,
+      spaGuestBenefit: state.spaGuestBenefit,
+      classGuestBenefit: state.classGuestBenefit,
+      eventGuestBenefit: state.eventGuestBenefit,
+      workshopGuestBenefit: state.workshopGuestBenefit,
       options: state.options.map(opt => ({
         frequency: opt.frequency,
         ...(opt.frequency === "custom" && { customDays: opt.customDays }),
@@ -229,6 +240,57 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.workshopBenefit"
                 name="workshopBenefit"
+                label="Workshop*"
+                placeholder="0"
+                type="number"
+                class="w-full"
+                :trailing-icon="ICONS.PERCENT"
+              />
+            </div>
+            <USeparator />
+
+            <div class="flex flex-col gap-0.5">
+              <h3 class="text-sm text-secondary font-medium">
+                Guest Benefit
+              </h3>
+              <p class="text-secondary-500 text-xs">
+                Set a discount percentage for member’s guest. For services that do not require a benefit discount, please leave the value as 0
+              </p>
+            </div>
+
+            <div class="flex gap-4 w-full">
+              <base-input
+                v-model="state.spaGuestBenefit"
+                name="spaGuestBenefit"
+                label="Spa*"
+                placeholder="0"
+                type="number"
+                class="w-full"
+                :trailing-icon="ICONS.PERCENT"
+              />
+              <base-input
+                v-model="state.classGuestBenefit"
+                name="classGuestBenefit"
+                label="Class*"
+                placeholder="0"
+                type="number"
+                class="w-full"
+                :trailing-icon="ICONS.PERCENT"
+              />
+            </div>
+            <div class="flex gap-4 w-full">
+              <base-input
+                v-model="state.eventGuestBenefit"
+                name="eventGuestBenefit"
+                label="Event*"
+                placeholder="0"
+                type="number"
+                class="w-full"
+                :trailing-icon="ICONS.PERCENT"
+              />
+              <base-input
+                v-model="state.workshopGuestBenefit"
+                name="workshopGuestBenefit"
                 label="Workshop*"
                 placeholder="0"
                 type="number"
