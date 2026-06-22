@@ -28,6 +28,10 @@ export type MembershipPlan = {
   classBenefit: number;
   eventBenefit: number;
   workshopBenefit: number;
+  spaGuestBenefit: number;
+  classGuestBenefit: number;
+  eventGuestBenefit: number;
+  workshopGuestBenefit: number;
   maxVisitors: number;
 
   isActive: boolean;

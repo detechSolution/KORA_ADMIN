@@ -4,8 +4,8 @@ import { computed, ref, watch } from "vue";
 
 import type { ServiceState } from "~/types/booking";
 
-import { getHttp } from "~/composables/use-api";
 import { ICONS } from "~/config/icons";
+import { useBookingStore } from "~/stores/booking";
 
 const props = withDefaults(defineProps<{
   namePrefix?: string;
@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<{
 });
 
 const form = defineModel<ServiceState>({ required: true });
-const http = getHttp();
+const bookingStore = useBookingStore();
 
 const serviceTypes = [
   { label: "Session", value: "session" },
@@ -174,8 +174,8 @@ watch(() => form.value.serviceType, async (newType, oldType) => {
     return;
   localLoading.value = true;
   try {
-    const res = await http.get(`/api/v1/bookings/item-options?type=${newType}`) as { data?: any[] };
-    localOptions.value = res.data ?? [];
+    await bookingStore.fetchBookingItemOptions(newType);
+    localOptions.value = bookingStore.bookingItemOptions;
   }
   catch {
     localOptions.value = [];
@@ -222,13 +222,12 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
 
   loadingTimes.value = true;
   try {
-    const qs = new URLSearchParams({
+    const res = await bookingStore.fetchSpaTimeAvailability({
       bookingDate: form.value.date,
-      duration: String(selected.minutes ?? selected.duration ?? selected.value),
+      duration: Number(selected.minutes ?? selected.duration ?? selected.value),
       timeUnit: selected.timeUnit ?? "minutes",
-    }).toString();
-    const res = await http.get(`/api/v1/bookings/spa-time-availability?${qs}`) as { data?: any[] };
-    spaTimes.value = (res.data ?? []).map((t: any) => ({ label: t.label, value: t.time }));
+    });
+    spaTimes.value = res.map((t: any) => ({ label: t.label, value: t.time }));
     if (form.value.time && !spaTimes.value.some(t => t.value === form.value.time))
       form.value.time = "";
   }
