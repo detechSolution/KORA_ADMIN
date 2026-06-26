@@ -173,8 +173,8 @@ export function formatDateTimeWithDot(date: string) {
 }
 
 export function normalizeText(text: string): string {
-  if (!text) return "";
-  
+  if (!text)
+    return "";
   const result = text
     // Insert a space between lowercase and uppercase letters (camelCase)
     .replace(/([a-z])([A-Z])/g, "$1 $2")
@@ -187,6 +187,6 @@ export function normalizeText(text: string): string {
   // Convert to Title Case
   return result
     .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 }

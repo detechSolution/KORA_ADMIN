@@ -30,6 +30,7 @@ const isSettingsDrawerOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const selectedServiceId = ref<number | null>(null);
 const selectedService = ref<SpaSubType | null>(null);
+const router = useRouter();
 
 const dayLabels: Record<Day, string> = {
   mon: "Mon",
@@ -86,8 +87,16 @@ function openEditDrawer(id: number): void {
 }
 
 function openSettingsDrawer(): void {
-  console.log("asd", spaInfo.value);
-  // isSettingsDrawerOpen.value = true;
+  isSettingsDrawerOpen.value = true;
+}
+
+function handleCreateSpa(): void {
+  if (spaInfo.value?.createdAt === null) {
+    showError({ message: "Please configure spa first" });
+  }
+  else {
+    router.push("/offerings/create-spa");
+  }
 }
 
 function closeEditDrawer(): void {
@@ -170,15 +179,14 @@ function clearFilters(): void {
           </p>
         </div>
 
-        <NuxtLink to="/offerings/create-spa">
-          <base-button
-            variant="solid"
-            size="lg"
-            :leading-icon="ICONS.PLUS"
-          >
-            Create Sub-Type
-          </base-button>
-        </NuxtLink>
+        <base-button
+          variant="solid"
+          size="lg"
+          :leading-icon="ICONS.PLUS"
+          @click="handleCreateSpa"
+        >
+          Create Sub-Type
+        </base-button>
       </div>
 
       <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
