@@ -62,7 +62,6 @@ async function handleCreatePass() {
 
   try {
     loading.value = true;
-    console.log("Creating pass:", form);
     await koraPassesStore.createPass(form);
     showSuccess({ message: "Kora Pass created successfully" });
     router.push("/offerings/kora-passes");
@@ -164,9 +163,9 @@ async function handleCreatePass() {
           <base-input
             v-model.number="form.discount"
             name="discount"
-            label="Discount"
+            label="Spa Discount"
             type="number"
-            placeholder="Enter discount percentage"
+            placeholder="Enter discount percentage for spa"
             class="w-full"
           >
             <template #trailing>
@@ -200,7 +199,6 @@ async function handleCreatePass() {
           <base-button
             type="submit"
             size="lg"
-            class="bg-stone-900 hover:bg-stone-800 min-w-40"
             :loading="loading"
           >
             Create Pass

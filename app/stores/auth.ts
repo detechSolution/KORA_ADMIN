@@ -136,7 +136,7 @@ export const useAuthStore = defineStore("auth", () => {
         user.value.id = (u.id as number) ?? null;
         user.value.email = (u.email as string) ?? "";
         user.value.name = (u.fullName as string) ?? "";
-        // user.value.phone = (u.phone as string) ?? "";
+        user.value.phone = (u.phoneNumber as string) ?? "";
         // user.value.avatar = (u.avatar as string) ?? "";
         // user.value.is_active = u.is_active as boolean | undefined;
         user.value.role_id = (u?.adminRole?.id as number | null) ?? null;

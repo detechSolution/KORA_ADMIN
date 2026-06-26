@@ -172,7 +172,7 @@ async function handleLogin(): Promise<void> {
             v-model="state.password"
             name="password"
             label="Password"
-            placeholder="Enter Your Passsword"
+            placeholder="Enter Your Password"
             type="password"
             @input="clearApiError"
           />

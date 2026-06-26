@@ -86,7 +86,8 @@ function openEditDrawer(id: number): void {
 }
 
 function openSettingsDrawer(): void {
-  isSettingsDrawerOpen.value = true;
+  console.log("asd", spaInfo.value);
+  // isSettingsDrawerOpen.value = true;
 }
 
 function closeEditDrawer(): void {

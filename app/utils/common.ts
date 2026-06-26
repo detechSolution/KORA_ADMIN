@@ -171,3 +171,22 @@ export function formatDateTimeWithDot(date: string) {
   const d = new Date(date);
   return `${d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} • ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}`;
 }
+
+export function normalizeText(text: string): string {
+  if (!text) return "";
+  
+  const result = text
+    // Insert a space between lowercase and uppercase letters (camelCase)
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    // Replace underscores and hyphens with spaces
+    .replace(/[-_]+/g, " ")
+    // Replace multiple consecutive spaces with a single space minimize
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Convert to Title Case
+  return result
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}

@@ -410,10 +410,13 @@ onMounted(async () => {
                                 v-if="form.prices.length > 1"
                                 variant="ghost"
                                 size="md"
-                                class="md:mb-1"
+                                class="flex self-end"
                                 @click="removePricingRow(row.id)"
                               >
-                                Remove
+                                <UIcon
+                                  :name="ICONS.TRASH"
+                                  class="h-4 w-4 text-red-500"
+                                />
                               </base-button>
                             </div>
                           </div>
