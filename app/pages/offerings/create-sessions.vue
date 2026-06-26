@@ -89,7 +89,7 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  instructorId: z.coerce.number().min(1, "Please select an instructor").int("Please select a valid instructor"),
+  instructorId: z.coerce.number({ message: "Please select an instructor" }).min(1, "Please select an instructor").int("Please select a valid instructor"),
   venue: z.string().trim().min(1, "Please enter a venue"),
   capacity: z.coerce.number({ message: "Please enter a capacity" }).int({ message: "Capacity must be a number" }).positive("Capacity must be at least 1"),
   date: z.array(z.string().min(1, "Please select a valid date")).min(1, "Please add at least one date"),
@@ -458,7 +458,7 @@ onMounted(async () => {
                     />
                     <UFormField
                       name="startTime"
-                      label="Start Time*"
+                      label="Start Time"
                       :ui="{
                         error: 'mt-1 text-red-500 text-xs',
                       }"
@@ -472,7 +472,7 @@ onMounted(async () => {
                     </UFormField>
                     <UFormField
                       name="endTime"
-                      label="End Time*"
+                      label="End Time"
                       :ui="{
                         error: 'mt-1 text-red-500 text-xs',
                       }"

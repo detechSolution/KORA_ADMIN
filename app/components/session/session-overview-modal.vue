@@ -181,7 +181,7 @@ function openPreview(type: "image" | "video", url: string) {
             <span>Last Edited Date</span>
           </div>
           <div class="flex items-center gap-2 h-5">
-            <span class="text-xs font-semibold text-secondary-700">Mar 10, 2026</span>
+            <span class="text-xs font-semibold text-secondary-700">{{ formatDate(session.lastEditedAt) }}</span>
           </div>
         </div>
       </div>

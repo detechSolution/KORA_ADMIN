@@ -142,6 +142,17 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/v1/promo-codes/${id}`,
     VALIDATE: "/api/v1/promo-codes/validate",
   },
+  NOTIFICATION: {
+    BASE: "/api/v1/notifications",
+    GET_LIST: "/api/v1/notifications/getList",
+    GET_DETAILS: (id: number) => `/api/v1/notifications/${id}`,
+    UPDATE: (id: number) => `/api/v1/notifications/${id}`,
+    GET_UNREAD_COUNT: "/api/v1/notifications/unread-count",
+    READ_ALL: "/api/v1/notifications/read-all",
+    READ: (id: number) => `/api/v1/notifications/${id}/read`,
+    POST_DEVICE: "/api/v1/notifications/devices",
+    DELETE_DEVICE: (deviceId: string) => `/api/v1/notifications/devices/${deviceId}`,
+  },
   // used
   MAILS: {
     BASE: "/api/v1/mails",

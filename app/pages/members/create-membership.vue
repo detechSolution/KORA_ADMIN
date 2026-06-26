@@ -38,7 +38,7 @@ function pct(label: string) {
 const optionSchema = z.object({
   frequency: z.string().min(1, "Frequency is required"),
   customDays: z.number().nullable(),
-  price: z.number({ error: "Price must be a number" }).min(0, "Price cannot be negative"),
+  price: z.number({ error: "Price must be a number" }).min(0, "Price cannot be less than 0"),
   isVisible: z.boolean(),
 }).refine(
   data => data.frequency !== "custom" || (data.customDays !== null && data.customDays >= 1),
@@ -50,7 +50,12 @@ const schema = z.object({
   description: z.string().min(1, "Plan description is required"),
   isActive: z.boolean(),
   maxVisitors: z.number({ error: "Max visitors must be a number" }).min(0, "Max visitors cannot be negative"),
-  freezeDays: z.number({ error: "Freeze days must be a number" }).min(0, "Freeze days cannot be negative"),
+  freezeDays: z
+    .number({ error: "Freeze days must be a number" })
+    .refine(
+      value => value === 0 || value >= 7,
+      { message: "Freeze days must be 0 or at least 7" },
+    ),
   spaBenefit: pct("Spa benefit"),
   classBenefit: pct("Class benefit"),
   eventBenefit: pct("Event benefit"),

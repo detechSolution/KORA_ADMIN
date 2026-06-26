@@ -53,8 +53,13 @@ const optionSchema = z.object({
 
 const schema = z.object({
   name: z.string().min(1, "Plan name is required"),
-  freezeDays: z.number({ error: "Freeze days must be a number" }).min(0, "Freeze days cannot be negative"),
-  maxVisitors: z.number({ error: "Max visitors must be a number" }).min(0, "Max visitors cannot be negative"),
+  freezeDays: z
+    .number({ error: "Freeze days must be a number" })
+    .refine(
+      value => value === 0 || value >= 7,
+      { message: "Freeze days must be 0 or at least 7" },
+    ),
+  maxVisitors: z.number({ error: "Max visitors must be a number" }).min(0, "Max visitors cannot be less than 0"),
   spaBenefit: pct("Spa benefit"),
   classBenefit: pct("Class benefit"),
   eventBenefit: pct("Event benefit"),
