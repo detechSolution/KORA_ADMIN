@@ -191,6 +191,7 @@ watch(() => form.value.serviceId, (id) => {
   if (group && item) {
     if (group.type?.toLowerCase() === "session" && item.sessionDate) {
       form.value.date = item.sessionDate;
+      form.value.time = item.startTime;
     }
     if (group.type?.toLowerCase() === "spa") {
       const available = (group.availableDays ?? []) as string[];
