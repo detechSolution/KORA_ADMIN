@@ -19,6 +19,11 @@ const options = [
   { label: "Expired", value: "expired" },
 ];
 
+const typeOptions = [
+  { label: "Member", value: "member" },
+  { label: "Guest", value: "guest" },
+];
+
 const columns = [
   {
     id: "user",
@@ -73,6 +78,7 @@ const state = ref({
     end: null as string | null,
   },
   status: null,
+  type: null,
 });
 
 const members = computed(() => membersStore.members);
@@ -86,6 +92,7 @@ async function fetchMembers(): Promise<void> {
       q: state.value.search,
       status: state.value.status,
       joinedFrom: state.value.dateRange.start,
+      type: state.value.type,
       joinedTo: state.value.dateRange.end,
     };
     await membersStore.fetchMembers(params);
@@ -147,6 +154,7 @@ function clearFilters(): void {
     search: "",
     status: null,
     dateRange: { start: null, end: null },
+    type: null,
   };
 
   pagination.value.page = 1;
@@ -159,6 +167,7 @@ const hasActiveFilters = computed(() => {
     || state.value.status
     || state.value.dateRange.start
     || state.value.dateRange.end
+    || state.value.type
   );
 });
 
@@ -225,6 +234,13 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
+          />
+          <base-select
+            v-model="state.type"
+            name="type"
+            :options="typeOptions"
+            placeholder="Select Type"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <base-select
@@ -296,10 +312,19 @@ onMounted(() => {
         </template>
 
         <template #status-cell="{ row }">
-          <div class="flex items-center gap-2">
+          <div
+            v-if="row.original?.user?.role !== 'guest' && row.original?.membershipPlanId !== null"
+            class="flex items-center gap-2"
+          >
             <base-badge :status="row.original?.isActive ? 'active' : 'expired'">
               {{ row.original?.isActive ? 'Active' : 'Expired' }}
             </base-badge>
+          </div>
+          <div
+            v-else
+            class="flex items-center gap-2"
+          >
+            N/A
           </div>
         </template>
 

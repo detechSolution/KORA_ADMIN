@@ -142,8 +142,8 @@ watch(
                 Status
               </p>
               <div class="flex items-center gap-2">
-                <div class="h-2 w-2 rounded-full" :class="member?.user?.isActive ? 'bg-green-500' : 'bg-red-500'" />
-                {{ member?.user?.isActive ? "Active" : "Inactive" }}
+                <div class="h-2 w-2 rounded-full" :class="member?.isActive ? 'bg-green-500' : 'bg-red-500'" />
+                {{ member?.isActive ? "Active" : "Inactive" }}
               </div>
             </div>
           </div>
