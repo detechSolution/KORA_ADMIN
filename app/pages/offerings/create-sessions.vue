@@ -275,16 +275,16 @@ onMounted(async () => {
   await instructorsStore.fetchInstructors();
   if (sessionsStore.sessionToCopy) {
     const s = sessionsStore.sessionToCopy;
-    form.sessionName = `${s.name} (Copy)`;
+    form.sessionName = s.name;
     form.sessionType = s.type;
     form.sessionDescription = s.description;
     form.instructorId = s.instructorId;
     form.venue = s.venue;
     form.capacity = s.capacity;
     // Date in list is usually a single string sessionDate, but create expects an array
-    form.date = s.sessionDate ? [s.sessionDate] : [];
-    form.startTime = s.startTime;
-    form.endTime = s.endTime;
+    // form.date = s.sessionDate ? [s.sessionDate] : [];
+    // form.startTime = s.startTime;
+    // form.endTime = s.endTime;
     form.price = s.price;
     form.isFreeSession = s.isFree;
     form.bannerImage = s.bannerUrl;
