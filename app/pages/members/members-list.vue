@@ -51,9 +51,13 @@ const columns = [
     header: "Type",
   },
   {
+    accessorKey: "membershipPlan",
+    header: "Membership Plan",
+    accessorFn: (row: any) => row.membershipPlan?.name || "N/A",
+  },
+  {
     accessorKey: "status",
     header: "Status",
-    accessorFn: (row: any) => row.original?.user?.isActive ? "Active" : "Inactive",
   },
   {
     accessorKey: "actions",

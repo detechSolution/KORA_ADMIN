@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import z from "zod";
 
 import type { CreateExistingMemberBookingPayload } from "~/types/booking";
@@ -53,14 +53,28 @@ const visitorSchema = z.object({
 
 const stepOneSchema = z.object({
   selectedMemberId: z.number({ message: "Please select a member" }).min(1, "Please select a member"),
-  serviceType: z.string().min(1, "Please select a service"),
-  serviceId: z.coerce.number({ message: "Please select a service" }).min(1, "Please select a service"),
-  date: z.string().min(1, "Please select a date"),
+  guestOnly: z.boolean(),
+  serviceType: z.string().optional(),
+  serviceId: z.coerce.number().optional(),
+  date: z.string().optional(),
   durationId: z.number().nullable().optional(),
   time: z.string().optional(),
   visitors: z.array(visitorSchema),
 }).superRefine((data, ctx) => {
-  if (data.serviceType === "spa") {
+  if (data.guestOnly && data.visitors.length === 0) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["visitors"], message: "Please add a guest" });
+  }
+
+  if (!data.guestOnly) {
+    if (!data.serviceType)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["serviceType"], message: "Please select a service" });
+    if (!data.serviceId)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["serviceId"], message: "Please select a service" });
+    if (!data.date)
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["date"], message: "Please select a date" });
+  }
+
+  if (!data.guestOnly && data.serviceType === "spa") {
     if (!data.durationId)
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["durationId"], message: "Please select a duration for the spa service" });
     if (!data.time)
@@ -77,6 +91,7 @@ const formSchema = computed(() => (currentStep.value === 0 ? stepOneSchema : ste
 
 const state = reactive({
   selectedMemberId: undefined as number | undefined,
+  guestOnly: false,
   paymentMethod: "cash",
   promoCode: "",
 
@@ -133,6 +148,11 @@ function removeVisitor(index: number): void {
   state.visitors.splice(index, 1);
 }
 
+watch(() => state.guestOnly, (guestOnly) => {
+  if (guestOnly && state.visitors.length === 0)
+    addVisitor();
+});
+
 async function handleCreateBooking(): Promise<void> {
   try {
     await formRef.value?.validate();
@@ -143,6 +163,7 @@ async function handleCreateBooking(): Promise<void> {
       fullName: v.fullName,
       phoneNumber: v.phoneNumber,
       email: v.email,
+
       item: {
         id: v.resolvedItemId,
         name: v.resolvedItemName,
@@ -154,17 +175,22 @@ async function handleCreateBooking(): Promise<void> {
 
     const payload: CreateExistingMemberBookingPayload = {
       selectedMemberId: state.selectedMemberId!,
-      item: {
-        id: state.resolvedItemId!,
-        name: state.resolvedItemName!,
-        type: state.resolvedItemType!,
-      },
       visitors: visitorsPayload,
-      bookingDate: state.date,
-      bookingTime: state.time || undefined,
       promoCode: overviewRef.value?.appliedPromo?.code || undefined,
       paymentMethod: state.paymentMethod,
     };
+
+    if (!state.guestOnly) {
+      payload.item = {
+        id: state.resolvedItemId!,
+        name: state.resolvedItemName!,
+        type: state.resolvedItemType!,
+      };
+      payload.bookingDate = state.date;
+      if (state.time) {
+        payload.bookingTime = state.time;
+      }
+    }
 
     await bookingStore.createExistingMemberBooking(payload);
     success({ message: "Booking created successfully!" });
@@ -224,7 +250,16 @@ onMounted(async () => {
               placeholder="Select a member"
               :options="membersOptions"
             />
-            <BookingsServiceSelector v-model="state" />
+            <UCheckbox
+              v-model="state.guestOnly"
+              name="guestOnly"
+              label="Only guest will attend"
+              description="Use the selected member's booking for a new guest."
+            />
+            <BookingsServiceSelector
+              v-if="!state.guestOnly"
+              v-model="state"
+            />
           </div>
 
           <!-- Visitors -->

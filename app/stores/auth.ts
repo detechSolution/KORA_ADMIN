@@ -229,7 +229,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  const resetPassword = async (payload: { code: string; newPassword: string }): Promise<void> => {
+  const resetPassword = async (payload: { code: string; newPassword: string; email: string }): Promise<void> => {
     try {
       return await http.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, payload) as any;
     }
