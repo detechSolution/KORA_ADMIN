@@ -119,6 +119,7 @@ async function handlePasswordSubmit(): Promise<void> {
       await authStore.resetPassword({
         code: otpState.otp,
         newPassword: passwordState.password,
+        email: emailState.email,
       });
       toast.success({ message: "Password changed successfully." });
       await router.push({ path: "/login" });

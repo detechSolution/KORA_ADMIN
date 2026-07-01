@@ -164,7 +164,7 @@ const rows = computed<OverviewRow[]>(() => {
   const result: OverviewRow[] = [];
 
   // Member row: discount comes from the selected member's membershipBenefits.
-  if (form.value.serviceId) {
+  if (!form.value.guestOnly && form.value.serviceId) {
     const memberBenefit = getMemberBenefitPercent(getServiceType(form.value));
     result.push(buildRow(form.value, memberName.value, "Member", memberBenefit));
   }

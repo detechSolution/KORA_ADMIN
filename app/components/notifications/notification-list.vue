@@ -178,7 +178,7 @@ async function handleLoadMore() {
           v-for="tab in tabItems"
           :key="tab.value"
           type="button"
-          class="text-sm font-medium leading-5 transition-colors"
+          class="text-sm font-medium leading-5 transition-colors cursor-pointer"
           :class="activeTab === tab.value ? 'text-stone-950' : 'text-stone-400 hover:text-stone-700'"
           @click="activeTab = tab.value"
         >
@@ -192,7 +192,7 @@ async function handleLoadMore() {
         class="text-sm font-medium leading-5 text-stone-600 transition-colors hover:text-stone-950"
         @click="handleMarkAllAsRead"
       >
-        Check all as read
+        Mark all as read
       </button>
     </div>
 

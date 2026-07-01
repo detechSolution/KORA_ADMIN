@@ -72,12 +72,12 @@ export type CreateNewClientBookingPayload = {
 
 export type CreateExistingMemberBookingPayload = {
   selectedMemberId: number;
-  item: {
+  item?: {
     id: number;
     name: string;
     type: string;
   };
-  bookingDate: string;
+  bookingDate?: string;
   bookingTime?: string;
   visitors: Array<{
     fullName: string;
