@@ -59,8 +59,9 @@ async function handleLogin(): Promise<void> {
     const payload = {
       email: state.email,
       password: state.password,
+      rememberMe: rememberMe.value,
     };
-    await authStore.login(payload as { email: string; password: string });
+    await authStore.login(payload as { email: string; password: string; rememberMe: boolean });
     router.push({ name: "index" });
   }
   catch (error: unknown) {

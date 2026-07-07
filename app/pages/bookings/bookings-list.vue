@@ -16,6 +16,12 @@ definePageMeta({
   permission: "bookings.view",
 });
 
+const bookingStatusOptions = [
+  { label: "Pending", value: "pending" },
+  { label: "Confirmed", value: "confirmed" },
+  { label: "Cancelled", value: "cancelled" },
+];
+
 const { success, error: showError } = useNotification();
 const bookingStore = useBookingStore();
 const bookings = computed(() => bookingStore.bookings);
@@ -33,6 +39,7 @@ const summary = ref<any>(null);
 
 const filters = ref({
   search: "",
+  status: "",
   type: "",
   dateRange: {
     start: null as string | null,
@@ -59,6 +66,7 @@ const hasActiveFilters = computed(() => {
     filters.value.search
     || filters.value.dateRange.start
     || filters.value.dateRange.end
+    || filters.value.status !== ""
   );
 },
 );
@@ -71,6 +79,7 @@ async function fetchBookings(): Promise<void> {
       limit: pagination.value.pageSize,
       q: filters.value.search || undefined,
       type: filters.value.type === "" ? undefined : filters.value.type,
+      status: filters.value.status === "" ? undefined : filters.value.status,
       bookedFrom: filters.value.dateRange.start || undefined,
       bookedTo: filters.value.dateRange.end || undefined,
     };
@@ -102,7 +111,7 @@ async function fetchBookingsSummary(): Promise<void> {
     });
   }
   finally {
-    loading.value = false;
+    loadingSummary.value = false;
   }
 }
 
@@ -118,6 +127,7 @@ function clearFilters(): void {
   filters.value = {
     search: "",
     type: "",
+    status: "",
     dateRange: { start: null, end: null },
   };
 
@@ -273,6 +283,15 @@ onMounted(
             :no-of-months="2"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
+
+          <base-select
+            v-model="filters.status"
+            :options="bookingStatusOptions"
+            name="status"
+            placeholder="Select status"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
+          />
+
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
               :loading="loading"
