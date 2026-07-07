@@ -258,83 +258,123 @@ defineExpose({
 
 <template>
   <section class="space-y-6">
-    <div class="rounded-xl border border-border bg-muted/20 p-5 sm:p-6 shadow-sm space-y-6">
-      <div class="grid grid-cols-1 gap-4 w-full">
-        <base-select
-          v-model="form.serviceType"
-          name="serviceType"
-          label="Service Type"
-          placeholder="Select service type"
-          :options="serviceTypes"
-          required
-          @update:model-value="form.date = ''"
-        />
+    <div class="rounded-xl border border-border bg-muted/20 p-5 sm:p-6 shadow-sm space-y-4">
+      <base-select
+        v-model="form.serviceType"
+        name="serviceType"
+        label="Select Type"
+        placeholder="Select service type"
+        :options="serviceTypes"
+        @update:model-value="form.date = ''"
+      />
 
-        <base-select-menu
-          v-model="form.serviceId"
-          name="serviceId"
-          label="Select Session / Spa Service / Passes"
-          placeholder="Select a session or service"
-          :options="serviceOptions"
-          :loading="bookingStore.loading"
-          required
-          class="w-full"
-        />
+      <base-select-menu
+        v-if="form.serviceType"
+        v-model="form.serviceId"
+        name="serviceId"
+        label="Select Service"
+        placeholder="Select a session or service"
+        :options="serviceOptions"
+        :loading="bookingStore.loading"
+        class="w-full"
+      />
 
+      <!-- Spa: Duration + Date side by side -->
+      <div
+        v-if="showDuration && durationOptions.length"
+        class="grid grid-cols-2 gap-4"
+      >
         <base-select
-          v-if="showDuration && durationOptions.length"
           v-model="form.durationId"
           name="durationId"
           label="Select Duration"
           placeholder="Select duration for this service"
           :options="durationOptions"
-          required
         />
-
-        <div class="grid grid-cols-1 gap-4">
-          <base-date-picker
-            v-model="form.date"
-            name="date"
-            label="Date"
-            placeholder="Select date"
-            :no-of-months="1"
-            :allowed-weekdays="form.serviceType === 'spa' ? spaAvailableDays : []"
-            :disabled="form.serviceType === 'session'"
-            required
-          />
-          <UFormField
-            v-if="form.serviceType === 'spa'"
-            name="time"
-            label="Time"
-            :ui="{ error: 'mt-1 text-red-500 text-xs' }"
-            required
-          >
-            <base-select-menu
-              v-model="form.time"
-              name="time"
-              placeholder="Select time"
-              :options="spaTimes"
-              :loading="loadingTimes"
-              required
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            v-else-if="form.serviceType !== 'session' && form.serviceType !== 'passes'"
-            name="time"
-            label="Time"
-            :ui="{ error: 'mt-1 text-red-500 text-xs' }"
-            required
-          >
-            <UInputTime
-              v-model="timeModel"
-              label="Time"
-              :trailing-icon="ICONS.CLOCK"
-              class="w-full"
-            />
-          </UFormField>
-        </div>
+        <base-date-picker
+          v-if="form.serviceId"
+          v-model="form.date"
+          name="date"
+          label="Date"
+          placeholder="Select date"
+          :no-of-months="1"
+          :allowed-weekdays="spaAvailableDays"
+        />
       </div>
+
+      <!-- Session: Date + Time side by side -->
+      <div
+        v-else-if="form.serviceId && form.serviceType === 'session'"
+        class="grid grid-cols-2 gap-4"
+      >
+        <base-date-picker
+          v-model="form.date"
+          name="date"
+          label="Date"
+          placeholder="Select date"
+          :no-of-months="1"
+          :disabled="form.serviceType === 'session'"
+        />
+        <UFormField
+          name="time"
+          label="Time*"
+          :ui="{ error: 'mt-1 text-red-500 text-xs' }"
+        >
+          <UInputTime
+            v-model="timeModel"
+            :trailing-icon="ICONS.CLOCK"
+            class="w-full"
+          />
+        </UFormField>
+      </div>
+
+      <!-- Passes: Date only, full width -->
+      <base-date-picker
+        v-else-if="form.serviceId && form.serviceType === 'passes'"
+        v-model="form.date"
+        name="date"
+        label="Date"
+        placeholder="Select date"
+        :no-of-months="1"
+      />
+
+      <!-- Spa: time slots -->
+      <UFormField
+        v-if="form.serviceType === 'spa' && form.serviceId && form.durationId"
+        name="time"
+        label="Available Times"
+        :ui="{ error: 'mt-1 text-red-500 text-xs' }"
+      >
+        <div
+          v-if="loadingTimes"
+          class="text-sm text-muted-foreground"
+        >
+          Loading available times...
+        </div>
+        <div
+          v-else-if="!spaTimes.length"
+          class="text-sm text-muted-foreground"
+        >
+          {{ form.date ? "No available slots for selected date" : "Select a date to see available times" }}
+        </div>
+        <div
+          v-else
+          class="flex flex-wrap gap-2"
+        >
+          <button
+            v-for="slot in spaTimes"
+            :key="slot.value"
+            type="button"
+            class="px-3 py-1.5 text-sm rounded-md border transition-all"
+            :class="form.time === slot.value
+              ? 'bg-primary text-white'
+              : 'border-border hover:border-stone-400 '"
+            @click="form.time = slot.value"
+          >
+            {{ slot.label }}
+          </button>
+        </div>
+      </UFormField>
     </div>
   </section>
 </template>

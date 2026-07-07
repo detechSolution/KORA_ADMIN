@@ -141,13 +141,13 @@ const kpiData = computed(() => [
   },
   {
     title: "Members Count",
-    icon: ICONS.USERS,
+    icon: ICONS.USER_STAR,
     value: membersStore.membersSummary?.activeMembers,
     link: { path: "/members/list" },
   },
   {
     title: "Guests Count",
-    icon: ICONS.USERS,
+    icon: ICONS.BRIEFCASE,
     value: membersStore.membersSummary?.activeGuests,
     link: { path: "/members/list" },
   },

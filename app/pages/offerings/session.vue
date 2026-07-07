@@ -215,6 +215,7 @@ onMounted(() => {
     <base-empty
       v-else-if="sessions.data.length === 0"
       title="No sessions found"
+      class="h-full"
     />
 
     <div
@@ -250,6 +251,7 @@ onMounted(() => {
     />
 
     <OfferingsSessionsEdit
+      v-if="isSessionEditDrawerOpen"
       :open="isSessionEditDrawerOpen"
       :session="selectedSession"
       @close-session-drawer="isSessionEditDrawerOpen = false"
@@ -268,7 +270,6 @@ onMounted(() => {
       :session="selectedSession"
       @close="isAttendanceModalOpen = false"
     />
-
     <SessionAddMemberModal
       :open="isAddMemberModalOpen"
       :session="selectedSession"

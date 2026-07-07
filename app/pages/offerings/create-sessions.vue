@@ -29,10 +29,12 @@ const sessionTypeOptions = [
 ];
 
 const instructorOptions = computed(() =>
-  instructorsStore.instructors.data.map(i => ({
-    label: i.fullName,
-    value: i.id,
-  })),
+  instructorsStore.instructors.data
+    .filter((i: any) => i.isActive)
+    .map((i: any) => ({
+      label: i.fullName,
+      value: i.id,
+    })),
 );
 
 type ValidatableForm = {

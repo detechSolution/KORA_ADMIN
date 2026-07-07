@@ -148,6 +148,22 @@ function removeVisitor(index: number): void {
   state.visitors.splice(index, 1);
 }
 
+function resetForm(): void {
+  state.selectedMemberId = undefined;
+  state.guestOnly = false;
+  state.paymentMethod = "cash";
+  state.promoCode = "";
+  state.serviceType = "";
+  state.serviceId = undefined;
+  state.durationId = null;
+  state.date = "";
+  state.time = "";
+  state.resolvedItemId = null;
+  state.resolvedItemName = "";
+  state.resolvedItemType = "";
+  state.visitors = [];
+}
+
 watch(() => state.guestOnly, (guestOnly) => {
   if (guestOnly && state.visitors.length === 0)
     addVisitor();
@@ -195,7 +211,7 @@ async function handleCreateBooking(): Promise<void> {
     await bookingStore.createExistingMemberBooking(payload);
     success({ message: "Booking created successfully!" });
     router.push("/bookings/bookings-list");
-    formRef.value?.reset();
+    resetForm();
   }
   catch (error) {
     console.error("Booking failed", error);

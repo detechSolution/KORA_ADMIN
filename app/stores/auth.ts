@@ -168,10 +168,10 @@ export const useAuthStore = defineStore("auth", () => {
     await checkAuth(false);
   };
 
-  const login = async (payload: { email: string; password: string }): Promise<void> => {
+  const login = async (payload: { email: string; password: string; rememberMe: boolean }): Promise<void> => {
     try {
       unAuthorizedError.value = false;
-      const { accessToken, refreshToken } = await http.post(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password }) as any;
+      const { accessToken, refreshToken } = await http.post(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password, rememberMe: payload.rememberMe }) as any;
       if (accessToken && refreshToken) {
         storage.setTokens(accessToken, refreshToken);
         isAuthenticated.value = true;
