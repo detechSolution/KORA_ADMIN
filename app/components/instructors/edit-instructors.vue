@@ -76,8 +76,9 @@ async function handleUpdate(): Promise<void> {
     emit("updated");
     emit("close");
   }
-  catch (error) {
+  catch (error: any) {
     console.error("Validation failed:", error);
+    showError({ message: error.message || "Failed to update instructor" });
   }
   finally {
     loading.value = false;

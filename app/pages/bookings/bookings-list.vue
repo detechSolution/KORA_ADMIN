@@ -17,8 +17,9 @@ definePageMeta({
 });
 
 const bookingStatusOptions = [
-  { label: "Pending", value: "pending" },
+  { label: "Pending", value: "pending_payment" },
   { label: "Confirmed", value: "confirmed" },
+  { label: "Cancellation Processing", value: "cancellation_processing" },
   { label: "Cancelled", value: "cancelled" },
 ];
 

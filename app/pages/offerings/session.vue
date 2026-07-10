@@ -235,6 +235,8 @@ onMounted(() => {
         :price="`Rs. ${session.price}`"
         :capacity="session.capacity"
         :occupied="session.occupied"
+        :starts-at="session.startsAt"
+        :ends-at="session.endsAt"
         @open-edit-session-drawer="handleOpenEditSessionDrawer"
         @open-overview-modal="handleOpenOverviewModal"
         @copy-session="handleCopySession"
@@ -270,6 +272,7 @@ onMounted(() => {
       :session="selectedSession"
       @close="isAttendanceModalOpen = false"
     />
+
     <SessionAddMemberModal
       :open="isAddMemberModalOpen"
       :session="selectedSession"
