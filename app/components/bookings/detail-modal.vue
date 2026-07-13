@@ -39,9 +39,9 @@ const items = [
 const guestColumns = [
   { accessorKey: "fullName", header: "Client" },
   { accessorKey: "email", header: "Email" },
+  { accessorKey: "itemName", header: "Service Name" },
   { accessorKey: "phoneNumber", header: "Phone" },
 ];
-
 const searchQuery = ref("");
 
 const bookingInfo = computed(() => {
