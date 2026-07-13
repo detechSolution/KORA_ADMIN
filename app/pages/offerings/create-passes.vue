@@ -32,11 +32,11 @@ function stripHtml(input: string | undefined | null): string {
 }
 
 const schema = z.object({
-  name: z.string().trim().min(1, "Pass name is required"),
-  validity: z.coerce.number({ message: "Validity is required" }).int().positive("Validity must be a positive integer"),
-  price: z.coerce.number({ message: "Price is required" }).int().nonnegative("Price must be non-negative"),
-  discount: z.coerce.number({ message: "Discount is required" }).min(0).max(100, "Discount must be between 0 and 100"),
-  description: z.string().refine(v => stripHtml(v).length > 0, { message: "Description is required" }),
+  name: z.string().trim().min(1, "Enter a pass name"),
+  validity: z.coerce.number({ message: "Enter how many days this pass is valid for" }).int().positive("Validity must be at least 1 day"),
+  price: z.coerce.number({ message: "Enter a price" }).int().nonnegative("Price can't be negative"),
+  discount: z.coerce.number({ message: "Enter a discount percentage" }).min(0).max(100, "Discount must be between 0% and 100%"),
+  description: z.string().refine(v => stripHtml(v).length > 0, { message: "Add a description for this pass" }),
   status: z.boolean(),
 });
 
@@ -62,7 +62,6 @@ async function handleCreatePass() {
 
   try {
     loading.value = true;
-    console.log("Creating pass:", form);
     await koraPassesStore.createPass(form);
     showSuccess({ message: "Kora Pass created successfully" });
     router.push("/offerings/kora-passes");
@@ -164,9 +163,9 @@ async function handleCreatePass() {
           <base-input
             v-model.number="form.discount"
             name="discount"
-            label="Discount"
+            label="Spa Discount"
             type="number"
-            placeholder="Enter discount percentage"
+            placeholder="Enter discount percentage for spa"
             class="w-full"
           >
             <template #trailing>
@@ -200,7 +199,6 @@ async function handleCreatePass() {
           <base-button
             type="submit"
             size="lg"
-            class="bg-stone-900 hover:bg-stone-800 min-w-40"
             :loading="loading"
           >
             Create Pass

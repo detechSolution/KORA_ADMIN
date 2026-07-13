@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
+import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 
-defineProps<SessionCardProps>();
+const props = defineProps<SessionCardProps>();
 
 const emit = defineEmits(["openEditSessionDrawer", "openOverviewModal", "copySession", "openAttendanceModal", "openAddMemberModal"]);
 
@@ -16,7 +19,39 @@ type SessionCardProps = {
   price: string;
   capacity: number;
   occupied: number;
+  startsAt?: string;
+  endsAt?: string;
 };
+
+const { error: showError } = useNotification();
+
+const isEventOver = computed(() => {
+  if (!props.endsAt)
+    return false;
+  return new Date().getTime() > new Date(props.endsAt).getTime();
+});
+
+function handleAttendanceClick() {
+  if (isEventOver.value)
+    return;
+
+  if (!props.startsAt) {
+    emit("openAttendanceModal", props.id);
+    return;
+  }
+
+  const now = new Date();
+  const startsAt = new Date(props.startsAt);
+  const timeDiff = startsAt.getTime() - now.getTime();
+  const oneHourInMs = 60 * 60 * 1000;
+
+  if (timeDiff > oneHourInMs) {
+    showError({ message: "Event is not started yet" });
+    return;
+  }
+
+  emit("openAttendanceModal", props.id);
+}
 </script>
 
 <template>
@@ -64,11 +99,12 @@ type SessionCardProps = {
         {{ price }}
       </div>
       <div class="flex items-center gap-3 text-secondary-400">
-        <UTooltip text="Attendance">
+        <UTooltip :text="isEventOver ? 'Attendance (Event is over)' : 'Attendance'">
           <UIcon
             :name="ICONS.CLIPBOARD_CHECK"
-            class="w-4 h-4 cursor-pointer hover:text-primary transition-colors text-primary"
-            @click="emit('openAttendanceModal', id)"
+            class="w-4 h-4 transition-colors"
+            :class="isEventOver ? 'text-secondary-200 cursor-not-allowed' : 'cursor-pointer hover:text-primary text-primary'"
+            @click="handleAttendanceClick"
           />
         </UTooltip>
         <UTooltip text="Add Member & Pass Users">

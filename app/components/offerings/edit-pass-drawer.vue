@@ -142,7 +142,7 @@ async function handleUpdatePass() {
 
           <base-input
             v-model.number="form.discount"
-            label="Discount"
+            label="Spa Discount"
             name="discount"
             type="number"
             placeholder="Enter discount percentage"

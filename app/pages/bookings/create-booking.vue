@@ -46,7 +46,7 @@ definePageMeta({
     </base-page-header>
 
     <div class="rounded-xl flex flex-col md:flex-row gap-4 bg-white p-4 shadow-sm">
-      <div class="flex flex-col bg-stone-50 gap-6 rounded-md border border-stone-200">
+      <div class="flex flex-1 flex-col bg-stone-50 gap-6 rounded-md border border-stone-200">
         <div class="flex flex-col p-4 gap-1">
           <h2 class="font-semibold">
             Use Type
@@ -58,17 +58,21 @@ definePageMeta({
 
         <USeparator />
 
-        <base-tabs
-          v-model="selectedTab"
-          :items="items"
-          variant="solid"
-          color="primary"
-          orientation="vertical"
-        />
+        <div class="px-4">
+          <base-tabs
+            v-model="selectedTab"
+            :items="items"
+            variant="solid"
+            color="primary"
+            orientation="vertical"
+          />
+        </div>
       </div>
 
-      <bookings-existing-member v-if="selectedTab === 'existing'" />
-      <new-client-manual-booking-new-client v-else />
+      <div class="flex-4 min-w-0">
+        <bookings-existing-member v-if="selectedTab === 'existing'" />
+        <new-client-manual-booking-new-client v-else />
+      </div>
     </div>
   </div>
 </template>

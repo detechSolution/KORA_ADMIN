@@ -107,8 +107,6 @@ async function getInstructors(): Promise<void> {
       limit: pagination.value.pageSize,
       q: state.value.search,
       isActive: state.value.status,
-      refundFrom: state.value.dateRange.start,
-      refundTo: state.value.dateRange.end,
     };
     await instructorsStore.fetchInstructors(params);
   }
@@ -128,7 +126,6 @@ function handleSearchClick(): void {
 function clearFilters(): void {
   state.value.search = "";
   state.value.status = "";
-  state.value.dateRange = { start: null, end: null };
   handleSearchClick();
 }
 
@@ -136,8 +133,6 @@ function hasActiveFilters(): boolean {
   return !!(
     state.value.search
     || state.value.status
-    || state.value.dateRange.start
-    || state.value.dateRange.end
   );
 }
 
@@ -188,15 +183,6 @@ onMounted(() => {
             class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearchClick"
-          />
-
-          <base-date-picker
-            v-model="state.dateRange"
-            name="dateRange"
-            placeholder="Select date range"
-            range
-            :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1"
           />
           <base-select
             v-model="state.status"

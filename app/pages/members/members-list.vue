@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
+import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
@@ -15,7 +16,12 @@ definePageMeta({
 
 const options = [
   { label: "Active", value: "active" },
-  { label: "Inactive", value: "inactive" },
+  { label: "Expired", value: "expired" },
+];
+
+const typeOptions = [
+  { label: "Member", value: "member" },
+  { label: "Guest", value: "guest" },
 ];
 
 const columns = [
@@ -38,16 +44,20 @@ const columns = [
   {
     accessorKey: "strikes",
     header: "Strikes",
-    accessorFn: (row: any) => row.original?.strikes || "N/A",
+    accessorFn: (row: any) => row.sessionAttendances?.filter((item: any) => item.attendanceStatus === "no_show").length ?? 0,
   },
   {
     accessorKey: "type",
     header: "Type",
   },
   {
+    accessorKey: "membershipPlan",
+    header: "Membership Plan",
+    accessorFn: (row: any) => row.membershipPlan?.name || "N/A",
+  },
+  {
     accessorKey: "status",
     header: "Status",
-    accessorFn: (row: any) => row.original?.user?.isActive ? "Active" : "Inactive",
   },
   {
     accessorKey: "actions",
@@ -60,7 +70,9 @@ const { pagination } = usePagination();
 const { error: showError } = useNotification();
 
 const editDrawerOpen = ref(false);
+const addMembershipDrawerOpen = ref(false);
 const isDetailModalOpen = ref(false);
+const isFreezeModalOpen = ref(false);
 const selectedMember = ref(null);
 
 const state = ref({
@@ -70,6 +82,7 @@ const state = ref({
     end: null as string | null,
   },
   status: null,
+  type: null,
 });
 
 const members = computed(() => membersStore.members);
@@ -83,6 +96,7 @@ async function fetchMembers(): Promise<void> {
       q: state.value.search,
       status: state.value.status,
       joinedFrom: state.value.dateRange.start,
+      type: state.value.type,
       joinedTo: state.value.dateRange.end,
     };
     await membersStore.fetchMembers(params);
@@ -93,9 +107,19 @@ async function fetchMembers(): Promise<void> {
   }
 }
 
-function openEditDrawer(member: any): void {
+// function openEditDrawer(member: any): void {
+//   selectedMember.value = member;
+//   editDrawerOpen.value = true;
+// }
+
+function openAddMembershipDrawer(member: any): void {
   selectedMember.value = member;
-  editDrawerOpen.value = true;
+  addMembershipDrawerOpen.value = true;
+}
+
+function openFreezeModal(member: any): void {
+  selectedMember.value = member;
+  isFreezeModalOpen.value = true;
 }
 
 function openDetailModal(member: any): void {
@@ -117,13 +141,13 @@ const kpiData = computed(() => [
   },
   {
     title: "Members Count",
-    icon: ICONS.USERS,
+    icon: ICONS.USER_STAR,
     value: membersStore.membersSummary?.activeMembers,
     link: { path: "/members/list" },
   },
   {
     title: "Guests Count",
-    icon: ICONS.USERS,
+    icon: ICONS.BRIEFCASE,
     value: membersStore.membersSummary?.activeGuests,
     link: { path: "/members/list" },
   },
@@ -134,6 +158,7 @@ function clearFilters(): void {
     search: "",
     status: null,
     dateRange: { start: null, end: null },
+    type: null,
   };
 
   pagination.value.page = 1;
@@ -146,6 +171,7 @@ const hasActiveFilters = computed(() => {
     || state.value.status
     || state.value.dateRange.start
     || state.value.dateRange.end
+    || state.value.type
   );
 });
 
@@ -212,6 +238,13 @@ onMounted(() => {
             placeholder="Select date range"
             range
             :no-of-months="2"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
+          />
+          <base-select
+            v-model="state.type"
+            name="type"
+            :options="typeOptions"
+            placeholder="Select Type"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
           <base-select
@@ -283,10 +316,19 @@ onMounted(() => {
         </template>
 
         <template #status-cell="{ row }">
-          <div class="flex items-center gap-2">
-            <base-badge :status="row.original?.user?.isActive ? 'active' : 'inactive'">
-              {{ row.original?.user?.isActive ? 'Active' : 'Inactive' }}
+          <div
+            v-if="row.original?.user?.role !== 'guest' && row.original?.membershipPlanId !== null"
+            class="flex items-center gap-2"
+          >
+            <base-badge :status="row.original?.isActive ? 'active' : 'expired'">
+              {{ row.original?.isActive ? 'Active' : 'Expired' }}
             </base-badge>
+          </div>
+          <div
+            v-else
+            class="flex items-center gap-2"
+          >
+            N/A
           </div>
         </template>
 
@@ -295,16 +337,21 @@ onMounted(() => {
             <base-dropdown-menu
               :items="[
                 {
-                  label: 'Edit Client',
-                  onSelect: () => openEditDrawer(row.original),
-                  class: 'cursor-pointer',
-                },
-                {
                   label: 'View Details',
                   onSelect: () => openDetailModal(row.original),
                   class: 'cursor-pointer',
                 },
-              ]"
+                !row.original?.isActive && {
+                  label: 'Add Membership',
+                  onSelect: () => openAddMembershipDrawer(row.original),
+                  class: 'cursor-pointer',
+                },
+                row.original?.membershipPlan?.isFreezable && !row.original?.isFrozen && !row.original?.isFrozen && {
+                  label: 'Freeze Membership',
+                  onSelect: () => openFreezeModal(row.original),
+                  class: 'cursor-pointer',
+                },
+              ].filter(Boolean)"
             >
               <base-button
                 :icon="ICONS.ELLIPSIS_VERTICAL"
@@ -333,11 +380,27 @@ onMounted(() => {
       @updated="fetchMembers()"
     />
 
+    <members-add-membership
+      v-if="addMembershipDrawerOpen && selectedMember"
+      :open="addMembershipDrawerOpen"
+      :member="selectedMember"
+      @close="addMembershipDrawerOpen = false"
+      @updated="fetchMembers()"
+    />
+
     <members-member-detail
       v-if="isDetailModalOpen"
       :open="isDetailModalOpen"
       :member="selectedMember"
       @close="closeDetailModal"
+    />
+
+    <members-freeze-membership
+      v-if="isFreezeModalOpen && selectedMember"
+      :open="isFreezeModalOpen"
+      :member="selectedMember"
+      @close="isFreezeModalOpen = false"
+      @updated="fetchMembers()"
     />
   </div>
 </template>

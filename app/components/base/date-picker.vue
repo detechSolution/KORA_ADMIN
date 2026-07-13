@@ -254,12 +254,6 @@ const displayValue = computed(() => {
   }
 });
 
-// Computed UI classes for better performance
-const inputClasses = computed(() => ({
-  root: "focus:ring-0",
-  base: "ring-stone-300 placeholder:text-stone-400",
-}));
-
 const calendarClasses = computed(() => ({
   root: "bg-card border border-border",
   base: "ring-stone-300 placeholder:text-stone-400",
@@ -373,7 +367,7 @@ function isWeekendDisabled(date: DateValue) {
       :required="required"
       :ui="formFieldClasses"
     >
-      <UInput
+      <!-- <UInput
         :model-value="displayValue"
         type="text"
         :placeholder="placeholder"
@@ -385,6 +379,19 @@ function isWeekendDisabled(date: DateValue) {
         class="w-full cursor-pointer"
         size="lg"
         :ui="inputClasses"
+      /> -->
+      <base-input
+        :model-value="displayValue"
+        name=""
+        type="text"
+        :placeholder="placeholder"
+        :required="required"
+        :disabled="disabled"
+        readonly
+        :trailing-icon="ICONS.CALENDAR"
+        variant="outline"
+        class="w-full cursor-pointer"
+        size="lg"
       />
     </UFormField>
 

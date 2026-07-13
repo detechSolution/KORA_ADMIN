@@ -318,50 +318,51 @@ watch(
             />
           </div>
 
-          <div v-else class="rounded-[6px] border border-stone-200 bg-white p-4">
-            <div class="flex max-h-[420px] flex-col gap-4 overflow-y-auto pr-1">
-              <div
-                v-for="(row, index) in form.prices"
-                :key="row.id"
-                class="rounded-[6px] border border-stone-200 bg-stone-50 p-4"
-              >
-                <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
-                  <base-input
-                    v-model="row.duration"
-                    :name="`prices.${index}.duration`"
-                    label="Duration"
-                    placeholder="Enter duration"
-                    required
-                    @update:model-value="clearApiError"
-                  />
+          <div
+            v-else
+            class="flex max-h-[420px] flex-col gap-4 overflow-y-auto pr-1"
+          >
+            <div
+              v-for="(row, index) in form.prices"
+              :key="row.id"
+              class="rounded-[6px] border border-stone-200 bg-stone-50 p-4"
+            >
+              <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
+                <base-input
+                  v-model="row.duration"
+                  :name="`prices.${index}.duration`"
+                  label="Duration"
+                  placeholder="Enter duration"
+                  required
+                  @update:model-value="clearApiError"
+                />
 
-                  <base-select
-                    v-model="row.timeUnit"
-                    :name="`prices.${index}.timeUnit`"
-                    label="Time Unit"
-                    :options="[...timeUnitOptions]"
-                    required
-                  />
+                <base-select
+                  v-model="row.timeUnit"
+                  :name="`prices.${index}.timeUnit`"
+                  label="Time Unit"
+                  :options="[...timeUnitOptions]"
+                  required
+                />
 
-                  <base-input
-                    v-model="row.price"
-                    :name="`prices.${index}.price`"
-                    label="Price (Rs)"
-                    placeholder="Enter price"
-                    required
-                    @update:model-value="clearApiError"
-                  />
+                <base-input
+                  v-model="row.price"
+                  :name="`prices.${index}.price`"
+                  label="Price (Rs)"
+                  placeholder="Enter price"
+                  required
+                  @update:model-value="clearApiError"
+                />
 
-                  <base-button
-                    v-if="form.prices.length > 1"
-                    variant="ghost"
-                    size="md"
-                    class="md:mb-1"
-                    @click="removePricingRow(row.id)"
-                  >
-                    Remove
-                  </base-button>
-                </div>
+                <base-button
+                  v-if="form.prices.length > 1"
+                  variant="ghost"
+                  size="md"
+                  class="md:mb-1"
+                  @click="removePricingRow(row.id)"
+                >
+                  <UIcon :name="ICONS.TRASH_2" class="h-4 w-4 text-red-500" />
+                </base-button>
               </div>
             </div>
 

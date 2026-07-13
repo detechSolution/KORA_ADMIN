@@ -16,33 +16,37 @@ definePageMeta({
   permission: "bookings.view",
 });
 
+const bookingStatusOptions = [
+  { label: "Pending", value: "pending_payment" },
+  { label: "Confirmed", value: "confirmed" },
+  { label: "Cancellation Processing", value: "cancellation_processing" },
+  { label: "Cancelled", value: "cancelled" },
+];
+
 const { success, error: showError } = useNotification();
 const bookingStore = useBookingStore();
 const bookings = computed(() => bookingStore.bookings);
 const { pagination } = usePagination();
 
 const loading = ref(false);
+const loadingSummary = ref(false);
 const loadingCancel = ref(false);
 
 const isDetailModalOpen = ref(false);
 const isCancelModalOpen = ref(false);
 
 const selectedBooking = ref<Booking | null>(null);
+const summary = ref<any>(null);
 
 const filters = ref({
   search: "",
+  status: "",
   type: "",
   dateRange: {
     start: null as string | null,
     end: null as string | null,
   },
 });
-
-const typeOptions = [
-  { label: "Session", value: "session" },
-  { label: "Spa", value: "spa" },
-  { label: "Passes", value: "passes" },
-];
 
 const columns = computed(() => [
   { accessorKey: "bookingCode", header: "Booking ID" },
@@ -61,9 +65,9 @@ const columns = computed(() => [
 const hasActiveFilters = computed(() => {
   return (
     filters.value.search
-    || filters.value.type
     || filters.value.dateRange.start
     || filters.value.dateRange.end
+    || filters.value.status !== ""
   );
 },
 );
@@ -76,6 +80,7 @@ async function fetchBookings(): Promise<void> {
       limit: pagination.value.pageSize,
       q: filters.value.search || undefined,
       type: filters.value.type === "" ? undefined : filters.value.type,
+      status: filters.value.status === "" ? undefined : filters.value.status,
       bookedFrom: filters.value.dateRange.start || undefined,
       bookedTo: filters.value.dateRange.end || undefined,
     };
@@ -91,15 +96,39 @@ async function fetchBookings(): Promise<void> {
   }
 }
 
+async function fetchBookingsSummary(): Promise<void> {
+  try {
+    loadingSummary.value = true;
+    const params = {
+      dateFrom: filters.value.dateRange.start || undefined,
+      dateTo: filters.value.dateRange.end || undefined,
+    };
+    const res = await bookingStore.fetchBookingsSummary(params);
+    summary.value = res;
+  }
+  catch (err: unknown) {
+    showError({
+      message: getApiErrorMessage(err, "Failed to get bookings summary"),
+    });
+  }
+  finally {
+    loadingSummary.value = false;
+  }
+}
+
 function handleSearch(): void {
   pagination.value.page = 1;
   fetchBookings();
+
+  if (filters.value.dateRange.start || filters.value.dateRange.end)
+    fetchBookingsSummary();
 }
 
 function clearFilters(): void {
   filters.value = {
     search: "",
     type: "",
+    status: "",
     dateRange: { start: null, end: null },
   };
 
@@ -147,7 +176,49 @@ async function handleRequestCancellation(): Promise<void> {
   }
 }
 
-onMounted(fetchBookings);
+const kpiData = computed(() => [
+  {
+    title: "Booking Type",
+    icon: ICONS.INQUIRIES,
+    value: "All Bookings",
+    subtitle: `${summary.value?.allBookings || "0"} bookings`,
+    type: "",
+  },
+  {
+    title: "Booking Type",
+    icon: ICONS.CALENDAR,
+    subtitle: `${summary.value?.sessions || "0"} bookings`,
+    value: "Sessions",
+    type: "session",
+  },
+  {
+    title: "Booking Type",
+    icon: ICONS.FLOWER,
+    subtitle: `${summary.value?.spa || "0"} bookings`,
+    value: "Spa",
+    type: "spa",
+  },
+  {
+    title: "Booking Type",
+    icon: ICONS.ID_CARD,
+    subtitle: `${summary.value?.passes || "0"} bookings`,
+    value: "Passes",
+    type: "passes",
+  },
+]);
+
+function filterByType(type: string): void {
+  filters.value.type = type;
+  pagination.value.page = 1;
+  fetchBookings();
+}
+
+onMounted(
+  async () => {
+    fetchBookings();
+    fetchBookingsSummary();
+  },
+);
 </script>
 
 <template>
@@ -172,6 +243,25 @@ onMounted(fetchBookings);
     </base-page-header>
 
     <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 page-content-height">
+      <div class="grid bg-stone-50 rounded border border-border py-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-y-6 md:gap-y-8 gap-x-0">
+        <dashboard-kpi-card
+          v-for="(kpi, index) in kpiData"
+          :key="index"
+          class="px-6 border-border"
+          :class="[
+            index % 2 === 0 ? 'md:border-r' : 'md:border-r-0',
+            index !== 3 ? 'xl:border-r' : 'xl:border-r-0',
+          ]"
+          :title="kpi.title"
+          :value="kpi.value"
+          :subtitle="kpi.subtitle"
+          :icon="kpi.icon"
+          :active="filters.type === kpi.type"
+          :clickable="true"
+          @click="filterByType(kpi.type)"
+        />
+      </div>
+
       <h2 class="text-base font-semibold">
         Bookings List
       </h2>
@@ -182,6 +272,7 @@ onMounted(fetchBookings);
             name="search"
             placeholder="Search"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
+            :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearch"
           />
 
@@ -193,13 +284,15 @@ onMounted(fetchBookings);
             :no-of-months="2"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
+
           <base-select
-            v-model="filters.type"
-            name="type"
-            placeholder="Select type"
-            :options="typeOptions"
+            v-model="filters.status"
+            :options="bookingStatusOptions"
+            name="status"
+            placeholder="Select status"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
+
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
               :loading="loading"
@@ -222,7 +315,7 @@ onMounted(fetchBookings);
         </div>
 
         <base-button
-          variant="ghost"
+          variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
         >
           Export

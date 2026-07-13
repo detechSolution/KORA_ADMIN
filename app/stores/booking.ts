@@ -77,14 +77,14 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
-  const fetchSpaTimeAvailability = async (params: { bookingDate: string; duration: number; timeUnit: string }): Promise<string[]> => {
+  const fetchSpaTimeAvailability = async (params: { bookingDate: string; duration: number; timeUnit: string }): Promise<any[]> => {
     try {
       const qs = new URLSearchParams({
         bookingDate: params.bookingDate,
         duration: params.duration.toString(),
         timeUnit: params.timeUnit,
       }).toString();
-      const res = await http.get(`${API_ENDPOINTS.BOOKINGS.SPA_TIME_AVAILABILITY}?${qs}`) as { data?: string[] };
+      const res = await http.get(`${API_ENDPOINTS.BOOKINGS.SPA_TIME_AVAILABILITY}?${qs}`) as { data?: any[] };
       return res.data ?? [];
     }
     catch (error: unknown) {
@@ -136,6 +136,18 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
+  const fetchBookingsSummary = async (params: Record<string, any>): Promise<any> => {
+    try {
+      const qs = buildQueryString(params);
+      const res = await http.get(`${API_ENDPOINTS.BOOKINGS.SUMMARY}?${qs}`);
+      return res;
+    }
+    catch (error: unknown) {
+      console.error(error, "Fetch Bookings Summary Error");
+      throw error;
+    }
+  };
+
   return {
     loading,
     bookings,
@@ -151,5 +163,6 @@ export const useBookingStore = defineStore("booking", () => {
     createExistingMemberBooking,
     requestBookingCancellation,
     fetchBookingById,
+    fetchBookingsSummary,
   };
 });

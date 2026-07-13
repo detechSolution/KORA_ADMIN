@@ -5,7 +5,9 @@ import type { Booking } from "~/types/booking";
 
 import { useChartColors } from "~/composables/use-chart-colors";
 import { useNotification } from "~/composables/use-notification";
+import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_BOOKINGS } from "~/config/permissions";
 import { useAnalyticsStore } from "~/stores/analytics";
 import { useBookingStore } from "~/stores/booking";
 import { useSessionsStore } from "~/stores/sessions";
@@ -15,12 +17,14 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
+  permissions: ["dashboard.view"],
 });
 
 const bookingsStore = useBookingStore();
 const analyticsStore = useAnalyticsStore();
 const sessionStore = useSessionsStore();
 
+const { can } = usePermission();
 const { error: showError } = useNotification();
 const bookingsLoading = ref(false);
 const analyticsLoading = ref(false);
@@ -130,14 +134,17 @@ async function getConsistentMembers() {
 const { revenueCategories: RevenueCategoriesMultple } = useChartColors();
 
 onMounted(() => {
-  Promise.all([
+  const calls = [
     getAnalyticsData(),
-    getRecentBookings(),
     getTodaySessions(),
     getBookingsBySessions(),
     getRevenueTrend(),
     getConsistentMembers(),
-  ]);
+  ];
+  if (can(PERMISSIONS_BOOKINGS.VIEW)) {
+    calls.push(getRecentBookings());
+  }
+  Promise.all(calls);
 });
 
 const recentBookingsColumns = [
@@ -218,7 +225,7 @@ const kpiData = computed(() => [
       </div>
 
       <!-- Recent Bookings -->
-      <div>
+      <div v-if="can(PERMISSIONS_BOOKINGS.VIEW)">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div>
             <h3 class="text-base font-semibold text-secondary flex items-center gap-2">
@@ -320,13 +327,20 @@ const kpiData = computed(() => [
           empty-title="No consistent members yet"
         >
           <template #member-cell="{ row }">
-            <div class="flex flex-col gap-1">
-              <span class="text-sm font-medium text-secondary">
-                {{ row.original.fullName || "-" }}
-              </span>
-              <span class="text-xs text-secondary-400">
-                {{ row.original.email || "-" }}
-              </span>
+            <div class="flex items-center gap-2">
+              <base-avatar
+                :src="row.original.avatar || undefined"
+                :alt="row.original.fullName || 'User'"
+                size="sm"
+              />
+              <div class="flex flex-col gap-1">
+                <span class="text-sm font-medium text-secondary">
+                  {{ row.original.fullName || "-" }}
+                </span>
+                <span class="text-xs text-secondary-400">
+                  {{ row.original.email || "-" }}
+                </span>
+              </div>
             </div>
           </template>
 
@@ -446,12 +460,12 @@ const kpiData = computed(() => [
         <dashboard-area-chart :data="revenueTrend" show-title />
         <USeparator />
 
-        <div v-if="revenueTrend" class="flex items-center justify-between p-6">
+        <div v-if="revenueTrend" class="flex text-sm items-center justify-between p-6">
           <div class="text-right">
             <p class="text-xs text-muted-foreground">
               7-Day Total
             </p>
-            <p class="text-lg font-semibold text-secondary">
+            <p class=" font-semibold text-secondary">
               Rs. {{ revenueTrend.totalRevenue }}
             </p>
           </div>
@@ -459,16 +473,20 @@ const kpiData = computed(() => [
             <p class="text-xs text-muted-foreground">
               Peak Day
             </p>
-            <p class="text-lg font-semibold text-secondary">
-              {{ revenueTrend.peakDay?.label }} - Rs. {{ revenueTrend.peakDay?.amount }}
+            <p class=" font-semibold text-secondary">
+              {{ revenueTrend.peakDay?.label }} : Rs. {{ revenueTrend.peakDay?.amount }}
             </p>
           </div>
           <div class="text-right">
             <p class="text-xs text-muted-foreground">
               Today vs Avg
             </p>
-            <p class="text-lg font-semibold text-secondary">
-              {{ revenueTrend.todayVsAveragePercent }}
+            <p
+              class="text-base font-semibold"
+              :class="revenueTrend.todayVsAveragePercent >= 0 ? 'text-green-600' : 'text-red-600'"
+            >
+              {{ revenueTrend.todayVsAveragePercent >= 0 ? '↑' : '↓' }}
+              {{ revenueTrend.todayVsAveragePercent }} %
             </p>
           </div>
         </div>

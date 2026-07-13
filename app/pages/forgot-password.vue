@@ -119,6 +119,7 @@ async function handlePasswordSubmit(): Promise<void> {
       await authStore.resetPassword({
         code: otpState.otp,
         newPassword: passwordState.password,
+        email: emailState.email,
       });
       toast.success({ message: "Password changed successfully." });
       await router.push({ path: "/login" });
@@ -186,7 +187,7 @@ async function handlePasswordSubmit(): Promise<void> {
       </div>
 
       <div
-        class="relative z-10 flex-1 flex flex-col justify-center min-h-0 w-full max-w-2xl mx-auto px-5 py-8 sm:px-8 sm:py-10 lg:py-12 overflow-y-auto"
+        class="relative z-10 max-w-125 flex-1 flex flex-col justify-center min-h-0 w-full mx-auto px-5 py-8 sm:px-8 sm:py-10 lg:py-12 overflow-y-auto"
       >
         <h1 class="mt-0 lg:mt-4 text-[28px] font-bold text-foreground tracking-tight">
           {{ currentStepTitle }}

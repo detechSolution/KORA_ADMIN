@@ -173,14 +173,15 @@ onMounted(() => {
             @keyup.enter="handleSearchClick"
           />
 
-          <base-date-picker
+          <!-- <base-date-picker
             v-model="state.dateRange"
             name="dateRange"
             placeholder="Select date range"
             range
             :no-of-months="2"
             class="w-full sm:w-auto sm:flex-1 "
-          />
+          /> -->
+
           <base-select
             v-model="state.status"
             name="status"
@@ -223,6 +224,10 @@ onMounted(() => {
         :loading="promoCodeStore.loading"
         empty-title="No promo codes found"
       >
+        <template #discountValue-cell="{ row }">
+          {{ row.original.discountType === "percent" ? `${row.original.discountValue} %` : `Rs. ${row.original.discountValue}` }}
+        </template>
+
         <template #isActive-cell="{ row }">
           <base-badge :color="row.original.isActive ? 'emerald' : 'red'">
             {{ row.original.isActive ? "Active" : "Inactive" }}

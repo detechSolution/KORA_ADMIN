@@ -29,10 +29,12 @@ const sessionTypeOptions = [
 ];
 
 const instructorOptions = computed(() =>
-  instructorsStore.instructors.data.map(i => ({
-    label: i.fullName,
-    value: i.id,
-  })),
+  instructorsStore.instructors.data
+    .filter((i: any) => i.isActive)
+    .map((i: any) => ({
+      label: i.fullName,
+      value: i.id,
+    })),
 );
 
 type ValidatableForm = {
@@ -89,10 +91,10 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  instructorId: z.coerce.number().min(1, "Instructor id is required").int("Instructor id must be a whole number"),
-  venue: z.string().trim().min(1, "Venue is required"),
-  capacity: z.coerce.number({ message: "Capacity is required" }).int({ message: "Capacity must be a whole number" }).positive("Capacity must be a positive integer"),
-  date: z.array(z.string().min(1, "Invalid date")).min(1, "At least one session date is required"),
+  instructorId: z.coerce.number({ message: "Please select an instructor" }).min(1, "Please select an instructor").int("Please select a valid instructor"),
+  venue: z.string().trim().min(1, "Please enter a venue"),
+  capacity: z.coerce.number({ message: "Please enter a capacity" }).int({ message: "Capacity must be a number" }).positive("Capacity must be at least 1"),
+  date: z.array(z.string().min(1, "Please select a valid date")).min(1, "Please add at least one date"),
   startTime: timeValueSchema,
   endTime: timeValueSchema,
 }).superRefine((data, ctx) => {
@@ -275,16 +277,16 @@ onMounted(async () => {
   await instructorsStore.fetchInstructors();
   if (sessionsStore.sessionToCopy) {
     const s = sessionsStore.sessionToCopy;
-    form.sessionName = `${s.name} (Copy)`;
+    form.sessionName = s.name;
     form.sessionType = s.type;
     form.sessionDescription = s.description;
     form.instructorId = s.instructorId;
     form.venue = s.venue;
     form.capacity = s.capacity;
     // Date in list is usually a single string sessionDate, but create expects an array
-    form.date = s.sessionDate ? [s.sessionDate] : [];
-    form.startTime = s.startTime;
-    form.endTime = s.endTime;
+    // form.date = s.sessionDate ? [s.sessionDate] : [];
+    // form.startTime = s.startTime;
+    // form.endTime = s.endTime;
     form.price = s.price;
     form.isFreeSession = s.isFree;
     form.bannerImage = s.bannerUrl;
@@ -458,7 +460,7 @@ onMounted(async () => {
                     />
                     <UFormField
                       name="startTime"
-                      label="Start Time*"
+                      label="Start Time"
                       :ui="{
                         error: 'mt-1 text-red-500 text-xs',
                       }"
@@ -472,7 +474,7 @@ onMounted(async () => {
                     </UFormField>
                     <UFormField
                       name="endTime"
-                      label="End Time*"
+                      label="End Time"
                       :ui="{
                         error: 'mt-1 text-red-500 text-xs',
                       }"

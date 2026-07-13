@@ -32,8 +32,8 @@ const profileEditInfo = computed(() => {
   if (!props.member)
     return [];
   return [
-    { label: "Created By", value: formatDate(props.member?.joinedAt as string), icon: ICONS.CALENDAR },
-    { label: "Last Edited By", value: props.member?.user?.role || "-", icon: ICONS.USER_PLUS },
+    { label: "Created At", value: formatDate(props.member?.joinedAt as string), icon: ICONS.CALENDAR },
+    // { label: "Last Edited By", value: props.member?.user?.role || "-", icon: ICONS.USER_PLUS },
     { label: "Last Edited Date", value: formatDate(props.member?.updatedAt as string), icon: ICONS.CALENDAR },
   ];
 });
@@ -97,6 +97,11 @@ watch(
                 Name
               </p>
               <div class="flex items-center gap-2">
+                <base-avatar
+                  key=""
+                  :name="member?.user?.fullName"
+                  :src="member?.user?.fullName"
+                />
                 <p class="text-sm font-medium">
                   {{ member?.user?.fullName }}
                 </p>
@@ -137,21 +142,29 @@ watch(
                 Status
               </p>
               <div class="flex items-center gap-2">
-                <div class="h-2 w-2 rounded-full" :class="member?.user?.isActive ? 'bg-green-500' : 'bg-red-500'" />
-                {{ member?.user?.isActive ? "Active" : "Inactive" }}
+                <div class="h-2 w-2 rounded-full" :class="member?.isActive ? 'bg-green-500' : 'bg-red-500'" />
+                {{ member?.isActive ? "Active" : "Inactive" }}
               </div>
             </div>
           </div>
         </div>
 
         <div
-          v-if="member?.membershipPlan"
+          v-if="member?.membershipPlan && member?.isActive"
           class="border border-stone-200 rounded-md p-3 flex justify-between items-center"
         >
           <div class="flex flex-col gap-2">
-            <h2>
-              {{ member?.membershipPlan?.name }}
-            </h2>
+            <div class="flex items-center gap-2">
+              <h2>
+                {{ member?.membershipPlan?.name }}
+              </h2>
+
+              <base-badge
+                v-if="member?.isFrozen"
+              >
+                Freezed
+              </base-badge>
+            </div>
             <p class="text-secondary-400 font-normal text-xs">
               {{ member?.subscriptionStartDate }} - {{ member?.subscriptionEndDate }}
             </p>
@@ -173,7 +186,7 @@ watch(
           <div
             v-for="profile in profileEditInfo"
             :key="profile.label"
-            class="flex flex-col w-full gap-2 p-3 border border-stone-200 bg-stone-50 rounded-md"
+            class="flex flex-col w-full gap-2 p-3 rounded-md"
           >
             <div class="text-secondary-400 text-xs flex gap-2 items-center">
               <UIcon :name="profile.icon" class="w-4 h-4" />
@@ -229,7 +242,7 @@ watch(
               <div class="font-medium flex gap-2 items-center text-sm text-secondary">
                 {{ payment.title }}
 
-                <base-badge>
+                <base-badge uppercase>
                   {{ payment.bookingCode || payment.referenceCode }}
                 </base-badge>
               </div>

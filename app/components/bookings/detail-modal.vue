@@ -39,9 +39,9 @@ const items = [
 const guestColumns = [
   { accessorKey: "fullName", header: "Client" },
   { accessorKey: "email", header: "Email" },
+  { accessorKey: "itemName", header: "Service Name" },
   { accessorKey: "phoneNumber", header: "Phone" },
 ];
-
 const searchQuery = ref("");
 
 const bookingInfo = computed(() => {
@@ -78,6 +78,19 @@ async function fetchBookingDetails() {
       message: getApiErrorMessage(error, "Failed to load booking details"),
     });
   }
+}
+
+function statusColor(status) {
+  const warning = ["cancellation_processing", "pending_payment", "pending"];
+  const error = ["cancelled"];
+
+  if (status === "confirmed")
+    return "success";
+  if (warning.includes(status))
+    return "warning";
+  if (error.includes(status))
+    return "error";
+  return "neutral";
 }
 
 watch(() => props.open, async (newValue) => {
@@ -141,16 +154,9 @@ watch(() => props.open, async (newValue) => {
             <span class="text-xs  text-secondary-400 tracking-wider">Status</span>
             <div class="flex items-center gap-2">
               <UChip
-                :color="booking?.status === 'confirmed'
-                  ? 'success'
-                  : booking?.status === 'cancellation_processing'
-                    ? 'warning'
-                    : booking?.status === 'cancelled'
-                      ? 'error'
-                      : 'neutral'
-                "
+                :color="statusColor(booking?.status)"
               />
-              <span class="text-base capitalize text-secondary-900">{{ booking?.status }}</span>
+              <span class="text-base capitalize text-secondary-900">{{ normalizeText(booking.status) }}</span>
             </div>
           </div>
         </div>

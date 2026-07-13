@@ -85,6 +85,7 @@ export const API_ENDPOINTS = {
   },
   BOOKINGS: {
     BASE: "/api/v1/bookings",
+    SUMMARY: "/api/v1/bookings/summary",
     GET_LIST: "/api/v1/bookings/getList",
     MANUAL: "/api/v1/bookings/manual",
     OPTIONS: "/api/v1/bookings/item-options",
@@ -118,6 +119,7 @@ export const API_ENDPOINTS = {
     OPTIONS: "/api/v1/members/options",
     GET_MEMBER_BOOKINGS: (id: number) => `/api/v1/members/${id}/bookings`,
     GET_MEMBER_PAYMENTS: (id: number) => `/api/v1/members/${id}/payments`,
+    FREEZE: (id: number) => `/api/v1/members/${id}/membership-freeze`,
   },
   // used
   MEMBERSHIP: {
@@ -140,6 +142,17 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/v1/promo-codes/${id}`,
     VALIDATE: "/api/v1/promo-codes/validate",
   },
+  NOTIFICATION: {
+    BASE: "/api/v1/notifications",
+    GET_LIST: "/api/v1/notifications/getList",
+    GET_DETAILS: (id: number) => `/api/v1/notifications/${id}`,
+    UPDATE: (id: number) => `/api/v1/notifications/${id}`,
+    GET_UNREAD_COUNT: "/api/v1/notifications/unread-count",
+    READ_ALL: "/api/v1/notifications/read-all",
+    READ: (id: number) => `/api/v1/notifications/${id}/read`,
+    POST_DEVICE: "/api/v1/notifications/devices",
+    DELETE_DEVICE: (deviceId: string) => `/api/v1/notifications/devices/${deviceId}`,
+  },
   // used
   MAILS: {
     BASE: "/api/v1/mails",
@@ -153,8 +166,9 @@ export const API_ENDPOINTS = {
     ROLES: {
       GET_ROLES: "/api/v1/administration/roles",
       GET_ROLES_CATALOG: "/api/v1/administration/roles/catalog",
-      UPDATE_MODULES: "/api/v1/system-admins/roles/updateModules",
+      UPDATE_MODULES: (id: number) => `/api/v1/administration/roles/${id}`,
       CREATE_ROLE: "/api/v1/administration/roles",
+
     },
     // used
     ADMINS: {

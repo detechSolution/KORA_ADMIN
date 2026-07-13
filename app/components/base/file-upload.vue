@@ -1,5 +1,21 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
+
+const props = withDefaults(defineProps<Props>(), {
+  label: "",
+  name: "",
+  accept: "both",
+  color: "neutral",
+  highlight: true,
+  multiple: false,
+  required: false,
+});
+
+const emit = defineEmits<{
+  (e: "update:modelValue", file: ModelValue): void;
+}>();
+
+const MAX_IMAGE_SIZE = 1 * 1024 * 1024;
 
 type FileType = "image" | "video" | "both";
 
@@ -18,23 +34,31 @@ type Props = {
   required?: boolean;
 };
 
-const props = withDefaults(defineProps<Props>(), {
-  label: "",
-  name: "",
-  accept: "both",
-  color: "neutral",
-  highlight: true,
-  multiple: false,
-  required: false,
-});
+const sizeError = ref<string | null>(null);
 
-const emit = defineEmits<{
-  (e: "update:modelValue", file: ModelValue): void;
-}>();
+function isImageFile(file: File): boolean {
+  return file.type.startsWith("image/");
+}
+
+function validateImageSize(value: ModelValue): boolean {
+  if (props.accept === "video")
+    return true;
+  const incoming = Array.isArray(value) ? value : (value ? [value] : []);
+  for (const f of incoming) {
+    if (f instanceof File && isImageFile(f) && f.size > MAX_IMAGE_SIZE) {
+      sizeError.value = `Image "${f.name}" exceeds the 2MB size limit.`;
+      return false;
+    }
+  }
+  sizeError.value = null;
+  return true;
+}
 
 const internalValue = computed({
   get: () => null,
   set: (value) => {
+    if (!validateImageSize(value))
+      return;
     if (props.multiple) {
       const current = Array.isArray(props.modelValue) ? props.modelValue : (props.modelValue ? [props.modelValue] : []);
       const newFiles = Array.isArray(value) ? value : (value ? [value] : []);
@@ -102,9 +126,9 @@ function getAcceptTypes(fileType: FileType): string {
 function getDefaultDescription(fileType: FileType): string {
   switch (fileType) {
     case "image":
-      return "SVG, PNG, JPG or GIF (max. 2MB)";
+      return "SVG, PNG, JPG or GIF (Max 5 MB)";
     case "video":
-      return "MP4, WebM, MOV or MKV (max. 50MB)";
+      return "MP4, WebM, MOV or MKV";
     case "both":
       return "Image (SVG, PNG, JPG, GIF) or Video (MP4, WebM, MOV, MKV)";
     default:
@@ -146,6 +170,13 @@ function getDefaultDescription(fileType: FileType): string {
             </div>
           </template>
         </UFileUpload>
+
+        <p
+          v-if="sizeError"
+          class="text-xs text-red-500"
+        >
+          {{ sizeError }}
+        </p>
 
         <div
           v-for="(file, index) in files"

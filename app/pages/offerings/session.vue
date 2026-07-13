@@ -215,6 +215,7 @@ onMounted(() => {
     <base-empty
       v-else-if="sessions.data.length === 0"
       title="No sessions found"
+      class="h-full"
     />
 
     <div
@@ -234,6 +235,8 @@ onMounted(() => {
         :price="`Rs. ${session.price}`"
         :capacity="session.capacity"
         :occupied="session.occupied"
+        :starts-at="session.startsAt"
+        :ends-at="session.endsAt"
         @open-edit-session-drawer="handleOpenEditSessionDrawer"
         @open-overview-modal="handleOpenOverviewModal"
         @copy-session="handleCopySession"
@@ -250,6 +253,7 @@ onMounted(() => {
     />
 
     <OfferingsSessionsEdit
+      v-if="isSessionEditDrawerOpen"
       :open="isSessionEditDrawerOpen"
       :session="selectedSession"
       @close-session-drawer="isSessionEditDrawerOpen = false"

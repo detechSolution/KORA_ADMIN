@@ -136,7 +136,7 @@ export const useAuthStore = defineStore("auth", () => {
         user.value.id = (u.id as number) ?? null;
         user.value.email = (u.email as string) ?? "";
         user.value.name = (u.fullName as string) ?? "";
-        // user.value.phone = (u.phone as string) ?? "";
+        user.value.phone = (u.phoneNumber as string) ?? "";
         // user.value.avatar = (u.avatar as string) ?? "";
         // user.value.is_active = u.is_active as boolean | undefined;
         user.value.role_id = (u?.adminRole?.id as number | null) ?? null;
@@ -168,10 +168,10 @@ export const useAuthStore = defineStore("auth", () => {
     await checkAuth(false);
   };
 
-  const login = async (payload: { email: string; password: string }): Promise<void> => {
+  const login = async (payload: { email: string; password: string; rememberMe: boolean }): Promise<void> => {
     try {
       unAuthorizedError.value = false;
-      const { accessToken, refreshToken } = await http.post(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password }) as any;
+      const { accessToken, refreshToken } = await http.post(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password, rememberMe: payload.rememberMe }) as any;
       if (accessToken && refreshToken) {
         storage.setTokens(accessToken, refreshToken);
         isAuthenticated.value = true;
@@ -229,7 +229,7 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  const resetPassword = async (payload: { code: string; newPassword: string }): Promise<void> => {
+  const resetPassword = async (payload: { code: string; newPassword: string; email: string }): Promise<void> => {
     try {
       return await http.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, payload) as any;
     }

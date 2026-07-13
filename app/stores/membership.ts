@@ -168,6 +168,16 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
+  const freezeMembership = async (id: number, payload: { startsOn: string; endsOn: string; reason: string }) => {
+    try {
+      await http.post(API_ENDPOINTS.MEMBERS.FREEZE(id), payload);
+    }
+    catch (error: unknown) {
+      console.error("Error freezing membership:", error);
+      throw error;
+    }
+  };
+
   const fetchMemberBookings = async (id: number) => {
     loading.value = true;
     try {
@@ -216,6 +226,7 @@ export const useMembershipStore = defineStore("membership", () => {
     createMember,
     membershipOptions,
     updateMember,
+    freezeMembership,
     fetchMemberBookings,
     memberBookings,
     fetchMemberPayments,

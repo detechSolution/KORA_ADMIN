@@ -296,7 +296,7 @@ onMounted(async () => {
       </template>
     </base-page-header>
 
-    <div class="bg-card border-x border-b border-border rounded-b-xl shadow-sm p-4 sm:p-6 page-content-height">
+    <div class=" bg-white  rounded-xl p-4 sm:p-6 page-content-height">
       <div class="flex flex-col lg:flex-row gap-6">
         <FormStepper
           :steps="steps"
@@ -410,10 +410,13 @@ onMounted(async () => {
                                 v-if="form.prices.length > 1"
                                 variant="ghost"
                                 size="md"
-                                class="md:mb-1"
+                                class="flex self-end"
                                 @click="removePricingRow(row.id)"
                               >
-                                Remove
+                                <UIcon
+                                  :name="ICONS.TRASH"
+                                  class="h-4 w-4 text-red-500"
+                                />
                               </base-button>
                             </div>
                           </div>

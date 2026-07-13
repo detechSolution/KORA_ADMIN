@@ -69,6 +69,7 @@ const columns = [
     id: "role",
     header: "Role",
     accessorKey: "role",
+    accessorFn: (row: SystemAdmin) => row.adminRole?.name || "-",
   },
   {
     id: "status",

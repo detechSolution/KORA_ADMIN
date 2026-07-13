@@ -59,8 +59,9 @@ async function handleLogin(): Promise<void> {
     const payload = {
       email: state.email,
       password: state.password,
+      rememberMe: rememberMe.value,
     };
-    await authStore.login(payload as { email: string; password: string });
+    await authStore.login(payload as { email: string; password: string; rememberMe: boolean });
     router.push({ name: "index" });
   }
   catch (error: unknown) {
@@ -145,7 +146,7 @@ async function handleLogin(): Promise<void> {
       </div>
 
       <div
-        class="relative z-10 flex-1 flex flex-col justify-center min-h-0 w-full max-w-2xl mx-auto px-5 py-8 sm:px-8 sm:py-10 lg:py-12 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto"
+        class="relative z-10  flex-1 flex flex-col justify-center min-h-0 w-full max-w-125 mx-auto px-5 py-8 sm:px-8 sm:py-10 lg:py-12 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto"
       >
         <h1 class="mt-0 lg:mt-4 text-[28px] font-bold text-foreground tracking-tight">
           Welcome Back
@@ -172,7 +173,7 @@ async function handleLogin(): Promise<void> {
             v-model="state.password"
             name="password"
             label="Password"
-            placeholder="Enter Your Passsword"
+            placeholder="Enter Your Password"
             type="password"
             @input="clearApiError"
           />

@@ -10,11 +10,7 @@ const bookingStore = useBookingStore();
 const { error: showError, success } = useNotification();
 const promoLoading = ref(false);
 const appliedPromo = ref<any>(null);
-const promoValidation = computed<"success" | "error" | "" | null>(() => {
-  if (!appliedPromo.value?.isValid)
-    return "error";
-  return "success";
-});
+const promoValidation = ref<"success" | "error" | "" | null>(null);
 
 const paymentMethods = [
   { value: "cash", label: "Cash", description: "Paid at counter", icon: ICONS.MONEY },
@@ -153,10 +149,6 @@ defineExpose({
             <div class="flex justify-between text-sm text-stone-600">
               <span>Promo Discount</span>
               <span class="font-medium text-stone-900">{{ appliedPromo?.isValid ? `-Rs. ${getPromoDiscount()}` : "0" }}</span>
-            </div>
-            <div class="flex justify-between text-sm text-stone-600">
-              <span>Membership Discount</span>
-              <span class="font-medium text-stone-900">N/A</span>
             </div>
             <div class="border-t border-stone-200 pt-3 flex justify-between font-bold text-stone-900">
               <span>Total</span>

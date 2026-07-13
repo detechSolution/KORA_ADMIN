@@ -56,6 +56,16 @@ export const useAdminStore = defineStore("admin", () => {
       throw error;
     }
   };
+  const updateRole = async (id: number, payload: { name: string; description: string; permissions: string[]; isActive: boolean }): Promise<void> => {
+    try {
+      await http.patch(API_ENDPOINTS.SYSTEM_ADMIN.ROLES.UPDATE_MODULES(id), payload);
+    }
+    catch (error) {
+      console.error("Failed to update role:", error);
+      throw error;
+    }
+  };
+
   const createRole = async (payload: { name: string; description: string; permissions: string[] }): Promise<void> => {
     try {
       await http.post(API_ENDPOINTS.SYSTEM_ADMIN.ROLES.CREATE_ROLE, payload);
@@ -115,6 +125,7 @@ export const useAdminStore = defineStore("admin", () => {
     fetchRoles,
     fetchRolesCatalog,
     createRole,
+    updateRole,
     fetchAdmins,
     createAdmin,
     updateAdmin,

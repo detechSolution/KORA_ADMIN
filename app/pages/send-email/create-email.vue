@@ -56,7 +56,7 @@ async function handleCreateMail() {
       recipientEmails: state.recipientEmails ?? [],
     });
     success({ message: "Mail created successfully" });
-    router.push("/instructors/instructors-list");
+    router.push("/send-email/email-list");
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });

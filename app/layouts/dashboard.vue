@@ -41,7 +41,7 @@ function handleSettingsClick() {
                       <UIcon :name="ICONS.NOTIFICATION" class="size-5" />
                     </base-button>
                     <template #content>
-                      <Placeholder class="size-48 m-4 inline-flex" />
+                      <notifications-notification-list />
                     </template>
                   </UPopover>
 

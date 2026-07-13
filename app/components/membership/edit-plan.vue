@@ -34,27 +34,40 @@ const frequencyOptions = [
   { label: "Custom", value: "custom" },
 ];
 
+function pct(label: string) {
+  return z
+    .number({ error: `${label} must be a number` })
+    .min(0, `${label} cannot be negative`)
+    .max(100, `${label} cannot exceed 100%`);
+}
+
 const optionSchema = z.object({
   frequency: z.string().min(1, "Frequency is required"),
   customDays: z.number().nullable(),
-  price: z.number().min(0, "Price must be a positive number"),
-  memberBenefit: z.number().min(0, "Member benefit must be a positive number"),
+  price: z.number({ error: "Price must be a number" }).min(0, "Price cannot be negative"),
   isVisible: z.boolean(),
 }).refine(
-  (data) => {
-    if (data.frequency === "custom") {
-      return data.customDays !== null && data.customDays >= 1;
-    }
-    return true;
-  },
-  {
-    message: "Custom days must be at least 1",
-    path: ["customDays"],
-  },
+  data => data.frequency !== "custom" || (data.customDays !== null && data.customDays >= 1),
+  { message: "Custom days must be at least 1", path: ["customDays"] },
 );
 
 const schema = z.object({
   name: z.string().min(1, "Plan name is required"),
+  freezeDays: z
+    .number({ error: "Freeze days must be a number" })
+    .refine(
+      value => value === 0 || value >= 7,
+      { message: "Freeze days must be 0 or at least 7" },
+    ),
+  maxVisitors: z.number({ error: "Max visitors must be a number" }).min(0, "Max visitors cannot be less than 0"),
+  spaBenefit: pct("Spa benefit"),
+  classBenefit: pct("Class benefit"),
+  eventBenefit: pct("Event benefit"),
+  workshopBenefit: pct("Workshop benefit"),
+  spaGuestBenefit: pct("Spa guest benefit"),
+  classGuestBenefit: pct("Class guest benefit"),
+  eventGuestBenefit: pct("Event guest benefit"),
+  workshopGuestBenefit: pct("Workshop guest benefit"),
   description: z.string().min(1, "Description is required"),
   isActive: z.boolean(),
   options: z.array(optionSchema).min(1, "At least one frequency option is required"),
@@ -64,6 +77,16 @@ type EditPlanSchema = z.output<typeof schema>;
 
 const state = reactive<Partial<EditPlanSchema>>({
   name: "",
+  freezeDays: 0,
+  maxVisitors: 0,
+  spaBenefit: 0,
+  classBenefit: 0,
+  eventBenefit: 0,
+  workshopBenefit: 0,
+  spaGuestBenefit: 0,
+  classGuestBenefit: 0,
+  eventGuestBenefit: 0,
+  workshopGuestBenefit: 0,
   description: "",
   isActive: true,
   options: [],
@@ -74,7 +97,6 @@ function addOption() {
     frequency: "monthly",
     customDays: null,
     price: 0,
-    memberBenefit: 0,
     isVisible: true,
   });
 }
@@ -86,12 +108,22 @@ function removeOption(index: number) {
 }
 
 function populateForm(plan: MembershipPlan | null): void {
-  state.name = plan?.name;
-  state.description = plan?.description;
-  state.isActive = plan?.isActive;
+  state.name = plan?.name ?? "";
+  state.description = plan?.description ?? "";
+  state.isActive = plan?.isActive ?? true;
+  state.freezeDays = plan?.freezeDays ?? 0;
+  state.maxVisitors = plan?.maxVisitors ?? 0;
+  state.spaBenefit = plan?.spaBenefit ?? 0;
+  state.classBenefit = plan?.classBenefit ?? 0;
+  state.eventBenefit = plan?.eventBenefit ?? 0;
+  state.workshopBenefit = plan?.workshopBenefit ?? 0;
+  state.spaGuestBenefit = plan?.spaGuestBenefit ?? 0;
+  state.classGuestBenefit = plan?.classGuestBenefit ?? 0;
+  state.eventGuestBenefit = plan?.eventGuestBenefit ?? 0;
+  state.workshopGuestBenefit = plan?.workshopGuestBenefit ?? 0;
   state.options = plan?.options?.map(opt => ({
     frequency: opt.frequency,
-    customDays: opt.customDays,
+    customDays: opt.customDays ?? null,
     price: opt.price,
     memberBenefit: opt.memberBenefit,
     isVisible: opt.isVisible,
@@ -128,11 +160,21 @@ async function handleSubmit(): Promise<void> {
       name: state.name!,
       description: state.description!,
       isActive: state.isActive!,
+      isFreezable: (state.freezeDays ?? 0) > 0,
+      freezeDays: state.freezeDays!,
+      maxVisitors: state.maxVisitors!,
+      spaBenefit: state.spaBenefit!,
+      classBenefit: state.classBenefit!,
+      eventBenefit: state.eventBenefit!,
+      workshopBenefit: state.workshopBenefit!,
+      spaGuestBenefit: state.spaGuestBenefit!,
+      classGuestBenefit: state.classGuestBenefit!,
+      eventGuestBenefit: state.eventGuestBenefit!,
+      workshopGuestBenefit: state.workshopGuestBenefit!,
       options: (state.options ?? []).map(opt => ({
         frequency: opt.frequency,
         ...(opt.frequency === "custom" && { customDays: opt.customDays }),
         price: opt.price,
-        memberBenefit: opt.memberBenefit,
         isVisible: opt.isVisible,
       })),
     };
@@ -184,6 +226,126 @@ watch(
             label="Plan Name*"
             placeholder="Enter plan name"
           />
+          <base-input
+            v-model="state.freezeDays"
+            name="freezeDays"
+            label="Freeze Days*"
+            placeholder="Enter freeze days"
+            type="number"
+          />
+          <base-input
+            v-model="state.maxVisitors"
+            name="maxVisitors"
+            label="Max Visitors*"
+            placeholder="Enter max visitors"
+            type="number"
+          />
+
+          <USeparator />
+
+          <div class="flex flex-col gap-0.5">
+            <h3 class="text-sm text-secondary font-medium">
+              Member Benefit
+            </h3>
+            <p class="text-secondary-500 text-xs">
+              Set a discount percentage for members on this plan. Leave as 0 if no discount applies.
+            </p>
+          </div>
+
+          <div class="flex justify-between gap-4 w-full">
+            <base-input
+              v-model="state.spaBenefit"
+              name="spaBenefit"
+              label="Spa*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+            <base-input
+              v-model="state.classBenefit"
+              name="classBenefit"
+              label="Class*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+          </div>
+
+          <div class="flex justify-between gap-4 w-full">
+            <base-input
+              v-model="state.eventBenefit"
+              name="eventBenefit"
+              label="Event*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+            <base-input
+              v-model="state.workshopBenefit"
+              name="workshopBenefit"
+              label="Workshop*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+          </div>
+          <USeparator />
+
+          <div class="flex flex-col gap-0.5">
+            <h3 class="text-sm text-secondary font-medium">
+              Guest Benefit
+            </h3>
+            <p class="text-secondary-500 text-xs">
+              Set a discount percentage for member’s guest. For services that do not require a benefit discount, please leave the value as 0
+            </p>
+          </div>
+
+          <div class="flex gap-4 w-full">
+            <base-input
+              v-model="state.spaGuestBenefit"
+              name="spaGuestBenefit"
+              label="Spa*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+            <base-input
+              v-model="state.classGuestBenefit"
+              name="classGuestBenefit"
+              label="Class*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+          </div>
+          <div class="flex gap-4 w-full">
+            <base-input
+              v-model="state.eventGuestBenefit"
+              name="eventGuestBenefit"
+              label="Event*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+            <base-input
+              v-model="state.workshopGuestBenefit"
+              name="workshopGuestBenefit"
+              label="Workshop*"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+          </div>
+
+          <USeparator />
 
           <div class="w-full overflow-auto">
             <base-text-editor
@@ -230,25 +392,14 @@ watch(
                 />
               </div>
 
-              <div class="flex gap-4 w-full flex-col md:flex-row">
-                <base-input
-                  v-if="option.frequency === 'custom'"
-                  v-model="option.customDays"
-                  :name="`options.${index}.customDays`"
-                  label="Enter custom days*"
-                  placeholder="Enter number of days"
-                  type="number"
-                  class="w-full md:w-1/2"
-                />
-                <base-input
-                  v-model="option.memberBenefit"
-                  :name="`options.${index}.memberBenefit`"
-                  label="Member Benefit"
-                  placeholder="Enter member benefit"
-                  class="w-full md:w-1/2"
-                  type="number"
-                />
-              </div>
+              <base-input
+                v-if="option.frequency === 'custom'"
+                v-model="option.customDays"
+                :name="`options.${index}.customDays`"
+                label="Enter custom days*"
+                placeholder="Enter number of days"
+                type="number"
+              />
 
               <div class="flex items-center justify-between gap-4">
                 <base-switch
