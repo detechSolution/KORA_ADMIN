@@ -180,6 +180,9 @@ watch(() => form.value.serviceId, (id) => {
     if (sessionDate) {
       form.value.date = sessionDate;
     }
+    if (item.startTime) {
+      form.value.time = item.startTime;
+    }
   }
 
   if (group.type?.toLowerCase() === "spa") {

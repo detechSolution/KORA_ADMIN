@@ -474,7 +474,7 @@ const kpiData = computed(() => [
               Peak Day
             </p>
             <p class=" font-semibold text-secondary">
-              {{ revenueTrend.peakDay?.label }} - Rs. {{ revenueTrend.peakDay?.amount }}
+              {{ revenueTrend.peakDay?.label }} : Rs. {{ revenueTrend.peakDay?.amount }}
             </p>
           </div>
           <div class="text-right">
