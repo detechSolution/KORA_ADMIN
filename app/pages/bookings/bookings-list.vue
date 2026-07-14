@@ -221,16 +221,13 @@ onMounted(async () => {
   fetchBookingsSummary();
 
   const search = route.query.search as string;
-  const bookedDate = route.query.bookedDate as string;
 
-  if (search || bookedDate) {
+  if (search) {
     filters.value.search = search || "";
-    filters.value.dateRange.start = bookedDate || null;
-    filters.value.dateRange.end = bookedDate || null;
 
     await fetchBookings();
 
-    router.replace({ query: { search: undefined, bookedDate: undefined } });
+    router.replace({ query: { search: undefined } });
   }
 });
 </script>
