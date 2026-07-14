@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 import { ICONS } from "~/config/icons";
 
 const router = useRouter();
+const notificationOpen = ref(false);
 
 function handleSettingsClick() {
   router.push({ name: "settings" });
@@ -33,7 +36,7 @@ function handleSettingsClick() {
 
               <template #right>
                 <div class="flex gap-3">
-                  <UPopover>
+                  <UPopover v-model:open="notificationOpen">
                     <base-button
                       class="p-2 border border-stone-200 text-stone-600 bg-stone-50"
                       variant="outline"
@@ -41,7 +44,7 @@ function handleSettingsClick() {
                       <UIcon :name="ICONS.NOTIFICATION" class="size-5" />
                     </base-button>
                     <template #content>
-                      <notifications-notification-list />
+                      <notifications-notification-list @close="notificationOpen = false" />
                     </template>
                   </UPopover>
 

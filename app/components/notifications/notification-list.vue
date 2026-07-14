@@ -7,6 +7,10 @@ import type { Notification } from "~/stores/notification";
 import { ICONS } from "~/config/icons";
 import { useNotificationStore } from "~/stores/notification";
 
+const emit = defineEmits<{
+  close: [];
+}>();
+
 const notificationStore = useNotificationStore();
 const { notifications, unreadCount, loading } = storeToRefs(notificationStore);
 
@@ -137,22 +141,17 @@ async function handleNotificationClick(item: Notification) {
     handleMarkAsRead(item.id);
   }
 
-  if (item.type === "booking_created" && item.payload) {
+  if (item.type === "booking_created" || item.type === "cancellation_request_created") {
     const query: Record<string, string> = {};
     if (item.payload.bookingCode)
       query.search = item.payload.bookingCode;
-    await navigateTo({ path: "/bookings/bookings-list", query });
-    return;
-  }
-  else if (item.type === "cancellation_request_created" && item.payload) {
-    const query: Record<string, string> = {};
-    if (item.payload.bookingCode)
-      query.search = item.payload.bookingCode;
-    await navigateTo({ path: "/financial/cancellations", query });
+    emit("close");
+    await navigateTo({ path: item.targetUrl, query });
     return;
   }
 
   if (item.targetUrl) {
+    emit("close");
     await navigateTo(item.targetUrl);
   }
 }
