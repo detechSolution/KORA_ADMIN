@@ -213,12 +213,21 @@ function filterByType(type: string): void {
   fetchBookings();
 }
 
-onMounted(
-  async () => {
-    fetchBookings();
-    fetchBookingsSummary();
-  },
-);
+const route = useRoute();
+const router = useRouter();
+
+onMounted(async () => {
+  await fetchBookings();
+  fetchBookingsSummary();
+
+  const bookingId = Number(route.query.bookingId);
+  if (bookingId) {
+    selectedBooking.value = { id: bookingId } as Booking;
+    isDetailModalOpen.value = true;
+
+    router.replace({ query: { ...route.query, bookingId: undefined } });
+  }
+});
 </script>
 
 <template>

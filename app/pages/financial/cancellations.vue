@@ -70,7 +70,7 @@ async function fetchCancellations() {
 }
 
 const isViewCancellationDrawerOpen = ref(false);
-const selectedCancellation = ref(null);
+const selectedCancellation = ref<any>(null);
 
 function handleViewClick(cancellation: any) {
   selectedCancellation.value = cancellation;
@@ -98,8 +98,19 @@ function hasActiveFilters(): boolean {
   return !!(state.value.search || state.value.status || state.value.dateRange.start || state.value.dateRange.end);
 }
 
-onMounted(() => {
-  fetchCancellations();
+const route = useRoute();
+const router = useRouter();
+
+onMounted(async () => {
+  await fetchCancellations();
+
+  const cancellationId = Number(route.query.cancellationId);
+  if (cancellationId) {
+    selectedCancellation.value = { id: cancellationId };
+    isViewCancellationDrawerOpen.value = true;
+
+    router.replace({ query: { ...route.query, cancellationId: undefined } });
+  }
 });
 </script>
 

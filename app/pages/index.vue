@@ -240,7 +240,7 @@ const kpiData = computed(() => [
             <base-button
               variant="outline"
               size="sm"
-              :leading-icon="ICONS.ARROW_LEFT"
+              :trailing-icon="ICONS.ARROW_RIGHT"
             >
               View all
             </base-button>
@@ -372,7 +372,7 @@ const kpiData = computed(() => [
           <base-button
             variant="outline"
             size="sm"
-            :leading-icon="ICONS.ARROW_LEFT"
+            :trailing-icon="ICONS.ARROW_RIGHT"
           >
             View all
           </base-button>

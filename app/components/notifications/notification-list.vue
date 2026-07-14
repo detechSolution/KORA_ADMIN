@@ -132,6 +132,16 @@ async function handleMarkAsRead(id: number) {
   await notificationStore.markAsRead(id);
 }
 
+async function handleNotificationClick(item: Notification) {
+  if (!isNotificationRead(item)) {
+    handleMarkAsRead(item.id);
+  }
+
+  if (item.targetUrl) {
+    await navigateTo(item.targetUrl);
+  }
+}
+
 async function handleMarkAllAsRead() {
   await notificationStore.markAllAsRead();
 }
@@ -229,20 +239,18 @@ async function handleLoadMore() {
             :key="item.id"
             type="button"
             class="group flex w-full items-start gap-4 py-4 text-left transition-colors hover:bg-stone-50"
-            :class="{ 'cursor-default': isNotificationRead(item) }"
-            @click="!isNotificationRead(item) && handleMarkAsRead(item.id)"
+            :class="{ 'cursor-default': isNotificationRead(item) && !item.targetUrl }"
+            @click="handleNotificationClick(item)"
           >
-            <div class="relative mt-0.5 size-11 shrink-0 rounded-full bg-stone-200">
-              <span class="absolute -bottom-0.5 -right-1 flex size-5 items-center justify-center rounded-full border border-white bg-stone-200 text-stone-700">
-                <UIcon :name="ICONS.NOTIFICATION" class="size-3.5" />
-              </span>
+            <div class="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-full bg-stone-200 text-stone-700">
+              <UIcon :name="ICONS.NOTIFICATION" class="size-5" />
             </div>
 
             <div class="min-w-0 flex-1 pt-1">
               <p class="truncate text-sm font-semibold leading-5 text-stone-950">
                 {{ item.title }}
               </p>
-              <p class="line-clamp-2 text-xs leading-5 text-stone-800">
+              <p class="line-clamp-4 text-xs leading-5 text-stone-800">
                 {{ getNotificationBody(item) }}
               </p>
             </div>
