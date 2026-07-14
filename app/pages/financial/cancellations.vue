@@ -102,13 +102,9 @@ const route = useRoute();
 const router = useRouter();
 
 onMounted(async () => {
-  await fetchCancellations();
-
   const search = route.query.search as string;
-  if (search) {
-    state.value.search = search;
-    handleSearchClick();
-  }
+
+  state.value.search = search;
   await fetchCancellations();
 
   router.replace({ query: { search: undefined } });

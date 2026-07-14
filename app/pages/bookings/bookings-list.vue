@@ -217,18 +217,12 @@ const route = useRoute();
 const router = useRouter();
 
 onMounted(async () => {
-  await fetchBookings();
-  fetchBookingsSummary();
-
   const search = route.query.search as string;
+  filters.value.search = search || "";
 
-  if (search) {
-    filters.value.search = search || "";
+  await Promise.all([fetchBookings(), fetchBookingsSummary()]);
 
-    await fetchBookings();
-
-    router.replace({ query: { search: undefined } });
-  }
+  router.replace({ query: { search: undefined } });
 });
 </script>
 

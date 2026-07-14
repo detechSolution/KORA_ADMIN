@@ -141,14 +141,11 @@ async function handleNotificationClick(item: Notification) {
     handleMarkAsRead(item.id);
   }
 
-  if (item.type === "booking_created" || item.type === "cancellation_request_created") {
-    const query: Record<string, string> = {};
-    if (item.payload.bookingCode)
-      query.search = item.payload.bookingCode;
-    emit("close");
-    await navigateTo({ path: item.targetUrl, query });
-    return;
-  }
+  const query: Record<string, string> = {};
+  if (item.payload.bookingCode)
+    query.search = item.payload.bookingCode;
+  emit("close");
+  await navigateTo({ path: item.targetUrl, query });
 
   if (item.targetUrl) {
     emit("close");
