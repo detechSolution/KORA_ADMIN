@@ -14,6 +14,13 @@ export type Notification = {
   read: boolean;
   createdAt: string;
   [key: string]: unknown;
+  payload: {
+    bookedFor: string;
+    bookingCode: string;
+    bookingId: number;
+    itemName: string;
+    memberName: string;
+  };
 };
 
 type FetchNotificationsParams = {

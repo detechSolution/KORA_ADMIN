@@ -119,7 +119,6 @@ export const useSessionsStore = defineStore("sessions", () => {
     try {
       const endpoint = API_ENDPOINTS.SESSION.GET_ATTENDANCE_LIST(sessionId);
       const response = await http.get(endpoint) as ApiResponse<any[]>;
-      console.log("🚀 ~ getAttendance ~ response:", response);
       sessionAttendance.value = response;
     }
     catch (error: unknown) {

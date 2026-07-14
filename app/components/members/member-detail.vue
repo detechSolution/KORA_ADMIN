@@ -8,7 +8,7 @@ import { getApiErrorMessage } from "~/utils/error";
 
 type Props = {
   open?: boolean;
-  member: any;
+  member?: any;
 };
 
 const props = withDefaults(defineProps<Props>(), {

@@ -213,12 +213,17 @@ function filterByType(type: string): void {
   fetchBookings();
 }
 
-onMounted(
-  async () => {
-    fetchBookings();
-    fetchBookingsSummary();
-  },
-);
+const route = useRoute();
+const router = useRouter();
+
+onMounted(async () => {
+  const search = route.query.search as string;
+  filters.value.search = search || "";
+
+  await Promise.all([fetchBookings(), fetchBookingsSummary()]);
+
+  router.replace({ query: { search: undefined } });
+});
 </script>
 
 <template>

@@ -168,8 +168,20 @@ export function formatDateTime(date: string | number | null | undefined): string
 export function formatDateTimeWithDot(date: string) {
   if (!date)
     return "";
+
   const d = new Date(date);
-  return `${d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} • ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}`;
+
+  return `${d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  })} • ${d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "UTC",
+  })}`;
 }
 
 export function normalizeText(text: string): string {
