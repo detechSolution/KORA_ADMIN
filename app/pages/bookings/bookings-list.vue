@@ -220,12 +220,17 @@ onMounted(async () => {
   await fetchBookings();
   fetchBookingsSummary();
 
-  const bookingId = Number(route.query.bookingId);
-  if (bookingId) {
-    selectedBooking.value = { id: bookingId } as Booking;
-    isDetailModalOpen.value = true;
+  const search = route.query.search as string;
+  const bookedDate = route.query.bookedDate as string;
 
-    router.replace({ query: { ...route.query, bookingId: undefined } });
+  if (search || bookedDate) {
+    filters.value.search = search || "";
+    filters.value.dateRange.start = bookedDate || null;
+    filters.value.dateRange.end = bookedDate || null;
+
+    await fetchBookings();
+
+    router.replace({ query: { search: undefined, bookedDate: undefined } });
   }
 });
 </script>

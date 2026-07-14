@@ -137,6 +137,23 @@ async function handleNotificationClick(item: Notification) {
     handleMarkAsRead(item.id);
   }
 
+  if (item.type === "booking_created" && item.payload) {
+    const query: Record<string, string> = {};
+    if (item.payload.memberName)
+      query.search = item.payload.memberName;
+    if (item.payload.bookedFor)
+      query.bookedDate = item.payload.bookedFor.split("T")[0];
+    await navigateTo({ path: "/bookings/bookings-list", query });
+    return;
+  }
+  else if (item.type === "cancellation_request_created" && item.payload) {
+    const query: Record<string, string> = {};
+    if (item.payload.bookingCode)
+      query.search = item.payload.bookingCode;
+    await navigateTo({ path: "/financial/cancellations", query });
+    return;
+  }
+
   if (item.targetUrl) {
     await navigateTo(item.targetUrl);
   }

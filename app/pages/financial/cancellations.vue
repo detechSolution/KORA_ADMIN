@@ -104,13 +104,14 @@ const router = useRouter();
 onMounted(async () => {
   await fetchCancellations();
 
-  const cancellationId = Number(route.query.cancellationId);
-  if (cancellationId) {
-    selectedCancellation.value = { id: cancellationId };
-    isViewCancellationDrawerOpen.value = true;
-
-    router.replace({ query: { ...route.query, cancellationId: undefined } });
+  const search = route.query.search as string;
+  if (search) {
+    state.value.search = search;
+    handleSearchClick();
   }
+  await fetchCancellations();
+
+  router.replace({ query: { search: undefined } });
 });
 </script>
 
