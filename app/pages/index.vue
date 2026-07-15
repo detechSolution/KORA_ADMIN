@@ -395,7 +395,8 @@ const kpiData = computed(() => [
           :key="index"
           :title="session.name"
           :capacity="session.capacity"
-          :starts-at="session.startsAt"
+          :start-date="session.sessionDate"
+          :start-time="session.startTime"
           :occupied="session.occupied"
         />
       </div>

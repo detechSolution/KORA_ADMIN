@@ -19,8 +19,8 @@ type SessionCardProps = {
   price: string;
   capacity: number;
   occupied: number;
-  startsAt?: string;
-  endsAt?: string;
+  startsAt: string;
+  endsAt: string;
 };
 
 const { error: showError } = useNotification();
@@ -78,7 +78,8 @@ function handleAttendanceClick() {
         <UIcon :name="ICONS.LOCATION" class="text-primary" /> {{ location }}
       </p>
       <p class="flex items-center gap-2">
-        <UIcon :name="ICONS.CLOCK" class="text-primary" /> {{ time }}
+        <UIcon :name="ICONS.CLOCK" class="text-primary" /> {{ formatTime(startsAt) }}
+        - {{ formatTime(endsAt) }}
       </p>
     </div>
 

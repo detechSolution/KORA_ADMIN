@@ -65,7 +65,7 @@ function togglePasswordVisibility() {
       class="w-full"
       size="lg"
       :ui="{
-        base: 'bg-transparent resize-none ring-stone-300 placeholder:text-stone-400',
+        base: 'bg-transparent ring-stone-300 min-h-37.5 placeholder:text-stone-400',
       }"
     />
     <UInput
