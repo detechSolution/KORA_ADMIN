@@ -1,6 +1,7 @@
 import type { ApiError, ApiErrorData } from "~/types/api";
 
 import { useStorage } from "~/composables/use-storage";
+import { API_ENDPOINTS } from "~/config/constants";
 import { useAuthStore } from "~/stores/auth";
 import { isApiError } from "~/utils/error";
 
@@ -26,6 +27,21 @@ type HttpClientConfig = {
   storage: ReturnType<typeof useStorage>;
 };
 
+let isRefreshing = false;
+let failedQueue: { resolve: (value?: unknown) => void; reject: (reason?: any) => void }[] = [];
+
+function processQueue(error: Error | null, token: string | null = null) {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    }
+    else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+}
+
 function createHttpClient(config: HttpClientConfig) {
   const { baseURL, storage } = config;
   const timeout = config.timeout ?? 10000;
@@ -36,7 +52,7 @@ function createHttpClient(config: HttpClientConfig) {
 
   async function request<T>(
     endpoint: string,
-    options: RequestInit = {},
+    options: RequestInit & { _retry?: boolean } = {},
   ): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -83,6 +99,63 @@ function createHttpClient(config: HttpClientConfig) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === "AbortError") {
         throw new Error("Request timeout");
+      }
+      if (isApiError(error) && error.status === 401 && !options._retry && endpoint !== API_ENDPOINTS.AUTH.REFRESH) {
+        const refreshToken = storage.getRefreshToken();
+        if (!refreshToken) {
+          useAuthStore().setUnAuthorizedError(true);
+          useAuthStore().logout();
+          throw error;
+        }
+
+        if (isRefreshing) {
+          return new Promise<unknown>((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then(() => {
+              return request<T>(endpoint, { ...options, _retry: true });
+            })
+            .catch((err) => {
+              return Promise.reject(err);
+            });
+        }
+
+        options._retry = true;
+        isRefreshing = true;
+
+        try {
+          const refreshResponse = await fetch(`${baseURL}${API_ENDPOINTS.AUTH.REFRESH}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken }),
+          });
+
+          if (!refreshResponse.ok) {
+            throw new Error("Refresh token expired");
+          }
+
+          const refreshData = await refreshResponse.json() as { accessToken?: string; refreshToken?: string; data?: { accessToken?: string; refreshToken?: string } };
+          const newAccessToken = refreshData.accessToken || refreshData.data?.accessToken;
+          const newRefreshToken = refreshData.refreshToken || refreshData.data?.refreshToken;
+
+          if (newAccessToken && newRefreshToken) {
+            storage.setTokens(newAccessToken, newRefreshToken);
+            processQueue(null, newAccessToken);
+            return await request<T>(endpoint, options);
+          }
+          else {
+            throw new Error("Invalid tokens from refresh calculation");
+          }
+        }
+        catch (refreshError) {
+          processQueue(refreshError as Error, null);
+          useAuthStore().setUnAuthorizedError(true);
+          useAuthStore().logout();
+          throw error;
+        }
+        finally {
+          isRefreshing = false;
+        }
       }
       if (isApiError(error) && error.status === 401) {
         useAuthStore().setUnAuthorizedError(true);

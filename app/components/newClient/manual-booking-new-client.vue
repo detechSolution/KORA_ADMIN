@@ -191,8 +191,9 @@ async function handleCreateBooking(): Promise<void> {
       promoCode: form.promoCode || undefined,
       paymentMethod: form.paymentMethod,
     };
-    if (payload.bookingTime === "")
+    if (payload.bookingTime === "" || payload.itemType.type.toLowerCase() === "session") {
       delete payload.bookingTime;
+    }
     await bookingStore.createNewClientBooking(payload as CreateNewClientBookingPayload);
 
     success({ message: "Booking created successfully" });

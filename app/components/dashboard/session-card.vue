@@ -2,14 +2,16 @@
 withDefaults(defineProps<DashboardSessionCardProps>(), {
   title: "",
   capacity: undefined,
-  startsAt: "",
+  startDate: "",
+  startTime: "",
   occupied: undefined,
 });
 
 type DashboardSessionCardProps = {
   title?: string;
   capacity?: number;
-  startsAt?: string;
+  startDate?: string;
+  startTime?: string;
   occupied?: number;
 };
 </script>
@@ -24,7 +26,7 @@ type DashboardSessionCardProps = {
       </h2>
 
       <div class="flex gap-2 text-[10px] md:text-xs text-secondary-500 items-center">
-        {{ formatDateTimeWithDot(startsAt) }}
+        {{ formatDate(startDate) }} • {{ formatTime(startTime) }}
       </div>
     </div>
     <div class="bg-primary-50 flex self-end w-fit h-fit rounded-full px-2 py-1">
