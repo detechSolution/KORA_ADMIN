@@ -190,7 +190,7 @@ const kpiData = computed(() => [
   {
     title: "Today's Revenue",
     icon: ICONS.CHART_LINE,
-    value: analyticsData.value.todayRevenue,
+    value: `Rs ${analyticsData.value.todayRevenue}`,
     link: { path: "/financial/payments" },
   },
 ]);
