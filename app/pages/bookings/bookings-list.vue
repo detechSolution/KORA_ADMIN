@@ -64,6 +64,10 @@ const columns = computed(() => [
     header: "Booked Date",
     accessorFn: (row: Booking) => formatDate(row.bookedFor) || "N/A",
   },
+  {
+    accessorKey: "Price",
+    header: "Total (NPR)",
+  },
   { accessorKey: "status", header: "Status" },
   { accessorKey: "actions", header: "Actions" },
 ]);
