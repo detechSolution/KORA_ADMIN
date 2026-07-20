@@ -23,6 +23,12 @@ const bookingStatusOptions = [
   { label: "Cancelled", value: "cancelled" },
 ];
 
+const bookingTypeOptions = [
+  { label: "Session", value: "session" },
+  { label: "Spa", value: "spa" },
+  { label: "Pass", value: "passes" },
+];
+
 const { success, error: showError } = useNotification();
 const bookingStore = useBookingStore();
 const bookings = computed(() => bookingStore.bookings);
@@ -68,6 +74,7 @@ const hasActiveFilters = computed(() => {
     || filters.value.dateRange.start
     || filters.value.dateRange.end
     || filters.value.status !== ""
+    || filters.value.type !== ""
   );
 },
 );
@@ -188,7 +195,7 @@ const kpiData = computed(() => [
     title: "Booking Type",
     icon: ICONS.CALENDAR,
     subtitle: `${summary.value?.sessions || "0"} bookings`,
-    value: "Sessions",
+    value: "Session",
     type: "session",
   },
   {
@@ -202,16 +209,10 @@ const kpiData = computed(() => [
     title: "Booking Type",
     icon: ICONS.ID_CARD,
     subtitle: `${summary.value?.passes || "0"} bookings`,
-    value: "Passes",
+    value: "Pass",
     type: "passes",
   },
 ]);
-
-function filterByType(type: string): void {
-  filters.value.type = type;
-  pagination.value.page = 1;
-  fetchBookings();
-}
 
 const route = useRoute();
 const router = useRouter();
@@ -261,9 +262,6 @@ onMounted(async () => {
           :value="kpi.value"
           :subtitle="kpi.subtitle"
           :icon="kpi.icon"
-          :active="filters.type === kpi.type"
-          :clickable="true"
-          @click="filterByType(kpi.type)"
         />
       </div>
 
@@ -298,6 +296,14 @@ onMounted(async () => {
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
 
+          <base-select
+            v-model="filters.type"
+            :options="bookingTypeOptions"
+            name="bookingType"
+            placeholder="Select booking type"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
+          />
+
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
               :loading="loading"
@@ -319,12 +325,12 @@ onMounted(async () => {
           </div>
         </div>
 
-        <base-button
+        <!-- <base-button
           variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
         >
           Export
-        </base-button>
+        </base-button> -->
       </div>
       <base-table
         :data="bookingStore.bookings.data"
