@@ -26,6 +26,7 @@ const emit = defineEmits<{
 
 const { error: showError } = useNotification();
 const bookingDetails = ref<any>(null);
+const loading = ref(props.loading);
 const bookingStore = useBookingStore();
 
 const guestColumns = [
@@ -41,12 +42,16 @@ async function fetchBookingDetails() {
     return;
 
   try {
+    loading.value = true;
     bookingDetails.value = await bookingStore.fetchBookingById(id);
   }
   catch (error) {
     showError({
       message: getApiErrorMessage(error, "Failed to load booking details"),
     });
+  }
+  finally {
+    loading.value = false;
   }
 }
 
@@ -111,6 +116,8 @@ watch(() => props.open, async (newValue) => {
           :columns="guestColumns"
           :data="bookingDetails?.guests || []"
           empty-title="No guests found"
+          :loading="loading"
+          :skeleton-rows="2"
         >
           <template #fullName-cell="{ row }">
             <div class="flex items-center gap-3">
