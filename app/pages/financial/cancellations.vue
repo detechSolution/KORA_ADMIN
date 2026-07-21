@@ -123,11 +123,6 @@ onMounted(async () => {
     </base-page-header>
 
     <div class="bg-white rounded-xl p-6 flex flex-col gap-4">
-      <div>
-        <h2 class="text-base font-semibold">
-          Cancellations List
-        </h2>
-      </div>
 
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
