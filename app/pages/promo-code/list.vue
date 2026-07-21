@@ -209,13 +209,6 @@ onMounted(() => {
             </base-button>
           </div>
         </div>
-
-        <base-button
-          variant="outline"
-          :leading-icon="ICONS.DOWNLOAD"
-        >
-          Export
-        </base-button>
       </div>
 
       <base-table

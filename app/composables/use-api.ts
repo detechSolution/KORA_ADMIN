@@ -124,17 +124,14 @@ function createHttpClient(config: HttpClientConfig) {
         isRefreshing = true;
 
         try {
-          const refreshResponse = await fetch(`${baseURL}${API_ENDPOINTS.AUTH.REFRESH}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refreshToken }),
-          });
+          const refreshData = await request<{ accessToken?: string; refreshToken?: string; data?: { accessToken?: string; refreshToken?: string } }>(
+            API_ENDPOINTS.AUTH.REFRESH,
+            {
+              method: "POST",
+              body: JSON.stringify({ refreshToken }),
+            },
+          );
 
-          if (!refreshResponse.ok) {
-            throw new Error("Refresh token expired");
-          }
-
-          const refreshData = await refreshResponse.json() as { accessToken?: string; refreshToken?: string; data?: { accessToken?: string; refreshToken?: string } };
           const newAccessToken = refreshData.accessToken || refreshData.data?.accessToken;
           const newRefreshToken = refreshData.refreshToken || refreshData.data?.refreshToken;
 

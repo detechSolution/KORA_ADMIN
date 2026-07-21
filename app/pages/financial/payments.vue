@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
+import { useExport } from "~/composables/use-export";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useFinanceStore } from "~/stores/finance";
@@ -30,6 +31,7 @@ const summaryOptions = ref([
 const financeStore = useFinanceStore();
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
+const { exportToCSV } = useExport();
 
 const state = ref({
   summaryOption: "today",
@@ -91,6 +93,49 @@ function clearFilters(): void {
   state.value.status = null;
   state.value.dateRange = { start: null, end: null };
   handleSearchClick();
+}
+
+const exportColumns = [
+  {
+    header: "Client Name",
+    accessorFn: (row: any) => row.member?.user?.fullName || "-",
+  },
+  {
+    header: "Client Email",
+    accessorFn: (row: any) => row.member?.user?.email || "-",
+  },
+  {
+    header: "Client Phone",
+    accessorFn: (row: any) => row.member?.user?.phoneNumber || "-",
+  },
+  {
+    header: "Reference ID",
+    accessorFn: (row: any) => row.referenceCode || "-",
+  },
+  {
+    header: "Amount",
+    accessorFn: (row: any) => row.amount != null ? `Rs. ${row.amount}` : "-",
+  },
+  {
+    header: "Paid Date",
+    accessorFn: (row: any) => formatDate(row.createdAt) || "N/A",
+  },
+  {
+    header: "Method",
+    accessorFn: (row: any) => row.method || "-",
+  },
+  {
+    header: "Status",
+    accessorFn: (row: any) => row.status || "-",
+  },
+];
+
+function handleExport(): void {
+  exportToCSV(
+    `payments_export_${formatDate(new Date().toISOString())}`,
+    payments.value.data,
+    exportColumns,
+  );
 }
 
 onMounted(() => {
@@ -213,6 +258,7 @@ const kpiCards = computed(() => [
         <base-button
           variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
+          @click="handleExport"
         >
           Export
         </base-button>

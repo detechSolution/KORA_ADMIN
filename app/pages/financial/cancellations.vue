@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 
 import ViewCancellationDrawer from "~/components/Cancellations/view-cancellation.vue";
+import { useExport } from "~/composables/use-export";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
@@ -32,6 +33,7 @@ const columns = [
 ];
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
+const { exportToCSV } = useExport();
 
 const state = ref({
   search: "",
@@ -96,6 +98,49 @@ function clearFilters() {
 
 function hasActiveFilters(): boolean {
   return !!(state.value.search || state.value.status || state.value.dateRange.start || state.value.dateRange.end);
+}
+
+const exportColumns = [
+  {
+    header: "Client Name",
+    accessorFn: (row: any) => row.clientName || "-",
+  },
+  {
+    header: "Client Phone",
+    accessorFn: (row: any) => row.clientPhoneNumber || "-",
+  },
+  {
+    header: "Client Email",
+    accessorFn: (row: any) => row.clientEmail || "-",
+  },
+  {
+    header: "Reference ID",
+    accessorFn: (row: any) => row.referenceCode || "-",
+  },
+  {
+    header: "Requested Date",
+    accessorFn: (row: any) => formatDate(row.requestedDate) || "N/A",
+  },
+  {
+    header: "Refunded Date",
+    accessorFn: (row: any) => formatDate(row.refundedDate) || "N/A",
+  },
+  {
+    header: "Amount",
+    accessorFn: (row: any) => row.amount != null ? `Rs. ${row.amount}` : "-",
+  },
+  {
+    header: "Status",
+    accessorFn: (row: any) => row.status || "-",
+  },
+];
+
+function handleExport(): void {
+  exportToCSV(
+    `cancellations_export_${formatDate(new Date().toISOString())}`,
+    cancellations.value.data,
+    exportColumns,
+  );
 }
 
 const route = useRoute();
@@ -178,6 +223,7 @@ onMounted(async () => {
         <base-button
           variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
+          @click="handleExport"
         >
           Export
         </base-button>

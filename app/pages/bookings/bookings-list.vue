@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from "vue";
 
 import type { Booking } from "~/types/booking";
 
+import { useExport } from "~/composables/use-export";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
@@ -24,6 +25,7 @@ const bookingStatusOptions = [
 ];
 
 const { success, error: showError } = useNotification();
+const { exportToCSV } = useExport();
 const bookingStore = useBookingStore();
 const bookings = computed(() => bookingStore.bookings);
 const { pagination } = usePagination();
@@ -50,12 +52,12 @@ const filters = ref({
 
 const columns = computed(() => [
   { accessorKey: "bookingCode", header: "Booking ID" },
-  { accessorKey: "client", header: "Client" },
+  { accessorKey: "clientName", header: "Client" },
   { accessorKey: "itemName", header: "Session/Service" },
   { accessorKey: "itemType", header: "Type" },
   {
     accessorKey: "bookedFor",
-    header: "Booked Date",
+    header: "Scheduled Date",
     accessorFn: (row: Booking) => formatDate(row.bookedFor) || "N/A",
   },
   { accessorKey: "status", header: "Status" },
@@ -134,6 +136,14 @@ function clearFilters(): void {
 
   pagination.value.page = 1;
   fetchBookings();
+}
+
+function handleExport(): void {
+  exportToCSV(
+    `bookings_export_${formatDate(new Date().toISOString())}`,
+    bookingStore.bookings.data,
+    columns.value,
+  );
 }
 
 function openCancelModal(booking: any): void {
@@ -322,6 +332,7 @@ onMounted(async () => {
         <base-button
           variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
+          @click="handleExport"
         >
           Export
         </base-button>

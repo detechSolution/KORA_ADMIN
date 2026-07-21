@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
+import { useExport } from "~/composables/use-export";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
@@ -68,6 +69,7 @@ const columns = [
 const membersStore = useMembershipStore();
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
+const { exportToCSV } = useExport();
 
 const editDrawerOpen = ref(false);
 const addMembershipDrawerOpen = ref(false);
@@ -163,6 +165,70 @@ function clearFilters(): void {
 
   pagination.value.page = 1;
   fetchMembers();
+}
+
+const exportColumns = [
+  {
+    header: "Full Name",
+    accessorFn: (row: any) => row.fullName || row.user?.fullName || "N/A",
+  },
+  {
+    header: "Email",
+    accessorFn: (row: any) => row.email || row.user?.email || "N/A",
+  },
+  {
+    header: "Phone",
+    accessorFn: (row: any) => row.phoneNumber || "N/A",
+  },
+  {
+    header: "Joined Date",
+    accessorFn: (row: any) => formatDate(row.joinedAt),
+  },
+  {
+    header: "Strikes",
+    accessorFn: (row: any) => row.sessionAttendances?.filter((item: any) => item.attendanceStatus === "no_show").length ?? 0,
+  },
+  {
+    header: "Type",
+    accessorFn: (row: any) => row.user?.role || "N/A",
+  },
+  {
+    header: "Membership Plan",
+    accessorFn: (row: any) => row.membershipPlan?.name || "N/A",
+  },
+  {
+    header: "Plan Frequency",
+    accessorFn: (row: any) => row.membershipPlanOption?.frequency || "N/A",
+  },
+  {
+    header: "Subscription Start",
+    accessorFn: (row: any) => row.subscriptionStartDate ? formatDate(row.subscriptionStartDate) : "N/A",
+  },
+  {
+    header: "Subscription End",
+    accessorFn: (row: any) => row.subscriptionEndDate ? formatDate(row.subscriptionEndDate) : "N/A",
+  },
+  {
+    header: "Status",
+    accessorFn: (row: any) => {
+      if (row.user?.role === "guest" || !row.membershipPlanId) {
+        return "N/A";
+      }
+      return row.isActive ? "Active" : "Expired";
+    },
+  },
+  {
+    header: "Frozen",
+    accessorFn: (row: any) => row.isFrozen ? "Yes" : "No",
+  },
+];
+
+function handleExport(): void {
+  exportToCSV(
+    `members_export_${formatDate(new Date().toISOString())}`,
+    members.value.data,
+    exportColumns,
+  );
 }
 
 const hasActiveFilters = computed(() => {
@@ -277,6 +343,7 @@ onMounted(() => {
         <base-button
           variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
+          @click="handleExport"
         >
           Export
         </base-button>
