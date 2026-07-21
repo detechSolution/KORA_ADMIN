@@ -187,37 +187,6 @@ async function handleRequestCancellation(): Promise<void> {
   }
 }
 
-const kpiData = computed(() => [
-  {
-    title: "Booking Type",
-    icon: ICONS.INQUIRIES,
-    value: "All Bookings",
-    subtitle: `${summary.value?.allBookings || "0"} bookings`,
-    type: "",
-  },
-  {
-    title: "Booking Type",
-    icon: ICONS.CALENDAR,
-    subtitle: `${summary.value?.sessions || "0"} bookings`,
-    value: "Session",
-    type: "session",
-  },
-  {
-    title: "Booking Type",
-    icon: ICONS.FLOWER,
-    subtitle: `${summary.value?.spa || "0"} bookings`,
-    value: "Spa",
-    type: "spa",
-  },
-  {
-    title: "Booking Type",
-    icon: ICONS.ID_CARD,
-    subtitle: `${summary.value?.passes || "0"} bookings`,
-    value: "Pass",
-    type: "passes",
-  },
-]);
-
 const route = useRoute();
 const router = useRouter();
 
@@ -253,25 +222,6 @@ onMounted(async () => {
     </base-page-header>
 
     <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 page-content-height">
-      <div class="grid bg-stone-50 rounded border border-border py-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-y-6 md:gap-y-8 gap-x-0">
-        <dashboard-kpi-card
-          v-for="(kpi, index) in kpiData"
-          :key="index"
-          class="px-6 border-border"
-          :class="[
-            index % 2 === 0 ? 'md:border-r' : 'md:border-r-0',
-            index !== 3 ? 'xl:border-r' : 'xl:border-r-0',
-          ]"
-          :title="kpi.title"
-          :value="kpi.value"
-          :subtitle="kpi.subtitle"
-          :icon="kpi.icon"
-        />
-      </div>
-
-      <h2 class="text-base font-semibold">
-        Bookings List
-      </h2>
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
           <base-input
@@ -329,12 +279,12 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- <base-button
+        <base-button
           variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
         >
           Export
-        </base-button> -->
+        </base-button>
       </div>
       <base-table
         :data="bookingStore.bookings.data"
