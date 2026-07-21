@@ -62,7 +62,7 @@ export type CreateNewClientBookingPayload = {
     type: string;
   };
   bookingDate: string;
-  bookingTime: string | undefined;
+  bookingTime?: string | undefined;
   fullName: string;
   phoneNumber?: string;
   email: string;

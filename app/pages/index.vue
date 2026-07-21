@@ -190,7 +190,7 @@ const kpiData = computed(() => [
   {
     title: "Today's Revenue",
     icon: ICONS.CHART_LINE,
-    value: analyticsData.value.todayRevenue,
+    value: `Rs ${analyticsData.value.todayRevenue}`,
     link: { path: "/financial/payments" },
   },
 ]);
@@ -240,7 +240,7 @@ const kpiData = computed(() => [
             <base-button
               variant="outline"
               size="sm"
-              :leading-icon="ICONS.ARROW_LEFT"
+              :trailing-icon="ICONS.ARROW_RIGHT"
             >
               View all
             </base-button>
@@ -372,7 +372,7 @@ const kpiData = computed(() => [
           <base-button
             variant="outline"
             size="sm"
-            :leading-icon="ICONS.ARROW_LEFT"
+            :trailing-icon="ICONS.ARROW_RIGHT"
           >
             View all
           </base-button>
@@ -395,7 +395,8 @@ const kpiData = computed(() => [
           :key="index"
           :title="session.name"
           :capacity="session.capacity"
-          :starts-at="session.startsAt"
+          :start-date="session.sessionDate"
+          :start-time="session.startTime"
           :occupied="session.occupied"
         />
       </div>

@@ -71,7 +71,7 @@ async function handleLogin(): Promise<void> {
       formRef.value?.validate();
       return;
     }
-    console.log("error message", errorMessage);
+    console.error("error message", errorMessage);
     showError({ message: errorMessage });
   }
   finally {

@@ -180,13 +180,13 @@ onMounted(() => {
       >
         <template #details-cell="{ row }">
           <div class="flex items-center gap-2">
-            <base-badge
+            <div
               v-for="(option, index) in row.original.options.slice(0, 2)"
               :key="index"
               :status="option.frequency"
             >
-              {{ `${option.frequency}: Rs. ${option.price}` }}
-            </base-badge>
+              <span class="capitalize">{{ option.frequency }}</span>: Rs. {{ option.price }} <span v-if="index !== row.original.options.slice(0, 2).length - 1">|</span>
+            </div>
 
             <UTooltip
               v-if="row.original.options.length > 2"

@@ -18,21 +18,11 @@ const options = ref([
   { label: "Refunded", value: "refunded" },
 ]);
 
-const summaryOptions = ref([
-  { label: "Today", value: "today" },
-  { label: "Yesterday", value: "yesterday" },
-  { label: "This Week", value: "this_week" },
-  { label: "Last Week", value: "last_week" },
-  { label: "This Month", value: "this_month" },
-  { label: "Last Month", value: "last_month" },
-]);
-
 const financeStore = useFinanceStore();
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
 
 const state = ref({
-  summaryOption: "today",
   search: "",
   dateRange: {
     start: null,
@@ -48,11 +38,9 @@ const columns = [
   { id: "paidAt", header: "Paid Date", accessorKey: "createdAt", accessorFn: (row: any) => formatDate(row.createdAt) || "N/A" },
   { id: "method", header: "Method", accessorKey: "method" },
   { id: "status", header: "Status", accessorKey: "status" },
-  // { id: "actions", header: "Actions", accessorKey: "actions" },
 ];
 
 const payments = computed(() => financeStore.payments);
-const paymentSummary = computed(() => financeStore.paymentSummary);
 
 async function fetchPayments(): Promise<void> {
   try {
@@ -72,15 +60,6 @@ async function fetchPayments(): Promise<void> {
   }
 }
 
-async function fetchPaymentsSummary(): Promise<void> {
-  try {
-    await financeStore.fetchPaymentSummary(state.value.summaryOption);
-  }
-  catch (error: unknown) {
-    showError({ message: getApiErrorMessage(error, "Failed to fetch payment summary") });
-  }
-}
-
 function handleSearchClick(): void {
   pagination.value.page = 1;
   fetchPayments();
@@ -95,32 +74,7 @@ function clearFilters(): void {
 
 onMounted(() => {
   fetchPayments();
-  fetchPaymentsSummary();
 });
-
-const kpiCards = computed(() => [
-  {
-    title: "Cash Payments",
-    value: paymentSummary?.value?.cashPayments || 0,
-    icon: ICONS.MONEY,
-    color: "text-blue-500",
-    bg: "bg-blue-50",
-  },
-  {
-    title: "Online Payments",
-    value: paymentSummary?.value?.onlinePayments || 0,
-    icon: ICONS.WIFI,
-    color: "text-red-500",
-    bg: "bg-red-50",
-  },
-  {
-    title: "Refunded",
-    value: paymentSummary?.value?.refunded || 0,
-    icon: ICONS.REFRESH_CW,
-    color: "text-yellow-500",
-    bg: "bg-yellow-50",
-  },
-]);
 </script>
 
 <template>
@@ -135,41 +89,12 @@ const kpiCards = computed(() => [
     </base-page-header>
 
     <div class="bg-white flex flex-col gap-4 p-4">
-      <base-select
-        v-model="state.summaryOption"
-        :options="summaryOptions"
-        name="summary"
-        placeholder="Select summary"
-        is-borderless
-        class="w-32"
-        @update:model-value="fetchPaymentsSummary()"
-      />
-
-      <div class="grid bg-stone-50 rounded border border-border p-4 sm:p-6 py-6 grid-cols-1 md:grid-cols-3  gap-y-6 md:gap-y-8 gap-x-0 ">
-        <dashboard-kpi-card
-          v-for="(card, index) in kpiCards"
-          :key="index"
-          class="px-6 border-border"
-          :class="[
-            index % 3 === 0 ? 'md:border-r' : 'md:border-r-0',
-            index !== 2 ? 'xl:border-r' : 'xl:border-r-0',
-          ]"
-          :title="card.title"
-          :value="card.value"
-          :icon="card.icon"
-        />
-      </div>
-
-      <h2 class="text-base font-semibold">
-        Payments List
-      </h2>
-
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
           <base-input
             v-model="state.search"
             name="search"
-            placeholder="Search"
+            placeholder="Client name or Reference ID"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearchClick"
@@ -247,10 +172,6 @@ const kpiCards = computed(() => [
           </base-badge>
         </template>
 
-        <template #amount-cell="{ row }">
-          {{ `Rs. ${row?.original?.amount}` }}
-        </template>
-
         <template #method-cell="{ row }">
           <base-badge :status="row?.original?.method">
             {{ row?.original?.method }}
@@ -262,25 +183,6 @@ const kpiCards = computed(() => [
             {{ row?.original?.status }}
           </base-badge>
         </template>
-
-        <!-- <template #actions-cell="{ row }">
-          <div class="text-left">
-            <base-dropdown-menu
-              :items="[
-                {
-                  label: 'View Document',
-                  onSelect: () => { handleDownloadInvoice(row.original.identificationDocumentUrl); },
-                  class: 'cursor-pointer',
-                },
-              ]"
-            >
-              <base-button
-                :icon="ICONS.ELLIPSIS_VERTICAL"
-                variant="ghost"
-              />
-            </base-dropdown-menu>
-          </div>
-        </template> -->
       </base-table>
       <base-pagination
         :page="payments.meta.page"

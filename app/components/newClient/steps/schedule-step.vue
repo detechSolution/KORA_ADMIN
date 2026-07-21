@@ -327,6 +327,7 @@ defineExpose({
             v-model="timeModel"
             :trailing-icon="ICONS.CLOCK"
             class="w-full"
+            disabled
           />
         </UFormField>
       </div>

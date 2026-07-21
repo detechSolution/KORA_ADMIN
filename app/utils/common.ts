@@ -114,6 +114,18 @@ export function formatTimeValue(value: Time | undefined): string {
   return `${String(value.hour).padStart(2, "0")}:${String(value.minute).padStart(2, "0")}`;
 }
 
+export function formatTime(time: string) {
+  if (!time)
+    return "";
+
+  const [hours, minutes] = time.split(":").map(Number);
+
+  const period = hours >= 12 ? "PM" : "AM";
+  const hour12 = hours % 12 || 12;
+
+  return `${hour12}:${minutes.toString().padStart(2, "0")} ${period}`;
+}
+
 export function parseTimeValue(value: string): Time | undefined {
   const normalizedValue = value.trim();
   if (!normalizedValue)
@@ -168,8 +180,18 @@ export function formatDateTime(date: string | number | null | undefined): string
 export function formatDateTimeWithDot(date: string) {
   if (!date)
     return "";
+
   const d = new Date(date);
-  return `${d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} • ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}`;
+
+  return `${d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })} • ${d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  })}`;
 }
 
 export function normalizeText(text: string): string {

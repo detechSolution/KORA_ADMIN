@@ -132,27 +132,6 @@ function closeDetailModal(): void {
   selectedMember.value = null;
 }
 
-const kpiData = computed(() => [
-  {
-    title: "Total Clients",
-    icon: ICONS.USERS,
-    value: membersStore.membersSummary?.totalMembers,
-    link: { path: "/members/list" },
-  },
-  {
-    title: "Members Count",
-    icon: ICONS.USER_STAR,
-    value: membersStore.membersSummary?.activeMembers,
-    link: { path: "/members/list" },
-  },
-  {
-    title: "Guests Count",
-    icon: ICONS.BRIEFCASE,
-    value: membersStore.membersSummary?.activeGuests,
-    link: { path: "/members/list" },
-  },
-]);
-
 function clearFilters(): void {
   state.value = {
     search: "",
@@ -184,10 +163,10 @@ onMounted(() => {
   <div class="flex flex-col gap-6">
     <base-page-header>
       <template #title>
-        Members
+        Members & Guests
       </template>
       <template #description>
-        Create and manage members
+        Create and manage members.
       </template>
       <template #actions>
         <NuxtLink to="/members/create-member">
@@ -203,24 +182,6 @@ onMounted(() => {
     </base-page-header>
 
     <div class="bg-card  rounded-xl p-4 sm:p-6 page-content-height flex flex-col gap-4">
-      <div class="grid bg-stone-50 rounded border border-border p-4 sm:p-6 py-6 grid-cols-1 md:grid-cols-3  gap-y-6 md:gap-y-8 gap-x-0">
-        <dashboard-kpi-card
-          v-for="(kpi, index) in kpiData"
-          :key="index"
-          class="px-6 border-border"
-          :class="[
-            index % 3 === 0 ? 'md:border-r' : 'md:border-r-0',
-            index !== 2 ? 'xl:border-r' : 'xl:border-r-0',
-          ]"
-          :title="kpi.title"
-          :value="kpi.value"
-          :icon="kpi.icon"
-        />
-      </div>
-      <h2 class="text-base font-semibold">
-        Members & Guests List
-      </h2>
-
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
           <base-input
@@ -321,7 +282,7 @@ onMounted(() => {
             class="flex items-center gap-2"
           >
             <base-badge :status="row.original?.isActive ? 'active' : 'expired'">
-              {{ row.original?.isActive ? 'Active' : 'Expired' }}
+              {{ row.original?.isActive ? 'Active' : row.original?.isFrozen ? 'Frozen' : 'Expired' }}
             </base-badge>
           </div>
           <div
@@ -341,12 +302,12 @@ onMounted(() => {
                   onSelect: () => openDetailModal(row.original),
                   class: 'cursor-pointer',
                 },
-                !row.original?.isActive && {
+                !row.original?.isActive && !row.original?.isFrozen && {
                   label: 'Add Membership',
                   onSelect: () => openAddMembershipDrawer(row.original),
                   class: 'cursor-pointer',
                 },
-                row.original?.membershipPlan?.isFreezable && !row.original?.isFrozen && !row.original?.isFrozen && {
+                row.original?.membershipPlan?.isFreezable && !row.original?.isFrozen && {
                   label: 'Freeze Membership',
                   onSelect: () => openFreezeModal(row.original),
                   class: 'cursor-pointer',

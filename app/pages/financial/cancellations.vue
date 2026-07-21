@@ -70,7 +70,7 @@ async function fetchCancellations() {
 }
 
 const isViewCancellationDrawerOpen = ref(false);
-const selectedCancellation = ref(null);
+const selectedCancellation = ref<any>(null);
 
 function handleViewClick(cancellation: any) {
   selectedCancellation.value = cancellation;
@@ -98,8 +98,16 @@ function hasActiveFilters(): boolean {
   return !!(state.value.search || state.value.status || state.value.dateRange.start || state.value.dateRange.end);
 }
 
-onMounted(() => {
-  fetchCancellations();
+const route = useRoute();
+const router = useRouter();
+
+onMounted(async () => {
+  const search = route.query.search as string;
+
+  state.value.search = search;
+  await fetchCancellations();
+
+  router.replace({ query: { search: undefined } });
 });
 </script>
 
@@ -115,12 +123,6 @@ onMounted(() => {
     </base-page-header>
 
     <div class="bg-white rounded-xl p-6 flex flex-col gap-4">
-      <div>
-        <h2 class="text-base font-semibold">
-          Cancellations List
-        </h2>
-      </div>
-
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
           <base-input

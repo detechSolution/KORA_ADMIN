@@ -26,12 +26,24 @@ const { success, error: showError } = useNotification();
 const loading = ref(false);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
+const today = new Date();
+const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
 const schema = z.object({
   dateRange: z.object({
     start: z.string().min(1, "Start date is required"),
     end: z.string().min(1, "End date is required"),
-  }, { error: "Freeze start and end dates are required" }),
-  reason: z.string().optional(),
+  }, { error: "Freeze start and end dates are required" }).refine((data) => {
+    if (!data.start || !data.end)
+      return true;
+    const start = new Date(data.start);
+    const end = new Date(data.end);
+    const diffInDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    return diffInDays >= 6;
+  }, {
+    message: "Minimum freeze period is 7 days",
+  }),
+  reason: z.string().min(1, "Reason is required"),
 });
 
 type FreezeSchema = z.output<typeof schema>;
@@ -106,14 +118,14 @@ function handleClose(): void {
         </div>
 
         <!-- Date range -->
-        <UFormField name="dateRange" label="Freeze Start and End Date*">
-          <base-date-picker
-            v-model="state.dateRange"
-            name="dateRange"
-            range
-            placeholder="Select freeze period"
-          />
-        </UFormField>
+        <base-date-picker
+          v-model="state.dateRange"
+          name="dateRange"
+          range
+          placeholder="Select freeze period"
+          :min-date="todayDate"
+          label="Freeze Start and End Date*"
+        />
 
         <!-- Reason -->
         <base-input

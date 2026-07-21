@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 
 import type { Booking } from "~/types/booking";
 
 import { useNotification } from "~/composables/use-notification";
-import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 import { formatDateTimeWithDot } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
@@ -25,16 +24,10 @@ const emit = defineEmits<{
   (e: "confirm"): void;
 }>();
 
-const selectedTab = ref("details");
-
 const { error: showError } = useNotification();
 const bookingDetails = ref<any>(null);
+const loading = ref(props.loading);
 const bookingStore = useBookingStore();
-
-const items = [
-  { label: "Details", value: "details" },
-  { label: "Guest Info", value: "guest_info" },
-];
 
 const guestColumns = [
   { accessorKey: "fullName", header: "Client" },
@@ -42,28 +35,6 @@ const guestColumns = [
   { accessorKey: "itemName", header: "Service Name" },
   { accessorKey: "phoneNumber", header: "Phone" },
 ];
-const searchQuery = ref("");
-
-const bookingInfo = computed(() => {
-  if (!props.booking)
-    return [];
-
-  return [
-    { label: "Booking Id", value: props.booking?.bookingCode as string, icon: ICONS.ID_CARD },
-    { label: "Booked Date & Time", value: formatDateTimeWithDot(props.booking?.bookedFor as string) as string, icon: ICONS.CALENDAR },
-    { label: "Session/Service", value: props.booking?.itemName as string, icon: ICONS.BRIEFCASE },
-  ];
-});
-
-const filteredGuests = computed(() => {
-  if (!searchQuery.value)
-    return bookingDetails.value?.guests;
-  return bookingDetails.value?.guests.filter((g: any) =>
-    g.fullName?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    || g.email?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    || g.phoneNumber?.includes(searchQuery.value),
-  );
-});
 
 async function fetchBookingDetails() {
   const id = props.booking?.id;
@@ -71,12 +42,16 @@ async function fetchBookingDetails() {
     return;
 
   try {
+    loading.value = true;
     bookingDetails.value = await bookingStore.fetchBookingById(id);
   }
   catch (error) {
     showError({
       message: getApiErrorMessage(error, "Failed to load booking details"),
     });
+  }
+  finally {
+    loading.value = false;
   }
 }
 
@@ -109,107 +84,40 @@ watch(() => props.open, async (newValue) => {
     dismissible
     @close="emit('close')"
   >
-    <base-tabs
-      v-model="selectedTab"
-      :items="items"
-      variant="solid"
-      class="p-6"
-      color="secondary"
-    >
-      <div v-if="selectedTab === 'details'" class="flex flex-col gap-8 pt-4">
-        <!-- Top Section -->
-        <div class="grid grid-cols-2 justify-end gap-x-8 gap-y-6">
-          <!-- Client Name -->
-          <div class="flex flex-col gap-2">
-            <span class="text-xs  text-secondary-400 tracking-wider">Client Name</span>
-            <div class="flex items-center gap-3">
-              <base-avatar
-                :src="booking?.clientName"
-                :alt="booking?.clientName || 'Unknown'"
-                size="sm"
-              />
-              <div class="flex items-center gap-2">
-                <span class="text-base font-semibold text-secondary-900">{{ booking?.clientName }}</span>
-                <base-badge color="blue" class="text-[10px]">
-                  Member
-                </base-badge>
-              </div>
-            </div>
-          </div>
-
-          <!-- Email -->
-          <div class="flex flex-col gap-2">
-            <span class="text-xs text-secondary-400 tracking-wider">Email</span>
-            <span class="text-base text-secondary-900">{{ booking?.clientEmail || "-" }}</span>
-          </div>
-
-          <!-- Phone -->
-          <div class="flex flex-col gap-2">
-            <span class="text-xs text-secondary-400 tracking-wider">Phone</span>
-            <span class="text-base text-secondary-900">{{ booking?.clientPhoneNumber || "-" }}</span>
-          </div>
-
-          <!-- Status -->
-          <div class="flex flex-col gap-2">
-            <span class="text-xs  text-secondary-400 tracking-wider">Status</span>
-            <div class="flex items-center gap-2">
-              <UChip
-                :color="statusColor(booking?.status)"
-              />
-              <span class="text-base capitalize text-secondary-900">{{ normalizeText(booking.status) }}</span>
-            </div>
-          </div>
+    <div class="flex flex-col gap-10 p-6 overflow-y-auto max-h-[80vh] text-sm">
+      <div class="grid grid-cols-2 gap-8">
+        <!-- Customer Section -->
+        <div class="flex flex-col gap-1">
+          <span class="text-xs text-secondary-400 mb-1">Customer</span>
+          <span class="font-medium text-secondary-900">{{ booking?.clientName }}</span>
+          <span class="text-secondary-600">{{ booking?.clientPhoneNumber || "-" }}</span>
+          <span class="text-secondary-600">{{ booking?.clientEmail || "-" }}</span>
         </div>
 
-        <USeparator />
-
-        <!-- Bottom Cards Section -->
-        <div class="flex sm:flex-row flex-col justify-between gap-4">
-          <div
-            v-for="detail in bookingInfo"
-            :key="detail.label"
-            class="flex flex-col w-full gap-2 p-3 border border-stone-200 bg-stone-50 rounded-md"
-          >
-            <div class="text-secondary-400 text-xs flex gap-2 items-center">
-              <UIcon :name="detail.icon" class="w-4 h-4" />
-              <span>{{ detail.label }}</span>
-            </div>
-            <span v-if="detail.label === 'Booking Id'" class="text-sm font-medium text-secondary-700">
-              <base-badge uppercase color="amber">
-                {{ booking?.bookingCode }}
-              </base-badge>
-            </span>
-            <span v-else class="text-sm font-medium text-secondary-700">{{ detail.value }}</span>
+        <!-- Details Section -->
+        <div class="flex flex-col gap-1">
+          <span class="text-xs text-secondary-400 mb-1">Booking Details</span>
+          <span class="font-medium text-secondary-900">{{ booking?.bookingCode }}</span>
+          <span class="text-secondary-600">{{ booking?.itemName }}</span>
+          <span class="text-secondary-600">{{ formatDateTimeWithDot(booking?.bookedFor as string) }}</span>
+          <div class="flex items-center gap-2 mt-1">
+            <UChip :color="statusColor(booking?.status)" />
+            <span class="capitalize text-secondary-900">{{ normalizeText(booking?.status) }}</span>
           </div>
         </div>
       </div>
-      <div v-else class="flex flex-col gap-6 pt-4">
-        <div class="flex flex-col gap-4">
-          <h3 class="text-base font-semibold text-secondary-900">
-            Guests List
-          </h3>
-          <div class="flex gap-2">
-            <base-input
-              v-model="searchQuery"
-              name="search"
-              placeholder="Search guest name"
-              class="w-full max-w-xs"
-              :leading-icon="ICONS.SEARCH"
-            />
-            <base-button
-              variant="outline"
-              class="flex-1 sm:flex-none"
-              @click="searchQuery = ''"
-            >
-              Clear Filters
-            </base-button>
-          </div>
-        </div>
+
+      <div class="flex flex-col gap-4">
+        <h3 class="font-medium text-secondary-900">
+          Guest Bookings
+        </h3>
 
         <base-table
           :columns="guestColumns"
-          :data="filteredGuests"
+          :data="bookingDetails?.guests || []"
           empty-title="No guests found"
+          :loading="loading"
+          :skeleton-rows="2"
         >
           <template #fullName-cell="{ row }">
             <div class="flex items-center gap-3">
@@ -219,14 +127,14 @@ watch(() => props.open, async (newValue) => {
                 size="sm"
               />
               <div class="flex flex-col">
-                <span class="text-sm font-medium text-secondary-900">{{ row.original.fullName }}</span>
+                <span class="font-medium text-secondary-900">{{ row.original.fullName }}</span>
                 <span class="text-xs text-secondary-400">{{ row.original.phoneNumber }}</span>
               </div>
             </div>
           </template>
         </base-table>
       </div>
-    </base-tabs>
+    </div>
   </base-modal>
 </template>
 

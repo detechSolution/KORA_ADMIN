@@ -23,6 +23,12 @@ const bookingStatusOptions = [
   { label: "Cancelled", value: "cancelled" },
 ];
 
+const bookingTypeOptions = [
+  { label: "Session", value: "session" },
+  { label: "Spa", value: "spa" },
+  { label: "Pass", value: "passes" },
+];
+
 const { success, error: showError } = useNotification();
 const bookingStore = useBookingStore();
 const bookings = computed(() => bookingStore.bookings);
@@ -58,6 +64,10 @@ const columns = computed(() => [
     header: "Booked Date",
     accessorFn: (row: Booking) => formatDate(row.bookedFor) || "N/A",
   },
+  {
+    accessorKey: "Price",
+    header: "Total (NPR)",
+  },
   { accessorKey: "status", header: "Status" },
   { accessorKey: "actions", header: "Actions" },
 ]);
@@ -68,6 +78,7 @@ const hasActiveFilters = computed(() => {
     || filters.value.dateRange.start
     || filters.value.dateRange.end
     || filters.value.status !== ""
+    || filters.value.type !== ""
   );
 },
 );
@@ -176,49 +187,17 @@ async function handleRequestCancellation(): Promise<void> {
   }
 }
 
-const kpiData = computed(() => [
-  {
-    title: "Booking Type",
-    icon: ICONS.INQUIRIES,
-    value: "All Bookings",
-    subtitle: `${summary.value?.allBookings || "0"} bookings`,
-    type: "",
-  },
-  {
-    title: "Booking Type",
-    icon: ICONS.CALENDAR,
-    subtitle: `${summary.value?.sessions || "0"} bookings`,
-    value: "Sessions",
-    type: "session",
-  },
-  {
-    title: "Booking Type",
-    icon: ICONS.FLOWER,
-    subtitle: `${summary.value?.spa || "0"} bookings`,
-    value: "Spa",
-    type: "spa",
-  },
-  {
-    title: "Booking Type",
-    icon: ICONS.ID_CARD,
-    subtitle: `${summary.value?.passes || "0"} bookings`,
-    value: "Passes",
-    type: "passes",
-  },
-]);
+const route = useRoute();
+const router = useRouter();
 
-function filterByType(type: string): void {
-  filters.value.type = type;
-  pagination.value.page = 1;
-  fetchBookings();
-}
+onMounted(async () => {
+  const search = route.query.search as string;
+  filters.value.search = search || "";
 
-onMounted(
-  async () => {
-    fetchBookings();
-    fetchBookingsSummary();
-  },
-);
+  await Promise.all([fetchBookings(), fetchBookingsSummary()]);
+
+  router.replace({ query: { search: undefined } });
+});
 </script>
 
 <template>
@@ -243,28 +222,6 @@ onMounted(
     </base-page-header>
 
     <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 page-content-height">
-      <div class="grid bg-stone-50 rounded border border-border py-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-y-6 md:gap-y-8 gap-x-0">
-        <dashboard-kpi-card
-          v-for="(kpi, index) in kpiData"
-          :key="index"
-          class="px-6 border-border"
-          :class="[
-            index % 2 === 0 ? 'md:border-r' : 'md:border-r-0',
-            index !== 3 ? 'xl:border-r' : 'xl:border-r-0',
-          ]"
-          :title="kpi.title"
-          :value="kpi.value"
-          :subtitle="kpi.subtitle"
-          :icon="kpi.icon"
-          :active="filters.type === kpi.type"
-          :clickable="true"
-          @click="filterByType(kpi.type)"
-        />
-      </div>
-
-      <h2 class="text-base font-semibold">
-        Bookings List
-      </h2>
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
           <base-input
@@ -290,6 +247,14 @@ onMounted(
             :options="bookingStatusOptions"
             name="status"
             placeholder="Select status"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
+          />
+
+          <base-select
+            v-model="filters.type"
+            :options="bookingTypeOptions"
+            name="bookingType"
+            placeholder="Select booking type"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
 
