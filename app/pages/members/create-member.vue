@@ -5,6 +5,7 @@ import z from "zod";
 import type { MembershipPlan } from "~/types/membership";
 
 import { ICONS } from "~/config/icons";
+import { useBookingStore } from "~/stores/booking";
 import { useMembershipStore } from "~/stores/membership";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -25,13 +26,16 @@ const paymentMethods = [
 ];
 
 const currentStep = ref(0);
+const bookingStore = useBookingStore();
 const membershipStore = useMembershipStore();
 const { error: showError, success } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
+const promoLoading = ref(false);
 const apiError = ref<string | null>(null);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
+const appliedPromo = ref<{ code: string; type: string; amount: number; isValid: boolean } | null>(null);
 
 const stepOneSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -64,13 +68,14 @@ const currentSchema = computed(() => {
   return stepOneSchema;
 });
 
-const state = reactive<Partial<CombinedSchema>>({
+const state = reactive<Partial<CombinedSchema> & { promoCode?: string }>({
   fullName: "",
   phoneNumber: "",
   email: "",
   membershipPlanOptionId: 0,
   subscriptionStartDate: "",
   paymentMethod: "",
+  promoCode: "",
 });
 
 function isPlanSelected(plan: MembershipPlan): boolean {
@@ -141,6 +146,8 @@ async function handleCreatePlan() {
     formData.append("subscriptionStartDate", state.subscriptionStartDate);
     formData.append("identificationDocument", state.identificationDocument);
     formData.append("paymentMethod", state.paymentMethod);
+    if (appliedPromo.value?.isValid)
+      formData.append("promoCode", appliedPromo.value.code);
 
     await membershipStore.createMember(formData);
     success({ message: "Membership plan created successfully" });
@@ -177,6 +184,52 @@ const selectedPlanOption = computed(() => {
   }
   return null;
 });
+
+const subTotal = computed(() => Number(selectedPlanOption.value?.option.price) || 0);
+
+const promoDiscount = computed(() => {
+  if (!appliedPromo.value?.isValid)
+    return 0;
+  if (appliedPromo.value.type === "fixed")
+    return Math.min(appliedPromo.value.amount, subTotal.value);
+  return Math.round((subTotal.value * appliedPromo.value.amount) / 100);
+});
+
+const totalAmount = computed(() => Math.max(0, subTotal.value - promoDiscount.value));
+
+async function applyPromoCode(): Promise<void> {
+  if (!state.promoCode?.trim())
+    return;
+
+  promoLoading.value = true;
+  try {
+    const data = await bookingStore.validatePromoCode(state.promoCode);
+    if (data?.isValid) {
+      appliedPromo.value = {
+        code: data.code,
+        type: data.type,
+        amount: data.amount,
+        isValid: true,
+      };
+      success({ message: "Promo code applied successfully" });
+    }
+    else {
+      appliedPromo.value = null;
+      showError({ message: "Invalid promo code" });
+    }
+  }
+  catch (error) {
+    appliedPromo.value = null;
+    showError({ message: getApiErrorMessage(error, "Invalid promo code") });
+  }
+  finally {
+    promoLoading.value = false;
+  }
+}
+
+function removePromo(): void {
+  appliedPromo.value = null;
+}
 
 onMounted(() => {
   fetchMembershipPlanOptions();
@@ -331,20 +384,64 @@ onMounted(() => {
 
                       <p class="text-secondary text-xs font-normal">
                         {{ selectedPlanOption?.plan.currency }}
-                        {{ Number(selectedPlanOption?.option.price).toLocaleString() }}
+                        {{ totalAmount.toLocaleString() }}
                       </p>
                     </div>
+
+                    <div
+                      v-if="promoDiscount > 0"
+                      class="flex justify-between"
+                    >
+                      <p class="text-secondary-500 text-xs">
+                        Promo Discount
+                      </p>
+                      <p class="text-emerald-600 text-xs font-normal">
+                        - {{ selectedPlanOption?.plan.currency }} {{ promoDiscount.toLocaleString() }}
+                      </p>
+                    </div>
+
                     <USeparator />
+
                     <div class="flex justify-between">
                       <p class="text-secondary font-medium text-sm">
                         Total
                       </p>
                       <p class="text-secondary text-sm font-medium">
                         {{ selectedPlanOption?.plan.currency }}
-                        {{ Number(selectedPlanOption?.option.price).toLocaleString() }}
+                        {{ totalAmount.toLocaleString() }}
                       </p>
                     </div>
                   </div>
+                  <div class="flex gap-2 flex-row items-end">
+                    <div class="relative w-full">
+                      <base-input
+                        v-model="state.promoCode"
+                        name="promoCode"
+                        label="Promo Code"
+                        placeholder="e.g PROMO20"
+                        class="flex-1"
+                        @update:model-value="removePromo"
+                        @keypress.enter="applyPromoCode"
+                      />
+                      <div
+                        v-if="appliedPromo?.isValid"
+                        class="absolute right-2 bottom-0.5"
+                      >
+                        <UIcon
+                          :name="ICONS.CIRCLE_CHECK"
+                          class="w-5 h-5 text-green-500"
+                        />
+                      </div>
+                    </div>
+                    <base-button
+                      variant="outline"
+                      :loading="promoLoading"
+                      @click="applyPromoCode"
+                    >
+                      Apply
+                    </base-button>
+                  </div>
+
                   <h2 class="text-stone-900 font-medium text-base">
                     Payment Method
                   </h2>
@@ -406,7 +503,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style>
-
-</style>
