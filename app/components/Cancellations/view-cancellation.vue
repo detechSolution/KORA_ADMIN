@@ -217,6 +217,7 @@ watch(cancellationDetails, (details) => {
         />
 
         <base-file-upload
+          v-if="cancellationDetails?.refund?.status === 'requested'"
           v-model="state.refundReceipt"
           accept="image"
           label="Refund Receipt"
@@ -225,6 +226,12 @@ watch(cancellationDetails, (details) => {
           :max-files="REFUND_RECEIPT_CONFIG.maxFiles"
           :allowed-file-types="REFUND_RECEIPT_CONFIG.allowedFileTypes"
         />
+
+        <img
+          v-else
+          :src="cancellationDetails?.refund?.receiptUrl"
+          alt=""
+        >
       </div>
 
       <!-- Footer Actions -->

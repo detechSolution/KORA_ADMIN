@@ -61,11 +61,11 @@ const columns = computed(() => [
   { accessorKey: "itemType", header: "Type" },
   {
     accessorKey: "bookedFor",
-    header: "Booked Date",
+    header: "Scheduled Date",
     accessorFn: (row: Booking) => formatDate(row.bookedFor) || "N/A",
   },
   {
-    accessorKey: "Price",
+    accessorKey: "amount",
     header: "Total (NPR)",
   },
   { accessorKey: "status", header: "Status" },
@@ -337,7 +337,7 @@ onMounted(async () => {
         </template>
 
         <template #status-cell="{ row }">
-          <base-badge :status="row.original.status">
+          <base-badge :status="row.original.status" :show-icon="false">
             {{ row.original.status }}
           </base-badge>
         </template>
