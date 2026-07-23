@@ -85,30 +85,31 @@ watch(() => props.open, async (newValue) => {
         </div>
         <div class="flex flex-col gap-1">
           <span class="text-xs text-secondary-400 mb-1">Booked By</span>
-          <div class="flex flex-col gap-1">
-            <span class="font-medium text-secondary-900">{{ booking?.clientName }}</span>
-            <span class="text-xs text-secondary-400">{{ booking?.clientPhoneNumber }}</span>
-            <span class="text-xs text-secondary-400">{{ booking?.clientEmail }}</span>
+          <div class="font-medium text-secondary-900 flex flex-col gap-1">
+            <span class="capitalize">{{ booking?.clientName }}</span>
+            <span>{{ booking?.clientPhoneNumber }}</span>
           </div>
         </div>
 
         <div class="flex flex-col gap-1">
           <span class="text-xs text-secondary-400 mb-1">Booked Date</span>
-          <span class="font-medium text-secondary-900">{{ formatDate(booking?.bookedDate) }}</span>
-          <span class="text-xs text-secondary-400 mb-1">{{ formatTime(booking?.bookedDate) }}</span>
+          <div class="font-medium text-secondary-900 flex flex-col gap-1">
+            <span>{{ formatDate(booking?.bookedDate) }}</span>
+            <span>{{ formatLocalTime(booking?.bookedDate) }}</span>
+          </div>
         </div>
       </div>
 
       <div class="flex flex-col gap-4">
-        <h3 class="font-medium text-secondary-500">
+        <h3 class="font-medium">
           PARTICIPANTS & BOOKINGS
         </h3>
 
         <div v-for="participant in bookingDetails?.participants" :key="participant.id">
-          <div class="border border-border rounded-xl grid md:grid-cols-13 grid-cols-1 p-3">
+          <div class="border border-border rounded-xl gap-2 md:gap-0 grid md:grid-cols-13 grid-cols-1 p-3">
             <div class="flex flex-col gap-1 p-2 border-b md:border-b-0 md:border-r border-border col-span-4">
               <div class="flex gap-2 items-center">
-                <h2 class="text-secondary font-semibold text-sm">
+                <h2 class="text-secondary font-semibold capitalize text-sm">
                   {{ participant?.fullName }}
                 </h2>
 
@@ -118,31 +119,33 @@ watch(() => props.open, async (newValue) => {
               </div>
 
               <div class="text-secondary-500 text-xs flex flex-col">
-                <p class="flex items-center gap-2">
+                <p v-if="participant?.phoneNumber" class="flex items-center gap-2">
                   <UIcon :name="ICONS.PHONE" />  {{ participant?.phoneNumber }}
                 </p>
-                <p class="flex items-center gap-2">
+                <p v-if="participant?.email" class="flex items-center gap-2">
                   <UIcon :name="ICONS.MAIL" /> {{ participant?.email }}
                 </p>
               </div>
             </div>
-            <div class="flex flex-col uppercase text-sm font-semibold border-b md:border-b-0  md:border-r border-border p-2 col-span-4">
-              <h2>{{ booking?.itemName }}</h2>
+            <div class="flex flex-col  border-b md:border-b-0  md:border-r border-border p-2 col-span-4">
+              <span class="text-xs text-secondary-400 mb-1">Session/Service Name</span>
+              <h2 class="text-sm font-semibold">
+                {{ booking?.itemName }}
+              </h2>
             </div>
-            <div class="flex text-sm text-secondary-700 flex-col border-b  md:border-r border-border md:border-b-0 p-2 col-span-3">
-              <div class="flex items-center gap-2">
-                <UIcon :name="ICONS.CALENDAR" /> <h2>{{ formatDate(participant?.bookedFor) || "N/A" }}</h2>
-              </div>
-              <div class="flex items-center gap-2">
-                <UIcon :name="ICONS.CLOCK" /> <h2>{{ formatTime(participant?.bookedFor) || "N/A" }}</h2>
-              </div>
-              <div v-if="participant?.instructor?.fullName">
-                <UIcon :name="ICONS.USER" />
-                <p>{{ participant?.instructor?.fullName }}</p>
+            <div class="flex text-xs flex-col border-b  md:border-r border-border md:border-b-0 p-2 col-span-3">
+              <span class="text-xs text-secondary-400 mb-1">Date & Time</span>
+              <div class="text-xs font-semibold">
+                <div class="flex items-center gap-2">
+                  <UIcon :name="ICONS.CALENDAR" /> <h2>{{ formatDate(participant?.bookedFor) || "N/A" }}</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                  <UIcon :name="ICONS.CLOCK" /> <h2>{{ formatLocalTime(participant?.bookedFor) || "N/A" }}</h2>
+                </div>
               </div>
             </div>
             <div class="flex flex-col p-2 col-span-2">
-              <p class="flex self-end text-sm font-semibold">
+              <p class="flex self-start md:self-end text-sm font-semibold">
                 {{ participant?.currency }} {{ participant?.amount }}
               </p>
             </div>

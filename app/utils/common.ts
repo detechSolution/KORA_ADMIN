@@ -125,6 +125,15 @@ export function formatTime(time: string) {
 
   return `${hour12}:${minutes.toString().padStart(2, "0")} ${period}`;
 }
+export function formatLocalTime(date: string) {
+  const d = new Date(date);
+
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(d);
+}
 
 export function parseTimeValue(value: string): Time | undefined {
   const normalizedValue = value.trim();
