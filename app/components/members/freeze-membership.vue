@@ -59,12 +59,8 @@ function resetForm(): void {
 }
 
 async function handleSubmit(): Promise<void> {
+  await formRef.value?.validate();
   try {
-    await formRef.value?.validate();
-    if (!state.dateRange?.start || !state.dateRange?.end) {
-      showError({ message: "Please select a freeze date range" });
-      return;
-    }
     loading.value = true;
     await membershipStore.freezeMembership(props.member.id, {
       startsOn: state.dateRange.start,

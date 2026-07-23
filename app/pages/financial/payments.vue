@@ -173,7 +173,7 @@ onMounted(() => {
         </template>
 
         <template #method-cell="{ row }">
-          <base-badge :status="row?.original?.method">
+          <base-badge :status="row?.original?.method" :show-icon="true">
             {{ row?.original?.method }}
           </base-badge>
         </template>

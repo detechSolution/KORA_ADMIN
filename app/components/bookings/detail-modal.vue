@@ -4,8 +4,8 @@ import { ref, watch } from "vue";
 import type { Booking } from "~/types/booking";
 
 import { useNotification } from "~/composables/use-notification";
+import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
-import { formatDateTimeWithDot } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 type Props = {
@@ -29,13 +29,6 @@ const bookingDetails = ref<any>(null);
 const loading = ref(props.loading);
 const bookingStore = useBookingStore();
 
-const guestColumns = [
-  { accessorKey: "fullName", header: "Client" },
-  { accessorKey: "email", header: "Email" },
-  { accessorKey: "itemName", header: "Service Name" },
-  { accessorKey: "phoneNumber", header: "Phone" },
-];
-
 async function fetchBookingDetails() {
   const id = props.booking?.id;
   if (!id)
@@ -55,19 +48,6 @@ async function fetchBookingDetails() {
   }
 }
 
-function statusColor(status) {
-  const warning = ["cancellation_processing", "pending_payment", "pending"];
-  const error = ["cancelled"];
-
-  if (status === "confirmed")
-    return "success";
-  if (warning.includes(status))
-    return "warning";
-  if (error.includes(status))
-    return "error";
-  return "neutral";
-}
-
 watch(() => props.open, async (newValue) => {
   if (newValue) {
     await fetchBookingDetails();
@@ -78,7 +58,7 @@ watch(() => props.open, async (newValue) => {
 <template>
   <base-modal
     :open="open"
-    title="Booking Details"
+    :title="`Booking ${booking?.bookingCode}`"
     description=""
     :modal-width="800"
     dismissible
@@ -87,52 +67,87 @@ watch(() => props.open, async (newValue) => {
     <div class="flex flex-col gap-10 p-6 overflow-y-auto max-h-[80vh] text-sm">
       <div class="grid grid-cols-2 gap-8">
         <!-- Customer Section -->
+
         <div class="flex flex-col gap-1">
-          <span class="text-xs text-secondary-400 mb-1">Customer</span>
-          <span class="font-medium text-secondary-900">{{ booking?.clientName }}</span>
-          <span class="text-secondary-600">{{ booking?.clientPhoneNumber || "-" }}</span>
-          <span class="text-secondary-600">{{ booking?.clientEmail || "-" }}</span>
+          <span class="text-xs text-secondary-400 mb-1">Booking ID</span>
+          <span class="font-medium text-secondary-900">{{ booking?.bookingCode }}</span>
         </div>
 
         <!-- Details Section -->
         <div class="flex flex-col gap-1">
-          <span class="text-xs text-secondary-400 mb-1">Booking Details</span>
-          <span class="font-medium text-secondary-900">{{ booking?.bookingCode }}</span>
-          <span class="text-secondary-600">{{ booking?.itemName }}</span>
-          <span class="text-secondary-600">{{ formatDateTimeWithDot(booking?.bookedFor as string) }}</span>
+          <span class="text-xs text-secondary-400 mb-1">Status</span>
+
           <div class="flex items-center gap-2 mt-1">
-            <UChip :color="statusColor(booking?.status)" />
-            <span class="capitalize text-secondary-900">{{ normalizeText(booking?.status) }}</span>
+            <base-badge :status="booking?.status" :show-icon="true">
+              {{ normalizeText(booking?.status) }}
+            </base-badge>
           </div>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-xs text-secondary-400 mb-1">Booked By</span>
+          <div class="flex flex-col gap-1">
+            <span class="font-medium text-secondary-900">{{ booking?.clientName }}</span>
+            <span class="text-xs text-secondary-400">{{ booking?.clientPhoneNumber }}</span>
+            <span class="text-xs text-secondary-400">{{ booking?.clientEmail }}</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <span class="text-xs text-secondary-400 mb-1">Booked Date</span>
+          <span class="font-medium text-secondary-900">{{ formatDate(booking?.bookedDate) }}</span>
+          <span class="text-xs text-secondary-400 mb-1">{{ formatTime(booking?.bookedDate) }}</span>
         </div>
       </div>
 
       <div class="flex flex-col gap-4">
-        <h3 class="font-medium text-secondary-900">
-          Guest Bookings
+        <h3 class="font-medium text-secondary-500">
+          PARTICIPANTS & BOOKINGS
         </h3>
 
-        <base-table
-          :columns="guestColumns"
-          :data="bookingDetails?.guests || []"
-          empty-title="No guests found"
-          :loading="loading"
-          :skeleton-rows="2"
-        >
-          <template #fullName-cell="{ row }">
-            <div class="flex items-center gap-3">
-              <base-avatar
-                :src="row.original.fullName"
-                :alt="row.original.fullName || 'Unknown'"
-                size="sm"
-              />
-              <div class="flex flex-col">
-                <span class="font-medium text-secondary-900">{{ row.original.fullName }}</span>
-                <span class="text-xs text-secondary-400">{{ row.original.phoneNumber }}</span>
+        <div v-for="participant in bookingDetails?.participants" :key="participant.id">
+          <div class="border border-border rounded-xl grid md:grid-cols-13 grid-cols-1 p-3">
+            <div class="flex flex-col gap-1 p-2 border-b md:border-b-0 md:border-r border-border col-span-4">
+              <div class="flex gap-2 items-center">
+                <h2 class="text-secondary font-semibold text-sm">
+                  {{ participant?.fullName }}
+                </h2>
+
+                <base-badge v-if="participant?.type === 'guest'" :status="participant?.type">
+                  {{ normalizeText(participant?.type) }}
+                </base-badge>
+              </div>
+
+              <div class="text-secondary-500 text-xs flex flex-col">
+                <p class="flex items-center gap-2">
+                  <UIcon :name="ICONS.PHONE" />  {{ participant?.phoneNumber }}
+                </p>
+                <p class="flex items-center gap-2">
+                  <UIcon :name="ICONS.MAIL" /> {{ participant?.email }}
+                </p>
               </div>
             </div>
-          </template>
-        </base-table>
+            <div class="flex flex-col uppercase text-sm font-semibold border-b md:border-b-0  md:border-r border-border p-2 col-span-4">
+              <h2>{{ booking?.itemName }}</h2>
+            </div>
+            <div class="flex flex-col border-b  md:border-r border-border md:border-b-0 p-2 col-span-3">
+              <div class="flex items-center gap-2">
+                <UIcon :name="ICONS.CALENDAR" /> <h2>{{ formatDate(participant?.bookedFor) || "N/A" }}</h2>
+              </div>
+              <div class="flex items-center gap-2">
+                <UIcon :name="ICONS.CLOCK" /> <h2>{{ formatTime(participant?.bookedFor) || "N/A" }}</h2>
+              </div>
+              <div v-if="participant?.instructor?.fullName">
+                <UIcon :name="ICONS.USER" />
+                <p>{{ participant?.instructor?.fullName }}</p>
+              </div>
+            </div>
+            <div class="flex flex-col p-2 col-span-2">
+              <p class="flex self-end text-sm font-semibold">
+                {{ participant?.currency }} {{ participant?.amount }}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </base-modal>

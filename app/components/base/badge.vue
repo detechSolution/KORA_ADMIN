@@ -22,6 +22,7 @@ type Props = {
   status?: string;
   class?: string;
   uppercase?: boolean;
+  showIcon?: boolean;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -29,6 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
   status: undefined,
   class: "",
   uppercase: false,
+  showIcon: false,
 });
 
 const slots = useSlots();
@@ -50,7 +52,7 @@ const STATUS_MAP: Record<string, { color: BadgeColor; label: string; icon?: stri
   "class": { color: "blue", label: "Class" },
   "event": { color: "emerald", label: "Event" },
   "workshop": { color: "purple", label: "Workshop" },
-  "confirmed": { color: "emerald", label: "Confirmed" },
+  "confirmed": { color: "emerald", label: "Confirmed", icon: ICONS.CHECK_CIRCLE },
   "requested": { color: "yellow", label: "Requested" },
   "approved": { color: "emerald", label: "Approved" },
   "rejected": { color: "red", label: "Rejected" },
@@ -63,6 +65,7 @@ const STATUS_MAP: Record<string, { color: BadgeColor; label: string; icon?: stri
   "yearly": { color: "emerald", label: "Yearly" },
   "quarterly": { color: "orange", label: "Quarterly" },
   "expired": { color: "red", label: "Expired" },
+  "frozen": { color: "blue", label: "Frozen" },
 };
 
 function formatText(text: string): string {
@@ -124,7 +127,11 @@ const badgeLabel = computed(() => {
   return "";
 });
 
-const badgeIcon = computed(() => statusConfig.value?.icon);
+const badgeIcon = computed(() => {
+  if (!props.showIcon)
+    return undefined;
+  return statusConfig.value?.icon;
+});
 
 const colorClasses = computed(() => {
   const colors: Record<BadgeColor, string> = {

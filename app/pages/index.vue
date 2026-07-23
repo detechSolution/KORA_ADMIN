@@ -154,7 +154,7 @@ const recentBookingsColumns = [
   { accessorKey: "itemType", header: "Type" },
   {
     accessorKey: "bookedFor",
-    header: "Booked Date",
+    header: "Scheduled Date",
     accessorFn: (row: Booking) => formatDate(row.bookedFor) || "N/A",
   },
   { accessorKey: "status", header: "Status" },

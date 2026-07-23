@@ -71,7 +71,7 @@ type CreatePlanSchema = z.output<typeof schema>;
 const state = reactive<CreatePlanSchema>({
   name: "",
   description: "",
-  isActive: false,
+  isActive: true,
   maxVisitors: 0,
   freezeDays: 0,
   spaBenefit: 0,
