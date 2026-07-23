@@ -129,7 +129,7 @@ watch(() => props.open, async (newValue) => {
             <div class="flex flex-col uppercase text-sm font-semibold border-b md:border-b-0  md:border-r border-border p-2 col-span-4">
               <h2>{{ booking?.itemName }}</h2>
             </div>
-            <div class="flex flex-col border-b  md:border-r border-border md:border-b-0 p-2 col-span-3">
+            <div class="flex text-sm text-secondary-700 flex-col border-b  md:border-r border-border md:border-b-0 p-2 col-span-3">
               <div class="flex items-center gap-2">
                 <UIcon :name="ICONS.CALENDAR" /> <h2>{{ formatDate(participant?.bookedFor) || "N/A" }}</h2>
               </div>

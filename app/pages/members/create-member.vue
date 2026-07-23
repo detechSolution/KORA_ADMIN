@@ -384,7 +384,7 @@ onMounted(() => {
 
                       <p class="text-secondary text-xs font-normal">
                         {{ selectedPlanOption?.plan.currency }}
-                        {{ totalAmount.toLocaleString() }}
+                        {{ subTotal.toLocaleString() }}
                       </p>
                     </div>
 
