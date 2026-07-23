@@ -302,12 +302,12 @@ onMounted(() => {
                   onSelect: () => openDetailModal(row.original),
                   class: 'cursor-pointer',
                 },
-                !row.original?.isActive && {
+                !row.original?.isActive && !row.original?.isFrozen && {
                   label: 'Add Membership',
                   onSelect: () => openAddMembershipDrawer(row.original),
                   class: 'cursor-pointer',
                 },
-                row.original?.membershipPlan?.isFreezable && !row.original?.isFrozen && !row.original?.isFrozen && {
+                row.original?.membershipPlan?.isFreezable && !row.original?.isFrozen && {
                   label: 'Freeze Membership',
                   onSelect: () => openFreezeModal(row.original),
                   class: 'cursor-pointer',
