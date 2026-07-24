@@ -9,9 +9,12 @@ import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
 import {
   PERMISSIONS_BOOKINGS,
+  PERMISSIONS_INSTRUCTORS,
   PERMISSIONS_KORA_PASSES,
+  PERMISSIONS_MAILS,
   PERMISSIONS_MEMBERSHIP_PLANS,
   PERMISSIONS_PAYMENTS,
+  PERMISSIONS_PROMO_CODES,
   PERMISSIONS_SESSIONS,
   PERMISSIONS_SPA,
 } from "~/config/permissions";
@@ -132,16 +135,19 @@ const rawItems: NavItemWithPermission[] = [{
   label: "Instructors",
   icon: ICONS.DOOR_LOCK,
   to: "/instructors/instructors-list",
+  permission: PERMISSIONS_INSTRUCTORS.VIEW,
   defaultOpen: true,
 }, {
   label: "Promo Code",
   icon: ICONS.BADGE_PERCENT,
   to: "/promo-code/list",
+  permission: PERMISSIONS_PROMO_CODES.VIEW,
   defaultOpen: true,
 }, {
   label: "Send Email",
   icon: ICONS.MAILS,
   to: "/send-email/email-list",
+  permission: PERMISSIONS_MAILS.VIEW,
   defaultOpen: true,
 }, {
   label: "Administration",
