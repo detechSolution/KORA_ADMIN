@@ -31,7 +31,6 @@ const state = ref({
 });
 
 const statusOptions = [
-  { label: "Draft", value: "draft" },
   { label: "Sent", value: "sent" },
   { label: "Failed", value: "failed" },
 ];

@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 import { ICONS } from "~/config/icons";
+import { useNotificationStore } from "~/stores/notification";
 
 const router = useRouter();
+const notificationStore = useNotificationStore();
 const notificationOpen = ref(false);
 
 function handleSettingsClick() {
   router.push({ name: "settings" });
 }
+
+onMounted(() => {
+  notificationStore.fetchUnreadCount();
+});
 </script>
 
 <template>
@@ -37,12 +43,20 @@ function handleSettingsClick() {
               <template #right>
                 <div class="flex gap-3">
                   <UPopover v-model:open="notificationOpen">
-                    <base-button
-                      class="p-2 border border-stone-200 text-stone-600 bg-stone-50"
-                      variant="outline"
-                    >
-                      <UIcon :name="ICONS.NOTIFICATION" class="size-5" />
-                    </base-button>
+                    <div class="relative">
+                      <base-button
+                        class="p-2 border border-stone-200 text-stone-600 bg-stone-50"
+                        variant="outline"
+                      >
+                        <UIcon :name="ICONS.NOTIFICATION" class="size-5" />
+                      </base-button>
+                      <span
+                        v-if="notificationStore.unreadCount > 0"
+                        class="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+                      >
+                        {{ notificationStore.unreadCount > 99 ? '99+' : notificationStore.unreadCount }}
+                      </span>
+                    </div>
                     <template #content>
                       <notifications-notification-list @close="notificationOpen = false" />
                     </template>
