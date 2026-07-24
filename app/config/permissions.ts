@@ -5,9 +5,9 @@
  */
 
 // ——— Dashboard ———
-// export const DASHBOARD = {
-//   VIEW: "dashboard.view",
-// } as const;
+export const DASHBOARD = {
+  VIEW: "dashboard.view",
+} as const;
 
 // ——— Administration ———
 // const PERMISSIONS_ADMINISTRATION = {
@@ -29,12 +29,12 @@ export const PERMISSIONS_BOOKINGS = {
 } as const;
 
 // ——— Members ———
-// const PERMISSIONS_MEMBERS = {
-//   CREATE: "members.create",
-//   DELETE: "members.delete",
-//   UPDATE: "members.update",
-//   VIEW: "members.view",
-// } as const;
+export const PERMISSIONS_MEMBERS = {
+  CREATE: "members.create",
+  DELETE: "members.delete",
+  UPDATE: "members.update",
+  VIEW: "members.view",
+} as const;
 
 // ——— Membership Plans ———
 export const PERMISSIONS_MEMBERSHIP_PLANS = {
@@ -82,12 +82,12 @@ export const PERMISSIONS_PAYMENTS = {
 } as const;
 
 // ——— Promo Codes ———
-// const PERMISSIONS_PROMO_CODES = {
-//   CREATE: "promo_codes.create",
-//   DELETE: "promo_codes.delete",
-//   UPDATE: "promo_codes.update",
-//   VIEW: "promo_codes.view",
-// } as const;
+export const PERMISSIONS_PROMO_CODES = {
+  CREATE: "promo_codes.create",
+  DELETE: "promo_codes.delete",
+  UPDATE: "promo_codes.update",
+  VIEW: "promo_codes.view",
+} as const;
 
 // ——— Refunds ———
 // const PERMISSIONS_REFUNDS = {
@@ -99,18 +99,18 @@ export const PERMISSIONS_PAYMENTS = {
 //   CREATE: "uploads.create",
 // } as const;
 
-// export const PERMISSIONS_INSTRUCTORS = {
-//   CREATE: "instructors.create",
-//   DELETE: "instructors.delete",
-//   UPDATE: "instructors.update",
-//   VIEW: "instructors.view",
-// } as const;
+export const PERMISSIONS_INSTRUCTORS = {
+  CREATE: "instructors.create",
+  DELETE: "instructors.delete",
+  UPDATE: "instructors.update",
+  VIEW: "instructors.view",
+} as const;
 
 // ——— Mails ———
-// const PERMISSIONS_MAILS = {
-//   CREATE: "mails.create",
-//   VIEW: "mails.view",
-// } as const;
+export const PERMISSIONS_MAILS = {
+  CREATE: "mails.create",
+  VIEW: "mails.view",
+} as const;
 
 /** Flat map of all permission strings for sidebar and simple checks. */
 // export const PERMISSIONS_NAV = {

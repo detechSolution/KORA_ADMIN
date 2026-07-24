@@ -47,6 +47,9 @@ async function handleUpdateProfile(): Promise<void> {
 
     await authStore.updatePassword(payload);
     success({ message: "Password updated successfully" });
+    state.currentPassword = "";
+    state.newPassword = "";
+    state.confirmPassword = "";
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to update password") });
