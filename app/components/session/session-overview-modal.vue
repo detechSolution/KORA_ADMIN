@@ -2,6 +2,7 @@
 import { ref } from "vue";
 
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_SESSIONS } from "~/config/permissions";
 
 defineProps<{
   open: boolean;
@@ -9,10 +10,10 @@ defineProps<{
 }>();
 
 const emit = defineEmits(["close", "edit"]);
-
 const isPreviewOpen = ref(false);
 const previewType = ref<"image" | "video">("image");
 const previewUrl = ref("");
+const { can } = usePermission();
 
 function openPreview(type: "image" | "video", url: string) {
   if (!url)
@@ -187,7 +188,10 @@ function openPreview(type: "image" | "video", url: string) {
       </div>
 
       <!-- Footer Action -->
-      <div class="flex justify-end pt-2">
+      <div
+        v-if="can(PERMISSIONS_SESSIONS.UPDATE)"
+        class="flex justify-end pt-2"
+      >
         <base-button
           variant="solid"
           size="md"

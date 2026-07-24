@@ -4,6 +4,7 @@ import { computed, onMounted, reactive, ref } from "vue";
 import type { SystemAdmin } from "~/types/system-admin";
 
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_ADMINISTRATION } from "~/config/permissions";
 import { useAdminStore } from "~/stores/admin";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
@@ -38,7 +39,7 @@ const loadingAdmins = ref(false);
 const admins = computed(() => adminStore.admins);
 const isAdminDrawerOpen = ref(false);
 const selectedAdmin = ref<SystemAdmin | null>(null);
-
+const { can } = usePermission();
 function openAdminDrawer(admin: SystemAdmin): void {
   selectedAdmin.value = admin;
   isAdminDrawerOpen.value = true;
@@ -240,6 +241,7 @@ onMounted(() => {
               :items="[
                 {
                   label: 'Edit Profile',
+                  disabled: !can(PERMISSIONS_ADMINISTRATION.ADMINS_UPDATE),
                   onSelect: () => openAdminDrawer(row.original),
                   class: 'cursor-pointer',
                 },

@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_KORA_PASSES } from "~/config/permissions";
 import { useKoraPassesStore } from "~/stores/kora-passes";
 
 definePageMeta({
@@ -14,7 +15,7 @@ const koraPassesStore = useKoraPassesStore();
 
 const isEditDrawerOpen = ref(false);
 const selectedPass = ref<any>(null);
-
+const { can } = usePermission();
 const koraPasses = computed(() => koraPassesStore.koraPasses);
 
 onMounted(() => {
@@ -45,6 +46,7 @@ function handleSuccess() {
       </template>
       <template #actions>
         <NuxtLink
+          v-if="can(PERMISSIONS_KORA_PASSES.CREATE)"
           to="/offerings/create-passes"
         >
           <base-button

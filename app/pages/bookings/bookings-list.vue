@@ -6,6 +6,7 @@ import type { Booking } from "~/types/booking";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_BOOKINGS } from "~/config/permissions";
 import { useBookingStore } from "~/stores/booking";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
@@ -33,7 +34,7 @@ const { success, error: showError } = useNotification();
 const bookingStore = useBookingStore();
 const bookings = computed(() => bookingStore.bookings);
 const { pagination } = usePagination();
-
+const { can } = usePermission();
 const loading = ref(false);
 const loadingSummary = ref(false);
 const loadingCancel = ref(false);
@@ -211,7 +212,10 @@ onMounted(async () => {
       </template>
 
       <template #actions>
-        <NuxtLink to="/bookings/create-booking">
+        <NuxtLink
+          v-if="can(PERMISSIONS_BOOKINGS.CREATE)"
+          to="/bookings/create-booking"
+        >
           <base-button
             :leading-icon="ICONS.PLUS"
           >

@@ -10,17 +10,17 @@ export const DASHBOARD = {
 } as const;
 
 // ——— Administration ———
-// const PERMISSIONS_ADMINISTRATION = {
-//   ADMINS_CREATE: "administration.admins.create",
-//   ADMINS_DELETE: "administration.admins.delete",
-//   ADMINS_UPDATE: "administration.admins.update",
-//   ADMINS_VIEW: "administration.admins.view",
+export const PERMISSIONS_ADMINISTRATION = {
+  ADMINS_CREATE: "administration.admins.create",
+  ADMINS_DELETE: "administration.admins.delete",
+  ADMINS_UPDATE: "administration.admins.update",
+  ADMINS_VIEW: "administration.admins.view",
 
-//   ROLES_CREATE: "administration.roles.create",
-//   ROLES_DELETE: "administration.roles.delete",
-//   ROLES_UPDATE: "administration.roles.update",
-//   ROLES_VIEW: "administration.roles.view",
-// } as const;
+  ROLES_CREATE: "administration.roles.create",
+  ROLES_DELETE: "administration.roles.delete",
+  ROLES_UPDATE: "administration.roles.update",
+  ROLES_VIEW: "administration.roles.view",
+} as const;
 
 // ——— Bookings ———
 export const PERMISSIONS_BOOKINGS = {
@@ -89,10 +89,10 @@ export const PERMISSIONS_PROMO_CODES = {
   VIEW: "promo_codes.view",
 } as const;
 
-// ——— Refunds ———
-// const PERMISSIONS_REFUNDS = {
-//   MANAGE: "refunds.manage",
-// } as const;
+// ——— Refunds ——— used for Cancellations
+export const PERMISSIONS_REFUNDS = {
+  MANAGE: "refunds.manage",
+} as const;
 
 // ——— Uploads ———
 // export const PERMISSIONS_UPLOADS = {

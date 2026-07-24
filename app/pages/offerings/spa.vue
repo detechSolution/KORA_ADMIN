@@ -5,6 +5,7 @@ import type { Day, SpaSubType } from "~/types/spa";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_SPA } from "~/config/permissions";
 import { useSpaStore } from "~/stores/spa";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -31,7 +32,7 @@ const isDeleteModalOpen = ref(false);
 const selectedServiceId = ref<number | null>(null);
 const selectedService = ref<SpaSubType | null>(null);
 const router = useRouter();
-
+const { can } = usePermission();
 const dayLabels: Record<Day, string> = {
   mon: "Mon",
   tue: "Tue",
@@ -180,6 +181,7 @@ function clearFilters(): void {
         </div>
 
         <base-button
+          v-if="can(PERMISSIONS_SPA.CREATE)"
           variant="solid"
           size="lg"
           :leading-icon="ICONS.PLUS"
@@ -278,6 +280,7 @@ function clearFilters(): void {
           </div>
 
           <base-button
+            v-if="can(PERMISSIONS_SPA.UPDATE)"
             variant="outline"
             size="md"
             :leading-icon="ICONS.PEN_LINE"
