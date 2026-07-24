@@ -163,9 +163,9 @@ async function handleCreatePass() {
           <base-input
             v-model.number="form.discount"
             name="discount"
-            label="Spa Discount"
+            label="Spa / Cafe / Salon Discount"
             type="number"
-            placeholder="Enter discount percentage for spa"
+            placeholder="Enter discount percentage"
             class="w-full"
           >
             <template #trailing>

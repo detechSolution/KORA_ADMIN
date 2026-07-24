@@ -32,6 +32,7 @@ export type Booking = {
   clientEmail: string;
   clientPhoneNumber: string;
   visitors?: any[];
+  participants?: any[];
 };
 
 export type BookingItemGroup = {

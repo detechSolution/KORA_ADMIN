@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import { useMailStore } from "~/stores/mail";
+import { useMembershipStore } from "~/stores/membership";
 
 type Item = { value: string; label: string };
 type Props = { name: string; label?: string; modelValue: string[] };
@@ -9,20 +10,30 @@ type Props = { name: string; label?: string; modelValue: string[] };
 const props = withDefaults(defineProps<Props>(), { label: "" });
 const emit = defineEmits<{ "update:modelValue": [value: string[]] }>();
 
-const FILTERS = [
-  { value: "all_clients", label: "All Clients" },
-  { value: "kora_standard", label: "Kora Standard" },
-  { value: "kora_premium", label: "Kora Premium" },
-  { value: "kora_executive", label: "Kora Executive" },
-  { value: "newsletter_subscribers", label: "Newsletter Subscribers" },
-];
-
 const SELECT_ALL = "__select_all__";
 
 const mailStore = useMailStore();
+const membershipStore = useMembershipStore();
 const activeGroup = ref("all_clients");
 const recipients = ref<Item[]>([]);
 const loading = ref(false);
+
+const FILTERS = computed(() => {
+  const baseFilters = [
+    { value: "all_clients", label: "All Clients" },
+  ];
+
+  const planFilters = membershipStore.plans.data.map(plan => ({
+    value: plan.name.toLowerCase().replace(/\s+/g, "_"),
+    label: plan.name,
+  }));
+
+  const endFilters = [
+    { value: "newsletter_subscribers", label: "Newsletter Subscribers" },
+  ];
+
+  return [...baseFilters, ...planFilters, ...endFilters];
+});
 
 async function load() {
   loading.value = true;
@@ -42,6 +53,10 @@ async function load() {
 }
 
 watch(activeGroup, load, { immediate: true });
+
+onMounted(() => {
+  membershipStore.fetchPlans();
+});
 
 const allSelected = computed(() =>
   recipients.value.length > 0 && recipients.value.every(r => props.modelValue.includes(r.value)),

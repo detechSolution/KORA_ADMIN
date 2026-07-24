@@ -235,12 +235,12 @@ onMounted(() => {
           </div>
         </div>
 
-        <base-button
+        <!-- <base-button
           variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
         >
           Export
-        </base-button>
+        </base-button> -->
       </div>
       <base-table
         :data="members.data"
@@ -281,7 +281,7 @@ onMounted(() => {
             v-if="row.original?.user?.role !== 'guest' && row.original?.membershipPlanId !== null"
             class="flex items-center gap-2"
           >
-            <base-badge :status="row.original?.isActive ? 'active' : 'expired'">
+            <base-badge :status="row.original?.isActive ? 'active' : row.original?.isFrozen ? 'frozen' : 'expired'">
               {{ row.original?.isActive ? 'Active' : row.original?.isFrozen ? 'Frozen' : 'Expired' }}
             </base-badge>
           </div>

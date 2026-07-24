@@ -91,8 +91,8 @@ async function handleCreateMail() {
 
     <div class="flex flex-col gap-6 p-6 bg-white rounded-lg">
       <form-header-card
-        label="Create Mail"
-        description="Create a new mail and send it to members or guests"
+        label="Mail details"
+        description="Enter the subject, title and contents of the mail"
       />
 
       <UForm

@@ -22,6 +22,7 @@ export const ICONS = {
   USER_PEN: "i-lucide-user-pen",
   INFO: "i-lucide-info",
   THREE_VERTICAL_DOTS: "i-lucide-ellipsis-vertical",
+  PHONE: "i-lucide-phone",
 
   // Actions
   EYE: "i-lucide-eye",
@@ -63,7 +64,7 @@ export const ICONS = {
   TRENDING_UP: "i-lucide-trend-up",
   TRENDING_DOWN: "i-lucide-trend-down",
   lucideONE: "i-lucide-lucideone",
-  MAIL: "i-lucide-envelope",
+  MAIL: "i-lucide-mail",
   MAP_PIN: "i-lucide-map-pin",
   BUILDING: "i-lucide-buildings",
   CLOCK: "i-lucide-clock",

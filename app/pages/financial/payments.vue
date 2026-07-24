@@ -135,12 +135,12 @@ onMounted(() => {
           </div>
         </div>
 
-        <base-button
+        <!-- <base-button
           variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
         >
           Export
-        </base-button>
+        </base-button> -->
       </div>
       <base-table
         :data="payments.data"
@@ -173,7 +173,7 @@ onMounted(() => {
         </template>
 
         <template #method-cell="{ row }">
-          <base-badge :status="row?.original?.method">
+          <base-badge :status="row?.original?.method" :show-icon="true">
             {{ row?.original?.method }}
           </base-badge>
         </template>
