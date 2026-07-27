@@ -3,6 +3,7 @@ import { computed } from "vue";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_SESSIONS } from "~/config/permissions";
 
 const props = defineProps<SessionCardProps>();
 
@@ -24,6 +25,7 @@ type SessionCardProps = {
 };
 
 const { error: showError } = useNotification();
+const { can } = usePermission();
 
 const isEventOver = computed(() => {
   if (!props.endsAt)
@@ -39,7 +41,6 @@ function handleAttendanceClick() {
     emit("openAttendanceModal", props.id);
     return;
   }
-
   const now = new Date();
   const startsAt = new Date(props.startsAt);
   const timeDiff = startsAt.getTime() - now.getTime();
@@ -100,7 +101,7 @@ function handleAttendanceClick() {
         {{ price }}
       </div>
       <div class="flex items-center gap-3 text-secondary-400">
-        <UTooltip :text="isEventOver ? 'Attendance (Event is over)' : 'Attendance'">
+        <UTooltip v-if="can(PERMISSIONS_SESSIONS.UPDATE)" :text="isEventOver ? 'Attendance (Event is over)' : 'Attendance'">
           <UIcon
             :name="ICONS.CLIPBOARD_CHECK"
             class="w-4 h-4 transition-colors"
@@ -108,14 +109,14 @@ function handleAttendanceClick() {
             @click="handleAttendanceClick"
           />
         </UTooltip>
-        <UTooltip text="Add Member & Pass Users">
+        <UTooltip v-if="can(PERMISSIONS_SESSIONS.UPDATE)" text="Add Member & Pass Users">
           <UIcon
             :name="ICONS.USER_PLUS"
             class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
             @click="emit('openAddMemberModal', id)"
           />
         </UTooltip>
-        <UTooltip text="Edit Session">
+        <UTooltip v-if="can(PERMISSIONS_SESSIONS.UPDATE)" text="Edit Session">
           <UIcon
             :name="ICONS.EDIT"
             class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
@@ -129,7 +130,7 @@ function handleAttendanceClick() {
             @click="emit('openOverviewModal', id)"
           />
         </UTooltip>
-        <UTooltip text="Copy Session">
+        <UTooltip v-if="can(PERMISSIONS_SESSIONS.CREATE)" text="Copy Session">
           <UIcon
             :name="ICONS.COPY"
             class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"

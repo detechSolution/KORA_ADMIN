@@ -8,10 +8,16 @@ import { useRoute, useRouter } from "vue-router";
 import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
 import {
+  PERMISSIONS_ADMINISTRATION,
   PERMISSIONS_BOOKINGS,
+  PERMISSIONS_INSTRUCTORS,
   PERMISSIONS_KORA_PASSES,
+  PERMISSIONS_MAILS,
+  PERMISSIONS_MEMBERS,
   PERMISSIONS_MEMBERSHIP_PLANS,
   PERMISSIONS_PAYMENTS,
+  PERMISSIONS_PROMO_CODES,
+  PERMISSIONS_REFUNDS,
   PERMISSIONS_SESSIONS,
   PERMISSIONS_SPA,
 } from "~/config/permissions";
@@ -110,7 +116,7 @@ const rawItems: NavItemWithPermission[] = [{
   icon: ICONS.AWARD,
   defaultOpen: true,
   children: [
-    { label: "Members & Guests", to: "/members/members-list", icon: ICONS.USERS, permission: PERMISSIONS_MEMBERSHIP_PLANS.CREATE },
+    { label: "Members & Guests", to: "/members/members-list", icon: ICONS.USERS, permission: PERMISSIONS_MEMBERS.VIEW },
     { label: "Membership Plans", to: "/members/plans", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_MEMBERSHIP_PLANS.VIEW },
   ],
 }, {
@@ -119,7 +125,7 @@ const rawItems: NavItemWithPermission[] = [{
   defaultOpen: true,
   children: [
     { label: "Payments", to: "/financial/payments", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_PAYMENTS.VIEW },
-    { label: "Cancellations", to: "/financial/cancellations", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_PAYMENTS.VIEW },
+    { label: "Cancellations", to: "/financial/cancellations", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_REFUNDS.MANAGE },
   ],
 },
 //  {
@@ -132,24 +138,27 @@ const rawItems: NavItemWithPermission[] = [{
   label: "Instructors",
   icon: ICONS.DOOR_LOCK,
   to: "/instructors/instructors-list",
+  permission: PERMISSIONS_INSTRUCTORS.VIEW,
   defaultOpen: true,
 }, {
   label: "Promo Code",
   icon: ICONS.BADGE_PERCENT,
   to: "/promo-code/list",
+  permission: PERMISSIONS_PROMO_CODES.VIEW,
   defaultOpen: true,
 }, {
   label: "Send Email",
   icon: ICONS.MAILS,
   to: "/send-email/email-list",
+  permission: PERMISSIONS_MAILS.VIEW,
   defaultOpen: true,
 }, {
   label: "Administration",
   icon: ICONS.SHIELD_CHECK,
   defaultOpen: true,
   children: [
-    { label: "Roles & Permissions", to: "/administration/roles", icon: ICONS.SETTINGS, permission: PERMISSIONS_PAYMENTS.VIEW },
-    { label: "Admins", to: "/administration/admins", icon: ICONS.USER_COG, permission: PERMISSIONS_PAYMENTS.VIEW },
+    { label: "Roles & Permissions", to: "/administration/roles", icon: ICONS.SETTINGS, permission: PERMISSIONS_ADMINISTRATION.ROLES_VIEW },
+    { label: "Admins", to: "/administration/admins", icon: ICONS.USER_COG, permission: PERMISSIONS_ADMINISTRATION.ADMINS_VIEW },
   ],
 }];
 

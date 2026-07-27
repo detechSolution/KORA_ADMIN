@@ -6,6 +6,7 @@ import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { SESSION_TYPE } from "~/config/constants";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_SESSIONS } from "~/config/permissions";
 import { useSessionsStore } from "~/stores/sessions";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -16,6 +17,7 @@ definePageMeta({
 });
 
 const router = useRouter();
+const { can } = usePermission();
 const loading = ref(false);
 const { error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
@@ -137,6 +139,7 @@ onMounted(() => {
       </template>
       <template #actions>
         <NuxtLink
+          v-if="can(PERMISSIONS_SESSIONS.CREATE)"
           to="/offerings/create-sessions"
         >
           <base-button

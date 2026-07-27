@@ -5,6 +5,7 @@ import type { Instructor } from "~/types/instructors";
 
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_INSTRUCTORS } from "~/config/permissions";
 import { useInstructorsStore } from "~/stores/instructors";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -22,7 +23,7 @@ type DateRangeFilter = {
 const instructorsStore = useInstructorsStore();
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
-
+const { can } = usePermission();
 const isEditDrawerOpen = ref(false);
 const isDetailModalOpen = ref(false);
 const selectedInstructor = ref<Instructor | null>(null);
@@ -154,6 +155,7 @@ onMounted(() => {
 
       <template #actions>
         <NuxtLink
+          v-if="can(PERMISSIONS_INSTRUCTORS.CREATE)"
           to="/instructors/create-instructors"
           class="flex items-center gap-2"
         >
@@ -252,12 +254,12 @@ onMounted(() => {
                   onSelect: () => openDetailModal(row.original),
                   class: 'cursor-pointer',
                 },
-                {
+                can(PERMISSIONS_INSTRUCTORS.UPDATE) && {
                   label: 'Edit Instructor',
                   onSelect: () => openEditDrawer(row.original),
                   class: 'cursor-pointer',
                 },
-              ]"
+              ].filter(Boolean)"
             >
               <base-button
                 :icon="ICONS.ELLIPSIS_VERTICAL"

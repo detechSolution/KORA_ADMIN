@@ -7,7 +7,7 @@ import { useChartColors } from "~/composables/use-chart-colors";
 import { useNotification } from "~/composables/use-notification";
 import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
-import { PERMISSIONS_BOOKINGS } from "~/config/permissions";
+import { PERMISSIONS_BOOKINGS, PERMISSIONS_MEMBERS, PERMISSIONS_SESSIONS } from "~/config/permissions";
 import { useAnalyticsStore } from "~/stores/analytics";
 import { useBookingStore } from "~/stores/booking";
 import { useSessionsStore } from "~/stores/sessions";
@@ -17,7 +17,6 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
-  permissions: ["dashboard.view"],
 });
 
 const bookingsStore = useBookingStore();
@@ -133,18 +132,22 @@ async function getConsistentMembers() {
 
 const { revenueCategories: RevenueCategoriesMultple } = useChartColors();
 
-onMounted(() => {
-  const calls = [
-    getAnalyticsData(),
-    getTodaySessions(),
-    getBookingsBySessions(),
-    getRevenueTrend(),
-    getConsistentMembers(),
-  ];
+onMounted(async () => {
+  const calls = [getAnalyticsData(), getRevenueTrend(), getBookingsBySessions()];
+
+  if (can(PERMISSIONS_SESSIONS.VIEW)) {
+    calls.push(getTodaySessions());
+  }
+
   if (can(PERMISSIONS_BOOKINGS.VIEW)) {
     calls.push(getRecentBookings());
   }
-  Promise.all(calls);
+
+  if (can(PERMISSIONS_MEMBERS.VIEW)) {
+    calls.push(getConsistentMembers());
+  }
+
+  await Promise.all(calls);
 });
 
 const recentBookingsColumns = [
@@ -207,7 +210,7 @@ const kpiData = computed(() => [
       </template>
     </base-page-header>
 
-    <div class="page-content-height bg-card  rounded-xl shadow-sm p-6 space-y-6">
+    <div class=" bg-card  rounded-xl shadow-sm p-6 space-y-6">
       <div class="grid bg-stone-50 rounded border border-border py-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-y-6 md:gap-y-8 gap-x-0">
         <dashboard-kpi-card
           v-for="(kpi, index) in kpiData"
@@ -306,7 +309,7 @@ const kpiData = computed(() => [
       </div>
 
       <!-- Consistent Members -->
-      <div>
+      <div v-if="can(PERMISSIONS_MEMBERS.VIEW)">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div>
             <h3 class="text-base font-semibold text-secondary flex items-center gap-2">
@@ -357,7 +360,7 @@ const kpiData = computed(() => [
       </div>
     </div>
 
-    <div class="bg-card  rounded-xl shadow-sm p-6 space-y-6">
+    <div v-if="can(PERMISSIONS_SESSIONS.VIEW)" class="bg-card  rounded-xl shadow-sm p-6 space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <div>
           <h3 class="text-base font-semibold text-secondary flex items-center gap-2">

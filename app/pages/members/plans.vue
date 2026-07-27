@@ -5,6 +5,7 @@ import type { MembershipPlan } from "~/types/membership";
 
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_MEMBERSHIP_PLANS } from "~/config/permissions";
 import { useMembershipStore } from "~/stores/membership";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -50,7 +51,7 @@ const { pagination } = usePagination();
 const { error: showError } = useNotification();
 const editDrawerOpen = ref(false);
 const selectedPlan = ref<MembershipPlan | null>(null);
-
+const { can } = usePermission();
 const state = ref({
   search: "",
   type: null,
@@ -112,7 +113,10 @@ onMounted(() => {
         Create and manage membership plans
       </template>
       <template #actions>
-        <NuxtLink to="/members/create-membership">
+        <NuxtLink
+          v-if="can(PERMISSIONS_MEMBERSHIP_PLANS.CREATE)"
+          to="/members/create-membership"
+        >
           <base-button
             variant="solid"
             size="lg"
@@ -223,6 +227,7 @@ onMounted(() => {
               :items="[
                 {
                   label: 'Edit Plan',
+                  disabled: !can(PERMISSIONS_MEMBERSHIP_PLANS.UPDATE),
                   onSelect: () => openEditDrawer(row.original),
                   class: 'cursor-pointer',
                 },

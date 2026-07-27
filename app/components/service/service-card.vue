@@ -2,6 +2,7 @@
 import { computed } from "vue";
 
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_SPA } from "~/config/permissions";
 
 type ServicePrice = {
   id?: number;
@@ -24,6 +25,7 @@ const emit = defineEmits<{
   (e: "delete", id: number): void;
 }>();
 
+const { can } = usePermission();
 const hasScrollablePrices = computed(() => props.prices.length > 3);
 
 function handleEdit(): void {
@@ -44,6 +46,7 @@ function handleDelete(): void {
         <p>{{ name }}</p>
         <div class="flex items-center gap-3">
           <button
+            v-if="can(PERMISSIONS_SPA.UPDATE)"
             type="button"
             class="w-fit h-fit cursor-pointer"
             @click="handleEdit"
@@ -51,6 +54,7 @@ function handleDelete(): void {
             <UIcon :name="ICONS.PEN_LINE" class="text-secondary-500 h-4 w-4" />
           </button>
           <button
+            v-if="can(PERMISSIONS_SPA.DELETE)"
             type="button"
             class="w-fit h-fit cursor-pointer"
             @click="handleDelete"
