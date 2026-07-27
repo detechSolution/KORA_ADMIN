@@ -26,14 +26,6 @@ export type RolesCatalog = {
   permissions: string[];
 };
 
-export type AdminPayload = {
-  fullName: string;
-  phoneNumber: string;
-  email: string;
-  adminRoleId: number;
-  isActive: boolean;
-};
-
 export type UpdateAdminPayload = {
   admin_id: number;
   fullName: string;
