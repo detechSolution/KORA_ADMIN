@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
 
-import type { SystemAdmin } from "~/types/system-admin";
+import type { Admin } from "~/types/admin";
 
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_ADMINISTRATION } from "~/config/permissions";
@@ -70,7 +70,7 @@ const columns = [
     id: "role",
     header: "Role",
     accessorKey: "role",
-    accessorFn: (row: SystemAdmin) => row.adminRole?.name || "-",
+    accessorFn: (row: Admin) => row.adminRole?.name || "-",
   },
   {
     id: "status",
@@ -81,7 +81,7 @@ const columns = [
     id: "createdAt",
     header: "Created Date",
     accessorKey: "createdAt",
-    accessorFn: (row: SystemAdmin) => formatDate(row.createdAt),
+    accessorFn: (row: Admin) => formatDate(row.createdAt),
   },
   {
     id: "actions",

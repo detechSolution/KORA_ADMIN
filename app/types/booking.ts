@@ -12,12 +12,6 @@ export type ServiceState = {
   resolvedDurationLabel?: string;
 };
 
-export type VisitorState = ServiceState & {
-  fullName: string;
-  phoneNumber: string;
-  email: string;
-};
-
 export type Booking = {
   id: number;
   bookingCode: string;
