@@ -208,7 +208,7 @@ async function handleLoadMore() {
       </div>
 
       <button
-        v-if="hasUnread"
+        v-if="hasUnread && activeTab === 'unread'"
         type="button"
         class="text-sm font-medium leading-5 text-stone-600 transition-colors hover:text-stone-950"
         @click="handleMarkAllAsRead"
