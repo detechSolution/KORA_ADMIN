@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch } from "vue";
 import z from "zod";
 
-import type { SystemAdmin } from "~/types/system-admin";
+import type { Admin } from "~/types/admin";
 
 import { useNotification } from "~/composables/use-notification";
 import { useAdminStore } from "~/stores/admin";
@@ -10,7 +10,7 @@ import { getApiErrorMessage } from "~/utils/error";
 
 type Props = {
   open: boolean;
-  admin: SystemAdmin | null;
+  admin: Admin | null;
 };
 
 const props = defineProps<Props>();
@@ -51,7 +51,7 @@ const roleOptions = computed(() =>
   })),
 );
 
-function fillForm(admin: SystemAdmin | null): void {
+function fillForm(admin: Admin | null): void {
   state.fullName = admin?.fullName ?? "";
   state.phoneNumber = admin?.phoneNumber ?? "";
   state.email = admin?.email ?? "";
