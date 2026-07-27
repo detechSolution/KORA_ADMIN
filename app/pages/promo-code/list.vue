@@ -68,6 +68,7 @@ const { pagination } = usePagination();
 const promoCodes = computed(() => promoCodeStore.promoCodes);
 const editDrawerOpen = ref(false);
 const selectedPromoCode = ref<PromoCode | null>(null);
+const { can } = usePermission();
 
 const state = ref({
   search: "",
@@ -143,7 +144,10 @@ onMounted(() => {
       </template>
 
       <template #actions>
-        <NuxtLink to="/promo-code/create">
+        <NuxtLink
+          v-if="can('promo_codes.create')"
+          to="/promo-code/create"
+        >
           <base-button
             variant="solid"
             size="lg"

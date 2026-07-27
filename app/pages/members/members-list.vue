@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from "vue";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_MEMBERS } from "~/config/permissions";
 import { useMembershipStore } from "~/stores/membership";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
@@ -74,7 +75,7 @@ const addMembershipDrawerOpen = ref(false);
 const isDetailModalOpen = ref(false);
 const isFreezeModalOpen = ref(false);
 const selectedMember = ref(null);
-
+const { can } = usePermission();
 const state = ref({
   search: "",
   dateRange: {
@@ -169,7 +170,10 @@ onMounted(() => {
         Create and manage members.
       </template>
       <template #actions>
-        <NuxtLink to="/members/create-member">
+        <NuxtLink
+          v-if="can(PERMISSIONS_MEMBERS.CREATE)"
+          to="/members/create-member"
+        >
           <base-button
             variant="solid"
             size="lg"
@@ -302,12 +306,12 @@ onMounted(() => {
                   onSelect: () => openDetailModal(row.original),
                   class: 'cursor-pointer',
                 },
-                !row.original?.isActive && !row.original?.isFrozen && {
+                !row.original?.isActive && !row.original?.isFrozen && can(PERMISSIONS_MEMBERS.UPDATE) && {
                   label: 'Add Membership',
                   onSelect: () => openAddMembershipDrawer(row.original),
                   class: 'cursor-pointer',
                 },
-                row.original?.membershipPlan?.isFreezable && !row.original?.isFrozen && {
+                row.original?.membershipPlan?.isFreezable && !row.original?.isFrozen && can(PERMISSIONS_MEMBERS.UPDATE) && {
                   label: 'Freeze Membership',
                   onSelect: () => openFreezeModal(row.original),
                   class: 'cursor-pointer',

@@ -4,6 +4,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import type { RolesCatalog, SystemAdminRole } from "~/types/system-admin";
 
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_ADMINISTRATION } from "~/config/permissions";
 import { useAdminStore } from "~/stores/admin";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -31,7 +32,7 @@ const loadingRoles = ref(false);
 const loadingRolesCatalog = ref(false);
 const savingPermissions = ref(false);
 const isEditing = ref(true);
-
+const { can } = usePermission();
 const selectedRoleId = ref<number | null>(null);
 const draftPermissions = ref<string[]>([]);
 const savedPermissions = ref<string[]>([]);
@@ -274,7 +275,10 @@ onMounted(() => {
       </template>
 
       <template #actions>
-        <NuxtLink to="/administration/create-role">
+        <NuxtLink
+          v-if="can(PERMISSIONS_ADMINISTRATION.ROLES_CREATE)"
+          to="/administration/create-role"
+        >
           <base-button
             variant="solid"
             size="lg"
@@ -373,6 +377,7 @@ onMounted(() => {
           >
             <template #item-leading="{ item }">
               <UCheckbox
+                :disabled="!can(PERMISSIONS_ADMINISTRATION.ROLES_UPDATE)"
                 :model-value="isPermissionChecked(item)"
                 :indeterminate="isPermissionIndeterminate(item)"
                 :aria-label="`Permission ${item.label}`"

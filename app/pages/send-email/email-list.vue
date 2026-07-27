@@ -5,6 +5,7 @@ import type { Mail } from "~/types/mail";
 
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_MAILS } from "~/config/permissions";
 import { useMailStore } from "~/stores/mail";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
@@ -23,7 +24,7 @@ type DateRangeFilter = {
 const mailStore = useMailStore();
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
-
+const { can } = usePermission();
 const state = ref({
   search: "",
   status: "",
@@ -116,6 +117,7 @@ onMounted(() => {
 
       <template #actions>
         <Nuxt-Link
+          v-if="can(PERMISSIONS_MAILS.CREATE)"
           to="/send-email/create-email"
           class="flex items-center gap-2"
         >
