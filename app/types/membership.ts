@@ -38,13 +38,6 @@ export type MembershipPlan = {
   options: MembershipPlanOption[];
 };
 
-export type MemberBenefits = {
-  spa: number;
-  class: number;
-  event: number;
-  workshop: number;
-};
-
 export type CreateMembershipPlanPayload = {
   name: string;
   description: string;

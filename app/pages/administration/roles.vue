@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 
-import type { RolesCatalog, SystemAdminRole } from "~/types/system-admin";
+import type { AdminRole, RolesCatalog } from "~/types/admin";
 
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_ADMINISTRATION } from "~/config/permissions";
@@ -41,7 +41,7 @@ const savedPermissions = ref<string[]>([]);
 const roles = computed(() => adminStore.roles);
 const rolesCatalog = computed(() => adminStore.rolesCatalog);
 
-const selectedRole = computed<SystemAdminRole | undefined>(() =>
+const selectedRole = computed<AdminRole | undefined>(() =>
   roles.value.find(role => role.id === selectedRoleId.value),
 );
 
@@ -177,7 +177,7 @@ function updatePermissionGroup(item: PermissionTreeItem, isEnabled: boolean): vo
 /**
  * Synchonizes internal state when user changes the active role on the left panel.
  */
-function syncSelectedRolePermissions(role?: SystemAdminRole): void {
+function syncSelectedRolePermissions(role?: AdminRole): void {
   const permissions = [...(role?.permissions ?? [])];
   draftPermissions.value = permissions;
   savedPermissions.value = permissions;

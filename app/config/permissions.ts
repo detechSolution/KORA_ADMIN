@@ -5,9 +5,9 @@
  */
 
 // ——— Dashboard ———
-export const DASHBOARD = {
-  VIEW: "dashboard.view",
-} as const;
+// export const DASHBOARD = {
+//   VIEW: "dashboard.view",
+// } as const;
 
 // ——— Administration ———
 export const PERMISSIONS_ADMINISTRATION = {

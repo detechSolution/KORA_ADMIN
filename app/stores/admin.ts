@@ -1,13 +1,13 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-import type { ApiResponse } from "~/types/api";
 import type {
+  Admin,
+  AdminRole,
   RolesCatalog,
-  SystemAdmin,
-  SystemAdminRole,
   UpdateAdminPayload,
-} from "~/types/system-admin";
+} from "~/types/admin";
+import type { ApiResponse } from "~/types/api";
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
@@ -15,12 +15,12 @@ import { buildQueryString } from "~/utils/common";
 
 export const useAdminStore = defineStore("admin", () => {
   const http = getHttp();
-  const roles = ref<SystemAdminRole[]>([]);
+  const roles = ref<AdminRole[]>([]);
 
-  const rolesCatalog = ref<RolesCatalog>({});
+  const rolesCatalog = ref<RolesCatalog>();
 
   const admins = ref<{
-    data: SystemAdmin[];
+    data: Admin[];
     pagination: {
       page: number;
       itemsPerPage: number;
@@ -83,7 +83,7 @@ export const useAdminStore = defineStore("admin", () => {
       const response = await http.get(`${API_ENDPOINTS.SYSTEM_ADMIN.ADMINS.GET_ADMINS}?${qs}`) as ApiResponse;
 
       admins.value = {
-        data: (response?.data || []) as SystemAdmin[],
+        data: (response?.data || []) as Admin[],
         pagination: {
           page: response.meta.page,
           itemsPerPage: response.meta.limit,
