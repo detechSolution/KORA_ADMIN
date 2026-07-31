@@ -19,6 +19,9 @@ export default defineAppConfig({
         last: "rounded min-w-8 h-8 bg-muted",
       },
     },
+    skeleton: {
+      base: "bg-stone-100 dark:bg-secondary-800 text-secondary-900 dark:text-secondary-50",
+    },
   },
   safelist: [
     "min-w-[150px]",
