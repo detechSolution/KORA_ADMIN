@@ -34,7 +34,7 @@ const state = ref({
 const columns = [
   { id: "user", header: "Client", accessorKey: "user" },
   { id: "referenceCode", header: "Reference ID", accessorKey: "referenceCode" },
-  { id: "amount", header: "Amount", accessorKey: "amount" },
+  { id: "amount", header: "Amount", accessorKey: "amount", accessorFn: (row: any) => `${row.currency} ${row.amount.toFixed(2)}` || "N/A" },
   { id: "paidAt", header: "Paid Date", accessorKey: "createdAt", accessorFn: (row: any) => formatDate(row.createdAt) || "N/A" },
   { id: "method", header: "Method", accessorKey: "method" },
   { id: "status", header: "Status", accessorKey: "status" },

@@ -76,6 +76,7 @@ function togglePasswordVisibility() {
       :loading="props.loading"
       :disabled="props.disabled"
       :readonly="props.readonly"
+      autocomplete="off"
       variant="outline"
       class="w-full"
       size="lg"

@@ -15,7 +15,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", file: ModelValue): void;
 }>();
 
-const MAX_IMAGE_SIZE = 1 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 
 type FileType = "image" | "video" | "both";
 
