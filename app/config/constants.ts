@@ -156,6 +156,7 @@ export const API_ENDPOINTS = {
   // used
   MAILS: {
     BASE: "/api/v1/mails",
+    OPTIONS: "/api/v1/mails/options",
     CREATE: "/api/v1/mails",
     GET_LIST: "/api/v1/mails/getList",
     GET_RECIPIENTS: "/api/v1/mails/recipients",

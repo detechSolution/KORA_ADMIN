@@ -2,7 +2,6 @@
 import { computed, onMounted, ref, watch } from "vue";
 
 import { useMailStore } from "~/stores/mail";
-import { useMembershipStore } from "~/stores/membership";
 
 type Item = { value: string; label: string };
 type Props = { name: string; label?: string; modelValue: string[] };
@@ -13,19 +12,18 @@ const emit = defineEmits<{ "update:modelValue": [value: string[]] }>();
 const SELECT_ALL = "__select_all__";
 
 const mailStore = useMailStore();
-const membershipStore = useMembershipStore();
 const activeGroup = ref("all_clients");
 const recipients = ref<Item[]>([]);
 const loading = ref(false);
 
-const FILTERS = computed(() => {
+const FILTERS = computed(() => {           
   const baseFilters = [
     { value: "all_clients", label: "All Clients" },
   ];
 
-  const planFilters = membershipStore.plans.data.map(plan => ({
-    value: plan.name.toLowerCase().replace(/\s+/g, "_"),
-    label: plan.name,
+  const planFilters = (mailStore.mailOptions || []).map((plan: string) => ({
+    value: plan,
+    label: plan,
   }));
 
   const endFilters = [
@@ -55,7 +53,7 @@ async function load() {
 watch(activeGroup, load, { immediate: true });
 
 onMounted(() => {
-  membershipStore.fetchPlans();
+  mailStore.getMembershipOptions();
 });
 
 const allSelected = computed(() =>
