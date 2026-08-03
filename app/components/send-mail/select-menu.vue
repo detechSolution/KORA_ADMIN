@@ -16,7 +16,7 @@ const activeGroup = ref("all_clients");
 const recipients = ref<Item[]>([]);
 const loading = ref(false);
 
-const FILTERS = computed(() => {           
+const FILTERS = computed(() => {
   const baseFilters = [
     { value: "all_clients", label: "All Clients" },
   ];
