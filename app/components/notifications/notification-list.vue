@@ -32,7 +32,7 @@ const initialLoading = computed(() => loading.value && !loadingMore.value && loa
 const queryParams = computed(() => ({
   page: currentPage.value,
   limit: pageSize,
-  ...(activeTab.value === "unread" ? { unreadOnly: "unread" as const } : {}),
+  ...(activeTab.value === "unread" ? { unreadOnly: "unread" as const } : { unreadOnly: "read" as const }),
 }));
 
 const visibleNotifications = computed(() => {
@@ -183,38 +183,28 @@ async function handleLoadMore() {
       <h3 class="text-sm font-semibold leading-6 text-stone-950">
         All notifications
       </h3>
-
-      <button
-        type="button"
-        class="flex size-8 items-center justify-center rounded-full text-stone-700 transition-colors hover:bg-stone-100 hover:text-stone-950"
-        aria-label="Notification settings"
-      >
-        <UIcon :name="ICONS.SETTINGS" class="size-4" />
-      </button>
     </div>
 
     <div class="flex items-center justify-between px-2 py-3">
       <div class="flex items-center gap-4">
-        <button
+        <div
           v-for="tab in tabItems"
           :key="tab.value"
-          type="button"
           class="text-sm font-medium leading-5 transition-colors cursor-pointer"
           :class="activeTab === tab.value ? 'text-stone-950' : 'text-stone-400 hover:text-stone-700'"
           @click="activeTab = tab.value"
         >
           {{ tab.label }}
-        </button>
+        </div>
       </div>
 
-      <button
+      <div
         v-if="hasUnread && activeTab === 'unread'"
-        type="button"
         class="text-sm font-medium leading-5 text-stone-600 transition-colors hover:text-stone-950"
         @click="handleMarkAllAsRead"
       >
         Mark all as read
-      </button>
+      </div>
     </div>
 
     <div v-if="initialLoading" class="flex flex-col items-center justify-center gap-2 py-10">
