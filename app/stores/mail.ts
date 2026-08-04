@@ -17,6 +17,7 @@ export const useMailStore = defineStore("mail", () => {
     total: 0,
   });
   const loading = ref(false);
+  const mailOptions = ref();
 
   const fetchMails = async (params: Record<string, any>): Promise<void> => {
     loading.value = true;
@@ -64,6 +65,17 @@ export const useMailStore = defineStore("mail", () => {
     }
   };
 
+  const getMembershipOptions = async (): Promise<any> => {
+    try {
+      const response = await http.get(API_ENDPOINTS.MAILS.OPTIONS) as any;
+      mailOptions.value = response.data;
+    }
+    catch (error) {
+      console.error("Error fetching mail options:", error);
+      throw error;
+    }
+  };
+
   const getRecipents = getRecipients;
 
   return {
@@ -73,5 +85,7 @@ export const useMailStore = defineStore("mail", () => {
     getRecipients,
     getRecipents,
     createMail,
+    getMembershipOptions,
+    mailOptions,
   };
 });
