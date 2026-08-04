@@ -15,6 +15,7 @@ const mailStore = useMailStore();
 const activeGroup = ref("all_clients");
 const recipients = ref<Item[]>([]);
 const loading = ref(false);
+const changingGroup = ref(false);
 
 const FILTERS = computed(() => {
   const baseFilters = [
@@ -47,7 +48,18 @@ async function load() {
   }
   finally {
     loading.value = false;
+    changingGroup.value = false;
   }
+}
+
+function selectGroup(group: string) {
+  if (group === activeGroup.value)
+    return;
+
+  // USelectMenu can emit a normalized value when its items are replaced.
+  // Keep the current selection while the new recipient group is loading.
+  changingGroup.value = true;
+  activeGroup.value = group;
 }
 
 watch(activeGroup, load, { immediate: true });
@@ -68,17 +80,21 @@ const items = computed<Item[]>(() => [
 const inputValue = computed({
   get: () => allSelected.value ? [SELECT_ALL, ...props.modelValue] : props.modelValue,
   set: (vals: string[]) => {
-    const nowHasAll = vals.includes(SELECT_ALL);
-    const hadAll = allSelected.value;
+    if (changingGroup.value)
+      return;
 
-    if (nowHasAll && !hadAll) {
-      emit("update:modelValue", recipients.value.map(r => r.value));
-    }
-    else if (!nowHasAll && hadAll) {
-      emit("update:modelValue", []);
+    const nowHasAll = vals.includes(SELECT_ALL);
+    const groupEmails = new Set(recipients.value.map(r => r.value));
+    const selectedInGroup = vals.filter(value => value !== SELECT_ALL);
+    const selectedOutsideGroup = props.modelValue.filter(email => !groupEmails.has(email));
+
+    if (nowHasAll) {
+      // Selecting all adds this membership group to existing recipients.
+      emit("update:modelValue", [...new Set([...props.modelValue, ...groupEmails])]);
     }
     else {
-      emit("update:modelValue", vals.filter(v => v !== SELECT_ALL));
+      // Removing selections only affects the active group, preserving other groups.
+      emit("update:modelValue", [...new Set([...selectedOutsideGroup, ...selectedInGroup])]);
     }
   },
 });
@@ -123,7 +139,7 @@ function isSelected(value: string) {
             :class="activeGroup === f.value
               ? 'bg-primary text-white border-primary'
               : 'bg-white text-secondary border-secondary-100 hover:border-primary hover:text-primary'"
-            @click.stop="activeGroup = f.value"
+            @click.stop="selectGroup(f.value)"
           >
             {{ f.label }}
           </button>
