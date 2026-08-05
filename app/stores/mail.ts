@@ -39,10 +39,11 @@ export const useMailStore = defineStore("mail", () => {
     }
   };
 
-  const getRecipients = async ({ group }: { group: string }): Promise<any[]> => {
+  const getRecipients = async ({ group, q }: { group: string; q?: string }): Promise<any[]> => {
     try {
       const query = buildQueryString({
         group,
+        ...(q?.trim() ? { q: q.trim() } : {}),
       });
       const endpoint = `${API_ENDPOINTS.MAILS.GET_RECIPIENTS}?${query}`;
       const response = await http.get(endpoint) as any;

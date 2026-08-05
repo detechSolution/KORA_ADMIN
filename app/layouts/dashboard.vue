@@ -45,6 +45,8 @@ onMounted(() => {
                   <UPopover v-model:open="notificationOpen">
                     <div class="relative">
                       <base-button
+                        :aria-label="`Notifications${notificationStore.unreadCount > 0 ? `, ${notificationStore.unreadCount} unread` : ''}`"
+                        title="Notifications"
                         class="p-2 border border-stone-200 text-stone-600 bg-stone-50"
                         variant="outline"
                       >
@@ -52,7 +54,8 @@ onMounted(() => {
                       </base-button>
                       <span
                         v-if="notificationStore.unreadCount > 0"
-                        class="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+                        class="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-[10px] font-bold leading-none text-white shadow-sm"
+                        aria-hidden="true"
                       >
                         {{ notificationStore.unreadCount > 99 ? '99+' : notificationStore.unreadCount }}
                       </span>
