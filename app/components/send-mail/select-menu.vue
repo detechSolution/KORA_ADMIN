@@ -16,6 +16,9 @@ const activeGroup = ref("all_clients");
 const recipients = ref<Item[]>([]);
 const loading = ref(false);
 const changingGroup = ref(false);
+const searchTerm = ref("");
+let searchDebounce: ReturnType<typeof setTimeout> | undefined;
+let requestId = 0;
 
 const FILTERS = computed(() => {
   const baseFilters = [
@@ -35,9 +38,13 @@ const FILTERS = computed(() => {
 });
 
 async function load() {
+  const currentRequestId = ++requestId;
   loading.value = true;
   try {
-    const data = await mailStore.getRecipients({ group: activeGroup.value });
+    const data = await mailStore.getRecipients({ group: activeGroup.value, q: searchTerm.value });
+    if (currentRequestId !== requestId)
+      return;
+
     recipients.value = data
       .map((r: any) => {
         const email = r.email ?? r.recipient_email ?? "";
@@ -63,6 +70,13 @@ function selectGroup(group: string) {
 }
 
 watch(activeGroup, load, { immediate: true });
+
+watch(searchTerm, () => {
+  if (searchDebounce)
+    clearTimeout(searchDebounce);
+
+  searchDebounce = setTimeout(load, 300);
+});
 
 onMounted(() => {
   mailStore.getMembershipOptions();
@@ -112,11 +126,14 @@ function isSelected(value: string) {
   >
     <USelectMenu
       v-model="inputValue"
+      v-model:search-term="searchTerm"
       value-key="value"
       :items="items"
       :loading="loading"
       multiple
       placeholder="Search and select recipients"
+      :ignore-filter="true"
+      :reset-search-term-on-select="false"
       :search-input="{ placeholder: 'Search & Select Recipients' }"
       size="xl"
       class="w-full"
