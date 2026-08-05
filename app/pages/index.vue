@@ -173,7 +173,7 @@ const consistentMembersColumns = [
 // Computed KPI data from store
 const kpiData = computed(() => [
   {
-    title: "Today's Bookings",
+    title: "Today's Appointments",
     icon: ICONS.INQUIRIES,
     value: analyticsData.value.todayBookings,
     link: { path: "/bookings/bookings-list" },
