@@ -142,7 +142,7 @@ const rawItems: NavItemWithPermission[] = [{
 {
   label: "Access Control",
   icon: ICONS.DOOR_LOCK,
-  defaultOpen: true,
+  defaultOpen: false,
   children: [
     { label: "Access Cards", to: "/access-control/access-cards", icon: ICONS.CARD },
     { label: "Access Logs", to: "/access-control/access-logs", icon: ICONS.FILE_KEY },

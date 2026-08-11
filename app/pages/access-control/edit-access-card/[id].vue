@@ -6,6 +6,7 @@ import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useAccessControlStore } from "~/stores/access-control";
 import { useMembershipStore } from "~/stores/membership";
+import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({ auth: true, layout: "dashboard" });
 
@@ -13,11 +14,11 @@ const route = useRoute();
 const router = useRouter();
 const store = useAccessControlStore();
 const membershipStore = useMembershipStore();
-const { success, error } = useNotification();
-const errors = ref<Record<string, string>>({});
+const { success, error: showError } = useNotification();
+const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const state = reactive({
-  userType: "existing_user",
+  userType: "existing_user" as "existing_user" | "non_existing_user",
   userId: null as number | null,
   fullName: "",
   phoneNumber: "",
@@ -29,13 +30,19 @@ const state = reactive({
 });
 
 const schema = z.object({
-  fullName: z.string().trim().min(1, "Full name is required"),
+  userType: z.enum(["existing_user", "non_existing_user"]),
+  userId: z.union([z.string(), z.number()]).nullable(),
+  fullName: z.string(),
   cardNumber: z.string().trim().min(1, "Card number is required"),
   doorNumbers: z.number().array().min(1, "Please select at least one door"),
   validFrom: z.string().nullable(),
   validUntil: z.string().nullable(),
   removeExpiration: z.boolean(),
 }).superRefine((form, context) => {
+  if (form.userType === "existing_user" && !form.userId)
+    context.addIssue({ code: "custom", path: ["userId"], message: "Please select a member or guest" });
+  if (form.userType === "non_existing_user" && !form.fullName.trim())
+    context.addIssue({ code: "custom", path: ["fullName"], message: "Full name is required" });
   if (!form.removeExpiration) {
     if (!form.validFrom)
       context.addIssue({ code: "custom", path: ["validFrom"], message: "Valid from date is required" });
@@ -73,16 +80,10 @@ async function loadCard(): Promise<void> {
 }
 
 async function updateAccessCard(): Promise<void> {
-  errors.value = {};
-  const validation = schema.safeParse(state);
-  if (!validation.success) {
-    errors.value = validation.error.issues.reduce<Record<string, string>>((result, issue) => {
-      const field = String(issue.path[0]);
-      if (!result[field])
-        result[field] = issue.message;
-      return result;
-    }, {});
-    error({ message: "Please fix the highlighted fields" });
+  try {
+    await formRef.value?.validate();
+  }
+  catch {
     return;
   }
 
@@ -101,8 +102,8 @@ async function updateAccessCard(): Promise<void> {
     success({ message: "Access card updated successfully" });
     await router.push("/access-control/access-cards");
   }
-  catch {
-    error({ message: "Unable to update access card" });
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Unable to update access card") });
   }
 }
 
@@ -110,8 +111,8 @@ onMounted(async () => {
   try {
     await Promise.all([membershipStore.getMembersOptions(), loadCard()]);
   }
-  catch {
-    error({ message: "Unable to load access card" });
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Unable to load access card") });
   }
 });
 </script>
@@ -137,109 +138,107 @@ onMounted(async () => {
     </base-page-header>
 
     <div class="rounded-xl bg-card p-4 sm:p-5 shadow-sm">
-      <form-header-card
-        label="Edit Access Card"
-        description="Edit access card, assign it to an user, set door permissions, and configure card validity dates."
-        :icon="ICONS.ID_CARD"
-      />
-
-      <div class="mt-4 rounded-lg border border-border bg-card p-4 shadow-sm">
-        <base-select-searchable
-          v-if="state.userType === 'existing_user'"
-          v-model="state.userId"
-          name="existingUser"
-          label="Select an existing member / guest"
-          placeholder="Select a member"
-          :options="userOptions"
-          required
-        />
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <base-input
-            v-model="state.fullName"
-            name="fullName"
-            label="Enter Full Name"
-            :error="errors.fullName"
-            required
-          />
-          <base-input
-            v-model="state.phoneNumber"
-            name="phoneNumber"
-            label="Enter Phone Number (optional)"
-          />
-        </div>
-
-        <base-input
-          v-model="state.cardNumber"
-          name="cardNumber"
-          label="Card Number"
-          class="mt-3"
-          :error="errors.cardNumber"
-          required
+      <UForm
+        ref="formRef"
+        :schema="schema"
+        :state="state"
+        :validate-on="['input', 'change', 'blur']"
+        class="contents"
+      >
+        <form-header-card
+          label="Edit Access Card"
+          description="Edit access card, assign it to an user, set door permissions, and configure card validity dates."
+          :icon="ICONS.ID_CARD"
         />
 
-        <div class="mt-4">
-          <p class="mb-2 text-sm font-medium">
-            Door Access
-          </p>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <button
-              v-for="door in doorOptions"
-              :key="door.value"
-              type="button"
-              class="h-10 rounded-md border px-3 text-left text-sm transition-colors"
-              :class="state.doorNumbers.includes(door.value) ? 'border-primary bg-primary/10' : 'border-border hover:bg-stone-50'"
-              @click="state.doorNumbers = state.doorNumbers.includes(door.value) ? state.doorNumbers.filter(number => number !== door.value) : [...state.doorNumbers, door.value]"
-            >
-              {{ door.label }}
-            </button>
-          </div>
-          <p v-if="errors.doorNumbers" class="mt-1 text-xs text-red-500">
-            {{ errors.doorNumbers }}
-          </p>
-        </div>
-
-        <div class="mt-4 flex items-center justify-between rounded-md bg-stone-50 px-3 py-2">
-          <div>
-            <p class="text-sm font-medium">
-              Remove Expiration
-            </p>
-            <p class="text-xs text-secondary-500">
-              Turn this option on to make the card valid forever without an expiration date.
-            </p>
-          </div>
-          <USwitch v-model="state.removeExpiration" color="success" />
-        </div>
-
-        <div v-if="!state.removeExpiration" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <base-date-picker
-            v-model="state.validFrom"
-            name="validFrom"
-            label="Valid From"
-            placeholder="Select From date"
-            :error="errors.validFrom"
-            :no-of-months="1"
+        <div class="mt-4 rounded-lg border border-border bg-card p-4 shadow-sm">
+          <base-select-searchable
+            v-if="state.userType === 'existing_user'"
+            v-model="state.userId"
+            name="userId"
+            label="Select an existing member / guest"
+            placeholder="Select a member"
+            :options="userOptions"
           />
-          <base-date-picker
-            v-model="state.validUntil"
-            name="validUntil"
-            label="Valid Until"
-            placeholder="Select To date"
-            :error="errors.validUntil"
-            :no-of-months="1"
-          />
-        </div>
-      </div>
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <base-input
+              v-model="state.fullName"
+              name="fullName"
+              label="Enter Full Name"
+            />
+            <base-input
+              v-model="state.phoneNumber"
+              name="phoneNumber"
+              label="Enter Phone Number (optional)"
+            />
+          </div>
 
-      <div class="mt-4 flex justify-end">
-        <base-button
-          variant="solid"
-          size="md"
-          :loading="store.loading"
-          @click="updateAccessCard"
-        >
-          Update
-        </base-button>
-      </div>
+          <base-input
+            v-model="state.cardNumber"
+            name="cardNumber"
+            label="Card Number"
+            class="mt-3"
+          />
+
+          <UFormField name="doorNumbers" class="mt-4">
+            <p class="mb-2 text-sm font-medium">
+              Door Access
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button
+                v-for="door in doorOptions"
+                :key="door.value"
+                type="button"
+                class="h-10 rounded-md border px-3 text-left text-sm transition-colors"
+                :class="state.doorNumbers.includes(door.value) ? 'border-primary bg-primary/10' : 'border-border hover:bg-stone-50'"
+                @click="state.doorNumbers = state.doorNumbers.includes(door.value) ? state.doorNumbers.filter(number => number !== door.value) : [...state.doorNumbers, door.value]"
+              >
+                {{ door.label }}
+              </button>
+            </div>
+          </UFormField>
+
+          <div class="mt-4 flex items-center justify-between rounded-md bg-stone-50 px-3 py-2">
+            <div>
+              <p class="text-sm font-medium">
+                Remove Expiration
+              </p>
+              <p class="text-xs text-secondary-500">
+                Turn this option on to make the card valid forever without an expiration date.
+              </p>
+            </div>
+            <USwitch v-model="state.removeExpiration" color="success" />
+          </div>
+
+          <div v-if="!state.removeExpiration" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <base-date-picker
+              v-model="state.validFrom"
+              name="validFrom"
+              label="Valid From"
+              placeholder="Select From date"
+              :no-of-months="1"
+            />
+            <base-date-picker
+              v-model="state.validUntil"
+              name="validUntil"
+              label="Valid Until"
+              placeholder="Select To date"
+              :no-of-months="1"
+            />
+          </div>
+        </div>
+      </UForm>
+    </div>
+
+    <div class="mt-4 flex justify-end">
+      <base-button
+        variant="solid"
+        size="md"
+        :loading="store.loading"
+        @click="updateAccessCard"
+      >
+        Update
+      </base-button>
     </div>
   </div>
 </template>

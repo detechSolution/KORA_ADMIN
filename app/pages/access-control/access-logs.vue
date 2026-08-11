@@ -4,27 +4,24 @@ import { computed, onMounted, ref } from "vue";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useAccessControlStore } from "~/stores/access-control";
+import { formatDateTime } from "~/utils/common";
 
 definePageMeta({ auth: true, layout: "dashboard" });
 
 const typeOptions = [{ label: "Member", value: "member" }, { label: "Non-Member", value: "non_member" }];
 const gateOptions = [1, 2, 3, 4].map(doorNumber => ({ label: `Door ${doorNumber}`, value: String(doorNumber) }));
 const columns = [
-  { id: "client", accessorKey: "client", header: "User" },
+  { id: "client", accessorKey: "clientName", header: "User" },
   { id: "type", accessorKey: "type", header: "Type" },
   { id: "gate", accessorKey: "gate", header: "Gate" },
   { id: "entryMethod", accessorKey: "entryMethod", header: "Entry Method" },
-  { id: "entryDateTime", accessorKey: "entryDate", header: "Entry Date & Time" },
+  { id: "entryDateTime", accessorKey: "entryDateTime", header: "Entry Date & Time" },
 ];
 const store = useAccessControlStore();
 const { pagination } = usePagination(10);
 const state = ref({ search: "", entryDate: null as string | null, type: null as string | null, gate: null as string | null });
 const logs = computed(() => store.accessLogs);
 const hasActiveFilters = computed(() => Boolean(state.value.search || state.value.entryDate || state.value.type || state.value.gate));
-
-function formatEntryDate(date: string): string {
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(`${date}T00:00:00`));
-}
 
 async function fetchLogs(): Promise<void> {
   await store.fetchAccessLogs({ page: pagination.value.page, limit: pagination.value.pageSize, q: state.value.search, entryDate: state.value.entryDate, type: state.value.type, gate: state.value.gate });
@@ -110,12 +107,10 @@ onMounted(fetchLogs);
       >
         <template #client-cell="{ row }">
           <div class="flex items-center gap-2">
-            <base-avatar :name="row.original.client.initials" size="sm" />
+            <base-avatar :name="row.original.clientName" size="sm" />
             <div>
               <p class="text-sm font-medium text-secondary">
-                {{ row.original.client.name }}
-              </p><p class="text-xs text-secondary-400">
-                {{ row.original.client.phone }}
+                {{ row.original.clientName }}
               </p>
             </div>
           </div>
@@ -135,9 +130,10 @@ onMounted(fetchLogs);
         <template #entryDateTime-cell="{ row }">
           <div>
             <p class="text-sm text-secondary">
-              {{ row.original.entryTime }}
-            </p><p class="text-xs text-secondary-400">
-              {{ formatEntryDate(row.original.entryDate) }}
+              {{ formatTime(row.original.entryDateTime) }}
+            </p>
+            <p class="text-xs text-secondary-500">
+              {{ formatDate(row.original.entryDateTime) }}
             </p>
           </div>
         </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
@@ -16,12 +17,11 @@ definePageMeta({
 const { success, error: showError } = useNotification();
 const accessControlStore = useAccessControlStore();
 const membershipStore = useMembershipStore();
-const errors = ref<Record<string, string>>({});
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 const router = useRouter();
 
 const state = reactive({
-  userType: "existing_user",
+  userType: "existing_user" as "existing_user" | "non_existing_user",
   selectedUser: null as string | number | null,
   cardNumber: "",
   fullName: "",
@@ -114,27 +114,15 @@ watch(
     if (enabled) {
       state.validFrom = null;
       state.validUntil = null;
-      delete errors.value.validFrom;
-      delete errors.value.validUntil;
     }
   },
 );
 
 async function createAccessCard(): Promise<void> {
-  errors.value = {};
-  const validation = schema.safeParse({
-    ...state,
-  });
-  if (!validation.success) {
-    errors.value = validation.error.issues.reduce<Record<string, string>>(
-      (fieldErrors, issue) => {
-        const field = String(issue.path[0]);
-        if (!fieldErrors[field])
-          fieldErrors[field] = issue.message;
-        return fieldErrors;
-      },
-      {},
-    );
+  try {
+    await formRef.value?.validate();
+  }
+  catch {
     return;
   }
 
@@ -222,6 +210,8 @@ onMounted(() => membershipStore.getMembersOptions());
         <UForm
           ref="formRef"
           :schema="schema"
+          :state="state"
+          :validate-on="['input', 'change', 'blur']"
           class="contents"
         >
           <form-header-card
@@ -236,11 +226,10 @@ onMounted(() => membershipStore.getMembersOptions());
             <base-select-searchable
               v-if="isExistingUser"
               v-model="state.selectedUser"
-              name="existingUser"
+              name="selectedUser"
               label="Select an existing member"
               placeholder="Select a member"
               :options="userOptions"
-              :error="errors.selectedUser"
             />
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <base-input
@@ -248,7 +237,6 @@ onMounted(() => membershipStore.getMembersOptions());
                 name="fullName"
                 label="Enter Full Name"
                 placeholder="Enter full name"
-                :error="errors.fullName"
               />
               <base-input
                 v-model="state.phoneNumber"
@@ -264,10 +252,9 @@ onMounted(() => membershipStore.getMembersOptions());
               label="Card Number"
               placeholder="Enter Card Number"
               class="mt-3"
-              :error="errors.cardNumber"
             />
 
-            <div class="mt-4">
+            <UFormField name="doorNumbers" class="mt-4">
               <p class="mb-2 text-sm font-medium">
                 Door Access
               </p>
@@ -293,10 +280,7 @@ onMounted(() => membershipStore.getMembersOptions());
                   {{ door.label }}
                 </button>
               </div>
-              <p v-if="errors.doorNumbers" class="mt-1 text-xs text-red-500">
-                {{ errors.doorNumbers }}
-              </p>
-            </div>
+            </UFormField>
 
             <div
               v-if="!isExistingUser"
@@ -324,7 +308,6 @@ onMounted(() => membershipStore.getMembersOptions());
                 label="Valid From"
                 placeholder="Select From date"
                 :no-of-months="1"
-                :error="errors.validFrom"
               />
               <base-date-picker
                 v-model="state.validUntil"
@@ -332,7 +315,6 @@ onMounted(() => membershipStore.getMembersOptions());
                 label="Valid Until"
                 placeholder="Select To date"
                 :no-of-months="1"
-                :error="errors.validUntil"
               />
             </div>
           </div>

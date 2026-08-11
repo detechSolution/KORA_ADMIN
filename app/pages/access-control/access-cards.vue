@@ -5,14 +5,15 @@ import { useRouter } from "vue-router";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useAccessControlStore } from "~/stores/access-control";
+import { formatDate } from "~/utils/common";
 
 definePageMeta({ auth: true, layout: "dashboard" });
 
 const validityOptions = [{ label: "Valid", value: "valid" }, { label: "Invalid", value: "invalid" }];
 const columns = [
-  { id: "client", accessorKey: "client", header: "Client" },
+  { id: "client", accessorKey: "fullName", header: "Client" },
   { id: "cardNumber", accessorKey: "cardNumber", header: "Card Number" },
-  { id: "expiryDate", accessorKey: "expiryLabel", header: "Expiry Date" },
+  { id: "expiryDate", accessorKey: "expiryDate", header: "Expiry Date", accessorFn: (row: any) => formatDate(row.expiryDate) },
   { id: "doorAccess", accessorKey: "doorAccess", header: "Door Access" },
   { id: "validity", accessorKey: "validity", header: "Validity" },
   { id: "actions", accessorKey: "actions", header: "Actions" },
@@ -139,31 +140,31 @@ onMounted(fetchCards);
       >
         <template #client-cell="{ row }">
           <div class="flex items-center gap-2">
-            <base-avatar :name="row.original.client.initials" size="sm" />
+            <base-avatar :name="row.original.fullName" size="sm" />
             <div>
               <p class="text-sm font-medium text-secondary">
-                {{ row.original.client.name }}
+                {{ row.original.fullName }}
               </p>
               <p class="text-xs text-secondary-400">
-                {{ row.original.client.phone }}
+                {{ row.original.phoneNumber }}
               </p>
             </div>
           </div>
         </template>
         <template #doorAccess-cell="{ row }">
           <div class="flex items-center gap-2 whitespace-nowrap">
-            <span>{{ row.original.doorAccess }}</span><span
-              v-if="row.original.additionalDoors"
+            <span>{{ row.original.doorAccess[0] || 'No Door Access' }}</span><span
+              v-if="row.original.doorAccess.length > 1"
               class="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-secondary-500"
             >+{{
-              row.original.additionalDoors }}</span>
+              row.original.doorAccess.length - 1 }}</span>
           </div>
         </template>
         <template #validity-cell="{ row }">
           <base-badge :status="row.original.validity" />
         </template>
         <template #actions-cell="{ row }">
-          <base-dropdown-menu :items="[{ label: 'Remove Card Access', class: 'cursor-pointer', onSelect: () => openDeleteConfirmation(row.original.id, row.original.client.name) }, { label: 'Edit Access', class: 'cursor-pointer', onSelect: () => editAccessCard(row.original.id) }]">
+          <base-dropdown-menu :items="[{ label: 'Remove Card Access', class: 'cursor-pointer', onSelect: () => openDeleteConfirmation(row.original.id, row.original.fullName) }, { label: 'Edit Access', class: 'cursor-pointer', onSelect: () => editAccessCard(row.original.id) }]">
             <base-button :icon="ICONS.ELLIPSIS_VERTICAL" variant="ghost" />
           </base-dropdown-menu>
         </template>
