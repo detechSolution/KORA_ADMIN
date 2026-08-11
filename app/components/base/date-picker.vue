@@ -45,6 +45,7 @@ type Props = {
   minDate?: string;
   noOfMonths?: number;
   allowedWeekdays?: string[];
+  error?: string;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -63,6 +64,7 @@ const props = withDefaults(defineProps<Props>(), {
   minDate: undefined,
   noOfMonths: 2,
   allowedWeekdays: () => [],
+  error: undefined,
 });
 
 const emit = defineEmits<{
@@ -365,6 +367,7 @@ function isWeekendDisabled(date: DateValue) {
       :label="label"
       :name="name"
       :required="required"
+      :error="error"
       :ui="formFieldClasses"
     >
       <!-- <UInput

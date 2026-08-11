@@ -13,12 +13,12 @@ import { getApiErrorMessage } from "~/utils/error";
 
 const steps: StepItem[] = [
   {
-    label: "Member/client & guest Info",
-    description: "Member/client & guest",
+    label: "Member/Client & Guest Info",
+    description: "Member/Client & Guest",
   },
   {
     label: "Pricing",
-    description: "Price & payment method",
+    description: "Price & Payment Method",
   },
 ];
 
