@@ -162,6 +162,15 @@ export const API_ENDPOINTS = {
     GET_RECIPIENTS: "/api/v1/mails/recipients",
     GET_DETAILS: (id: number) => `/api/v1/mails/${id}`,
   },
+  ACCESS_CONTROL: {
+    GET_USER: "/api/v1/access-control/cards/user-options",
+    POST: "/api/v1/access-control/cards",
+    GET_CARDS: "/api/v1/access-control/cards",
+    GET_CARD: (id: number) => `/api/v1/access-control/cards/${id}`,
+    GET_LOGS: "/api/v1/access-control/logs",
+    UPDATE_ACCESS_CARD: (id: number) => `/api/v1/access-control/cards/${id}`,
+    DELETE: (id: number) => `/api/v1/access-control/cards/${id}`,
+  },
   SYSTEM_ADMIN: {
     // used
     ROLES: {
