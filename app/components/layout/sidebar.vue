@@ -75,6 +75,7 @@ function filterByPermission(items: NavItemWithPermission[]): NavigationMenuItem[
     .map((item) => {
       const { permission: _p, children, ...rest } = item;
       const out: NavigationMenuItem = { ...rest };
+
       if (children?.length) {
         const filteredChildren = filterByPermission(children);
         (out as NavigationMenuItem & { children?: NavigationMenuItem[] }).children = filteredChildren;
@@ -85,8 +86,12 @@ function filterByPermission(items: NavItemWithPermission[]): NavigationMenuItem[
         const childActive = filteredChildren.some(
           c => isPathActive((c as { to?: string }).to),
         );
-        if (childActive)
+        if (childActive) {
           (out as NavigationMenuItem & { active?: boolean }).active = true;
+          // Keep the section expanded when a nested page is opened directly
+          // or the browser is refreshed on that route.
+          (out as NavigationMenuItem & { defaultOpen?: boolean }).defaultOpen = true;
+        }
       }
       return out;
     });
@@ -100,7 +105,7 @@ const rawItems: NavItemWithPermission[] = [{
 }, {
   label: "Offerings",
   icon: ICONS.BRIEFCASE,
-  defaultOpen: true,
+  defaultOpen: false,
   children: [
     { label: "Sessions", to: "/offerings/session", icon: ICONS.CALENDAR, permission: PERMISSIONS_SESSIONS.VIEW },
     { label: "Spa", to: "/offerings/spa", icon: ICONS.FLOWER, permission: PERMISSIONS_SPA.VIEW },
@@ -114,7 +119,7 @@ const rawItems: NavItemWithPermission[] = [{
 }, {
   label: "Members",
   icon: ICONS.AWARD,
-  defaultOpen: true,
+  defaultOpen: false,
   children: [
     { label: "Members & Guests", to: "/members/members-list", icon: ICONS.USERS, permission: PERMISSIONS_MEMBERS.VIEW },
     { label: "Membership Plans", to: "/members/plans", icon: ICONS.BADGE_CHECK, permission: PERMISSIONS_MEMBERSHIP_PLANS.VIEW },
@@ -122,7 +127,7 @@ const rawItems: NavItemWithPermission[] = [{
 }, {
   label: "Financial",
   icon: ICONS.BILLING,
-  defaultOpen: true,
+  defaultOpen: false,
   children: [
     { label: "Payments", to: "/financial/payments", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_PAYMENTS.VIEW },
     { label: "Cancellations", to: "/financial/cancellations", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_REFUNDS.MANAGE },
@@ -135,6 +140,14 @@ const rawItems: NavItemWithPermission[] = [{
 //   defaultOpen: true,
 // },
 {
+  label: "Access Control",
+  icon: ICONS.DOOR_LOCK,
+  defaultOpen: false,
+  children: [
+    { label: "Access Cards", to: "/access-control/access-cards", icon: ICONS.CARD },
+    { label: "Access Logs", to: "/access-control/access-logs", icon: ICONS.FILE_KEY },
+  ],
+}, {
   label: "Instructors",
   icon: ICONS.DOOR_LOCK,
   to: "/instructors/instructors-list",
@@ -155,7 +168,7 @@ const rawItems: NavItemWithPermission[] = [{
 }, {
   label: "Administration",
   icon: ICONS.SHIELD_CHECK,
-  defaultOpen: true,
+  defaultOpen: false,
   children: [
     { label: "Roles & Permissions", to: "/administration/roles", icon: ICONS.SETTINGS, permission: PERMISSIONS_ADMINISTRATION.ROLES_VIEW },
     { label: "Admins", to: "/administration/admins", icon: ICONS.USER_COG, permission: PERMISSIONS_ADMINISTRATION.ADMINS_VIEW },

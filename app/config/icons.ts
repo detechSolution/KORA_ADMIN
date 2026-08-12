@@ -23,6 +23,8 @@ export const ICONS = {
   INFO: "i-lucide-info",
   THREE_VERTICAL_DOTS: "i-lucide-ellipsis-vertical",
   PHONE: "i-lucide-phone",
+  CARD: "i-lucide-id-card",
+  FILE_KEY: "i-lucide-file-key",
 
   // Actions
   EYE: "i-lucide-eye",

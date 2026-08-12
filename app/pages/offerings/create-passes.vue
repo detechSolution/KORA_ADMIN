@@ -101,22 +101,11 @@ async function handleCreatePass() {
 
     <div class="bg-card rounded-xl border border-border shadow-sm p-6">
       <!-- Info Alert -->
-      <div class="mb-6 flex items-start gap-3 rounded-lg bg-stone-50 p-4 border border-stone-200">
-        <div class="rounded-lg p-2 shrink-0">
-          <UIcon
-            :name="ICONS.INFO"
-            class="h-5 w-5 text-primary"
-          />
-        </div>
-        <div>
-          <h2 class="text-base font-semibold text-secondary-900">
-            Kora Pass Info
-          </h2>
-          <p class="text-sm text-secondary-400 mt-0.5">
-            Start by entering the pass details.
-          </p>
-        </div>
-      </div>
+      <form-header-card
+        label="Kora Pass Info"
+        description="Start by entering the pass details."
+        :icon="ICONS.INFO"
+      />
 
       <UForm
         ref="formRef"

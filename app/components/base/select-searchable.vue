@@ -10,6 +10,7 @@ type Props = {
   options: {
     label: string;
     value: any;
+    description?: string;
   }[];
   loading?: boolean;
   disabled?: boolean;
@@ -32,7 +33,11 @@ const inputValue = computed({
 });
 
 // USelectMenu expects items with at least label; we use value-key so v-model is the value
-const menuItems = computed(() => props.options.map(opt => ({ label: opt.label, value: opt.value })));
+const menuItems = computed(() => props.options.map(opt => ({
+  label: opt.label,
+  value: opt.value,
+  description: opt.description,
+})));
 </script>
 
 <template>
@@ -51,14 +56,17 @@ const menuItems = computed(() => props.options.map(opt => ({ label: opt.label, v
       :placeholder="props.placeholder"
       :loading="props.loading"
       :disabled="props.disabled"
-      class="w-full"
+      class="w-full text-stone-700"
       size="lg"
       :ui="{
-        base: 'bg-transparent w-full ring-stone-300 rounded-lg hover:border-primary/50 hover:bg-transparent focus:border-primary',
-        item: 'hover:bg-muted hover:text-foreground rounded-lg overflow-hidden cursor-pointer',
-        content: 'bg-card border border-border',
+        placeholder: 'text-stone-400',
+        base: 'w-full bg-white text-stone-700 ring-stone-300 rounded-lg hover:border-stone-400 hover:bg-white focus:border-stone-400',
+        content: 'bg-white border border-stone-300 rounded-lg shadow-lg',
+        item: 'min-h-16 px-3 py-2.5 hover:bg-stone-50 hover:text-stone-800 rounded-md overflow-hidden cursor-pointer',
+        itemLabel: 'text-sm text-stone-700',
+        itemDescription: 'mt-0.5 text-xs text-stone-400',
         trailingIcon: 'h-5 w-5 text-foreground',
-        leadingIcon: 'h-5 w-5 text-foreground',
+        leadingIcon: 'h-5 w-5 text-stone-400',
       }"
     >
       <template v-if="props.leadingIcon" #leading>

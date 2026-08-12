@@ -305,23 +305,13 @@ onMounted(async () => {
           @select="goToStep"
         />
 
-        <div class="flex-1 min-w-0 lg:pl-0">
-          <div class="mb-6 flex items-start gap-3 rounded-lg bg-muted/40 p-4 border border-border">
-            <div class="rounded-lg bg-primary/10 p-2 shrink-0">
-              <UIcon
-                :name="currentStep === 0 ? ICONS.INFO : currentStep === 1 ? ICONS.CALENDAR : ICONS.CREDIT_CARD"
-                class="h-5 w-5 text-primary"
-              />
-            </div>
-            <div>
-              <h2 class="text-lg font-semibold text-foreground">
-                {{ steps[currentStep]?.title ?? "" }}
-              </h2>
-              <p class="text-sm text-muted-foreground mt-0.5">
-                {{ steps[currentStep]?.description ?? "" }}
-              </p>
-            </div>
-          </div>
+        <div class="flex-1 min-w-0 lg:pl-0 space-y-6">
+          <form-header-card
+            :label="steps[currentStep]?.title ?? ''"
+            :description="steps[currentStep]?.description ?? ''"
+            :icon="currentStep === 0 ? ICONS.INFO : currentStep === 1 ? ICONS.CALENDAR : ICONS.CREDIT_CARD"
+          />
+
           <UForm
             ref="formRef"
             :state="form"

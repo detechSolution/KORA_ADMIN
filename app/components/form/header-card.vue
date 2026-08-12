@@ -9,7 +9,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="bg-stone-50 rounded-lg p-4 flex gap-2 items-start">
+  <div class="bg-stone-50 border border-stone-200 rounded-lg p-4 flex gap-2 items-start">
     <UIcon :name="icon || ICONS.INFO" class="text-primary" />
     <div class="flex flex-col gap-0.5">
       <h3 class="text-sm text-secondary font-medium">
