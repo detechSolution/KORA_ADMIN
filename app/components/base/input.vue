@@ -15,7 +15,6 @@ type Props = {
   leadingIcon?: string;
   trailingIcon?: string;
   readonly?: boolean;
-  error?: string;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -26,7 +25,6 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   disabled: false,
   readonly: false,
-  error: undefined,
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -52,7 +50,6 @@ function togglePasswordVisibility() {
     :label="props.label"
     :name="props.name"
     :required="props.required"
-    :error="props.error"
     :ui="{
       error: 'mt-1 text-red-500 text-xs',
       label: 'text-sm font-medium text-stone-900',

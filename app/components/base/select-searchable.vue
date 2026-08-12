@@ -15,7 +15,6 @@ type Props = {
   loading?: boolean;
   disabled?: boolean;
   leadingIcon?: string;
-  error?: string;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -24,7 +23,6 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: "",
   loading: false,
   disabled: false,
-  error: undefined,
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -47,7 +45,6 @@ const menuItems = computed(() => props.options.map(opt => ({
     :label="props.label"
     :name="props.name"
     :required="props.required"
-    :error="props.error"
     :ui="{
       error: 'mt-1 text-red-500 text-xs',
     }"

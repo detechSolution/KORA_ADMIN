@@ -50,7 +50,14 @@ async function removeAccessCard(): Promise<void> {
 }
 
 async function fetchCards(): Promise<void> {
-  await store.fetchAccessCards({ page: pagination.value.page, limit: pagination.value.pageSize, q: state.value.search, expiryDate: state.value.expiryDate, validity: state.value.validity });
+  const query = {
+    page: pagination.value.page,
+    limit: pagination.value.pageSize,
+    q: state.value.search,
+    expiryDate: state.value.expiryDate,
+    validity: state.value.validity,
+  };
+  await store.fetchAccessCards(query);
 }
 function search(): void {
   pagination.value.page = 1;
