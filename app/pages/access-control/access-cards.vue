@@ -10,9 +10,14 @@ import { formatDate } from "~/utils/common";
 definePageMeta({ auth: true, layout: "dashboard" });
 
 const validityOptions = [{ label: "Valid", value: "valid" }, { label: "Invalid", value: "invalid" }];
+const doorOptions = [
+  { label: "Main Gate", value: "1" },
+  { label: "Recovery Space", value: "2" },
+  { label: "Restaurant", value: "3" },
+];
 const columns = [
   { id: "client", accessorKey: "fullName", header: "Client" },
-  { id: "cardNumber", accessorKey: "cardNumber", header: "Card Number" },
+  { id: "cardNumber", accessorKey: "cardNumber", header: "Card Number", accessorFn: (row: any) => Number.parseInt(row.cardNumber, 16).toString().padStart(10, "0") },
   { id: "expiryDate", accessorKey: "expiryDate", header: "Expiry Date", accessorFn: (row: any) => formatDate(row.expiryDate) },
   { id: "doorAccess", accessorKey: "doorAccess", header: "Door Access" },
   { id: "validity", accessorKey: "validity", header: "Validity" },
@@ -21,11 +26,23 @@ const columns = [
 const store = useAccessControlStore();
 const router = useRouter();
 const { pagination } = usePagination(10);
-const state = ref({ search: "", expiryDate: null as string | null, validity: null as string | null });
+const state = ref({ search: "", expiryDate: null as string | null, validity: null as string | null, doorNumber: null as string | null });
 const pendingDeleteId = ref<number | null>(null);
 const pendingDeleteName = ref("");
 const cards = computed(() => store.accessCards);
-const hasActiveFilters = computed(() => Boolean(state.value.search || state.value.expiryDate || state.value.validity));
+const hasActiveFilters = computed(() => Boolean(state.value.search || state.value.expiryDate || state.value.validity || state.value.doorNumber));
+
+function getDoorLabel(door: number | string | undefined): string {
+  if (door === undefined)
+    return "No Door Access";
+
+  const doorNumber = Number.parseInt(String(door).replace(/\D/g, ""), 10);
+  return doorOptions.find(option => Number(option.value) === doorNumber)?.label || String(door);
+}
+
+function getAdditionalDoorLabels(doors: Array<number | string>): string {
+  return doors.slice(1).map(door => getDoorLabel(door)).join(", ");
+}
 
 function editAccessCard(id: number): void {
   router.push(`/access-control/edit-access-card/${id}`);
@@ -56,6 +73,7 @@ async function fetchCards(): Promise<void> {
     q: state.value.search,
     expiryDate: state.value.expiryDate,
     validity: state.value.validity,
+    doorNumber: state.value.doorNumber,
   };
   await store.fetchAccessCards(query);
 }
@@ -64,7 +82,7 @@ function search(): void {
   fetchCards();
 }
 function clearFilters(): void {
-  state.value = { search: "", expiryDate: null, validity: null };
+  state.value = { search: "", expiryDate: null, validity: null, doorNumber: null };
   search();
 }
 onMounted(fetchCards);
@@ -92,7 +110,7 @@ onMounted(fetchCards);
       </template>
     </base-page-header>
 
-    <div class="bg-card rounded-xl p-4 sm:p-6 page-content-height flex flex-col gap-4">
+    <div class="bg-card rounded-xl p-4 sm:p-6 flex flex-col gap-4">
       <h2 class="text-base font-semibold text-foreground">
         Access Card list
       </h2>
@@ -100,7 +118,7 @@ onMounted(fetchCards);
         <base-input
           v-model="state.search"
           name="search"
-          placeholder="Search"
+          placeholder="Search user or card number"
           :leading-icon="ICONS.SEARCH"
           class="w-full sm:w-auto md:w-64"
           @keyup.enter="search"
@@ -109,7 +127,7 @@ onMounted(fetchCards);
           v-model="state.expiryDate"
           name="expiryDate"
           placeholder="Filter by expiry date"
-          :no-of-months="1"
+          :no-of-months="2"
           class="w-full sm:w-auto md:w-64"
         />
         <base-select
@@ -119,6 +137,13 @@ onMounted(fetchCards);
           placeholder="Select validity"
           class="w-full sm:w-auto md:w-64"
         />
+        <!-- <base-select
+          v-model="state.doorNumber"
+          name="doorNumber"
+          :options="doorOptions"
+          placeholder="Select door access"
+          class="w-full sm:w-auto md:w-64"
+        /> -->
         <div class="flex gap-2 w-full sm:w-auto">
           <base-button
             variant="outline"
@@ -160,11 +185,18 @@ onMounted(fetchCards);
         </template>
         <template #doorAccess-cell="{ row }">
           <div class="flex items-center gap-2 whitespace-nowrap">
-            <span>{{ row.original.doorAccess[0] || 'No Door Access' }}</span><span
-              v-if="row.original.doorAccess.length > 1"
-              class="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-secondary-500"
-            >+{{
-              row.original.doorAccess.length - 1 }}</span>
+            <span>{{ getDoorLabel(row.original.doorNumbers?.[0] ?? row.original.doorAccess?.[0]) }}</span><span
+              v-if="(row.original.doorNumbers?.length ?? row.original.doorAccess?.length ?? 0) > 1"
+            >
+              <UTooltip
+                arrow
+                :text="getAdditionalDoorLabels(row.original.doorNumbers?.length ? row.original.doorNumbers : row.original.doorAccess)"
+              >
+                <span class="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-secondary-500">
+                  +{{ (row.original.doorNumbers?.length ?? row.original.doorAccess?.length ?? 0) - 1 }}
+                </span>
+              </UTooltip>
+            </span>
           </div>
         </template>
         <template #validity-cell="{ row }">
