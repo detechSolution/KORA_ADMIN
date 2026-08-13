@@ -64,7 +64,7 @@ function handleDelete(): void {
         </div>
       </div>
 
-      <p class="text-secondary-500 text-sm leading-5">
+      <p class="text-secondary-500 text-sm leading-5 line-clamp-2">
         {{ description }}
       </p>
     </div>
@@ -73,7 +73,7 @@ function handleDelete(): void {
     <div class="flex flex-col gap-4 p-4">
       <div
         class="pr-1"
-        :class="hasScrollablePrices ? 'max-h-[172px] overflow-y-auto' : ''"
+        :class="hasScrollablePrices ? 'max-h-43 overflow-y-auto' : ''"
       >
         <div
           v-for="item in prices"

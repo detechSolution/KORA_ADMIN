@@ -8,7 +8,11 @@ import { useAccessControlStore } from "~/stores/access-control";
 definePageMeta({ auth: true, layout: "dashboard" });
 
 const typeOptions = [{ label: "Member", value: "member" }, { label: "Non-Member", value: "non_member" }];
-const gateOptions = [1, 2, 3, 4].map(doorNumber => ({ label: `Door ${doorNumber}`, value: String(doorNumber) }));
+const gateOptions = [
+  { label: "Main Gate", value: "1" },
+  { label: "Recovery Space", value: "2" },
+  { label: "Restaurant", value: "3" },
+];
 const columns = [
   { id: "client", accessorKey: "clientName", header: "User" },
   { id: "type", accessorKey: "type", header: "Type" },
@@ -21,6 +25,11 @@ const { pagination } = usePagination(10);
 const state = ref({ search: "", entryDate: null as string | null, type: null as string | null, gate: null as string | null });
 const logs = computed(() => store.accessLogs);
 const hasActiveFilters = computed(() => Boolean(state.value.search || state.value.entryDate || state.value.type || state.value.gate));
+
+function getGateLabel(gate: string, doorNumber?: number): string {
+  const number = doorNumber ?? Number.parseInt(gate.replace(/\D/g, ""), 10);
+  return gateOptions.find(option => Number(option.value) === number)?.label || gate;
+}
 
 async function fetchLogs(): Promise<void> {
   await store.fetchAccessLogs({ page: pagination.value.page, limit: pagination.value.pageSize, q: state.value.search, entryDate: state.value.entryDate, type: state.value.type, gate: state.value.gate });
@@ -47,7 +56,7 @@ onMounted(fetchLogs);
       </template>
     </base-page-header>
 
-    <div class="bg-card rounded-xl p-4 sm:p-6 page-content-height flex flex-col gap-4">
+    <div class="bg-card rounded-xl p-4 sm:p-6 flex flex-col gap-4">
       <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-end flex-wrap">
         <base-input
           v-model="state.search"
@@ -111,8 +120,14 @@ onMounted(fetchLogs);
               <p class="text-sm font-medium text-secondary">
                 {{ row.original.clientName }}
               </p>
+              <p class="text-xs text-secondary-400">
+                {{ row.original.phoneNumber || "N/A" }}
+              </p>
             </div>
           </div>
+        </template>
+        <template #gate-cell="{ row }">
+          {{ getGateLabel(row.original.gate, row.original.doorNumber) }}
         </template>
         <template #type-cell="{ row }">
           <base-badge :status="row.original.type" />

@@ -72,7 +72,7 @@ async function loadCard(): Promise<void> {
   state.userId = card.userId;
   state.fullName = card.fullName;
   state.phoneNumber = card.phoneNumber;
-  state.cardNumber = card.cardNumber;
+  state.cardNumber = Number.parseInt(card.cardNumber, 16).toString().padStart(10, "0");
   state.doorNumbers = [...card.doorNumbers];
   state.validFrom = dateValue(card.validFrom);
   state.validUntil = dateValue(card.validUntil);
@@ -91,9 +91,9 @@ async function updateAccessCard(): Promise<void> {
     await store.updateAccessCard(Number(route.params.id), {
       userType: state.userType as "existing_user" | "non_existing_user",
       userId: state.userId,
-      fullName: state.fullName.trim(),
-      phoneNumber: state.phoneNumber.trim(),
-      cardNumber: state.cardNumber.trim(),
+      fullName: state.fullName,
+      phoneNumber: state.phoneNumber,
+      cardNumber: state.cardNumber,
       doorNumbers: state.doorNumbers,
       validFrom: state.removeExpiration ? null : state.validFrom,
       validUntil: state.removeExpiration ? null : state.validUntil,
@@ -198,7 +198,10 @@ onMounted(async () => {
             </div>
           </UFormField>
 
-          <div class="mt-4 flex items-center justify-between rounded-md bg-stone-50 px-3 py-2">
+          <div
+            v-if="state.userType !== 'existing_user'"
+            class="mt-4 flex items-center justify-between rounded-md bg-stone-50 px-3 py-2"
+          >
             <div>
               <p class="text-sm font-medium">
                 Remove Expiration

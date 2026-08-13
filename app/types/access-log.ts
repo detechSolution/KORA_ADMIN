@@ -1,6 +1,7 @@
 export type AccessLog = {
   id: number;
   clientName: string;
+  phoneNumber?: string | null;
   type: "member" | "non_member";
   gate: string;
   doorNumber: number;
