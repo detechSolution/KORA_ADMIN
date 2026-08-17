@@ -166,7 +166,7 @@ async function handleCreatePromoCode() {
                 <base-select
                   v-model="state.discountType"
                   name="discountType"
-                  label="Discount Type*"
+                  label="Discount Type"
                   placeholder="Enter admin name"
                   :options="discountTypeOptions"
                 />
@@ -178,7 +178,7 @@ async function handleCreatePromoCode() {
                   v-if="state.discountType === 'percent'"
                   v-model="state.discountValue"
                   name="discountValue"
-                  label="Discount Percentage (%)*"
+                  label="Discount Percentage (%)"
                   placeholder="Enter discount percentage"
                   type="number"
                 />
@@ -186,7 +186,7 @@ async function handleCreatePromoCode() {
                   v-else
                   v-model="state.discountValue"
                   name="discountValue"
-                  label="Discount Amount (Rs)*"
+                  label="Discount Amount (Rs)"
                   placeholder="Enter discount amount"
                   type="number"
                 />
@@ -196,7 +196,7 @@ async function handleCreatePromoCode() {
                 <base-input
                   v-model="state.redemptionLimit"
                   name="redemptionLimit"
-                  label="Redemption Limit*"
+                  label="Redemption Limit"
                   placeholder="Enter redemption limit"
                   type="number"
                 />
@@ -206,7 +206,7 @@ async function handleCreatePromoCode() {
               <base-date-picker
                 v-model="state.expiresAt"
                 name="expiresAt"
-                label="Expires At*"
+                label="Expires At"
                 placeholder="Select expiry date"
                 :no-of-months="1"
               />

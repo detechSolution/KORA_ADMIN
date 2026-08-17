@@ -9,9 +9,8 @@ const form = defineModel<any>({ required: true });
         <base-input
           v-model="form.fullName"
           name="fullName"
-          label="Full Name"
+          label="Full Name*"
           placeholder="Enter name of the user"
-          required
         />
         <base-input
           v-model="form.phone"
@@ -22,10 +21,9 @@ const form = defineModel<any>({ required: true });
         <base-input
           v-model="form.email"
           name="email"
-          label="Email Address"
+          label="Email Address*"
           placeholder="Enter email address"
           type="email"
-          required
         />
       </div>
     </div>

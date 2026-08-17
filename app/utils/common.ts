@@ -125,6 +125,7 @@ export function formatTime(time: string) {
 
   return `${hour12}:${minutes.toString().padStart(2, "0")} ${period}`;
 }
+
 export function formatLocalTime(date: string) {
   const d = new Date(date);
 
