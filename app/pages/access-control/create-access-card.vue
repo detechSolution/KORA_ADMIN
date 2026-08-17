@@ -79,13 +79,13 @@ const schema = z
 const userOptions = computed(() =>
   membershipStore.membershipOptions.map(
     (member: {
-      fullName: string;
+      label: string;
       memberId: number;
       userId: number;
       email?: string;
       phoneNumber?: string;
     }) => ({
-      label: member.fullName,
+      label: member.label,
       value: member.userId,
       description: member.email,
     }),

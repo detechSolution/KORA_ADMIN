@@ -106,14 +106,14 @@ async function handleCreateMail() {
             <base-input
               v-model="state.subject"
               name="subject"
-              label="Mail Subject*"
+              label="Mail Subject"
               placeholder="Enter the subject of the mail"
               class="w-full"
             />
             <base-input
               v-model="state.title"
               name="title"
-              label="Mail Title*"
+              label="Mail Title"
               placeholder="Enter the title of the mail"
               class="w-full"
             />
@@ -123,7 +123,7 @@ async function handleCreateMail() {
             <base-text-editor
               v-model="state.htmlContent"
               name="htmlContent"
-              label="Mail Content*"
+              label="Mail Content"
               placeholder="Enter the content of the mail"
               class="w-full min-h-30 max-h-60 overflow-y-auto"
             />
@@ -134,7 +134,7 @@ async function handleCreateMail() {
           <send-mail-select-menu
             v-model="recipientEmails"
             name="recipientEmails"
-            label="Select Recipients*"
+            label="Select Recipients"
           />
 
           <div class="flex justify-end">

@@ -115,14 +115,14 @@ async function handleCreateInstructor() {
             <base-input
               v-model="state.fullName"
               name="fullName"
-              label="Instructor Name*"
+              label="Instructor Name"
               placeholder="Enter instructor name"
               class="w-full"
             />
             <base-input
               v-model="state.phoneNumber"
               name="phoneNumber"
-              label="Phone Number*"
+              label="Phone Number"
               placeholder="Enter phone number"
 
               class="w-full"
@@ -132,7 +132,7 @@ async function handleCreateInstructor() {
           <base-input
             v-model="state.email"
             name="email"
-            label="Email Address*"
+            label="Email Address"
             placeholder="Enter email address"
             class="w-full"
           />
@@ -141,7 +141,7 @@ async function handleCreateInstructor() {
             <base-text-editor
               v-model="state.bio"
               name="bio"
-              label="About the Instructor*"
+              label="About the Instructor"
               placeholder="“Know your instructor” description for website..."
               class="w-full min-h-30 max-h-60 overflow-y-auto"
             />
