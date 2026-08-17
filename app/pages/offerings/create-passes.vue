@@ -125,7 +125,7 @@ async function handleCreatePass() {
 
           <base-input
             v-model.number="form.validity"
-            label="Pass Validity (Days)"
+            label="Pass Validity (Days)*"
             name="validity"
             type="number"
             placeholder="Enter number of valid days"
@@ -141,7 +141,7 @@ async function handleCreatePass() {
             type="number"
             placeholder="Enter pass price"
             name="price"
-            label="Pass Price"
+            label="Pass Price*"
             class="w-full"
           >
             <template #trailing>

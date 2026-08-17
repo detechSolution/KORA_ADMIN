@@ -119,7 +119,7 @@ onMounted(() => {
             <base-input
               v-model="state.fullName"
               name="fullName"
-              label="Admin Name*"
+              label="Admin Name"
               placeholder="Enter admin name"
             />
 
@@ -128,7 +128,7 @@ onMounted(() => {
                 <base-input
                   v-model="state.phoneNumber"
                   name="phoneNumber"
-                  label="Phone Number*"
+                  label="Phone Number"
                   placeholder="Enter phone number"
                 />
               </div>
@@ -136,7 +136,7 @@ onMounted(() => {
                 <base-input
                   v-model="state.email"
                   name="email"
-                  label="Email Address*"
+                  label="Email Address"
                   placeholder="Enter email"
                 />
               </div>
@@ -144,7 +144,7 @@ onMounted(() => {
             <base-select
               v-model="state.adminRoleId"
               name="adminRoleId"
-              label="Select Role*"
+              label="Select Role"
               placeholder="Select a role for the admin"
               :options="roleOptions"
             />

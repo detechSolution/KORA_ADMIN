@@ -186,7 +186,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.freezeDays"
                 name="freezeDays"
-                label="Freeze Days*"
+                label="Freeze Days"
                 placeholder="Enter freeze days"
                 type="number"
                 class="w-full"
@@ -194,7 +194,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.maxVisitors"
                 name="maxVisitors"
-                label="Max Visitors*"
+                label="Max Visitors"
                 placeholder="Enter max visitors"
                 type="number"
                 class="w-full"
@@ -216,7 +216,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.spaBenefit"
                 name="spaBenefit"
-                label="Spa*"
+                label="Spa"
                 placeholder="0"
                 type="number"
                 class="w-full"
@@ -225,7 +225,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.classBenefit"
                 name="classBenefit"
-                label="Class*"
+                label="Class"
                 placeholder="0"
                 type="number"
                 class="w-full"
@@ -236,7 +236,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.eventBenefit"
                 name="eventBenefit"
-                label="Event*"
+                label="Event"
                 placeholder="0"
                 type="number"
                 class="w-full"
@@ -245,7 +245,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.workshopBenefit"
                 name="workshopBenefit"
-                label="Workshop*"
+                label="Workshop"
                 placeholder="0"
                 type="number"
                 class="w-full"
@@ -267,7 +267,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.spaGuestBenefit"
                 name="spaGuestBenefit"
-                label="Spa*"
+                label="Spa"
                 placeholder="0"
                 type="number"
                 class="w-full"
@@ -276,7 +276,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.classGuestBenefit"
                 name="classGuestBenefit"
-                label="Class*"
+                label="Class"
                 placeholder="0"
                 type="number"
                 class="w-full"
@@ -287,7 +287,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.eventGuestBenefit"
                 name="eventGuestBenefit"
-                label="Event*"
+                label="Event"
                 placeholder="0"
                 type="number"
                 class="w-full"
@@ -296,7 +296,7 @@ async function handleCreatePlan() {
               <base-input
                 v-model="state.workshopGuestBenefit"
                 name="workshopGuestBenefit"
-                label="Workshop*"
+                label="Workshop"
                 placeholder="0"
                 type="number"
                 class="w-full"

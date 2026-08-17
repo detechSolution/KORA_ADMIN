@@ -144,7 +144,7 @@ onMounted(fetchLogs);
         <template #entryDateTime-cell="{ row }">
           <div>
             <p class="text-sm text-secondary">
-              {{ formatTime(row.original.entryDateTime) }}
+              {{ formatLocalTime(row.original.entryDateTime) }}
             </p>
             <p class="text-xs text-secondary-500">
               {{ formatDate(row.original.entryDateTime) }}
