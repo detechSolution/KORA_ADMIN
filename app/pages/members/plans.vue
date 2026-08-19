@@ -37,7 +37,7 @@ const columns = [
     header: "Details",
   },
   {
-    accessorKey: "isActive",
+    accessorKey: "isPurchasable",
     header: "Status",
   },
   {
@@ -67,7 +67,7 @@ async function fetchPlans(): Promise<void> {
       limit: pagination.value.pageSize,
       q: state.value.search,
       frequency: state.value.type,
-      isActive: state.value.status,
+      isPurchasable: state.value.status,
     };
     await planStore.fetchPlans(params);
   }
@@ -215,9 +215,9 @@ onMounted(() => {
             </UTooltip>
           </div>
         </template>
-        <template #isActive-cell="{ row }">
-          <base-badge :color="row?.original?.isActive ? 'success' : 'red'">
-            {{ row?.original?.isActive ? "Active" : "Inactive" }}
+        <template #isPurchasable-cell="{ row }">
+          <base-badge :color="row?.original?.isPurchasable ? 'success' : 'red'">
+            {{ row?.original?.isPurchasable ? "Active" : "Inactive" }}
           </base-badge>
         </template>
 

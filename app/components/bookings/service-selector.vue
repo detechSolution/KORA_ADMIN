@@ -298,6 +298,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
         placeholder="Select date"
         :no-of-months="1"
         :disabled="form.serviceType === 'session'"
+        :readonly="form.serviceType === 'session'"
       />
       <UFormField
         :name="n('time')"
