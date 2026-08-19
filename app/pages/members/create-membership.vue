@@ -2,7 +2,7 @@
 import { reactive, ref } from "vue";
 import z from "zod";
 
-import type { CreateMembershipPlanPayload } from "~/types/memb       ership";
+import type { CreateMembershipPlanPayload } from "~/types/membership";
 
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
