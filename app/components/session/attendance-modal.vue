@@ -4,6 +4,7 @@ import { computed, ref, watch } from "vue";
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useSessionsStore } from "~/stores/sessions";
+import { getNepalTimestamp } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 const props = defineProps<{
@@ -22,6 +23,15 @@ const sessionAttendance = computed(() => {
 const sessionAttendanceSummary = computed(() => sessionsStore.sessionAttendance.summary);
 const loading = ref(false);
 
+const isReadOnly = computed(() => {
+  const session = props.session;
+  if (!session?.sessionDate || !session?.endTime)
+    return false;
+
+  const endTime = getNepalTimestamp(session.sessionDate, session.endTime);
+  return !Number.isNaN(endTime) && endTime <= Date.now();
+});
+
 async function fetchAttendance() {
   if (!props.session?.id)
     return;
@@ -38,6 +48,9 @@ async function fetchAttendance() {
 }
 
 function toggleStatus(id: number, status: "attended" | "no_show") {
+  if (isReadOnly.value)
+    return;
+
   const item = sessionAttendance.value.find(a => a.id === id);
   if (item) {
     item.attendanceStatus = item.attendanceStatus === status ? "pending" : status;
@@ -45,6 +58,9 @@ function toggleStatus(id: number, status: "attended" | "no_show") {
 }
 
 async function handleSaveAttendance() {
+  if (isReadOnly.value)
+    return;
+
   try {
     loading.value = true;
     const payload = sessionAttendance.value.map((item: any) => ({
@@ -128,6 +144,12 @@ watch(() => props.open, (newVal) => {
 
       <!-- Attendance List -->
       <div class="flex-1 px-6">
+        <div
+          v-if="isReadOnly"
+          class="mt-4 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-600"
+        >
+          This session has ended. Attendance is view-only.
+        </div>
         <div v-if="sessionsStore.loading" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
           <UIcon :name="ICONS.REFRESH_CW" class="w-8 h-8 animate-spin" />
           <span class="text-sm">Loading participants...</span>
@@ -178,6 +200,7 @@ watch(() => props.open, (newVal) => {
               <div class="flex items-center gap-3">
                 <button
                   type="button"
+                  :disabled="isReadOnly"
                   class="w-8 h-8 rounded-lg border flex items-center justify-center transition-all"
                   :class="item.attendanceStatus === 'attended'
                     ? 'bg-emerald-300 text-emerald-700 border-emerald-300 shadow-sm'
@@ -188,6 +211,7 @@ watch(() => props.open, (newVal) => {
                 </button>
                 <button
                   type="button"
+                  :disabled="isReadOnly"
                   class="w-8 h-8 rounded-lg border flex items-center justify-center transition-all"
                   :class="item.attendanceStatus === 'no_show'
                     ? 'bg-red-300 text-red-700 border-red-300 shadow-sm'
@@ -204,7 +228,7 @@ watch(() => props.open, (newVal) => {
       </div>
 
       <!-- Footer -->
-      <div class="p-6 border-t border-stone-200 bg-white flex justify-end shrink-0">
+      <div v-if="!isReadOnly" class="p-6 border-t border-stone-200 bg-white flex justify-end shrink-0">
         <base-button
           variant="solid"
           size="md"

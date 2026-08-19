@@ -44,6 +44,7 @@ type Props = {
   clearable?: boolean;
   searchInput?: boolean | Record<string, any>;
   searchPlaceholder?: string;
+  emptyMessage?: string;
   showCheckbox?: boolean;
   showSelectAll?: boolean;
   selectAllLabel?: string;
@@ -60,6 +61,7 @@ const props = withDefaults(defineProps<Props>(), {
   clearable: false,
   searchInput: true,
   searchPlaceholder: "Search...",
+  emptyMessage: "No options available.",
   showCheckbox: false,
   showSelectAll: false,
   selectAllLabel: "Select all",
@@ -137,6 +139,12 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
     >
       <template v-if="props.leadingIcon" #leading>
         <UIcon :name="props.leadingIcon" />
+      </template>
+
+      <template #empty>
+        <div class="px-3 py-6 text-center text-sm text-stone-500">
+          {{ props.emptyMessage }}
+        </div>
       </template>
 
       <template #item="{ item }">

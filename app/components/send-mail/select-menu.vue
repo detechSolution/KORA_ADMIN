@@ -86,10 +86,12 @@ const allSelected = computed(() =>
   recipients.value.length > 0 && recipients.value.every(r => props.modelValue.includes(r.value)),
 );
 
-const items = computed<Item[]>(() => [
-  { value: SELECT_ALL, label: "Select All", initials: "" },
-  ...recipients.value,
-]);
+const items = computed<Item[]>(() => recipients.value.length > 0
+  ? [
+      { value: SELECT_ALL, label: "Select All", initials: "" },
+      ...recipients.value,
+    ]
+  : []);
 
 const inputValue = computed({
   get: () => allSelected.value ? [SELECT_ALL, ...props.modelValue] : props.modelValue,
@@ -160,6 +162,12 @@ function isSelected(value: string) {
           >
             {{ f.label }}
           </button>
+        </div>
+      </template>
+
+      <template #empty>
+        <div class="px-3 py-6 text-center text-sm text-stone-400">
+          No recipients found
         </div>
       </template>
 

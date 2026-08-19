@@ -120,6 +120,17 @@ export function formatTime(time: string) {
 
   const [hours, minutes] = time.split(":").map(Number);
 
+  if (
+    Number.isNaN(hours)
+    || Number.isNaN(minutes)
+    || hours < 0
+    || hours > 23
+    || minutes < 0
+    || minutes > 59
+  ) {
+    return "";
+  }
+
   const period = hours >= 12 ? "PM" : "AM";
   const hour12 = hours % 12 || 12;
 
@@ -129,11 +140,34 @@ export function formatTime(time: string) {
 export function formatLocalTime(date: string) {
   const d = new Date(date);
 
+  if (!date || Number.isNaN(d.getTime()))
+    return "";
+
   return new Intl.DateTimeFormat(undefined, {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
   }).format(d);
+}
+
+export function formatUtcTime(isoDate: string) {
+  const date = new Date(isoDate);
+
+  if (!isoDate || Number.isNaN(date.getTime()))
+    return "";
+
+  const hours = date.getUTCHours();
+  const hour12 = hours % 12 || 12;
+  const period = hours >= 12 ? "PM" : "AM";
+
+  return `${hour12}:${String(date.getUTCMinutes()).padStart(2, "0")} ${period}`;
+}
+
+export function getNepalTimestamp(date: string, time: string): number {
+  if (!date || !time)
+    return Number.NaN;
+
+  return Date.parse(`${date}T${time}+05:45`);
 }
 
 export function parseTimeValue(value: string): Time | undefined {
@@ -169,39 +203,6 @@ export function formatDate(date: string | number | null | undefined): string {
     day: "numeric",
   });
   return formatter.format(d);
-}
-
-export function formatDateTime(date: string | number | null | undefined): string {
-  const d = parseToLocalDate(date);
-  if (!d)
-    return "";
-  const formatter = new Intl.DateTimeFormat(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-  return formatter.format(d);
-}
-
-// helper
-export function formatDateTimeWithDot(date: string) {
-  if (!date)
-    return "";
-
-  const d = new Date(date);
-
-  return `${d.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })} • ${d.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  })}`;
 }
 
 export function normalizeText(text: string): string {
