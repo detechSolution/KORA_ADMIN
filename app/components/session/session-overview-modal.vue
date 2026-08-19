@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_SESSIONS } from "~/config/permissions";
+import { getNepalTimestamp } from "~/utils/common";
 
-defineProps<{
+const props = defineProps<{
   open: boolean;
   session: any;
 }>();
@@ -14,6 +15,14 @@ const isPreviewOpen = ref(false);
 const previewType = ref<"image" | "video">("image");
 const previewUrl = ref("");
 const { can } = usePermission();
+
+const isSessionCompleted = computed(() => {
+  if (!props.session?.sessionDate || !props.session?.endTime)
+    return false;
+
+  const endTime = getNepalTimestamp(props.session.sessionDate, props.session.endTime);
+  return !Number.isNaN(endTime) && endTime <= Date.now();
+});
 
 function openPreview(type: "image" | "video", url: string) {
   if (!url)
@@ -193,6 +202,7 @@ function openPreview(type: "image" | "video", url: string) {
         class="flex justify-end pt-2"
       >
         <base-button
+          v-if="!isSessionCompleted"
           variant="solid"
           size="md"
           class="bg-stone-900 hover:bg-stone-800"

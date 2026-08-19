@@ -48,8 +48,10 @@ type SelectOption
     | { type: "separator" }
     | { label: string; value: number; description?: string; metaColor?: string; meta?: string };
 
-const serviceOptions = computed<SelectOption[]>(() =>
-  localOptions.value.flatMap((group: any, i: number, arr: any[]): SelectOption[] => [
+const serviceOptions = computed<SelectOption[]>(() => {
+  const groupsWithItems = localOptions.value.filter((group: any) => group.items?.length);
+
+  return groupsWithItems.flatMap((group: any, i: number, arr: any[]): SelectOption[] => [
     { type: "label", label: group.label },
     ...group.items.map((item: any): SelectOption => ({
       label: item.name,
@@ -59,8 +61,8 @@ const serviceOptions = computed<SelectOption[]>(() =>
       metaColor: item.occupied === item.capacity ? "error" : "success",
     })),
     ...(i < arr.length - 1 ? [{ type: "separator" } as SelectOption] : []),
-  ]),
-);
+  ]);
+});
 
 const selectedGroup = computed(() => findGroup(form.value.serviceId));
 const showDuration = computed(() => selectedGroup.value?.type?.toLowerCase() === "spa");
@@ -258,6 +260,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       :name="n('serviceId')"
       label="Select Service"
       placeholder="Select a service"
+      empty-message="No services available for the selected type."
       :options="serviceOptions"
       :loading="localLoading"
       class="w-full"
@@ -308,6 +311,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
         <UInputTime
           v-model="timeModel"
           :trailing-icon="ICONS.CLOCK"
+          :disabled="form.serviceType === 'session'"
           class="w-full"
         />
       </UFormField>
