@@ -2,7 +2,7 @@
 import { reactive, ref } from "vue";
 import z from "zod";
 
-import type { CreateMembershipPlanPayload } from "~/types/membership";
+import type { CreateMembershipPlanPayload } from "~/types/memb       ership";
 
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
@@ -48,7 +48,7 @@ const optionSchema = z.object({
 const schema = z.object({
   name: z.string().min(1, "Plan name is required"),
   description: z.string().min(1, "Plan description is required"),
-  isActive: z.boolean(),
+  isPurchasable: z.boolean(),
   maxVisitors: z.number({ error: "Max visitors must be a number" }).min(0, "Max visitors cannot be negative"),
   freezeDays: z
     .number({ error: "Freeze days must be a number" })
@@ -71,7 +71,7 @@ type CreatePlanSchema = z.output<typeof schema>;
 const state = reactive<CreatePlanSchema>({
   name: "",
   description: "",
-  isActive: true,
+  isPurchasable: true,
   maxVisitors: 0,
   freezeDays: 0,
   spaBenefit: 0,
@@ -107,7 +107,7 @@ async function handleCreatePlan() {
     const payload: CreateMembershipPlanPayload = {
       name: state.name,
       description: state.description,
-      isActive: state.isActive,
+      isPurchasable: state.isActive,
       isFreezable: state.freezeDays > 0,
       maxVisitors: state.maxVisitors,
       freezeDays: state.freezeDays,
@@ -314,8 +314,8 @@ async function handleCreatePlan() {
             />
 
             <base-switch
-              v-model="state.isActive"
-              name="isActive"
+              v-model="state.isPurchasable"
+              name="isPurchasable"
               label="Status"
               on-label="Active"
               off-label="Inactive"

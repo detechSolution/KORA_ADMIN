@@ -29,21 +29,51 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 const today = new Date();
 const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
+function requiredDate(message: string) {
+  return z.preprocess(value => value ?? "", z.string().min(1, message));
+}
+
 const schema = z.object({
   dateRange: z.object({
-    start: z.string().min(1, "Start date is required"),
-    end: z.string().min(1, "End date is required"),
-  }, { error: "Freeze start and end dates are required" }).refine((data) => {
-    if (!data.start || !data.end)
-      return true;
-    const start = new Date(data.start);
-    const end = new Date(data.end);
-    const diffInDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-    return diffInDays >= 6;
-  }, {
-    message: "Minimum freeze period is 7 days",
-  }),
+    start: requiredDate("Start date is required"),
+    end: requiredDate("End date is required when a start date is selected"),
+  }, { error: "Freeze start and end dates are required" }),
   reason: z.string().min(1, "Reason is required"),
+}).superRefine((data, ctx) => {
+  const { start, end } = data.dateRange;
+
+  if (start && !end) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["dateRange"],
+      message: "End date is required when a start date is selected",
+    });
+    return;
+  }
+
+  if (!start && end) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["dateRange"],
+      message: "Start date is required when an end date is selected",
+    });
+    return;
+  }
+
+  if (!start || !end)
+    return;
+
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  const diffInDays = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (diffInDays < 6) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["dateRange"],
+      message: "Minimum freeze period is 7 days",
+    });
+  }
 });
 
 type FreezeSchema = z.output<typeof schema>;
@@ -60,6 +90,7 @@ function resetForm(): void {
 
 async function handleSubmit(): Promise<void> {
   await formRef.value?.validate();
+
   try {
     loading.value = true;
     await membershipStore.freezeMembership(props.member.id, {

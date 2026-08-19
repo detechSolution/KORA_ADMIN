@@ -69,7 +69,7 @@ const schema = z.object({
   eventGuestBenefit: pct("Event guest benefit"),
   workshopGuestBenefit: pct("Workshop guest benefit"),
   description: z.string().min(1, "Description is required"),
-  isActive: z.boolean(),
+  isPurchasable: z.boolean(),
   options: z.array(optionSchema).min(1, "At least one frequency option is required"),
 });
 
@@ -88,7 +88,7 @@ const state = reactive<Partial<EditPlanSchema>>({
   eventGuestBenefit: 0,
   workshopGuestBenefit: 0,
   description: "",
-  isActive: true,
+  isPurchasable: true,
   options: [],
 });
 
@@ -110,7 +110,7 @@ function removeOption(index: number) {
 function populateForm(plan: MembershipPlan | null): void {
   state.name = plan?.name ?? "";
   state.description = plan?.description ?? "";
-  state.isActive = plan?.isActive ?? true;
+  state.isPurchasable = plan?.isPurchasable ?? true;
   state.freezeDays = plan?.freezeDays ?? 0;
   state.maxVisitors = plan?.maxVisitors ?? 0;
   state.spaBenefit = plan?.spaBenefit ?? 0;
@@ -159,7 +159,7 @@ async function handleSubmit(): Promise<void> {
     const payload: UpdateMembershipPlanPayload = {
       name: state.name!,
       description: state.description!,
-      isActive: state.isActive!,
+      isPurchasable: state.isPurchasable!,
       isFreezable: (state.freezeDays ?? 0) > 0,
       freezeDays: state.freezeDays!,
       maxVisitors: state.maxVisitors!,
@@ -357,8 +357,8 @@ watch(
           </div>
 
           <base-switch
-            v-model="state.isActive"
-            name="isActive"
+            v-model="state.isPurchasable"
+            name="isPurchasable"
             label="Status"
             on-label="Active"
             off-label="Inactive"
