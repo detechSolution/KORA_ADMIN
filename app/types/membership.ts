@@ -34,14 +34,14 @@ export type MembershipPlan = {
   workshopGuestBenefit: number;
   maxVisitors: number;
 
-  isActive: boolean;
+  isPurchasable: boolean;
   options: MembershipPlanOption[];
 };
 
 export type CreateMembershipPlanPayload = {
   name: string;
   description: string;
-  isActive: boolean;
+  isPurchasable: boolean;
   // capacity: number;
   isFreezable: boolean;
   maxVisitors: number;
