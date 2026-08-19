@@ -4,6 +4,7 @@ import { computed } from "vue";
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_SESSIONS } from "~/config/permissions";
+import { getNepalTimestamp } from "~/utils/common";
 
 const props = defineProps<SessionCardProps>();
 
@@ -22,28 +23,32 @@ type SessionCardProps = {
   occupied: number;
   startsAt: string;
   endsAt: string;
+  sessionStartTime: string;
+  sessionEndTime: string;
+  isBookable: boolean;
 };
 
 const { error: showError } = useNotification();
 const { can } = usePermission();
 
-const isEventOver = computed(() => {
-  if (!props.endsAt)
+const isEnded = computed(() => {
+  const endTime = getNepalTimestamp(props.date, props.sessionEndTime);
+
+  if (Number.isNaN(endTime))
     return false;
-  return new Date().getTime() > new Date(props.endsAt).getTime();
+
+  return endTime <= Date.now();
 });
 
 function handleAttendanceClick() {
-  if (isEventOver.value)
-    return;
+  const startsAt = getNepalTimestamp(props.date, props.sessionStartTime);
 
-  if (!props.startsAt) {
-    emit("openAttendanceModal", props.id);
+  if (Number.isNaN(startsAt)) {
+    showError({ message: "Session start time is unavailable" });
     return;
   }
-  const now = new Date();
-  const startsAt = new Date(props.startsAt);
-  const timeDiff = startsAt.getTime() - now.getTime();
+
+  const timeDiff = startsAt - Date.now();
   const oneHourInMs = 60 * 60 * 1000;
 
   if (timeDiff > oneHourInMs) {
@@ -52,6 +57,13 @@ function handleAttendanceClick() {
   }
 
   emit("openAttendanceModal", props.id);
+}
+
+function handleEditClick() {
+  if (isEnded.value || props.occupied > 0)
+    return;
+
+  emit("openEditSessionDrawer", props.id);
 }
 </script>
 
@@ -79,8 +91,8 @@ function handleAttendanceClick() {
         <UIcon :name="ICONS.LOCATION" class="text-primary" /> {{ location }}
       </p>
       <p class="flex items-center gap-2">
-        <UIcon :name="ICONS.CLOCK" class="text-primary" /> {{ formatTime(startsAt) }}
-        - {{ formatTime(endsAt) }}
+        <UIcon :name="ICONS.CLOCK" class="text-primary" /> {{ formatUtcTime(startsAt) }}
+        - {{ formatUtcTime(endsAt) }}
       </p>
     </div>
 
@@ -101,26 +113,31 @@ function handleAttendanceClick() {
         {{ price }}
       </div>
       <div class="flex items-center gap-3 text-secondary-400">
-        <UTooltip v-if="can(PERMISSIONS_SESSIONS.UPDATE)" :text="isEventOver ? 'Attendance (Event is over)' : 'Attendance'">
+        <UTooltip v-if="can(PERMISSIONS_SESSIONS.UPDATE)" :text="isEnded ? 'View Attendance (Session has ended)' : 'Attendance'">
           <UIcon
             :name="ICONS.CLIPBOARD_CHECK"
-            class="w-4 h-4 transition-colors"
-            :class="isEventOver ? 'text-secondary-200 cursor-not-allowed' : 'cursor-pointer hover:text-primary text-primary'"
+            class="w-4 h-4 cursor-pointer hover:text-primary text-primary transition-colors"
             @click="handleAttendanceClick"
           />
         </UTooltip>
-        <UTooltip v-if="can(PERMISSIONS_SESSIONS.UPDATE)" text="Add Member & Pass Users">
+        <UTooltip
+          v-if="can(PERMISSIONS_SESSIONS.UPDATE) && !isEnded"
+          text="Add Member & Pass Users"
+        >
           <UIcon
             :name="ICONS.USER_PLUS"
             class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
             @click="emit('openAddMemberModal', id)"
           />
         </UTooltip>
-        <UTooltip v-if="can(PERMISSIONS_SESSIONS.UPDATE)" text="Edit Session">
+        <UTooltip
+          v-if="can(PERMISSIONS_SESSIONS.UPDATE) && !isEnded && occupied === 0"
+          text="Edit Session"
+        >
           <UIcon
             :name="ICONS.EDIT"
-            class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
-            @click="emit('openEditSessionDrawer', id)"
+            class="w-4 h-4 transition-colors"
+            @click="handleEditClick"
           />
         </UTooltip>
         <UTooltip text="Open Overview">

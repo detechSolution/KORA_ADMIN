@@ -265,6 +265,12 @@ const formFieldClasses = computed(() => ({
 }));
 
 const popoverOpen = ref(false);
+const isPickerInteractive = computed(() => !props.disabled && !props.readonly);
+
+function handlePopoverUpdate(open: boolean): void {
+  if (isPickerInteractive.value)
+    popoverOpen.value = open;
+}
 
 function shouldClosePicker(value: any): boolean {
   if (props.range) {
@@ -360,7 +366,10 @@ function isWeekendDisabled(date: DateValue) {
 </script>
 
 <template>
-  <UPopover v-model:open="popoverOpen">
+  <UPopover
+    :open="isPickerInteractive && popoverOpen"
+    @update:open="handlePopoverUpdate"
+  >
     <UFormField
       :label="label"
       :name="name"
@@ -386,17 +395,19 @@ function isWeekendDisabled(date: DateValue) {
         type="text"
         :placeholder="placeholder"
         :required="required"
-        :disabled="disabled"
+        :disabled="disabled || readonly"
         readonly
         :trailing-icon="ICONS.CALENDAR"
         variant="outline"
-        class="w-full cursor-pointer"
+        :class="isPickerInteractive ? 'cursor-pointer' : 'cursor-not-allowed'"
+        class="w-full"
         size="lg"
       />
     </UFormField>
 
     <template #content>
       <UCalendar
+        v-if="isPickerInteractive"
         v-model="calendarValue"
         class="p-2"
         :number-of-months="noOfMonths"
