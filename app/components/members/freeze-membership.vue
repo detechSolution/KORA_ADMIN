@@ -60,8 +60,14 @@ const schema = z.object({
     return;
   }
 
-  if (!start || !end)
-    return;
+  if (!start || !end) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["dateRange"],
+      message: "Start date and end date are required",
+    });
+  }
+  return;
 
   const startDate = new Date(start);
   const endDate = new Date(end);
