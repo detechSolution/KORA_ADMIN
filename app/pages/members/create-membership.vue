@@ -173,7 +173,10 @@ async function handleCreatePlan() {
         :validate-on="['input', 'change', 'blur']"
         class="flex flex-col gap-6"
       >
-        <div class="bg-white flex flex-col gap-5 shadow-md rounded-lg p-4">
+        <h2 class="text-[16px] font-semibold text-secondary">
+          Plan Details & Benefits
+        </h2>
+        <div class="bg-white flex flex-col gap-5 shadow-xl rounded-lg p-4">
           <div class="flex flex-col gap-4 w-full">
             <base-input
               v-model="state.name"
@@ -325,7 +328,9 @@ async function handleCreatePlan() {
         </div>
 
         <USeparator />
-
+        <h2 class="text-[16px] font-semibold text-secondary">
+          Manage Plan Frequencies
+        </h2>
         <div
           v-for="(option, index) in state.options"
           :key="index"

@@ -218,7 +218,10 @@ watch(
       :validate-on="['input', 'change', 'blur']"
       class="flex min-h-0 flex-1 flex-col"
     >
-      <div class="flex-1 overflow-y-auto px-5 py-5">
+      <div class="flex-1 space-y-4 overflow-y-auto px-5 py-5">
+        <h2 class="text-[16px] font-semibold text-secondary">
+          Plan Details & Benefits
+        </h2>
         <div class="grid gap-5">
           <base-input
             v-model="state.name"
@@ -368,6 +371,10 @@ watch(
           <USeparator />
 
           <div class="flex flex-col gap-4">
+            <h2 class="text-[16px] font-semibold text-secondary">
+              Manage Plan Frequencies
+            </h2>
+
             <div
               v-for="(option, index) in state.options"
               :key="index"
