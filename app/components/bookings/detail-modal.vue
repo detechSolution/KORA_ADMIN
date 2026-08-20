@@ -134,18 +134,21 @@ watch(() => props.open, async (newValue) => {
               </h2>
             </div>
             <div class="flex text-xs flex-col border-b  md:border-r border-border md:border-b-0 p-2 col-span-3">
-              <span class="text-xs text-secondary-400 mb-1">Date & Time</span>
+              <span class="text-xs text-secondary-400 mb-1">
+                {{ `Date ${participant?.itemType !== "passes" ? " & Time" : ""}` }}</span>
               <div class="text-xs font-semibold">
                 <div class="flex items-center gap-2">
                   <UIcon :name="ICONS.CALENDAR" /> <h2>{{ formatDate(participant?.bookedFor) || "N/A" }}</h2>
                 </div>
-                <div class="flex items-center gap-2">
+                <div v-if="participant?.itemType !== 'passes'" class="flex items-center gap-2">
                   <UIcon :name="ICONS.CLOCK" /> <h2>{{ formatLocalTime(participant?.bookedFor) || "N/A" }}</h2>
                 </div>
               </div>
             </div>
             <div class="flex flex-col p-2 col-span-2">
-              <p class="flex self-start md:self-end text-sm font-semibold">
+              <span class="text-xs text-secondary-400 mb-1">Price</span>
+
+              <p class="flex self-start text-sm font-semibold">
                 {{ participant?.currency }} {{ participant?.amount }}
               </p>
             </div>

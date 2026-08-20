@@ -55,7 +55,7 @@ const STATUS_MAP: Record<string, { color: BadgeColor; label: string; icon?: stri
   "event": { color: "emerald", label: "Event" },
   "workshop": { color: "purple", label: "Workshop" },
   "confirmed": { color: "emerald", label: "Confirmed", icon: ICONS.CHECK_CIRCLE },
-  "requested": { color: "yellow", label: "Requested" },
+  "requested": { color: "yellow", label: "Cancellation Requested" },
   "approved": { color: "emerald", label: "Approved" },
   "rejected": { color: "red", label: "Rejected" },
   "session": { color: "purple", label: "Session" },

@@ -12,6 +12,9 @@ export const useAnalyticsStore = defineStore("analytics", () => {
     totalMembers: 0,
     todayRevenue: 0,
     currency: "",
+    unreadPayments: 0,
+    unreadCancellations: 0,
+    unreadBookings: 0,
   });
 
   const getAnalyticsStats = async (): Promise<any> => {

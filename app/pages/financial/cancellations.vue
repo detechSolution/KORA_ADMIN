@@ -5,6 +5,7 @@ import ViewCancellationDrawer from "~/components/Cancellations/view-cancellation
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
+import { useAnalyticsStore } from "~/stores/analytics";
 import { useFinanceStore } from "~/stores/finance";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
@@ -16,7 +17,7 @@ definePageMeta({
 });
 
 const options = [
-  { label: "Requested", value: "requested" },
+  { label: "Cancellation Requested", value: "requested" },
   { label: "Approved", value: "approved" },
   { label: "Rejected", value: "rejected" },
 ];
@@ -43,6 +44,7 @@ const state = ref({
 });
 
 const financeStore = useFinanceStore();
+const analyticsStore = useAnalyticsStore();
 const loading = ref(false);
 const cancellations = computed(() => financeStore.cancellations);
 
@@ -105,7 +107,10 @@ onMounted(async () => {
   const search = route.query.search as string;
 
   state.value.search = search;
-  await fetchCancellations();
+  await Promise.all([
+    fetchCancellations(),
+    analyticsStore.getAnalyticsStats(),
+  ]);
 
   router.replace({ query: { search: undefined } });
 });
