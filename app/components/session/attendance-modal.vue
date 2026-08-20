@@ -20,8 +20,16 @@ const sessionAttendance = computed(() => {
   const val = sessionsStore.sessionAttendance;
   return Array.isArray(val) ? val : (val?.data || []);
 });
-const sessionAttendanceSummary = computed(() => sessionsStore.sessionAttendance.summary);
+
+const sessionAttendanceSummary = computed(() =>
+  sessionsStore.sessionAttendance?.summary ?? {
+    attendedCount: 0,
+    bookedCount: 0,
+  },
+);
+
 const loading = ref(false);
+const isSaving = ref(false);
 
 const isReadOnly = computed(() => {
   const session = props.session;
@@ -62,7 +70,7 @@ async function handleSaveAttendance() {
     return;
 
   try {
-    loading.value = true;
+    isSaving.value = true;
     const payload = sessionAttendance.value.map((item: any) => ({
       id: item.id,
       attendanceStatus: item.attendanceStatus,
@@ -76,7 +84,7 @@ async function handleSaveAttendance() {
     showError({ message: getApiErrorMessage(error, "Failed to update admin. Please try again.") });
   }
   finally {
-    loading.value = false;
+    isSaving.value = false;
   }
 }
 
@@ -233,7 +241,7 @@ watch(() => props.open, (newVal) => {
           variant="solid"
           size="md"
           class="bg-stone-900 hover:bg-stone-800 min-w-40"
-          :loading="loading"
+          :loading="isSaving"
           @click="handleSaveAttendance"
         >
           Save Attendance

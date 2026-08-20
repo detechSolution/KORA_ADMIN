@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Time } from "@internationalized/date";
 import { computed, onMounted, reactive, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import * as z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
@@ -18,6 +19,7 @@ definePageMeta({
 const { success, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
 const instructorsStore = useInstructorsStore();
+const router = useRouter();
 
 const currentStep = ref(0);
 const loading = ref(false);
@@ -258,6 +260,8 @@ async function handleCreateSession(): Promise<void> {
       message: "Session created successfully",
     });
     clearFormData();
+
+    router.push("/offerings/session");
   }
   catch (err) {
     showError({ message: getApiErrorMessage(err, "Failed to create community") });
