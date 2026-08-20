@@ -2,7 +2,7 @@
 import type { NavigationMenuItem } from "@nuxt/ui";
 import type { RouteLocationRaw } from "vue-router";
 
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { usePermission } from "~/composables/use-permission";
@@ -21,11 +21,13 @@ import {
   PERMISSIONS_SESSIONS,
   PERMISSIONS_SPA,
 } from "~/config/permissions";
+import { useAnalyticsStore } from "~/stores/analytics";
 import { useAuthStore } from "~/stores/auth";
 
 type NavItemWithPermission = NavigationMenuItem & { permission?: string; children?: NavItemWithPermission[] };
 
 const authStore = useAuthStore();
+const analyticsStore = useAnalyticsStore();
 const { can } = usePermission();
 const route = useRoute();
 const router = useRouter();
@@ -60,7 +62,45 @@ function isPathActive(to: string | RouteLocationRaw | undefined): boolean {
   return path === to || path.startsWith(`${to}/`);
 }
 
-function filterByPermission(items: NavItemWithPermission[]): NavigationMenuItem[] {
+function getNavBadge(to: RouteLocationRaw | undefined, label?: string): NavigationMenuItem["badge"] {
+  const stats = analyticsStore.analyticsStats;
+
+  if (label === "Financial") {
+    const count = (stats.unreadPayments || 0) + (stats.unreadCancellations || 0);
+    if (!count)
+      return undefined;
+
+    return {
+      color: "error",
+      variant: "solid",
+      square: true,
+      class: "size-2 min-w-2 rounded-full p-0 group-data-[state=open]:hidden",
+    };
+  }
+
+  if (typeof to !== "string")
+    return undefined;
+
+  const countByPath: Record<string, number> = {
+    "/bookings/bookings-list": stats.unreadBookings,
+    "/financial/payments": stats.unreadPayments,
+    "/financial/cancellations": stats.unreadCancellations,
+  };
+  const count = countByPath[to];
+
+  if (!count)
+    return undefined;
+
+  return {
+    label: count > 99 ? "99+" : count,
+    color: "neutral",
+    variant: "outline",
+    size: "sm",
+    class: "min-w-5 font-medium justify-center px-2 py-1",
+  };
+}
+
+function filterByPermission(items: NavItemWithPermission[], collapsed = false): NavigationMenuItem[] {
   return items
     .filter((item) => {
       if (item.permission && !can(item.permission))
@@ -76,8 +116,12 @@ function filterByPermission(items: NavItemWithPermission[]): NavigationMenuItem[
       const { permission: _p, children, ...rest } = item;
       const out: NavigationMenuItem = { ...rest };
 
+      const badge = getNavBadge(item.to, item.label);
+      if (badge !== undefined)
+        out.badge = badge;
+
       if (children?.length) {
-        const filteredChildren = filterByPermission(children);
+        const filteredChildren = filterByPermission(children, collapsed);
         (out as NavigationMenuItem & { children?: NavigationMenuItem[] }).children = filteredChildren;
         (out as NavigationMenuItem & { onSelect?: (e: Event) => void }).onSelect = () => {
           if (sidebarCollapsed.value)
@@ -175,13 +219,17 @@ const rawItems: NavItemWithPermission[] = [{
   ],
 }];
 
-const items = computed(() => [filterByPermission([...rawItems])]);
+const items = computed(() => [filterByPermission([...rawItems], sidebarCollapsed.value)]);
+
+onMounted(() => {
+  analyticsStore.getAnalyticsStats();
+});
 </script>
 
 <template>
   <UDashboardSidebar
+    v-model:collapsed="sidebarCollapsed"
     :open="sidebarOpen"
-    :collapsed="sidebarCollapsed"
     collapsible
     toggle-side="right"
     :ui="{

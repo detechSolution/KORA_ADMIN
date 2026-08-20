@@ -7,6 +7,7 @@ import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_BOOKINGS } from "~/config/permissions";
+import { useAnalyticsStore } from "~/stores/analytics";
 import { useBookingStore } from "~/stores/booking";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
@@ -31,6 +32,7 @@ const bookingTypeOptions = [
 ];
 
 const { success, error: showError } = useNotification();
+const analyticsStore = useAnalyticsStore();
 const bookingStore = useBookingStore();
 const bookings = computed(() => bookingStore.bookings);
 const { pagination } = usePagination();
@@ -95,6 +97,7 @@ async function fetchBookings(): Promise<void> {
       status: filters.value.status === "" ? undefined : filters.value.status,
       bookedFrom: filters.value.dateRange.start || undefined,
       bookedTo: filters.value.dateRange.end || undefined,
+      is_read: true,
     };
     await bookingStore.getBookings(params);
   }
@@ -195,7 +198,11 @@ onMounted(async () => {
   const search = route.query.search as string;
   filters.value.search = search || "";
 
-  await Promise.all([fetchBookings(), fetchBookingsSummary()]);
+  await Promise.all([
+    fetchBookings(),
+    // fetchBookingsSummary(),
+    analyticsStore.getAnalyticsStats(),
+  ]);
 
   router.replace({ query: { search: undefined } });
 });

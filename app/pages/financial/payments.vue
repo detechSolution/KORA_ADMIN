@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from "vue";
 
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
+import { useAnalyticsStore } from "~/stores/analytics";
 import { useFinanceStore } from "~/stores/finance";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
@@ -19,6 +20,7 @@ const options = ref([
 ]);
 
 const financeStore = useFinanceStore();
+const analyticsStore = useAnalyticsStore();
 const { pagination } = usePagination();
 const { error: showError } = useNotification();
 
@@ -72,8 +74,11 @@ function clearFilters(): void {
   handleSearchClick();
 }
 
-onMounted(() => {
-  fetchPayments();
+onMounted(async () => {
+  await Promise.all([
+    fetchPayments(),
+    analyticsStore.getAnalyticsStats(),
+  ]);
 });
 </script>
 
