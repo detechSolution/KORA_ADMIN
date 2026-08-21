@@ -5,6 +5,7 @@ import z from "zod";
 import type { Instructor } from "~/types/instructors";
 
 import { useInstructorsStore } from "~/stores/instructors";
+import { preventInvalidNumberInput } from "~/utils/common";
 
 type Props = {
   open: boolean;
@@ -26,7 +27,7 @@ const loading = ref(false);
 const schema = z.object({
   fullName: z.string().min(1, "Instructor name is required"),
   email: z.string().email("Invalid email address").optional(),
-  phoneNumber: z.string().optional(),
+  phoneNumber: z.coerce.string().regex(/^(?:\d{10})?$/, "Phone number must be exactly 10 digits").optional(),
   bio: z.string().optional(),
   isActive: z.boolean(),
 });
@@ -132,6 +133,8 @@ watch(
             label="Phone Number"
             placeholder="Enter phone number"
             class="w-full"
+            type="tel"
+            @keydown="preventInvalidNumberInput"
           />
 
           <div class="w-full overflow-auto">

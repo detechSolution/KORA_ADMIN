@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_SESSIONS } from "~/config/permissions";
 import { getNepalTimestamp } from "~/utils/common";
@@ -28,7 +27,6 @@ type SessionCardProps = {
   isBookable: boolean;
 };
 
-const { error: showError } = useNotification();
 const { can } = usePermission();
 
 const isEnded = computed(() => {
@@ -41,21 +39,6 @@ const isEnded = computed(() => {
 });
 
 function handleAttendanceClick() {
-  const startsAt = getNepalTimestamp(props.date, props.sessionStartTime);
-
-  if (Number.isNaN(startsAt)) {
-    showError({ message: "Session start time is unavailable" });
-    return;
-  }
-
-  const timeDiff = startsAt - Date.now();
-  const oneHourInMs = 60 * 60 * 1000;
-
-  if (timeDiff > oneHourInMs) {
-    showError({ message: "Event is not started yet" });
-    return;
-  }
-
   emit("openAttendanceModal", props.id);
 }
 

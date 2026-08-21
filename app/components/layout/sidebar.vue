@@ -193,7 +193,7 @@ const rawItems: NavItemWithPermission[] = [{
   ],
 }, {
   label: "Instructors",
-  icon: ICONS.DOOR_LOCK,
+  icon: ICONS.USER_STAR,
   to: "/instructors/instructors-list",
   permission: PERMISSIONS_INSTRUCTORS.VIEW,
   defaultOpen: true,

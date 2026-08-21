@@ -7,6 +7,7 @@ import type { MembershipPlan } from "~/types/membership";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 import { useMembershipStore } from "~/stores/membership";
+import { preventInvalidNumberInput } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
@@ -39,7 +40,7 @@ const appliedPromo = ref<{ code: string; type: string; amount: number; isValid: 
 
 const stepOneSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phoneNumber: z.string().min(1, "Phone number is required").regex(/^\d{10}$/, "Phone number must be 10 digits"),
+  phoneNumber: z.coerce.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   email: z.string().email("Invalid email address"),
   identificationDocument: z.file({ error: "Identification document is required" }),
 });
@@ -305,6 +306,8 @@ onMounted(() => {
                         label="Phone Number*"
                         placeholder="Enter phone number"
                         class="w-full"
+                        type="tel"
+                        @keydown="preventInvalidNumberInput"
                       />
 
                       <base-input
