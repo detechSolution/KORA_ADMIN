@@ -12,21 +12,29 @@ export type ServiceState = {
   resolvedDurationLabel?: string;
 };
 
+export type BookingParticipant = {
+  name: string;
+  email: string;
+  phoneNumber: string;
+};
+
 export type Booking = {
   id: number;
   bookingCode: string;
-  itemName: string;
+  itemNames: string[];
+  itemName?: string;
   itemType: string;
   status: string;
   bookedDate: string | number;
   bookedFor: string | number;
   visitorCount: number;
   participantCount: number;
-  clientName: string;
-  clientEmail: string;
-  clientPhoneNumber: string;
+  participants: BookingParticipant[];
+  amount: number;
+  clientName?: string;
+  clientEmail?: string;
+  clientPhoneNumber?: string;
   visitors?: any[];
-  participants?: any[];
 };
 
 export type BookingItemGroup = {

@@ -226,7 +226,7 @@ async function handleCreateBooking(): Promise<void> {
 onMounted(async () => {
   await membershipStore.getMembersOptions();
   membersOptions.value = membershipStore.membershipOptions.map((m: any) => ({
-    label: m.fullName,
+    label: m.label,
     value: m.memberId,
     description: m.email,
   }));

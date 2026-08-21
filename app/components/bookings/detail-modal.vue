@@ -130,7 +130,7 @@ watch(() => props.open, async (newValue) => {
             <div class="flex flex-col  border-b md:border-b-0  md:border-r border-border p-2 col-span-4">
               <span class="text-xs text-secondary-400 mb-1">Session/Service Name</span>
               <h2 class="text-sm font-semibold">
-                {{ booking?.itemName }}
+                {{ participant?.itemName }}
               </h2>
             </div>
             <div class="flex text-xs flex-col border-b  md:border-r border-border md:border-b-0 p-2 col-span-3">

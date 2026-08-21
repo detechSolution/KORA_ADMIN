@@ -128,7 +128,7 @@ watch(() => props.open, (newVal) => {
             <span class="w-1 h-1 bg-secondary-200 rounded-full" />
             <div class="flex items-center gap-1">
               <UIcon :name="ICONS.USER" class="w-4 h-4" />
-              <span>{{ session.instructor }}</span>
+              <span>{{ session.instructor || "N/A" }}</span>
             </div>
           </div>
         </div>
