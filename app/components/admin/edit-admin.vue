@@ -6,6 +6,7 @@ import type { Admin } from "~/types/admin";
 
 import { useNotification } from "~/composables/use-notification";
 import { useAdminStore } from "~/stores/admin";
+import { preventInvalidNumberInput } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 type Props = {
@@ -28,7 +29,7 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const schema = z.object({
   fullName: z.string().min(1, "Admin name is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
+  phoneNumber: z.coerce.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   email: z.email("Email address is required"),
   adminRoleId: z.string().min(1, "Role is required"),
   isActive: z.boolean(),
@@ -146,6 +147,8 @@ watch(
               name="phoneNumber"
               label="Phone Number*"
               placeholder="Enter phone number"
+              type="tel"
+              @keydown="preventInvalidNumberInput"
             />
 
             <base-input

@@ -29,7 +29,7 @@ const steps = [
 
 const step1Schema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phone: z.string().optional(),
+  phone: z.coerce.string().regex(/^(?:\d{10})?$/, "Phone number must be exactly 10 digits"),
   email: z.string().min(1, "Email address is required").email("Invalid email address"),
 });
 

@@ -6,6 +6,7 @@ import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useAccessControlStore } from "~/stores/access-control";
 import { useMembershipStore } from "~/stores/membership";
+import { preventInvalidNumberInput } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({ auth: true, layout: "dashboard" });
@@ -170,6 +171,8 @@ onMounted(async () => {
               v-model="state.phoneNumber"
               name="phoneNumber"
               label="Enter Phone Number (optional)"
+              type="tel"
+              @keydown="preventInvalidNumberInput"
             />
           </div>
 

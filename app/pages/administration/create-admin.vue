@@ -4,6 +4,7 @@ import z from "zod";
 
 import { ICONS } from "~/config/icons";
 import { useAdminStore } from "~/stores/admin";
+import { preventInvalidNumberInput } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
@@ -22,7 +23,7 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const schema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
+  phoneNumber: z.coerce.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   email: z.string().min(1, "Email is required"),
   adminRoleId: z.string().min(1, "Admin role is required"),
   isActive: z.boolean(),
@@ -130,6 +131,8 @@ onMounted(() => {
                   name="phoneNumber"
                   label="Phone Number"
                   placeholder="Enter phone number"
+                  type="tel"
+                  @keydown="preventInvalidNumberInput"
                 />
               </div>
               <div class="w-full">

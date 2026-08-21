@@ -9,6 +9,7 @@ import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 import { useMembershipStore } from "~/stores/membership";
+import { preventInvalidNumberInput } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 const steps: StepItem[] = [
@@ -35,7 +36,7 @@ const overviewRef = ref<any>(null);
 
 const visitorSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required"),
-  phoneNumber: z.string().trim().regex(/^\d{10}$/, "Please enter a valid phone number."),
+  phoneNumber: z.coerce.string().trim().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   email: z.string().trim().min(1, "Email is required").email("Valid email address"),
   serviceType: z.string().min(1, "Please select a service"),
   serviceId: z.coerce.number({ message: "Please select a service" }).min(1, "Please select a service"),
@@ -296,6 +297,8 @@ onMounted(async () => {
                 :name="`visitors.${index}.phoneNumber`"
                 label="Phone Number*"
                 placeholder="Enter phone number"
+                type="tel"
+                @keydown="preventInvalidNumberInput"
               />
             </div>
             <base-input

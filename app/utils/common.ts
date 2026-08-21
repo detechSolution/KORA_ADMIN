@@ -223,3 +223,11 @@ export function normalizeText(text: string): string {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 }
+
+// phone number validation
+export function preventInvalidNumberInput(e: KeyboardEvent) {
+  const allowedKeys = ["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight", "Home", "End"];
+  if (!e.ctrlKey && !e.metaKey && !allowedKeys.includes(e.key) && !/^\d$/.test(e.key)) {
+    e.preventDefault();
+  }
+}

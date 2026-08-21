@@ -24,9 +24,21 @@ const selectedTab = ref("profile");
 
 const tabs = [
   { label: "Profile", value: "profile" },
+  { label: "Health Profile", value: "health" },
   { label: "Bookings", value: "bookings" },
   { label: "Payments", value: "payments" },
 ];
+
+const healthProfile = computed(() => [
+  { label: "Height", value: props.member?.profile?.height },
+  { label: "Weight", value: props.member?.profile?.weight },
+  { label: "Injury History", value: props.member?.profile?.injuryHistory },
+  { label: "Preference", value: props.member?.profile?.preferences },
+]);
+
+const hasHealthData = computed(() => healthProfile.value.some(
+  item => item.value !== null && item.value !== undefined && item.value !== "",
+));
 
 const profileEditInfo = computed(() => {
   if (!props.member)
@@ -195,6 +207,48 @@ watch(
             <span class="text-sm font-medium text-secondary-700">{{ profile.value }}</span>
           </div>
         </div>
+      </section>
+
+      <section
+        v-if="selectedTab === 'health'"
+        class="flex flex-col"
+      >
+        <div v-if="hasHealthData" class="flex justify-between">
+          <div class="flex flex-col gap-4 justify-between">
+            <div
+              v-for="item in healthProfile.slice(0, 2)"
+              :key="item.label"
+              class="flex flex-col gap-2"
+            >
+              <p class="text-xs text-secondary-400 font-normal">
+                {{ item.label }}
+              </p>
+              <p class="text-sm font-medium">
+                {{ item.value ?? "N/A" }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-4 justify-between">
+            <div
+              v-for="item in healthProfile.slice(2)"
+              :key="item.label"
+              class="flex flex-col gap-2"
+            >
+              <p class="text-xs text-secondary-400 font-normal">
+                {{ item.label }}
+              </p>
+              <p class="text-sm font-medium">
+                {{ item.value ?? "N/A" }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <base-empty
+          v-else
+          title="No health data"
+          description="No health information has been added for this member."
+        />
       </section>
 
       <section
