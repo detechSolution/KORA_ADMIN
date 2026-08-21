@@ -46,7 +46,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     bannerVideo: File;
     sessionDescription: string;
     sessionType: string;
-    instructorId: number;
+    instructorId?: number | null;
     venue: string;
     capacity: number;
     date: [];
@@ -60,7 +60,9 @@ export const useSessionsStore = defineStore("sessions", () => {
       formData.append("name", payload.sessionName);
       formData.append("type", payload.sessionType);
       formData.append("description", payload.sessionDescription);
-      formData.append("instructorId", String(payload.instructorId));
+      if (payload.instructorId !== undefined && payload.instructorId !== null) {
+        formData.append("instructorId", String(payload.instructorId));
+      }
       formData.append("venue", payload.venue);
       formData.append("dates", payload.date.join(","));
       formData.append("startTime", payload.startTime);

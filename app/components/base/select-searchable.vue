@@ -15,6 +15,7 @@ type Props = {
   loading?: boolean;
   disabled?: boolean;
   leadingIcon?: string;
+  clearable?: boolean;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -23,6 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: "",
   loading: false,
   disabled: false,
+  clearable: false,
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -56,6 +58,7 @@ const menuItems = computed(() => props.options.map(opt => ({
       :placeholder="props.placeholder"
       :loading="props.loading"
       :disabled="props.disabled"
+      :clear="props.clearable"
       class="w-full text-stone-700"
       size="lg"
       :ui="{

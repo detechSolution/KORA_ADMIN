@@ -58,7 +58,7 @@ async function handleAdminUpdated(): Promise<void> {
 const columns = [
   {
     id: "fullName",
-    header: "Client",
+    header: "Admins",
     accessorKey: "fullName",
   },
   {

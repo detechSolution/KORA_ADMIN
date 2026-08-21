@@ -312,38 +312,58 @@ onMounted(async () => {
         <template #client-cell="{ row }">
           <div class="flex items-center gap-2">
             <base-avatar
-              :src="row.original.clientName"
-              :alt="row.original.clientName || 'Unknown'"
+              :src="row.original.participants?.[0]?.name || ''"
+              :alt="row.original.participants?.[0]?.name || 'Unknown'"
               size="sm"
             />
             <div class="flex flex-col gap-1">
               <div class="flex flex-row gap-2 items-center">
                 <span class="text-sm font-medium text-secondary">
-                  {{ row.original.clientName || "-" }}
+                  {{ row.original.participants?.[0]?.name || "-" }}
                 </span>
 
                 <UTooltip
-                  v-if="row.original.visitorCount"
+                  v-if="row.original.participants?.length > 1"
                   arrow
-                  :text="`${row.original.visitorCount} Visitors`"
+                  :text="`${row.original.participants?.length - 1} Guests`"
                 >
                   <span
-                    class="text-xs bg-red-50 border border-red-300 px-1 rounded-full text-red-500"
+                    class="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-red-300 bg-red-50 px-1.5 text-xs font-medium leading-none text-red-500"
                   >
-                    +  {{ row.original.visitorCount }}
+                    +{{ row.original.participants?.length - 1 }}
                   </span>
                 </UTooltip>
               </div>
               <span class="text-xs text-secondary-400">
-                {{ row.original.clientEmail || "N/A" }}
+                {{ row.original.participants?.[0]?.email || "N/A" }}
               </span>
             </div>
           </div>
         </template>
 
+        <template #itemName-cell="{ row }">
+          <div class="flex flex-row gap-2 items-center">
+            <span class="text-sm font-medium text-secondary">
+              {{ row.original.itemNames?.[0] || "N/A" }}
+            </span>
+
+            <UTooltip
+              v-if="row.original.itemNames?.length > 1"
+              arrow
+              :text="`${row.original.itemNames?.length - 1} more`"
+            >
+              <span
+                class="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-red-300 bg-red-50 px-1.5 text-xs font-medium leading-none text-red-500"
+              >
+                +{{ row.original.itemNames?.length - 1 }}
+              </span>
+            </UTooltip>
+          </div>
+        </template>
+
         <template #itemType-cell="{ row }">
           <base-badge :status="row.original.itemType">
-            {{ row.original.itemType }}
+            {{ row.original.itemType || "N/A" }}
           </base-badge>
         </template>
 

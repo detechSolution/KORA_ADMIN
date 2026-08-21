@@ -93,7 +93,10 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  instructorId: z.coerce.number({ message: "Please select an instructor" }).min(1, "Please select an instructor").int("Please select a valid instructor"),
+  instructorId: z.union([
+    z.coerce.number({ message: "Please select a valid instructor" }).int("Please select a valid instructor"),
+    z.null(),
+  ]).optional(),
   venue: z.string().trim().min(1, "Please enter a venue"),
   capacity: z.coerce.number({ message: "Please enter a capacity" }).int({ message: "Capacity must be a number" }).positive("Capacity must be at least 1"),
   date: z.array(z.string().min(1, "Please select a valid date")).min(1, "Please add at least one date"),
@@ -431,6 +434,7 @@ onMounted(async () => {
                       placeholder="Select instructor"
                       :options="instructorOptions"
                       :loading="instructorsStore.loading"
+                      clearable
                     />
                     <base-input
                       v-model="form.venue"

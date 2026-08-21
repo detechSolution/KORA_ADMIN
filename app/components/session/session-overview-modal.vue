@@ -50,7 +50,7 @@ function openPreview(type: "image" | "video", url: string) {
           </h2>
           <div class="flex items-center gap-1.5 text-sm text-secondary-500">
             <UIcon :name="ICONS.USER" class="w-4 h-4" />
-            <span>{{ session.instructor }}</span>
+            <span>{{ session.instructor || "N/A" }}</span>
           </div>
         </div>
         <base-badge
