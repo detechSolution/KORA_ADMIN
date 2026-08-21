@@ -6,6 +6,7 @@ import type { Member } from "~/types/membership";
 
 import { useNotification } from "~/composables/use-notification";
 import { useMembershipStore } from "~/stores/membership";
+import { preventInvalidNumberInput } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 type Props = {
@@ -28,7 +29,7 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const schema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
+  phoneNumber: z.coerce.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   email: z.string().email(),
 });
 
@@ -106,6 +107,8 @@ watch(
             label="Phone Number"
             name="phoneNumber"
             placeholder="Enter phone number"
+            type="tel"
+            @keydown="preventInvalidNumberInput"
           />
           <base-input
             v-model="state.email"

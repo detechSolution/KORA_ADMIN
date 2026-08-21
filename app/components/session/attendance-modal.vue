@@ -4,7 +4,7 @@ import { computed, ref, watch } from "vue";
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useSessionsStore } from "~/stores/sessions";
-import { getNepalTimestamp } from "~/utils/common";
+import { formatTime, getNepalTimestamp } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 const props = defineProps<{
@@ -30,6 +30,7 @@ const sessionAttendanceSummary = computed(() =>
 
 const loading = ref(false);
 const isSaving = ref(false);
+const attendanceStarted = ref(false);
 
 const isReadOnly = computed(() => {
   const session = props.session;
@@ -56,7 +57,7 @@ async function fetchAttendance() {
 }
 
 function toggleStatus(id: number, status: "attended" | "no_show") {
-  if (isReadOnly.value)
+  if (isReadOnly.value || !attendanceStarted.value)
     return;
 
   const item = sessionAttendance.value.find(a => a.id === id);
@@ -66,7 +67,7 @@ function toggleStatus(id: number, status: "attended" | "no_show") {
 }
 
 async function handleSaveAttendance() {
-  if (isReadOnly.value)
+  if (isReadOnly.value || !attendanceStarted.value)
     return;
 
   try {
@@ -92,8 +93,14 @@ function getInitials(name: string) {
   return name.split(" ").map(n => n[0]).join("").toUpperCase();
 }
 
+function startAttendance(): void {
+  if (!isReadOnly.value)
+    attendanceStarted.value = true;
+}
+
 watch(() => props.open, (newVal) => {
   if (newVal) {
+    attendanceStarted.value = false;
     fetchAttendance();
   }
 });
@@ -117,7 +124,7 @@ watch(() => props.open, (newVal) => {
           <div class="flex items-center gap-2 mt-1 text-sm text-secondary-400">
             <span>{{ session.sessionDate }}</span>
             <span class="w-1 h-1 bg-secondary-200 rounded-full" />
-            <span>{{ session.startTime }} - {{ session.endTime }}</span>
+            <span>{{ formatTime(session.startTime) }} - {{ formatTime(session.endTime) }}</span>
             <span class="w-1 h-1 bg-secondary-200 rounded-full" />
             <div class="flex items-center gap-1">
               <UIcon :name="ICONS.USER" class="w-4 h-4" />
@@ -127,7 +134,7 @@ watch(() => props.open, (newVal) => {
         </div>
 
         <!-- Stats Summary -->
-        <div class="px-6 py-4 bg-[#F9F6F2]">
+        <div v-if="attendanceStarted || isReadOnly" class="px-6 py-4 bg-[#F9F6F2]">
           <div class="flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <UIcon :name="ICONS.USERS" class="w-5 h-5" />
@@ -148,13 +155,26 @@ watch(() => props.open, (newVal) => {
             </div>
           </div>
         </div>
+        <div
+          v-else
+          class="px-6 py-3 bg-[#F9F6F2]"
+        >
+          <base-button
+            variant="solid"
+            size="md"
+            class="bg-stone-900 hover:bg-stone-800"
+            @click="startAttendance"
+          >
+            Start Attendance
+          </base-button>
+        </div>
       </div>
 
       <!-- Attendance List -->
       <div class="flex-1 px-6">
         <div
           v-if="isReadOnly"
-          class="mt-4 rounded-lg bg-stone-100 px-4 py-3 text-sm text-stone-600"
+          class="mt-4 rounded-lg bg-[#F9F6F2] px-4 py-3 text-sm text-stone-600"
         >
           This session has ended. Attendance is view-only.
         </div>
@@ -207,6 +227,7 @@ watch(() => props.open, (newVal) => {
 
               <div class="flex items-center gap-3">
                 <button
+                  v-if="attendanceStarted && !isReadOnly"
                   type="button"
                   :disabled="isReadOnly"
                   class="w-8 h-8 rounded-lg border flex items-center justify-center transition-all"
@@ -218,6 +239,7 @@ watch(() => props.open, (newVal) => {
                   <UIcon :name="ICONS.CHECK" class="w-5 h-5" />
                 </button>
                 <button
+                  v-if="attendanceStarted && !isReadOnly"
                   type="button"
                   :disabled="isReadOnly"
                   class="w-8 h-8 rounded-lg border flex items-center justify-center transition-all"
@@ -236,7 +258,7 @@ watch(() => props.open, (newVal) => {
       </div>
 
       <!-- Footer -->
-      <div v-if="!isReadOnly" class="p-6 border-t border-stone-200 bg-white flex justify-end shrink-0">
+      <div v-if="attendanceStarted && !isReadOnly" class="p-6 border-t border-stone-200 bg-white flex justify-end shrink-0">
         <base-button
           variant="solid"
           size="md"
