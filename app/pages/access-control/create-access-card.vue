@@ -218,7 +218,7 @@ onMounted(() => membershipStore.getMembersOptions());
           <form-header-card
             label="Create Access Card"
             description="Issue an access card, assign it to a user, set door permissions, and configure card validity dates."
-            :icon="ICONS.ID_CARD"
+            :icon="ICONS.CARD"
           />
 
           <div
@@ -228,8 +228,8 @@ onMounted(() => membershipStore.getMembersOptions());
               v-if="isExistingUser"
               v-model="state.selectedUser"
               name="selectedUser"
-              label="Select an existing member"
-              placeholder="Select a member"
+              label="Select an existing user"
+              placeholder="Select a user"
               :options="userOptions"
             />
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">

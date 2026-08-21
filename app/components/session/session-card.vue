@@ -58,7 +58,7 @@ function handleEditClick() {
           {{ title }}
         </h2>
         <p class="text-[10px] text-secondary-500">
-          <UIcon :name="ICONS.USER" /> {{ trainer }}
+          <UIcon :name="ICONS.USER" /> {{ trainer || "N/A" }}
         </p>
       </div>
 

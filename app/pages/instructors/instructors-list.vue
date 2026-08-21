@@ -66,7 +66,7 @@ const statusOptions = [
 
 const columns = ref([
   {
-    header: "Client",
+    header: "Instructors",
     accessorKey: "client",
   },
   {
