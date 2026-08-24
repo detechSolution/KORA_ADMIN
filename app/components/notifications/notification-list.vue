@@ -137,20 +137,17 @@ async function handleMarkAsRead(id: number) {
 }
 
 async function handleNotificationClick(item: Notification) {
-  if (!isNotificationRead(item)) {
-    handleMarkAsRead(item.id);
-  }
+  if (!isNotificationRead(item))
+    await handleMarkAsRead(item.id);
 
-  const query: Record<string, string> = {};
-  if (item.payload.bookingCode)
-    query.search = item.payload.bookingCode;
+  const query = item.type === "membership_activated"
+    ? { startDate: item.payload.startsOn, name: item.payload.memberName }
+    : item.payload.bookingCode
+      ? { search: item.payload.bookingCode }
+      : undefined;
+
   emit("close");
   await navigateTo({ path: item.targetUrl, query });
-
-  if (item.targetUrl) {
-    emit("close");
-    await navigateTo(item.targetUrl);
-  }
 }
 
 async function handleMarkAllAsRead() {
