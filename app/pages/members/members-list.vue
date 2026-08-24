@@ -89,6 +89,14 @@ const state = ref({
 const members = computed(() => membersStore.members);
 // const membersSummary = computed(() => membersStore.membersSummary);
 
+function getQueryValue(value: string | string[] | null | undefined): string {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+function getDateOnly(value: string): string {
+  return value.includes("T") ? value.split("T")[0] ?? "" : value;
+}
+
 async function fetchMembers(): Promise<void> {
   try {
     const params = {
@@ -155,8 +163,29 @@ const hasActiveFilters = computed(() => {
   );
 });
 
-onMounted(() => {
-  fetchMembers();
+const route = useRoute();
+const router = useRouter();
+
+onMounted(async () => {
+  const startDate = getQueryValue(route.query.startDate);
+  const memberName = getQueryValue(route.query.name);
+
+  if (startDate)
+    state.value.dateRange.start = getDateOnly(startDate);
+  if (memberName)
+    state.value.search = memberName;
+
+  await fetchMembers();
+
+  if (startDate || memberName) {
+    await router.replace({
+      query: {
+        ...route.query,
+        startDate: undefined,
+        name: undefined,
+      },
+    });
+  }
 });
 </script>
 
