@@ -96,7 +96,11 @@ function handleEditClick() {
         {{ price }}
       </div>
       <div class="flex items-center gap-3 text-secondary-400">
-        <UTooltip v-if="can(PERMISSIONS_SESSIONS.UPDATE)" :text="isEnded ? 'View Attendance (Session has ended)' : 'Attendance'">
+        <UTooltip
+          v-if="can(PERMISSIONS_SESSIONS.UPDATE)"
+          :delay-duration="0"
+          :text="isEnded ? 'View Attendance (Session has ended)' : 'Attendance'"
+        >
           <UIcon
             :name="ICONS.CLIPBOARD_CHECK"
             class="w-4 h-4 cursor-pointer hover:text-primary text-primary transition-colors"
@@ -105,6 +109,7 @@ function handleEditClick() {
         </UTooltip>
         <UTooltip
           v-if="can(PERMISSIONS_SESSIONS.UPDATE) && !isEnded"
+          :delay-duration="0"
           text="Add Member & Pass Users"
         >
           <UIcon
@@ -115,6 +120,7 @@ function handleEditClick() {
         </UTooltip>
         <UTooltip
           v-if="can(PERMISSIONS_SESSIONS.UPDATE) && !isEnded && occupied === 0"
+          :delay-duration="0"
           text="Edit Session"
         >
           <UIcon
@@ -126,6 +132,7 @@ function handleEditClick() {
         <UTooltip text="Open Overview">
           <UIcon
             :name="ICONS.EYE"
+            :delay-duration="0"
             class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
             @click="emit('openOverviewModal', id)"
           />
@@ -133,6 +140,7 @@ function handleEditClick() {
         <UTooltip v-if="can(PERMISSIONS_SESSIONS.CREATE)" text="Copy Session">
           <UIcon
             :name="ICONS.COPY"
+            :delay-duration="0"
             class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
             @click="emit('copySession', id)"
           />

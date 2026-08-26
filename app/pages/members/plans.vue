@@ -194,6 +194,7 @@ onMounted(() => {
 
             <UTooltip
               v-if="row.original.options.length > 2"
+              :delay-duration="0"
               arrow
               :ui="{
                 content: 'bg-white py-4 ',

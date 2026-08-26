@@ -20,7 +20,7 @@ export type Notification = {
     bookingId: number;
     itemName: string;
     memberName: string;
-    startsOn: string;
+    startsOn?: string;
   };
 };
 
