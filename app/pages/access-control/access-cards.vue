@@ -189,6 +189,7 @@ onMounted(fetchCards);
               v-if="(row.original.doorNumbers?.length ?? row.original.doorAccess?.length ?? 0) > 1"
             >
               <UTooltip
+                :delay-duration="0"
                 arrow
                 :text="getAdditionalDoorLabels(row.original.doorNumbers?.length ? row.original.doorNumbers : row.original.doorAccess)"
               >

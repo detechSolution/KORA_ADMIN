@@ -97,6 +97,10 @@ function getDateOnly(value: string): string {
   return value.includes("T") ? value.split("T")[0] ?? "" : value;
 }
 
+function hasSubscriptionStarted(startDate?: string | null): boolean {
+  return Boolean(startDate && new Date(`${startDate}T00:00:00`) <= new Date());
+}
+
 async function fetchMembers(): Promise<void> {
   try {
     const params = {
@@ -311,7 +315,7 @@ onMounted(async () => {
 
         <template #status-cell="{ row }">
           <div
-            v-if="row.original?.user?.role !== 'guest' && row.original?.membershipPlanId !== null"
+            v-if="row.original?.user?.role !== 'guest' && row.original?.membershipPlanId !== null && hasSubscriptionStarted(row.original?.subscriptionStartDate)"
             class="flex items-center gap-2"
           >
             <base-badge :status="row.original?.isActive ? 'active' : row.original?.isFrozen ? 'frozen' : 'expired'">

@@ -86,7 +86,7 @@ watch(() => props.open, async (newValue) => {
         <div class="flex flex-col gap-1">
           <span class="text-xs text-secondary-400 mb-1">Booked By</span>
           <div class="font-medium text-secondary-900 flex flex-col gap-1">
-            <span class="capitalize">{{ booking?.clientName }}</span>
+            <span class="capitalize">{{ bookingDetails?.booker.fullName }}</span>
             <span>{{ booking?.clientPhoneNumber }}</span>
           </div>
         </div>

@@ -277,6 +277,7 @@ const kpiData = computed(() => [
 
                   <UTooltip
                     v-if="row.original.participants?.length > 1"
+                    :delay-duration="0"
                     arrow
                     :text="`${row.original.participants?.length - 1} Guests`"
                   >
@@ -307,6 +308,7 @@ const kpiData = computed(() => [
 
             <UTooltip
               v-if="row.original.itemNames?.length > 1"
+              :delay-duration="0"
               arrow
               :text="`${row.original.itemNames?.length - 1} more`"
             >
