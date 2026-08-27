@@ -27,7 +27,7 @@ const emit = defineEmits<{
   >
     <div class="flex flex-col gap-5 p-6">
       <p class="text-sm text-secondary-500">
-        Are you sure you want to cancel this booking? your reservation will be permanently canceled.
+        Are you sure you want to cancel this booking, your reservation will be permanently canceled?
       </p>
 
       <div class="flex justify-end gap-2">
