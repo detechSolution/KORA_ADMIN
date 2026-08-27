@@ -27,6 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
   menuUi: () => ({
     content: "min-w-[180px]",
     itemLeadingIcon: "hidden",
+    itemLabel: "!text-inherit",
   }),
   buttonClass: "ml-auto",
 });

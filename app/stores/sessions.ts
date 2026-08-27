@@ -103,6 +103,9 @@ export const useSessionsStore = defineStore("sessions", () => {
       formData.append("capacity", String(payload.capacity));
       formData.append("isFree", String(payload.isFreeSession));
       formData.append("price", String(payload.price));
+      if (payload.instructorId === null) {
+        formData.delete("instructorId");
+      }
       if (payload.bannerImage instanceof File) {
         formData.append("file", payload.bannerImage);
       }
@@ -146,14 +149,14 @@ export const useSessionsStore = defineStore("sessions", () => {
 
   const getMembers = async (
     id: number,
-    search?: string,
+    params?: { q?: string },
   ): Promise<void> => {
     try {
-      const query = buildQueryString({
-        q: search?.trim(),
-      });
+      const query = buildQueryString(params ?? {});
 
-      const endpoint = `${API_ENDPOINTS.SESSION.GET_ATTENDANCE_CANDIDATES(id)}${query}`;
+      const endpoint = query
+        ? `${API_ENDPOINTS.SESSION.GET_ATTENDANCE_CANDIDATES(id)}?${query}`
+        : API_ENDPOINTS.SESSION.GET_ATTENDANCE_CANDIDATES(id);
       const response = await http.get(endpoint) as MembersResponse;
       memberOrPassUser.value = response;
     }

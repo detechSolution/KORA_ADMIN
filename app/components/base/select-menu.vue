@@ -43,6 +43,7 @@ type Props = {
   multiple?: boolean;
   clearable?: boolean;
   searchInput?: boolean | Record<string, any>;
+  searchTerm?: string;
   searchPlaceholder?: string;
   emptyMessage?: string;
   showCheckbox?: boolean;
@@ -68,7 +69,10 @@ const props = withDefaults(defineProps<Props>(), {
   hiddenSelectedValues: () => [],
 });
 
-const emit = defineEmits<{ "update:modelValue": [value: any] }>();
+const emit = defineEmits<{
+  "update:modelValue": [value: any];
+  "update:searchTerm": [value: string];
+}>();
 
 const inputValue = computed({
   get: () => props.modelValue,
@@ -120,6 +124,8 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
       :multiple="props.multiple"
       :clear="props.clearable"
       :search-input="resolvedSearchInput"
+      :search-term="props.searchTerm"
+      @update:search-term="emit('update:searchTerm', $event)"
       size="lg"
       variant="outline"
       class="w-full"
