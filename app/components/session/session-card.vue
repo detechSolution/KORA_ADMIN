@@ -125,7 +125,7 @@ function handleEditClick() {
         >
           <UIcon
             :name="ICONS.EDIT"
-            class="w-4 h-4 transition-colors"
+            class="w-4 h-4 transition-colors cursor-pointer"
             @click="handleEditClick"
           />
         </UTooltip>

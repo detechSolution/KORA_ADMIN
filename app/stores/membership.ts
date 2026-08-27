@@ -140,9 +140,14 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
-  const getMembersOptions = async () => {
+  const getMembersOptions = async (params?: { q?: string }) => {
     try {
-      const res = await http.get(API_ENDPOINTS.MEMBERS.OPTIONS) as any;
+      const qs = buildQueryString(params ?? {});
+      const endpoint = qs
+        ? `${API_ENDPOINTS.MEMBERS.OPTIONS}?${qs}`
+        : API_ENDPOINTS.MEMBERS.OPTIONS;
+
+      const res = await http.get(endpoint) as any;
       membershipOptions.value = res.data ?? [];
     }
     catch (error: unknown) {
