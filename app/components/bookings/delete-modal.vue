@@ -19,7 +19,7 @@ const emit = defineEmits<{
 <template>
   <base-modal
     :open="open"
-    title="Request Booking Cancellation ?"
+    title="Cancel Booking?"
     description=""
     :modal-width="420"
     dismissible
@@ -27,7 +27,7 @@ const emit = defineEmits<{
   >
     <div class="flex flex-col gap-5 p-6">
       <p class="text-sm text-secondary-500">
-        Are you sure you want to request booking cancellation?
+        Are you sure you want to cancel this booking? your reservation will be permanently canceled.
       </p>
 
       <div class="flex justify-end gap-2">
@@ -35,7 +35,7 @@ const emit = defineEmits<{
           variant="outline"
           @click="emit('close')"
         >
-          Cancel
+          Keep Booking
         </base-button>
 
         <UButton
@@ -46,7 +46,7 @@ const emit = defineEmits<{
           class="cursor-pointer font-semibold"
           @click="emit('confirm')"
         >
-          Yes, Request
+          Cancel Booking
         </UButton>
       </div>
     </div>

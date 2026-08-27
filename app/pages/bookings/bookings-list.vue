@@ -379,15 +379,15 @@ onMounted(async () => {
           <base-dropdown-menu
             :items="[
               {
-                label: 'Request Cancellation',
-                icon: ICONS.EYE,
-                disabled: row.original.status !== 'confirmed',
-                onSelect: () => openCancelModal(row.original),
+                label: 'View Details',
+                onSelect: () => openViewModal(row.original),
               },
               {
-                label: 'View Details',
-                icon: ICONS.EYE,
-                onSelect: () => openViewModal(row.original),
+                label: 'Cancel Booking',
+                color: 'error',
+                class: 'cursor-pointer',
+                disabled: row.original.status !== 'confirmed',
+                onSelect: () => openCancelModal(row.original),
               },
             ]"
           />
