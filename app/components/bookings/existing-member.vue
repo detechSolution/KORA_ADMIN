@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDebounceFn } from "@vueuse/core";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import z from "zod";
 
@@ -29,6 +30,7 @@ const membershipStore = useMembershipStore();
 const router = useRouter();
 
 const membersOptions = ref<{ label: string; value: number; description: string }[]>([]);
+const memberSearchTerm = ref("");
 const currentStep = ref(0);
 const loading = ref(false);
 const formRef = ref<any>(null);
@@ -170,6 +172,18 @@ watch(() => state.guestOnly, (guestOnly) => {
     addVisitor();
 });
 
+const loadMembersOptions = useDebounceFn(async (q = ""): Promise<void> => {
+  await membershipStore.getMembersOptions({ q: q.trim() });
+
+  membersOptions.value = membershipStore.membershipOptions.map((m: any) => ({
+    label: m.label,
+    value: m.memberId,
+    description: m.email,
+  }));
+}, 300);
+
+watch(memberSearchTerm, loadMembersOptions);
+
 async function handleCreateBooking(): Promise<void> {
   try {
     await formRef.value?.validate();
@@ -224,12 +238,7 @@ async function handleCreateBooking(): Promise<void> {
 }
 
 onMounted(async () => {
-  await membershipStore.getMembersOptions();
-  membersOptions.value = membershipStore.membershipOptions.map((m: any) => ({
-    label: m.label,
-    value: m.memberId,
-    description: m.email,
-  }));
+  await loadMembersOptions();
 });
 </script>
 
@@ -262,6 +271,7 @@ onMounted(async () => {
             </h3>
             <base-select-menu
               v-model="state.selectedMemberId"
+              v-model:search-term="memberSearchTerm"
               name="selectedMemberId"
               label="Select an existing member / guest*"
               placeholder="Select a member"

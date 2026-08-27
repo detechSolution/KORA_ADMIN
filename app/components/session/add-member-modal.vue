@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useDebounceFn } from "@vueuse/core";
 import { computed, ref, watch } from "vue";
 
 import { useNotification } from "~/composables/use-notification";
@@ -18,11 +19,17 @@ const memberOrPassUser = computed(() => sessionsStore.memberOrPassUser);
 
 const loading = ref(false);
 const memberOptions = ref<{ label: string; value: number; description: string }[]>([]);
+const memberSearchTerm = ref("");
 const selectedMemberId = ref<number | null>(null);
 
-async function fetchMembers() {
+const fetchMembers = useDebounceFn(async (search = "") => {
+  if (!props.session?.id)
+    return;
+
   try {
-    await sessionsStore.getMembers(props.session.id);
+    loading.value = true;
+    await sessionsStore.getMembers(props.session.id, { q: search.trim() });
+
     memberOptions.value = memberOrPassUser.value.data.map((item: any) => ({
       label: item.name,
       value: item.userId,
@@ -34,7 +41,10 @@ async function fetchMembers() {
       message: getApiErrorMessage(error, "Failed to load members"),
     });
   }
-}
+  finally {
+    loading.value = false;
+  }
+}, 300);
 
 async function handleAddMember() {
   if (!selectedMemberId.value || !props.session?.id)
@@ -61,8 +71,11 @@ async function handleAddMember() {
   }
 }
 
+watch(memberSearchTerm, fetchMembers);
+
 watch(() => props.open, (newVal) => {
   if (newVal) {
+    memberSearchTerm.value = "";
     fetchMembers();
   }
 });
@@ -84,6 +97,7 @@ watch(() => props.open, (newVal) => {
         placeholder="Search and select member or pass user"
         :options="memberOptions"
         :loading="loading"
+        v-model:search-term="memberSearchTerm"
         search-input
         search-placeholder="Search members..."
       />
