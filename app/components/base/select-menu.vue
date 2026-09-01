@@ -125,7 +125,6 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
       :clear="props.clearable"
       :search-input="resolvedSearchInput"
       :search-term="props.searchTerm"
-      @update:search-term="emit('update:searchTerm', $event)"
       size="lg"
       variant="outline"
       class="w-full"
@@ -142,6 +141,7 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
         trailingIcon: 'h-5 w-5 text-foreground',
         leadingIcon: 'h-5 w-5 text-foreground',
       }"
+      @update:search-term="emit('update:searchTerm', $event)"
     >
       <template v-if="props.leadingIcon" #leading>
         <UIcon :name="props.leadingIcon" />

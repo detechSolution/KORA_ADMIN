@@ -238,13 +238,13 @@ watch(
           v-if="currentStep === 0"
           class="space-y-6 p-6"
         >
-          <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-3">
             <h2 class="text-stone-900 font-medium text-base">
               Select a membership plan
             </h2>
 
             <UFormField name="membershipPlanOptionId">
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col px-2 gap-2 max-h-[55vh] overflow-y-auto">
                 <members-membership-card
                   v-for="plan in membershipStore.plans.data.filter(p => p.isPurchasable)"
                   :key="plan.id"
