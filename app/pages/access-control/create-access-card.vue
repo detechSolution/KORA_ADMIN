@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, toRef, watch } from "vue";
 import { useRouter } from "vue-router";
 import z from "zod";
 
+import type { MemberOption } from "~/composables/use-member-options";
+
+import { useMemberOptions } from "~/composables/use-member-options";
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useAccessControlStore } from "~/stores/access-control";
-import { useMembershipStore } from "~/stores/membership";
 import { preventInvalidNumberInput } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -17,7 +19,6 @@ definePageMeta({
 
 const { success, error: showError } = useNotification();
 const accessControlStore = useAccessControlStore();
-const membershipStore = useMembershipStore();
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 const router = useRouter();
 
@@ -77,21 +78,6 @@ const schema = z
     }
   });
 
-const userOptions = computed(() =>
-  membershipStore.membershipOptions.map(
-    (member: {
-      label: string;
-      memberId: number;
-      userId: number;
-      email?: string;
-      phoneNumber?: string;
-    }) => ({
-      label: member.label,
-      value: member.userId,
-      description: member.email,
-    }),
-  ),
-);
 const doorOptions = [
   { label: "Main Gate", value: 1 },
   { label: "Recovery Space", value: 2 },
@@ -102,17 +88,44 @@ const userTypeOptions = [
   { label: "Non-existing User", value: "non_existing_user" },
 ];
 const isExistingUser = computed(() => state.userType === "existing_user");
-const selectedMember = computed(
-  () =>
-    membershipStore.membershipOptions.find(
-      (member: { userId: number }) => member.userId === state.selectedUser,
-    ) as { fullName?: string; phoneNumber?: string } | undefined,
-);
+
+const {
+  options: userOptions,
+  searchTerm: memberSearchTerm,
+  selectedOption: selectedMember,
+  loading: memberOptionsLoading,
+  load: loadMembers,
+} = useMemberOptions(toRef(state, "selectedUser"));
+
+function applyMemberDates(member: MemberOption | null): void {
+  if (member?.startDate && member.endDate) {
+    state.validFrom = member.startDate;
+    state.validUntil = member.endDate;
+    state.removeExpiration = false;
+  }
+  else if (isExistingUser.value) {
+    state.validFrom = null;
+    state.validUntil = null;
+  }
+}
 
 watch(
   () => state.removeExpiration,
   (enabled) => {
     if (enabled) {
+      state.validFrom = null;
+      state.validUntil = null;
+    }
+  },
+);
+
+watch(selectedMember, applyMemberDates);
+
+watch(
+  () => state.userType,
+  (userType) => {
+    if (userType === "non_existing_user") {
+      state.selectedUser = null;
       state.validFrom = null;
       state.validUntil = null;
     }
@@ -160,7 +173,7 @@ async function createAccessCard(): Promise<void> {
   }
 }
 
-onMounted(() => membershipStore.getMembersOptions());
+onMounted(loadMembers);
 </script>
 
 <template>
@@ -227,9 +240,12 @@ onMounted(() => membershipStore.getMembersOptions());
             <base-select-searchable
               v-if="isExistingUser"
               v-model="state.selectedUser"
+              v-model:search-term="memberSearchTerm"
               name="selectedUser"
               label="Select an existing user"
               placeholder="Select a user"
+              search-placeholder="Search members..."
+              :loading="memberOptionsLoading"
               :options="userOptions"
             />
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -310,6 +326,8 @@ onMounted(() => membershipStore.getMembersOptions());
                 name="validFrom"
                 label="Valid From"
                 placeholder="Select From date"
+                :min-date="selectedMember?.startDate"
+                :max-date="selectedMember?.endDate"
                 :no-of-months="1"
               />
               <base-date-picker
@@ -317,6 +335,8 @@ onMounted(() => membershipStore.getMembersOptions());
                 name="validUntil"
                 label="Valid Until"
                 placeholder="Select To date"
+                :min-date="selectedMember?.startDate"
+                :max-date="selectedMember?.endDate"
                 :no-of-months="1"
               />
             </div>

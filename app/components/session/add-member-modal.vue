@@ -92,12 +92,12 @@ watch(() => props.open, (newVal) => {
     <div v-if="session" class="flex flex-col gap-6 p-6">
       <base-select-menu
         v-model="selectedMemberId"
+        v-model:search-term="memberSearchTerm"
         name="member"
         label="Select Member or Pass User*"
         placeholder="Search and select member or pass user"
         :options="memberOptions"
         :loading="loading"
-        v-model:search-term="memberSearchTerm"
         search-input
         search-placeholder="Search members..."
       />
