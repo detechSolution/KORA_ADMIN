@@ -187,7 +187,12 @@ watch(() => form.value.serviceType, async (newType, oldType) => {
   }
 }, { immediate: true });
 
-watch(() => form.value.serviceId, (id) => {
+watch(() => form.value.serviceId, (id, oldId) => {
+  if (oldId !== undefined && id !== oldId) {
+    form.value.durationId = null;
+    form.value.time = "";
+  }
+
   const group = selectedGroup.value;
   const item = findItem(id);
   if (group && item) {
