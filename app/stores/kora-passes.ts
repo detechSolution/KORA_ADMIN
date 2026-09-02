@@ -43,7 +43,12 @@ export const useKoraPassesStore = defineStore("kora-passes", () => {
         name: form.name,
         description: form.description,
         price: form.price,
-        discount: form.discount,
+        spaBenefit: form.spaBenefit,
+        classBenefit: form.classBenefit,
+        eventBenefit: form.eventBenefit,
+        workshopBenefit: form.workshopBenefit,
+        cafeBenefit: form.cafeBenefit,
+        salonBenefit: form.salonBenefit,
         numberOfDays: form.validity,
         isActive: form.status,
       };

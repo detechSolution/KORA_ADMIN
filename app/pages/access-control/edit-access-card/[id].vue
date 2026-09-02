@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, toRef } from "vue";
 import z from "zod";
 
+import { useMemberOptions } from "~/composables/use-member-options";
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useAccessControlStore } from "~/stores/access-control";
-import { useMembershipStore } from "~/stores/membership";
 import { preventInvalidNumberInput } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -14,7 +14,6 @@ definePageMeta({ auth: true, layout: "dashboard" });
 const route = useRoute();
 const router = useRouter();
 const store = useAccessControlStore();
-const membershipStore = useMembershipStore();
 const { success, error: showError } = useNotification();
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
@@ -57,11 +56,13 @@ const doorOptions = [
   { label: "Recovery Space", value: 2 },
   { label: "Restaurant", value: 3 },
 ];
-const userOptions = computed(() => membershipStore.membershipOptions.map((member: { fullName: string; memberId: number; userId: number; email?: string }) => ({
-  label: member.fullName,
-  value: member.userId,
-  description: member.email,
-})));
+const {
+  options: userOptions,
+  searchTerm: memberSearchTerm,
+  loading: memberOptionsLoading,
+  load: loadMembers,
+  setSelectedOption,
+} = useMemberOptions(toRef(state, "userId"));
 
 function dateValue(value: string | null): string | null {
   return value ? value.slice(0, 10) : null;
@@ -71,6 +72,11 @@ async function loadCard(): Promise<void> {
   const card = await store.fetchAccessCard(Number(route.params.id));
   state.userType = card.userType;
   state.userId = card.userId;
+  setSelectedOption({
+    label: card.fullName || String(card.userId),
+    value: card.userId || 0,
+    description: card.email,
+  });
   state.fullName = card.fullName;
   state.phoneNumber = card.phoneNumber;
   state.cardNumber = Number.parseInt(card.cardNumber, 16).toString().padStart(10, "0");
@@ -110,7 +116,7 @@ async function updateAccessCard(): Promise<void> {
 
 onMounted(async () => {
   try {
-    await Promise.all([membershipStore.getMembersOptions(), loadCard()]);
+    await Promise.all([loadMembers(), loadCard()]);
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Unable to load access card") });
@@ -156,9 +162,12 @@ onMounted(async () => {
           <base-select-searchable
             v-if="state.userType === 'existing_user'"
             v-model="state.userId"
+            v-model:search-term="memberSearchTerm"
             name="userId"
             label="Select an existing member / guest"
             placeholder="Select a member"
+            search-placeholder="Search members..."
+            :loading="memberOptionsLoading"
             :options="userOptions"
           />
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">

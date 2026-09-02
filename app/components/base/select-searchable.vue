@@ -16,6 +16,8 @@ type Props = {
   disabled?: boolean;
   leadingIcon?: string;
   clearable?: boolean;
+  searchTerm?: string;
+  searchPlaceholder?: string;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,9 +27,14 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   disabled: false,
   clearable: false,
+  searchTerm: "",
+  searchPlaceholder: "Search...",
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits<{
+  "update:modelValue": [value: any];
+  "update:searchTerm": [value: string];
+}>();
 
 const inputValue = computed({
   get: () => props.modelValue,
@@ -40,6 +47,10 @@ const menuItems = computed(() => props.options.map(opt => ({
   value: opt.value,
   description: opt.description,
 })));
+
+const searchInput = computed(() => ({
+  placeholder: props.searchPlaceholder,
+}));
 </script>
 
 <template>
@@ -59,6 +70,8 @@ const menuItems = computed(() => props.options.map(opt => ({
       :loading="props.loading"
       :disabled="props.disabled"
       :clear="props.clearable"
+      :search-input="searchInput"
+      :search-term="props.searchTerm"
       class="w-full text-stone-700"
       size="lg"
       :ui="{
@@ -71,6 +84,7 @@ const menuItems = computed(() => props.options.map(opt => ({
         trailingIcon: 'h-5 w-5 text-foreground',
         leadingIcon: 'h-5 w-5 text-stone-400',
       }"
+      @update:search-term="emit('update:searchTerm', $event)"
     >
       <template v-if="props.leadingIcon" #leading>
         <UIcon :name="props.leadingIcon" />

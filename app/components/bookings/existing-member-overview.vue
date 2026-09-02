@@ -117,11 +117,10 @@ function getMemberBenefitPercent(serviceType: string): number {
 function getGuestBenefitPercent(serviceType: string): number {
   return getBenefitPercent(selectedMember.value?.guestBenefits, serviceType);
 }
-const memberName = computed(() => selectedMember.value?.fullName ?? "Member");
+const memberName = computed(() => selectedMember.value?.fullName ?? selectedMember.value?.label ?? "Member");
 
 type OverviewRow = {
   client: string;
-  tag: "Member" | "Visitor";
   service: string;
   serviceType: string;
   durationLabel: string;
@@ -129,6 +128,7 @@ type OverviewRow = {
   time: string;
   price: number;
   benefitPercent: number;
+
   benefitAmount: number;
 };
 
@@ -144,11 +144,10 @@ function rowData(row: { original: Record<string, unknown> }): OverviewRow {
   return row.original as OverviewRow;
 }
 
-function buildRow(svc: any, client: string, tag: "Member" | "Visitor", benefitPercent: number): OverviewRow {
+function buildRow(svc: any, client: string, benefitPercent: number): OverviewRow {
   const price = getServicePrice(svc);
   return {
     client,
-    tag,
     service: getServiceName(svc),
     serviceType: getServiceType(svc),
     durationLabel: getDurationLabel(svc),
@@ -166,7 +165,7 @@ const rows = computed<OverviewRow[]>(() => {
   // Member row: discount comes from the selected member's membershipBenefits.
   if (!form.value.guestOnly && form.value.serviceId) {
     const memberBenefit = getMemberBenefitPercent(getServiceType(form.value));
-    result.push(buildRow(form.value, memberName.value, "Member", memberBenefit));
+    result.push(buildRow(form.value, memberName.value, memberBenefit));
   }
 
   // Visitors are guests — their discount comes from the selected member's guestBenefits.
@@ -174,7 +173,7 @@ const rows = computed<OverviewRow[]>(() => {
     if (!v.serviceId)
       return;
     const guestBenefit = getGuestBenefitPercent(getServiceType(v));
-    result.push(buildRow(v, v.fullName || "Visitor", "Visitor", guestBenefit));
+    result.push(buildRow(v, v.fullName || "Visitor", guestBenefit));
   });
 
   return result;
@@ -258,7 +257,6 @@ defineExpose({
             <template #client-cell="{ row }">
               <span class="text-stone-700">
                 {{ rowData(row).client }}
-                <span class="text-stone-400">({{ rowData(row).tag }})</span>
               </span>
             </template>
 

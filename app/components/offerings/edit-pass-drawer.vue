@@ -33,7 +33,12 @@ const schema = z.object({
   name: z.string().trim().min(1, "Pass name is required"),
   validity: z.coerce.number({ message: "Validity is required" }).int().positive("Validity must be a positive integer"),
   price: z.coerce.number({ message: "Price is required" }).int().nonnegative("Price must be non-negative"),
-  discount: z.coerce.number({ message: "Discount is required" }).min(0).max(100, "Discount must be between 0 and 100"),
+  spaBenefit: z.coerce.number().min(0).max(100, "Benefit must be between 0 and 100"),
+  classBenefit: z.coerce.number().min(0).max(100, "Benefit must be between 0 and 100"),
+  eventBenefit: z.coerce.number().min(0).max(100, "Benefit must be between 0 and 100"),
+  workshopBenefit: z.coerce.number().min(0).max(100, "Benefit must be between 0 and 100"),
+  cafeBenefit: z.coerce.number().min(0).max(100, "Benefit must be between 0 and 100"),
+  salonBenefit: z.coerce.number().min(0).max(100, "Benefit must be between 0 and 100"),
   description: z.string().refine(v => stripHtml(v).length > 0, { message: "Description is required" }),
   status: z.boolean(),
 });
@@ -44,7 +49,12 @@ const form = reactive<Schema>({
   name: "",
   validity: 0,
   price: 0,
-  discount: 0,
+  spaBenefit: 0,
+  classBenefit: 0,
+  eventBenefit: 0,
+  workshopBenefit: 0,
+  cafeBenefit: 0,
+  salonBenefit: 0,
   description: "",
   status: true,
 });
@@ -54,7 +64,12 @@ watch(() => props.pass, (newPass) => {
     form.name = newPass.name;
     form.validity = newPass.numberOfDays;
     form.price = newPass.price;
-    form.discount = newPass.discount;
+    form.spaBenefit = newPass.spaBenefit ?? 0;
+    form.classBenefit = newPass.classBenefit ?? 0;
+    form.eventBenefit = newPass.eventBenefit ?? 0;
+    form.workshopBenefit = newPass.workshopBenefit ?? 0;
+    form.cafeBenefit = newPass.cafeBenefit ?? 0;
+    form.salonBenefit = newPass.salonBenefit ?? 0;
     form.description = newPass.description;
     form.status = newPass.isActive;
   }
@@ -75,7 +90,12 @@ async function handleUpdatePass() {
       name: form.name,
       numberOfDays: form.validity,
       price: form.price,
-      discount: form.discount,
+      spaBenefit: form.spaBenefit,
+      classBenefit: form.classBenefit,
+      eventBenefit: form.eventBenefit,
+      workshopBenefit: form.workshopBenefit,
+      cafeBenefit: form.cafeBenefit,
+      salonBenefit: form.salonBenefit,
       description: form.description,
       isActive: form.status,
     };
@@ -141,11 +161,66 @@ async function handleUpdatePass() {
           </base-input>
 
           <base-input
-            v-model.number="form.discount"
-            label="Spa / Cafe / Salon Discount"
-            name="discount"
+            v-model.number="form.spaBenefit"
+            label="Spa Benefit*"
+            name="spaBenefit"
             type="number"
-            placeholder="Enter discount percentage"
+            placeholder="Enter spa benefit percentage"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+          <base-input
+            v-model.number="form.classBenefit"
+            label="Class Benefit*"
+            name="classBenefit"
+            type="number"
+            placeholder="Enter class benefit percentage"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+          <base-input
+            v-model.number="form.eventBenefit"
+            label="Event Benefit*"
+            name="eventBenefit"
+            type="number"
+            placeholder="Enter event benefit percentage"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+          <base-input
+            v-model.number="form.workshopBenefit"
+            label="Workshop Benefit*"
+            name="workshopBenefit"
+            type="number"
+            placeholder="Enter workshop benefit percentage"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+          <base-input
+            v-model.number="form.cafeBenefit"
+            label="Cafe Benefit*"
+            name="cafeBenefit"
+            type="number"
+            placeholder="Enter cafe benefit percentage"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+          <base-input
+            v-model.number="form.salonBenefit"
+            label="Salon Benefit*"
+            name="salonBenefit"
+            type="number"
+            placeholder="Enter salon benefit percentage"
           >
             <template #trailing>
               <span class="text-sm text-stone-400 pr-2">%</span>

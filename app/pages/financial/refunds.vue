@@ -17,7 +17,7 @@ definePageMeta({
 });
 
 const options = [
-  { label: "Cancellation Requested", value: "requested" },
+  { label: "Pending", value: "requested" },
   { label: "Approved", value: "approved" },
   { label: "Rejected", value: "rejected" },
 ];
@@ -220,7 +220,7 @@ onMounted(async () => {
           <base-dropdown-menu
             :items="[
               {
-                label: 'View Cancellation Details',
+                label: 'View Refund Details',
                 icon: ICONS.THREE_VERTICAL_DOTS,
                 onSelect: () => handleViewClick(row?.original),
               },

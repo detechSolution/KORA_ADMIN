@@ -173,13 +173,34 @@ watch(() => state.guestOnly, (guestOnly) => {
 });
 
 const loadMembersOptions = useDebounceFn(async (q = ""): Promise<void> => {
+  const selectedMember = membersOptions.value.find(
+    member => member.value === state.selectedMemberId,
+  );
+  const selectedMemberData = (membershipStore.membershipOptions as any[]).find(
+    member => member.memberId === state.selectedMemberId,
+  );
+
   await membershipStore.getMembersOptions({ q: q.trim() });
 
-  membersOptions.value = membershipStore.membershipOptions.map((m: any) => ({
+  if (
+    selectedMemberData
+    && !(membershipStore.membershipOptions as any[]).some(
+      member => member.memberId === selectedMemberData.memberId,
+    )
+  ) {
+    membershipStore.membershipOptions.unshift(selectedMemberData);
+  }
+
+  const options = membershipStore.membershipOptions.map((m: any) => ({
     label: m.label,
     value: m.memberId,
     description: m.email,
   }));
+
+  if (selectedMember && !options.some(option => option.value === selectedMember.value))
+    options.unshift(selectedMember);
+
+  membersOptions.value = options;
 }, 300);
 
 watch(memberSearchTerm, loadMembersOptions);

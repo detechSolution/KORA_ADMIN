@@ -35,7 +35,12 @@ const schema = z.object({
   name: z.string().trim().min(1, "Enter a pass name"),
   validity: z.coerce.number({ message: "Enter how many days this pass is valid for" }).int().positive("Validity must be at least 1 day"),
   price: z.coerce.number({ message: "Enter a price" }).int().nonnegative("Price can't be negative"),
-  discount: z.coerce.number({ message: "Enter a discount percentage" }).min(0).max(100, "Discount must be between 0% and 100%"),
+  spaBenefit: z.coerce.number({ message: "Enter the spa benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
+  classBenefit: z.coerce.number({ message: "Enter the class benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
+  eventBenefit: z.coerce.number({ message: "Enter the event benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
+  workshopBenefit: z.coerce.number({ message: "Enter the workshop benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
+  cafeBenefit: z.coerce.number({ message: "Enter the cafe benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
+  salonBenefit: z.coerce.number({ message: "Enter the salon benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
   description: z.string().refine(v => stripHtml(v).length > 0, { message: "Add a description for this pass" }),
   status: z.boolean(),
 });
@@ -46,7 +51,12 @@ const form = reactive<Schema>({
   name: "",
   validity: undefined as any,
   price: undefined as any,
-  discount: 0,
+  spaBenefit: 0,
+  classBenefit: 0,
+  eventBenefit: 0,
+  workshopBenefit: 0,
+  cafeBenefit: 0,
+  salonBenefit: 0,
   description: "",
   status: true,
 });
@@ -137,30 +147,97 @@ async function handleCreatePass() {
           </base-input>
 
           <base-input
-            v-model.number="form.price"
+            v-model.number="form.spaBenefit"
+            name="spaBenefit"
+            label="Spa Benefit*"
             type="number"
-            placeholder="Enter pass price"
-            name="price"
-            label="Pass Price*"
-            class="w-full"
-          >
-            <template #trailing>
-              <span class="text-sm text-stone-400 pr-2">Rs</span>
-            </template>
-          </base-input>
-
-          <base-input
-            v-model.number="form.discount"
-            name="discount"
-            label="Spa / Cafe / Salon Discount"
-            type="number"
-            placeholder="Enter discount percentage"
+            placeholder="Enter spa benefit percentage"
             class="w-full"
           >
             <template #trailing>
               <span class="text-sm text-stone-400 pr-2">%</span>
             </template>
           </base-input>
+
+          <base-input
+            v-model.number="form.classBenefit"
+            name="classBenefit"
+            label="Class Benefit*"
+            type="number"
+            placeholder="Enter class benefit percentage"
+            class="w-full"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+
+          <base-input
+            v-model.number="form.eventBenefit"
+            name="eventBenefit"
+            label="Event Benefit*"
+            type="number"
+            placeholder="Enter event benefit percentage"
+            class="w-full"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+
+          <base-input
+            v-model.number="form.workshopBenefit"
+            name="workshopBenefit"
+            label="Workshop Benefit*"
+            type="number"
+            placeholder="Enter workshop benefit percentage"
+            class="w-full"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+
+          <base-input
+            v-model.number="form.cafeBenefit"
+            name="cafeBenefit"
+            label="Cafe Benefit*"
+            type="number"
+            placeholder="Enter cafe benefit percentage"
+            class="w-full"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+
+          <base-input
+            v-model.number="form.salonBenefit"
+            name="salonBenefit"
+            label="Salon Benefit*"
+            type="number"
+            placeholder="Enter salon benefit percentage"
+            class="w-full"
+          >
+            <template #trailing>
+              <span class="text-sm text-stone-400 pr-2">%</span>
+            </template>
+          </base-input>
+
+          <div class="md:col-span-2">
+            <base-input
+              v-model.number="form.price"
+              type="number"
+              placeholder="Enter pass price"
+              name="price"
+              label="Pass Price*"
+              class="w-full"
+            >
+              <template #trailing>
+                <span class="text-sm text-stone-400 pr-2">Rs</span>
+              </template>
+            </base-input>
+          </div>
 
           <div class="md:col-span-2">
             <base-text-editor

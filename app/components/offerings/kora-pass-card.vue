@@ -6,7 +6,7 @@ defineProps<{
   name: string;
   status: string;
   description: string;
-  discount: string;
+
   price: number;
   isActive: boolean;
 }>();
@@ -30,10 +30,6 @@ const emit = defineEmits(["edit"]);
       <p class="text-sm text-secondary-500 leading-relaxed">
         {{ description.replace(/<[^>]*>/g, '') }}
       </p>
-      <div class="flex items-center gap-1.5">
-        <span class="text-sm font-semibold text-secondary-700">Discounts:</span>
-        <span class="text-sm text-secondary-500 font-medium">{{ discount }}</span>
-      </div>
     </div>
 
     <!-- Footer -->

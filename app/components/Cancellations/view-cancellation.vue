@@ -14,9 +14,11 @@ type Props = {
 type FormState = {
   status: string;
   refundReceipt: File | null;
+  refundAmount: string;
+  refundNotes: string;
 };
 
-type InfoItem = {
+type InformationItem = {
   label: string;
   value: string | undefined;
 };
@@ -25,6 +27,7 @@ type DetailItem = {
   label: string;
   value: string;
   icon: string;
+  green?: boolean;
 };
 
 const props = defineProps<Props>();
@@ -42,14 +45,16 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 const state = reactive<FormState>({
   status: "",
   refundReceipt: null,
+  refundAmount: "",
+  refundNotes: "",
 });
 
-const CANCELLATION_STATUS_OPTIONS = [
+const cancellationStatusOptions = [
   { label: "Rejected", value: "rejected" },
   { label: "Requested", value: "requested" },
   { label: "Approved", value: "approved" },
 ];
-const REFUND_RECEIPT_CONFIG = {
+const refundReceiptConfig = {
   maxFileSize: 1024 * 1024 * 5,
   maxFiles: 1,
   allowedFileTypes: ["image/*", "application/pdf"],
@@ -57,21 +62,34 @@ const REFUND_RECEIPT_CONFIG = {
 
 const loading = ref(false);
 const cancellationDetails = computed(() => financeStore.cancellationDetails);
+const showRefundAmount = computed(() => state.status === "approved");
+const showReceiptUpload = computed(() => state.status === "approved");
+const showRefundNotes = computed(() => ["approved", "rejected"].includes(state.status));
 
-const customerInformation = computed<InfoItem[]>(() => [
-  { label: "Name", value: cancellationDetails.value?.customer?.name },
-  { label: "Email", value: cancellationDetails.value?.customer?.email },
-  { label: "Phone", value: cancellationDetails.value?.customer?.phoneNumber },
-  { label: "Reference ID", value: cancellationDetails.value?.referenceCode },
-]);
-
-const cancellationDetails_ = computed<DetailItem[]>(() => {
-  const refund = cancellationDetails.value?.refund;
+const customerInformation = computed<InformationItem[]>(() => {
+  const item = cancellationDetails.value?.items;
   return [
-    { label: "Requested Date", value: formatDate(refund?.requestedAt) || "N/A", icon: ICONS.CALENDAR },
-    { label: "Canceled Date", value: formatDate(refund?.cancelledAt) || "N/A", icon: ICONS.CALENDAR },
-    { label: "Refunded Date", value: formatDate(refund?.refundedAt) || "N/A", icon: ICONS.CALENDAR },
-    { label: "Amount", value: refund?.amount ? `Rs. ${refund.amount}` : "N/A", icon: ICONS.MONEY },
+    { label: "Client", value: item?.name },
+    { label: "Reference ID", value: item?.referenceCode },
+  ];
+});
+
+const cancellationInformation = computed<DetailItem[]>(() => {
+  const details = cancellationDetails.value;
+  return [
+    { label: "Canceled Date", value: formatDate(details?.refund?.cancelledAt) || "N/A", icon: ICONS.CALENDAR },
+    { label: "Canceled By", value: details?.request?.requestedBy || "N/A", icon: ICONS.USER_PEN },
+  ];
+});
+
+const refundInformation = computed<DetailItem[]>(() => {
+  const details = cancellationDetails.value;
+  return [
+    { label: "Refund Requested", value: formatDate(details?.refund?.requestedAt) || "N/A", icon: ICONS.CALENDAR },
+    { label: "Refunded Processed Date", value: formatDate(details?.refund?.refundedAt) || "N/A", icon: ICONS.CALENDAR },
+    { label: "Original Amount", value: `NPR ${details?.refund?.amount || "N/A"}`, icon: ICONS.MONEY },
+    { label: "Refunded Amount", value: `NPR ${details?.refund?.amount || "N/A"}`, icon: ICONS.MONEY, green: true },
+    { label: "Action Taken By", value: details?.request?.processedBy || "N/A", icon: ICONS.USER_PEN },
   ];
 });
 
@@ -118,6 +136,12 @@ watch(cancellationDetails, (details) => {
     state.status = details.refund.status;
   }
 });
+
+watch(() => state.status, (status) => {
+  if (status !== "approved") {
+    state.refundReceipt = null;
+  }
+});
 </script>
 
 <template>
@@ -136,7 +160,7 @@ watch(cancellationDetails, (details) => {
       <div class="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-5">
         <!-- Customer Information -->
         <h2 class="text-sm font-semibold">
-          CUSTOMER INFORMATION
+          BOOKING INFORMATION
         </h2>
 
         <div class="grid w-full grid-cols-[auto_auto] justify-between gap-4">
@@ -162,76 +186,94 @@ watch(cancellationDetails, (details) => {
         </h2>
 
         <div class="grid grid-cols-2 gap-3">
-          <div
-            v-for="(detail, index) in cancellationDetails_"
+          <CancellationsDetailCard
+            v-for="detail in cancellationInformation"
             :key="detail.label"
-            class="flex flex-col gap-2 rounded-md border p-3"
-            :class="index === 3
-              ? 'border-emerald-200 bg-emerald-50'
-              : 'border-stone-200 bg-stone-50'"
-          >
-            <div
-              class="flex items-center gap-1 text-xs font-normal"
-              :class="index === 3 ? 'text-emerald-600' : 'text-secondary-400'"
-            >
-              <UIcon :name="detail.icon" class="h-3 w-3" />
-              <h3>{{ detail.label }}</h3>
-            </div>
-            <p
-              class="text-sm font-medium"
-              :class="index === 3 ? 'text-emerald-600' : 'text-secondary'"
-            >
-              {{ detail.value }}
-            </p>
-          </div>
+            :label="detail.label"
+            :value="detail.value"
+            :icon="detail.icon"
+            :green="detail.green"
+          />
+        </div>
+        <USeparator />
+
+        <div class="flex justify-between">
+          <h2 class="text-sm font-semibold">
+            REFUND DETAILS
+          </h2>
+
+          <base-badge :status="cancellationDetails?.refund?.status">
+            {{ cancellationDetails?.refund?.status }}
+          </base-badge>
         </div>
 
-        <!-- Refunded By -->
-        <div class="flex flex-col gap-3 rounded-md border border-stone-200 bg-stone-50 p-3">
-          <div class="flex items-center gap-1 text-xs font-normal text-secondary-400">
-            <UIcon :name="ICONS.USER_PEN" class="h-3 w-3" />
-            <h3>Refunded By</h3>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <UAvatar
-              v-show="cancellationDetails?.request?.processedBy"
-              :src="cancellationDetails?.request?.processedBy"
-              :alt="cancellationDetails?.request?.processedBy"
-              class="bg-secondary-50"
-            />
-            <p class="text-sm font-medium">
-              {{ cancellationDetails?.request?.processedBy || "N/A" }}
-            </p>
-          </div>
+        <div class="grid grid-cols-2 gap-3">
+          <CancellationsDetailCard
+            v-for="(detail, index) in refundInformation"
+            :key="detail.label"
+            :class="index === refundInformation.length - 1 ? 'col-span-2' : ''"
+            :label="detail.label"
+            :value="detail.value"
+            :icon="detail.icon"
+            :green="detail.green"
+          />
         </div>
+
+        <USeparator />
+        <h2 class="text-sm font-semibold">
+          ADMIN ACTIONS
+        </h2>
 
         <!-- Form Fields -->
         <base-select
           v-model="state.status"
-          :options="CANCELLATION_STATUS_OPTIONS"
+          :options="cancellationStatusOptions"
           label="Status"
           name="refundStatus"
           placeholder="Select status"
           :disabled="cancellationDetails?.refund?.status !== 'requested'"
         />
 
+        <base-input
+          v-if="showRefundAmount"
+          v-model="state.refundAmount"
+          label="Refund Amount"
+          name="refundAmount"
+          type="number"
+          placeholder="Enter refund amount"
+        />
+
         <base-file-upload
-          v-if="cancellationDetails?.refund?.status === 'requested'"
+          v-if="showReceiptUpload"
           v-model="state.refundReceipt"
           accept="image"
           label="Refund Receipt"
           name="refundReceipt"
-          :max-file-size="REFUND_RECEIPT_CONFIG.maxFileSize"
-          :max-files="REFUND_RECEIPT_CONFIG.maxFiles"
-          :allowed-file-types="REFUND_RECEIPT_CONFIG.allowedFileTypes"
+          :max-file-size="refundReceiptConfig.maxFileSize"
+          :max-files="refundReceiptConfig.maxFiles"
+          :allowed-file-types="refundReceiptConfig.allowedFileTypes"
         />
 
         <img
-          v-else
+          v-else-if="cancellationDetails?.refund?.receiptUrl"
           :src="cancellationDetails?.refund?.receiptUrl"
           alt=""
         >
+
+        <base-input
+          v-if="showRefundNotes"
+          v-model="state.refundNotes"
+          label="Note to Client"
+          name="refundNotes"
+          type="textarea"
+          placeholder="Enter notes for approval or rejection..."
+        />
+        <div v-if="showRefundNotes" class="flex -mt-2 justify-between items-start gap-1">
+          <UIcon :name="ICONS.INFO" class="text-primary" />
+          <p class="text-secondary-300 text-xs">
+            This note will be emailed to the client for both approval and rejection updates.
+          </p>
+        </div>
       </div>
 
       <!-- Footer Actions -->
