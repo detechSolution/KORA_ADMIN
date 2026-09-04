@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
-import ViewCancellationDrawer from "~/components/Cancellations/view-cancellation.vue";
+import ViewRefundDrawer from "~/components/refunds/view-refund.vue";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
@@ -54,7 +54,7 @@ async function fetchCancellations() {
     const params = {
       page: pagination.value.page,
       limit: pagination.value.pageSize,
-      q: state.value.search,
+      q: state.value.search || undefined,
       status: state.value.status,
       refundFrom: state.value.dateRange.start,
       refundTo: state.value.dateRange.end,
@@ -71,16 +71,16 @@ async function fetchCancellations() {
   }
 }
 
-const isViewCancellationDrawerOpen = ref(false);
-const selectedCancellation = ref<any>(null);
+const isViewRefundDrawerOpen = ref(false);
+const selectedRefund = ref<any>(null);
 
-function handleViewClick(cancellation: any) {
-  selectedCancellation.value = cancellation;
-  isViewCancellationDrawerOpen.value = true;
+function handleViewClick(refund: any) {
+  selectedRefund.value = refund;
+  isViewRefundDrawerOpen.value = true;
 }
 
 function handleCloseAndRefetch() {
-  isViewCancellationDrawerOpen.value = false;
+  isViewRefundDrawerOpen.value = false;
   fetchCancellations();
 }
 
@@ -106,7 +106,7 @@ const router = useRouter();
 onMounted(async () => {
   const search = route.query.search as string;
 
-  state.value.search = search;
+  state.value.search = search || "";
   await Promise.all([
     fetchCancellations(),
     analyticsStore.getAnalyticsStats(),
@@ -114,16 +114,29 @@ onMounted(async () => {
 
   router.replace({ query: { search: undefined } });
 });
+
+watch(
+  () => route.query.search,
+  (search, previousSearch) => {
+    if (typeof search !== "string" || !search || search === previousSearch)
+      return;
+
+    state.value.search = search;
+    pagination.value.page = 1;
+    fetchCancellations();
+    router.replace({ query: { search: undefined } });
+  },
+);
 </script>
 
 <template>
   <div class="flex flex-col gap-6">
     <base-page-header>
       <template #title>
-        Cancellations
+        Refunds
       </template>
       <template #description>
-        View cancellation details & status and manage refunds
+        View refund details and manage refunds
       </template>
     </base-page-header>
 
@@ -185,7 +198,7 @@ onMounted(async () => {
         :data="cancellations.data"
         :columns="columns"
         :loading="loading"
-        empty-title="No cancellations found"
+        empty-title="No refunds found"
       >
         <template #client-cell="{ row }">
           <div class="flex items-center gap-2">
@@ -238,11 +251,11 @@ onMounted(async () => {
       />
     </div>
 
-    <ViewCancellationDrawer
-      v-if="isViewCancellationDrawerOpen"
-      :open="isViewCancellationDrawerOpen"
-      :cancellation-id="selectedCancellation?.id"
-      @close="isViewCancellationDrawerOpen = false"
+    <ViewRefundDrawer
+      v-if="isViewRefundDrawerOpen"
+      :open="isViewRefundDrawerOpen"
+      :cancellation-id="selectedRefund?.id"
+      @close="isViewRefundDrawerOpen = false"
       @close-and-refetch="handleCloseAndRefetch"
     />
   </div>
