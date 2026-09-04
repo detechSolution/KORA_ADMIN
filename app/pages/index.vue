@@ -302,22 +302,24 @@ const kpiData = computed(() => [
           </template>
 
           <template #itemName-cell="{ row }">
-            <span class="text-sm font-medium text-secondary">
-              {{ row.original.itemNames?.[0] || "N/A" }}
-            </span>
-
-            <UTooltip
-              v-if="row.original.itemNames?.length > 1"
-              :delay-duration="0"
-              arrow
-              :text="`${row.original.itemNames?.length - 1} more`"
-            >
-              <span
-                class="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-red-300 bg-red-50 px-1.5 text-[10px] font-medium leading-none text-red-500"
-              >
-                +{{ row.original.itemNames?.length - 1 }}
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-secondary">
+                {{ row.original.itemNames?.[0] || "N/A" }}
               </span>
-            </UTooltip>
+
+              <UTooltip
+                v-if="row.original.itemNames?.length > 1"
+                :delay-duration="0"
+                arrow
+                :text="`${row.original.itemNames.length - 1} more service${row.original.itemNames.length - 1 === 1 ? '' : 's'}`"
+              >
+                <span
+                  class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-stone-100 px-1.5 text-xs font-medium leading-none text-stone-500"
+                >
+                  +{{ row.original.itemNames.length - 1 }}
+                </span>
+              </UTooltip>
+            </div>
           </template>
 
           <template #status-cell="{ row }">
