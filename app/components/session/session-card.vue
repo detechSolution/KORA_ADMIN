@@ -107,7 +107,7 @@ function handleEditClick() {
             @click="handleAttendanceClick"
           />
         </UTooltip>
-        <UTooltip
+        <!-- <UTooltip
           v-if="can(PERMISSIONS_SESSIONS.UPDATE) && !isEnded"
           :delay-duration="0"
           text="Add Member & Pass Users"
@@ -117,7 +117,7 @@ function handleEditClick() {
             class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
             @click="emit('openAddMemberModal', id)"
           />
-        </UTooltip>
+        </UTooltip> -->
         <UTooltip
           v-if="can(PERMISSIONS_SESSIONS.UPDATE) && !isEnded && occupied === 0"
           :delay-duration="0"

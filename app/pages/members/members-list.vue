@@ -18,6 +18,7 @@ definePageMeta({
 const options = [
   { label: "Active", value: "active" },
   { label: "Expired", value: "expired" },
+  { label: "Frozen", value: "frozen" },
 ];
 
 const typeOptions = [
