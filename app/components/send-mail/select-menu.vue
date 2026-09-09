@@ -99,17 +99,22 @@ const inputValue = computed({
     if (changingGroup.value)
       return;
 
+    const wasAllSelected = allSelected.value;
     const nowHasAll = vals.includes(SELECT_ALL);
     const groupEmails = new Set(recipients.value.map(r => r.value));
     const selectedInGroup = vals.filter(value => value !== SELECT_ALL);
     const selectedOutsideGroup = props.modelValue.filter(email => !groupEmails.has(email));
 
-    if (nowHasAll) {
+    if (wasAllSelected && !nowHasAll) {
+      // The synthetic Select All option was toggled off.
+      emit("update:modelValue", selectedOutsideGroup);
+    }
+    else if (nowHasAll && !wasAllSelected) {
       // Selecting all adds this membership group to existing recipients.
       emit("update:modelValue", [...new Set([...props.modelValue, ...groupEmails])]);
     }
     else {
-      // Removing selections only affects the active group, preserving other groups.
+      // Individual changes only affect the active group, preserving other groups.
       emit("update:modelValue", [...new Set([...selectedOutsideGroup, ...selectedInGroup])]);
     }
   },

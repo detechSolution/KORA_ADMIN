@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 
 import { ICONS } from "~/config/icons";
 
@@ -46,10 +46,13 @@ type Props = {
   searchTerm?: string;
   searchPlaceholder?: string;
   emptyMessage?: string;
+  emptyIcon?: string;
   showCheckbox?: boolean;
   showSelectAll?: boolean;
   selectAllLabel?: string;
   hiddenSelectedValues?: any[];
+  showAddAction?: boolean;
+  addActionLabel?: string;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -63,21 +66,39 @@ const props = withDefaults(defineProps<Props>(), {
   searchInput: true,
   searchPlaceholder: "Search...",
   emptyMessage: "No options available.",
+  emptyIcon: undefined,
   showCheckbox: false,
   showSelectAll: false,
   selectAllLabel: "Select all",
   hiddenSelectedValues: () => [],
+  showAddAction: false,
+  addActionLabel: "Add item",
 });
 
 const emit = defineEmits<{
   "update:modelValue": [value: any];
   "update:searchTerm": [value: string];
+  "add": [];
 }>();
+
+const isOpen = ref(false);
+const searchValue = ref(props.searchTerm);
+
+watch(() => props.searchTerm, (value) => {
+  searchValue.value = value;
+});
+
+watch(searchValue, value => emit("update:searchTerm", value));
 
 const inputValue = computed({
   get: () => props.modelValue,
   set: v => emit("update:modelValue", v),
 });
+
+function handleAddAction(): void {
+  isOpen.value = false;
+  emit("add");
+}
 
 /* ── Search config ──────────────────────────────────────── */
 
@@ -116,6 +137,8 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
   >
     <USelectMenu
       v-model="inputValue"
+      v-model:open="isOpen"
+      v-model:search-term="searchValue"
       value-key="value"
       :items="props.options"
       :placeholder="props.placeholder"
@@ -124,7 +147,6 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
       :multiple="props.multiple"
       :clear="props.clearable"
       :search-input="resolvedSearchInput"
-      :search-term="props.searchTerm"
       size="lg"
       variant="outline"
       class="w-full"
@@ -148,9 +170,17 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
       </template>
 
       <template #empty>
-        <div class="px-3 py-6 text-center text-sm text-stone-500">
-          {{ props.emptyMessage }}
-        </div>
+        <slot name="empty">
+          <div class="flex flex-col items-center justify-center gap-2 px-3 py-6 text-center text-sm text-stone-500">
+            <div
+              v-if="props.emptyIcon"
+              class="flex h-8 w-8 items-center justify-center rounded-full bg-stone-200"
+            >
+              <UIcon :name="props.emptyIcon" class="h-4 w-4 text-stone-500" />
+            </div>
+            <span>{{ props.emptyMessage }}</span>
+          </div>
+        </slot>
       </template>
 
       <template #item="{ item }">
@@ -226,6 +256,27 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
           >
             {{ item.meta }}
           </span>
+
+          <!-- Selected state -->
+          <UIcon
+            v-if="!props.showCheckbox && isSelected(hasValue(item) ? item.value : null)"
+            :name="ICONS.CHECK"
+            class="h-4 w-4 shrink-0 text-primary"
+            aria-hidden="true"
+          />
+        </div>
+      </template>
+
+      <template v-if="props.showAddAction" #content-bottom>
+        <div class="border-t border-stone-200 bg-white px-3 py-2">
+          <base-button
+            variant="ghost"
+            class="text-primary"
+            @click.stop="handleAddAction"
+          >
+            <UIcon :name="ICONS.PLUS" class="h-4 w-4" />
+            {{ props.addActionLabel }}
+          </base-button>
         </div>
       </template>
     </USelectMenu>
