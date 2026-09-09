@@ -27,6 +27,46 @@ export type Spa = {
   subTypes: SpaSubType[];
 };
 
+export type SpaCategory = {
+  id: number;
+  name: string;
+};
+
+export type SpaCategoryOption = {
+  label: string;
+  value: number;
+};
+
+export type SpaStepItem = {
+  title: string;
+  description: string;
+  detail: string;
+};
+
+export type CreateSpaCategoryPayload = {
+  name: string;
+};
+
+export type SpaResponse = Spa | {
+  spa?: Spa;
+  subTypes?: SpaSubType[];
+};
+
+export type SpaCategoryListResponse = SpaCategory[] | {
+  categories?: SpaCategory[];
+  data?: SpaCategory[];
+};
+
+export type SpaCategoryResponse = SpaCategory | {
+  category?: SpaCategory;
+  data?: SpaCategory;
+};
+
+export type SpaSubTypeResponse = SpaSubType | {
+  subType?: SpaSubType;
+  data?: SpaSubType;
+};
+
 export type SpaSubType = {
   id: number;
   createdAt: string;
@@ -34,6 +74,7 @@ export type SpaSubType = {
   deletedAt: string | null;
 
   spaId: number;
+  categoryId?: number;
 
   name: string;
   description: string;
@@ -55,6 +96,7 @@ type SpaPrice = {
 };
 
 export type CreateSpaSubTypePayload = {
+  categoryId: number;
   name: string;
   description: string;
   prices: {
@@ -64,11 +106,16 @@ export type CreateSpaSubTypePayload = {
   }[];
 };
 
+export type UpdateSpaSubTypePayload = Omit<CreateSpaSubTypePayload, "categoryId"> & {
+  categoryId?: number;
+};
+
 export type UpdateSpaPayload = {
   availableDays: Day[];
   availableFromTime: string;
   availableToTime: string;
   capacityPerSlot: number;
-  videoFile?: File | null;
+  video?: File | null;
+  file?: File | null;
   description: string;
 };
