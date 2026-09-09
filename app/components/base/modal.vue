@@ -36,6 +36,7 @@ const isOpen = computed({
 
 // Use fixed max-width classes so Tailwind includes them (safelist in app.config)
 const widthClassMap: Record<number, string> = {
+  500: "max-w-[500px]",
   600: "max-w-[600px]",
   700: "max-w-[700px]",
   800: "max-w-[800px]",

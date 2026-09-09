@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import * as z from "zod";
 
-import type { SpaSubType } from "~/types/spa";
+import type { SpaCategory, SpaCategoryOption, SpaStepItem, SpaSubType } from "~/types/spa";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
@@ -15,18 +15,6 @@ definePageMeta({
   permission: "offerings.spa.create",
 });
 
-type StepItem = {
-  title: string;
-  description: string;
-};
-
-// type PricingRow = {
-//   id: number;
-//   duration: string;
-//   timeUnit: "hours" | "minutes";
-//   price: string;
-// };
-
 const spaStore = useSpaStore();
 const { success, error: showError } = useNotification();
 const route = useRoute();
@@ -36,20 +24,24 @@ const currentStep = ref(0);
 const loading = ref(false);
 const initialLoading = ref(false);
 const apiError = ref<string | null>(null);
+const isAddCategoryModalOpen = ref(false);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
-const steps: StepItem[] = [
+const steps: SpaStepItem[] = [
   {
     title: "Spa Type Info",
     description: "spa-type name & description",
+    detail: "Define the name and general description of this spa type",
   },
   {
     title: "Configuration & Pricing",
-    description: "Duration & Price",
+    description: "Costs & payment rules",
+    detail: "Configure the payment requirements for this spa type",
   },
 ];
 
 const form = reactive({
+  categoryId: null as number | null,
   name: "",
   description: "",
   prices: [
@@ -61,6 +53,13 @@ const form = reactive({
     },
   ],
 });
+
+const categoryOptions = computed<SpaCategoryOption[]>(() =>
+  spaStore.spaCategories.map(category => ({
+    label: category.name,
+    value: category.id,
+  })),
+);
 
 const timeUnitOptions = [
   { label: "Hours", value: "hours" },
@@ -99,6 +98,10 @@ const priceRowSchema = z.object({
 });
 
 const stepOneSchema = z.object({
+  categoryId: z.number().int().positive("Spa category is required").nullable().refine(
+    value => value !== null,
+    "Spa category is required",
+  ),
   name: z.string().trim().min(1, "Spa type name is required"),
   description: z.string().trim().min(1, "Description is required"),
 });
@@ -109,6 +112,7 @@ const stepTwoSchema = z.object({
 
 const schema = z
   .object({
+    categoryId: stepOneSchema.shape.categoryId,
     name: stepOneSchema.shape.name,
     description: stepOneSchema.shape.description,
     prices: stepTwoSchema.shape.prices,
@@ -155,6 +159,7 @@ function setApiError(error: string): void {
 }
 
 function fillFormFromSubType(subType: SpaSubType): void {
+  form.categoryId = subType.categoryId ?? null;
   form.name = subType.name;
   form.description = subType.description ?? "";
   form.prices = subType.prices.length
@@ -178,8 +183,22 @@ function clearApiError(): void {
   apiError.value = null;
 }
 
+function handleCategoryCreated(category: SpaCategory): void {
+  form.categoryId = category.id;
+}
+
+async function loadSpaCategories(): Promise<void> {
+  try {
+    await spaStore.getSpaCategories();
+  }
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Failed to load spa categories.") });
+  }
+}
+
 async function handleNext(): Promise<void> {
   const stepResult = stepOneSchema.safeParse({
+    categoryId: form.categoryId,
     name: form.name,
     description: form.description,
   });
@@ -205,6 +224,7 @@ async function handleSubmit(): Promise<void> {
     clearApiError();
 
     const payload = {
+      categoryId: form.categoryId!,
       name: form.name.trim(),
       description: form.description.trim(),
       prices: form.prices.map(price => ({
@@ -264,7 +284,10 @@ async function loadSpaSubTypeForEdit(): Promise<void> {
 }
 
 onMounted(async () => {
-  await loadSpaSubTypeForEdit();
+  await Promise.all([
+    loadSpaCategories(),
+    loadSpaSubTypeForEdit(),
+  ]);
 });
 </script>
 
@@ -308,7 +331,7 @@ onMounted(async () => {
         <div class="flex-1 min-w-0 lg:pl-0 space-y-6">
           <form-header-card
             :label="steps[currentStep]?.title ?? ''"
-            :description="steps[currentStep]?.description ?? ''"
+            :description="steps[currentStep]?.detail ?? ''"
             :icon="currentStep === 0 ? ICONS.INFO : currentStep === 1 ? ICONS.CALENDAR : ICONS.CREDIT_CARD"
           />
 
@@ -330,6 +353,21 @@ onMounted(async () => {
               >
                 <div class="rounded-xl border border-border bg-muted/20 p-5 sm:p-6 shadow-sm">
                   <div class="grid grid-cols-1 gap-4">
+                    <base-select-menu
+                      v-model="form.categoryId"
+                      name="categoryId"
+                      label="Spa Category"
+                      placeholder="Search Category"
+                      search-placeholder="Search Category"
+                      :options="categoryOptions"
+                      show-add-action
+                      add-action-label="Add Category"
+                      :empty-icon="ICONS.FILE"
+                      empty-message="No categories yet. Add a new category."
+                      required
+                      @add="isAddCategoryModalOpen = true"
+                    />
+
                     <base-input
                       v-model="form.name"
                       name="name"
@@ -602,5 +640,10 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    <offerings-spa-add-category-modal
+      :open="isAddCategoryModalOpen"
+      @close="isAddCategoryModalOpen = false"
+      @created="handleCategoryCreated"
+    />
   </div>
 </template>
