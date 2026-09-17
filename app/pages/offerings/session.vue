@@ -19,7 +19,7 @@ definePageMeta({
 const router = useRouter();
 const { can } = usePermission();
 const loading = ref(false);
-const { error: showError } = useNotification();
+const { success, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
 const sessions = computed(() => sessionsStore.sessions);
 const { pagination } = usePagination(8);
@@ -27,7 +27,10 @@ const isSessionEditDrawerOpen = ref(false);
 const isSessionOverviewModalOpen = ref(false);
 const isAttendanceModalOpen = ref(false);
 const isAddMemberModalOpen = ref(false);
+const isDeleteModalOpen = ref(false);
+const deleteLoading = ref(false);
 const selectedSession = ref(null);
+const sessionToDelete = ref<{ id: number; name: string } | null>(null);
 
 const state = ref({
   search: "",
@@ -108,6 +111,32 @@ function handleOpenAddMemberModal(id: number) {
   const session = sessions.value.data.find((s: any) => s.id === id);
   selectedSession.value = session;
   isAddMemberModalOpen.value = true;
+}
+
+function handleDeleteSession(id: number): void {
+  const session = sessions.value.data.find((s: any) => s.id === id);
+  sessionToDelete.value = { id, name: session?.name ?? "" };
+  isDeleteModalOpen.value = true;
+}
+
+async function confirmDeleteSession(): Promise<void> {
+  if (!sessionToDelete.value)
+    return;
+
+  try {
+    deleteLoading.value = true;
+    await sessionsStore.deleteSession(sessionToDelete.value.id);
+    success({ message: "Session deleted successfully" });
+    isDeleteModalOpen.value = false;
+    sessionToDelete.value = null;
+    await loadSessions();
+  }
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Failed to delete session.") });
+  }
+  finally {
+    deleteLoading.value = false;
+  }
 }
 
 function clearFilters(): void {
@@ -248,6 +277,7 @@ onMounted(() => {
         @copy-session="handleCopySession"
         @open-attendance-modal="handleOpenAttendanceModal"
         @open-add-member-modal="handleOpenAddMemberModal"
+        @delete-session="handleDeleteSession"
       />
     </div>
     <base-pagination
@@ -283,6 +313,14 @@ onMounted(() => {
       :open="isAddMemberModalOpen"
       :session="selectedSession"
       @close="isAddMemberModalOpen = false"
+    />
+
+    <OfferingsSessionsDeleteModal
+      :open="isDeleteModalOpen"
+      :session-name="sessionToDelete?.name"
+      :loading="deleteLoading"
+      @close="isDeleteModalOpen = false; sessionToDelete = null"
+      @confirm="confirmDeleteSession"
     />
   </div>
 </template>
