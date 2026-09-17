@@ -233,10 +233,10 @@ function clearFilters(): void {
               </div>
               <div>
                 <p class="text-sm text-secondary-400">
-                  Capacity / Slot
+                  Rooms Count
                 </p>
                 <p class="text-lg font-semibold text-secondary">
-                  {{ spaInfo.capacityPerSlot ?? 0 }} clients
+                  Private: {{ spaInfo.privateRoomCount ?? 0 }} | Shared: {{ spaInfo.sharedRoomCount ?? 0 }}
                 </p>
               </div>
             </div>

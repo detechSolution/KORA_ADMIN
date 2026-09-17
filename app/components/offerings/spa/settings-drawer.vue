@@ -44,21 +44,31 @@ const schema = z.object({
   availableFromTime: z.string().min(1, "Please select a valid time"),
   availableToTime: z.string().min(1, "Please select a valid time"),
   description: z.string().min(1, "Description is required"),
-  capacityPerSlot: z.preprocess(
+  privateRoomCount: z.preprocess(
     (value) => {
       if (typeof value === "string") {
         const trimmed = value.trim();
         return trimmed === "" ? undefined : Number(trimmed);
       }
-
       return value;
     },
     z
-      .number()
-      .refine(
-        value => !Number.isNaN(value) && value > 0,
-        "Capacity must be greater than 0",
-      ),
+      .number("Private room count is required")
+      .int("Must be a whole number")
+      .min(0, "Private room count must be 0 or greater"),
+  ),
+  sharedRoomCount: z.preprocess(
+    (value) => {
+      if (typeof value === "string") {
+        const trimmed = value.trim();
+        return trimmed === "" ? undefined : Number(trimmed);
+      }
+      return value;
+    },
+    z
+      .number("Shared room count is required")
+      .int("Must be a whole number")
+      .min(0, "Shared room count must be 0 or greater"),
   ),
   videoFile: z.string().or(z.instanceof(File)).optional(),
   imageFile: z.string().or(z.instanceof(File)).optional(),
@@ -107,7 +117,8 @@ const form = reactive<Partial<Schema>>({
   availableDays: [] as Day[],
   availableFromTime: "",
   availableToTime: "",
-  capacityPerSlot: undefined,
+  privateRoomCount: undefined,
+  sharedRoomCount: undefined,
   videoFile: undefined,
   imageFile: undefined,
   description: "",
@@ -131,7 +142,8 @@ function populateForm(spa: Spa | null): void {
   form.availableDays = spa?.availableDays ? [...spa.availableDays] : [];
   form.availableFromTime = formatTimeValue(parseTimeValue(spa?.availableFromTime ?? ""));
   form.availableToTime = formatTimeValue(parseTimeValue(spa?.availableToTime ?? ""));
-  form.capacityPerSlot = spa?.capacityPerSlot;
+  form.privateRoomCount = spa?.privateRoomCount;
+  form.sharedRoomCount = spa?.sharedRoomCount;
   form.videoFile = spa?.videoUrl ?? undefined;
   form.imageFile = spa?.bannerUrl ?? undefined;
   form.description = spa?.description ?? "";
@@ -165,7 +177,8 @@ async function handleSubmit(): Promise<void> {
       availableDays: form.availableDays ?? [],
       availableFromTime: form.availableFromTime ?? "",
       availableToTime: form.availableToTime ?? "",
-      capacityPerSlot: form.capacityPerSlot ?? 0,
+      privateRoomCount: form.privateRoomCount ?? 0,
+      sharedRoomCount: form.sharedRoomCount ?? 0,
       video: form.videoFile,
       file: form.imageFile,
       description: form.description,
@@ -281,24 +294,38 @@ watch(
             </UFormField>
           </div>
 
-          <div class="grid gap-2">
+          <div class="grid gap-4 sm:grid-cols-2">
             <UFormField
-              name="capacityPerSlot"
-              label="Capacity Per Slot"
+              name="privateRoomCount"
+              label="Private Room Count"
               required
               :ui="{ error: 'mt-1 text-red-500 text-xs' }"
             >
               <UInput
-                v-model="form.capacityPerSlot"
+                v-model="form.privateRoomCount"
                 type="number"
-                placeholder="e.g. 3"
+                min="0"
+                step="1"
+                placeholder="e.g. 2"
                 class="w-full"
               />
             </UFormField>
 
-            <p class="text-xs text-secondary-400">
-              e.g. 3 clients at once
-            </p>
+            <UFormField
+              name="sharedRoomCount"
+              label="Shared Room Count"
+              required
+              :ui="{ error: 'mt-1 text-red-500 text-xs' }"
+            >
+              <UInput
+                v-model="form.sharedRoomCount"
+                type="number"
+                min="0"
+                step="1"
+                placeholder="e.g. 5"
+                class="w-full"
+              />
+            </UFormField>
           </div>
 
           <base-text-editor

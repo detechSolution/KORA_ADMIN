@@ -7,7 +7,7 @@ import { getNepalTimestamp } from "~/utils/common";
 
 const props = defineProps<SessionCardProps>();
 
-const emit = defineEmits(["openEditSessionDrawer", "openOverviewModal", "copySession", "openAttendanceModal", "openAddMemberModal"]);
+const emit = defineEmits(["openEditSessionDrawer", "openOverviewModal", "copySession", "openAttendanceModal", "openAddMemberModal", "deleteSession"]);
 
 type SessionCardProps = {
   id: number;
@@ -25,6 +25,7 @@ type SessionCardProps = {
   sessionStartTime: string;
   sessionEndTime: string;
   isBookable: boolean;
+  isActive?: boolean;
 };
 
 const { can } = usePermission();
@@ -143,6 +144,17 @@ function handleEditClick() {
             :delay-duration="0"
             class="w-4 h-4 cursor-pointer hover:text-primary transition-colors"
             @click="emit('copySession', id)"
+          />
+        </UTooltip>
+        <UTooltip
+          v-if="can(PERMISSIONS_SESSIONS.UPDATE) && (isActive ?? true)"
+          text="Delete Session"
+          :delay-duration="0"
+        >
+          <UIcon
+            :name="ICONS.TRASH_2"
+            class="w-4 h-4 cursor-pointer transition-colors text-red-500 hover:text-red-600"
+            @click="emit('deleteSession', id)"
           />
         </UTooltip>
       </div>

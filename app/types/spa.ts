@@ -19,7 +19,8 @@ export type Spa = {
   availableFromTime: string;
   availableToTime: string;
 
-  capacityPerSlot: number;
+  privateRoomCount: number;
+  sharedRoomCount: number;
   currency: string;
 
   updatedById: number;
@@ -114,7 +115,8 @@ export type UpdateSpaPayload = {
   availableDays: Day[];
   availableFromTime: string;
   availableToTime: string;
-  capacityPerSlot: number;
+  privateRoomCount: number;
+  sharedRoomCount: number;
   video?: File | null;
   file?: File | null;
   description: string;

@@ -176,6 +176,16 @@ export const useSessionsStore = defineStore("sessions", () => {
     }
   };
 
+  const deleteSession = async (id: number): Promise<void> => {
+    try {
+      await http.delete(API_ENDPOINTS.SESSION.DELETE(id));
+    }
+    catch (error: unknown) {
+      console.error(error, "Delete Session Error");
+      throw error;
+    }
+  };
+
   return {
     loading,
     sessions,
@@ -189,5 +199,6 @@ export const useSessionsStore = defineStore("sessions", () => {
     saveAttendance,
     getMembers,
     addMemberToSession,
+    deleteSession,
   };
 });

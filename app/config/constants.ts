@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
     GET_ATTENDANCE_CANDIDATES: (id: number) => `/api/v1/sessions/${id}/attendance/candidates`,
     SAVE_ATTENDANCE: (id: number) => `/api/v1/sessions/${id}/attendance`,
     ADD_MEMBER: (id: number) => `/api/v1/sessions/${id}/attendance/replacements`,
+    DELETE: (id: number) => `/api/v1/sessions/${id}`,
   },
   KORA_PASSES: {
     GET_LIST: "/api/v1/passes",

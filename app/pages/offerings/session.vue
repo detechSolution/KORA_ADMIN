@@ -19,7 +19,7 @@ definePageMeta({
 const router = useRouter();
 const { can } = usePermission();
 const loading = ref(false);
-const { error: showError } = useNotification();
+const { success, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
 const sessions = computed(() => sessionsStore.sessions);
 const { pagination } = usePagination(8);
@@ -27,7 +27,10 @@ const isSessionEditDrawerOpen = ref(false);
 const isSessionOverviewModalOpen = ref(false);
 const isAttendanceModalOpen = ref(false);
 const isAddMemberModalOpen = ref(false);
+const isDeleteModalOpen = ref(false);
+const deleteLoading = ref(false);
 const selectedSession = ref(null);
+const sessionToDelete = ref<{ id: number; name: string } | null>(null);
 
 const state = ref({
   search: "",
@@ -110,6 +113,32 @@ function handleOpenAddMemberModal(id: number) {
   isAddMemberModalOpen.value = true;
 }
 
+function handleDeleteSession(id: number): void {
+  const session = sessions.value.data.find((s: any) => s.id === id);
+  sessionToDelete.value = { id, name: session?.name ?? "" };
+  isDeleteModalOpen.value = true;
+}
+
+async function confirmDeleteSession(): Promise<void> {
+  if (!sessionToDelete.value)
+    return;
+
+  try {
+    deleteLoading.value = true;
+    await sessionsStore.deleteSession(sessionToDelete.value.id);
+    success({ message: "Session deleted successfully" });
+    isDeleteModalOpen.value = false;
+    sessionToDelete.value = null;
+    await loadSessions();
+  }
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Failed to delete session.") });
+  }
+  finally {
+    deleteLoading.value = false;
+  }
+}
+
 function clearFilters(): void {
   state.value.search = "";
   state.value.status = "active";
@@ -121,6 +150,12 @@ function clearFilters(): void {
 
 function hasActiveFilters(): boolean {
   return !!(state.value.search || state.value.status !== "active" || state.value.referenceDateRange.start || state.value.referenceDateRange.end || state.value.selectedSessionType);
+}
+
+function isSessionDeletable(sessionDate: string): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(sessionDate) >= today;
 }
 
 onMounted(() => {
@@ -243,11 +278,13 @@ onMounted(() => {
         :session-start-time="session.startTime"
         :session-end-time="session.endTime"
         :is-bookable="session.isBookable"
+        :is-active="isSessionDeletable(session.sessionDate)"
         @open-edit-session-drawer="handleOpenEditSessionDrawer"
         @open-overview-modal="handleOpenOverviewModal"
         @copy-session="handleCopySession"
         @open-attendance-modal="handleOpenAttendanceModal"
         @open-add-member-modal="handleOpenAddMemberModal"
+        @delete-session="handleDeleteSession"
       />
     </div>
     <base-pagination
@@ -283,6 +320,14 @@ onMounted(() => {
       :open="isAddMemberModalOpen"
       :session="selectedSession"
       @close="isAddMemberModalOpen = false"
+    />
+
+    <OfferingsSessionsDeleteModal
+      :open="isDeleteModalOpen"
+      :session-name="sessionToDelete?.name"
+      :loading="deleteLoading"
+      @close="isDeleteModalOpen = false; sessionToDelete = null"
+      @confirm="confirmDeleteSession"
     />
   </div>
 </template>
