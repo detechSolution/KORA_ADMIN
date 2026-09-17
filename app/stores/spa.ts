@@ -163,7 +163,8 @@ export const useSpaStore = defineStore("spa", () => {
       payload.availableDays.forEach(day => formData.append("availableDays", day));
       formData.append("availableFromTime", payload.availableFromTime);
       formData.append("availableToTime", payload.availableToTime);
-      formData.append("capacityPerSlot", String(payload.capacityPerSlot));
+      formData.append("privateRoomCount", String(payload.privateRoomCount));
+      formData.append("sharedRoomCount", String(payload.sharedRoomCount));
       formData.append("description", payload.description);
 
       if (payload.video) {
