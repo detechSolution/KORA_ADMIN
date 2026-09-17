@@ -152,6 +152,12 @@ function hasActiveFilters(): boolean {
   return !!(state.value.search || state.value.status !== "active" || state.value.referenceDateRange.start || state.value.referenceDateRange.end || state.value.selectedSessionType);
 }
 
+function isSessionDeletable(sessionDate: string): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(sessionDate) >= today;
+}
+
 onMounted(() => {
   loadSessions();
 });
@@ -272,6 +278,7 @@ onMounted(() => {
         :session-start-time="session.startTime"
         :session-end-time="session.endTime"
         :is-bookable="session.isBookable"
+        :is-active="isSessionDeletable(session.sessionDate)"
         @open-edit-session-drawer="handleOpenEditSessionDrawer"
         @open-overview-modal="handleOpenOverviewModal"
         @copy-session="handleCopySession"

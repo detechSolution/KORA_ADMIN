@@ -25,6 +25,7 @@ type SessionCardProps = {
   sessionStartTime: string;
   sessionEndTime: string;
   isBookable: boolean;
+  isActive?: boolean;
 };
 
 const { can } = usePermission();
@@ -146,7 +147,7 @@ function handleEditClick() {
           />
         </UTooltip>
         <UTooltip
-          v-if="can(PERMISSIONS_SESSIONS.UPDATE)"
+          v-if="can(PERMISSIONS_SESSIONS.UPDATE) && (isActive ?? true)"
           text="Delete Session"
           :delay-duration="0"
         >
