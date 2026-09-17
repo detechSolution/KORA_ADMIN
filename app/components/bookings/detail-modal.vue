@@ -8,6 +8,8 @@ import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 import { getApiErrorMessage } from "~/utils/error";
 
+import CancelModal from "./cancel-modal.vue";
+
 type Props = {
   open: boolean;
   booking?: Booking | null;
@@ -24,10 +26,41 @@ const emit = defineEmits<{
   (e: "confirm"): void;
 }>();
 
-const { error: showError } = useNotification();
+const { error: showError, success } = useNotification();
 const bookingDetails = ref<any>(null);
 const loading = ref(props.loading);
 const bookingStore = useBookingStore();
+const isCancelModalOpen = ref(false);
+const selectedBookingItemId = ref<number | null>(null);
+const isCancelling = ref(false);
+
+function openCancelModal(id: number) {
+  selectedBookingItemId.value = id;
+  isCancelModalOpen.value = true;
+}
+
+async function handleCancelBooking() {
+  if (!selectedBookingItemId.value)
+    return;
+
+  try {
+    isCancelling.value = true;
+    await bookingStore.requestBookingCancellation(selectedBookingItemId.value);
+    success({ message: "Booking cancelled successfully" });
+    isCancelModalOpen.value = false;
+    selectedBookingItemId.value = null;
+    await fetchBookingDetails();
+    emit("confirm");
+  }
+  catch (error) {
+    showError({
+      message: getApiErrorMessage(error, "Failed to cancel booking"),
+    });
+  }
+  finally {
+    isCancelling.value = false;
+  }
+}
 
 async function fetchBookingDetails() {
   const id = props.booking?.id;
@@ -86,7 +119,7 @@ watch(() => props.open, async (newValue) => {
         <div class="flex flex-col gap-1">
           <span class="text-xs text-secondary-400 mb-1">Booked By</span>
           <div class="font-medium text-secondary-900 flex flex-col gap-1">
-            <span class="capitalize">{{ bookingDetails?.booker.fullName }}</span>
+            <span class="capitalize">{{ bookingDetails?.booker?.fullName }}</span>
             <span>{{ booking?.clientPhoneNumber }}</span>
           </div>
         </div>
@@ -105,58 +138,57 @@ watch(() => props.open, async (newValue) => {
           PARTICIPANTS & BOOKINGS
         </h3>
 
-        <div v-for="participant in bookingDetails?.participants" :key="participant.id">
-          <div class="border border-border rounded-xl gap-2 md:gap-0 grid md:grid-cols-13 grid-cols-1 p-3">
-            <div class="flex flex-col gap-1 p-2 border-b md:border-b-0 md:border-r border-border col-span-4">
-              <div class="flex gap-2 items-center">
-                <h2 class="text-secondary font-semibold capitalize text-sm">
-                  {{ participant?.fullName }}
-                </h2>
-
-                <base-badge v-if="participant?.type === 'guest'" :status="participant?.type">
-                  {{ normalizeText(participant?.type) }}
-                </base-badge>
-              </div>
-
-              <div class="text-secondary-500 text-xs flex flex-col">
-                <p v-if="participant?.phoneNumber" class="flex items-center gap-2">
-                  <UIcon :name="ICONS.PHONE" />  {{ participant?.phoneNumber }}
-                </p>
-                <p v-if="participant?.email" class="flex items-center gap-2">
-                  <UIcon :name="ICONS.MAIL" /> {{ participant?.email }}
-                </p>
-              </div>
-            </div>
-            <div class="flex flex-col  border-b md:border-b-0  md:border-r border-border p-2 col-span-4">
+        <div v-for="bookings in (bookingDetails?.items ?? [])" :key="bookings.id">
+          <div class="border border-border rounded-xl gap-2 md:gap-0 grid md:grid-cols-[repeat(3,minmax(0,1fr))_auto] grid-cols-1 p-3">
+            <div class="flex flex-col  border-b md:border-b-0  md:border-r border-border p-2 ">
               <span class="text-xs text-secondary-400 mb-1">Session/Service Name</span>
               <h2 class="text-sm font-semibold">
-                {{ participant?.itemName }}
+                {{ bookings?.title }}
               </h2>
             </div>
-            <div class="flex text-xs flex-col border-b  md:border-r border-border md:border-b-0 p-2 col-span-3">
+            <div class="flex text-xs flex-col border-b  md:border-r border-border md:border-b-0 p-2 ">
               <span class="text-xs text-secondary-400 mb-1">
-                {{ `Date ${participant?.itemType !== "passes" ? " & Time" : ""}` }}</span>
+                {{ `Date ${bookings?.itemType !== "passes" ? " & Time" : ""}` }}</span>
               <div class="text-xs font-semibold">
                 <div class="flex items-center gap-2">
-                  <UIcon :name="ICONS.CALENDAR" /> <h2>{{ formatDate(participant?.bookedFor) || "N/A" }}</h2>
+                  <UIcon :name="ICONS.CALENDAR" /> <h2>{{ formatDate(bookings?.scheduledAt) || "N/A" }}</h2>
                 </div>
-                <div v-if="participant?.itemType !== 'passes'" class="flex items-center gap-2">
-                  <UIcon :name="ICONS.CLOCK" /> <h2>{{ formatLocalTime(participant?.bookedFor) || "N/A" }}</h2>
+                <div v-if="bookings?.itemType !== 'passes'" class="flex items-center gap-2">
+                  <UIcon :name="ICONS.CLOCK" /> <h2>{{ formatLocalTime(bookings?.scheduledAt) || "N/A" }}</h2>
                 </div>
               </div>
             </div>
-            <div class="flex flex-col p-2 col-span-2">
+            <div class="flex flex-col p-2 ">
               <span class="text-xs text-secondary-400 mb-1">Price</span>
 
               <p class="flex self-start text-sm font-semibold">
-                {{ participant?.currency }} {{ participant?.amount }}
+                {{ bookings?.currency }} {{ bookings?.unitAmount }}
               </p>
+            </div>
+            <div class="">
+              <UDropdownMenu :items="[[{ label: 'Cancel Booking', class: 'cursor-pointer text-red-500', disabled: ['cancelled', 'cancellation_processing'].includes(booking?.status ?? ''), onSelect: () => openCancelModal(bookings.id) }]]">
+                <UButton
+                  icon="i-lucide-ellipsis-vertical"
+                  color="neutral"
+                  variant="outline"
+                  @click.stop
+                />
+              </UDropdownMenu>
             </div>
           </div>
         </div>
       </div>
     </div>
   </base-modal>
+
+  <Teleport to="body">
+    <CancelModal
+      :open="isCancelModalOpen"
+      :loading="isCancelling"
+      @close="isCancelModalOpen = false; selectedBookingItemId.value = null"
+      @confirm="handleCancelBooking"
+    />
+  </Teleport>
 </template>
 
 <style scoped></style>
