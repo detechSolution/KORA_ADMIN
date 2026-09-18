@@ -71,7 +71,7 @@ const columns = computed(() => [
     accessorKey: "amount",
     header: "Total (NPR)",
   },
-  { accessorKey: "status", header: "Status" },
+  // { accessorKey: "status", header: "Status" },
   { accessorKey: "actions", header: "Actions" },
 ]);
 
@@ -151,10 +151,10 @@ function clearFilters(): void {
   fetchBookings();
 }
 
-function openCancelModal(booking: any): void {
-  selectedBooking.value = booking;
-  isCancelModalOpen.value = true;
-}
+// function openCancelModal(booking: any): void {
+//   selectedBooking.value = booking;
+//   isCancelModalOpen.value = true;
+// }
 
 function openViewModal(booking: any): void {
   selectedBooking.value = booking;
@@ -382,13 +382,13 @@ onMounted(async () => {
                 label: 'View Details',
                 onSelect: () => openViewModal(row.original),
               },
-              {
-                label: 'Cancel Booking',
-                color: 'error',
-                class: 'cursor-pointer',
-                disabled: row.original.status !== 'confirmed',
-                onSelect: () => openCancelModal(row.original),
-              },
+              //{
+              //  label: 'Cancel Booking',
+              //  color: 'error',
+              //  class: 'cursor-pointer',
+              //  disabled: row.original.status !== 'confirmed',
+              //  onSelect: () => openCancelModal(row.original),
+              //},
             ]"
           />
         </template>

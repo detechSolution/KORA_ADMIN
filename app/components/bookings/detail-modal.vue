@@ -107,7 +107,7 @@ watch(() => props.open, async (newValue) => {
         </div>
 
         <!-- Details Section -->
-        <div class="flex flex-col gap-1">
+        <!-- <div class="flex flex-col gap-1">
           <span class="text-xs text-secondary-400 mb-1">Status</span>
 
           <div class="flex items-center gap-2 mt-1">
@@ -115,7 +115,7 @@ watch(() => props.open, async (newValue) => {
               {{ normalizeText(booking?.status) }}
             </base-badge>
           </div>
-        </div>
+        </div> -->
         <div class="flex flex-col gap-1">
           <span class="text-xs text-secondary-400 mb-1">Booked By</span>
           <div class="font-medium text-secondary-900 flex flex-col gap-1">
@@ -139,14 +139,14 @@ watch(() => props.open, async (newValue) => {
         </h3>
 
         <div v-for="bookings in (bookingDetails?.items ?? [])" :key="bookings.id">
-          <div class="border border-border rounded-xl gap-2 md:gap-0 grid md:grid-cols-[repeat(3,minmax(0,1fr))_auto] grid-cols-1 p-3">
+          <div class="border border-border rounded-xl gap-2 md:gap-0 grid md:grid-cols-[2fr_2fr_1fr_auto] grid-cols-1 p-3">
             <div class="flex flex-col  border-b md:border-b-0  md:border-r border-border p-2 ">
               <span class="text-xs text-secondary-400 mb-1">Session/Service Name</span>
               <h2 class="text-sm font-semibold">
                 {{ bookings?.title }}
               </h2>
             </div>
-            <div class="flex text-xs flex-col border-b  md:border-r border-border md:border-b-0 p-2 ">
+            <div class="flex text-xs flex-col border-b  md:border-r border-border md:border-b-0 p-2 col-span-1">
               <span class="text-xs text-secondary-400 mb-1">
                 {{ `Date ${bookings?.itemType !== "passes" ? " & Time" : ""}` }}</span>
               <div class="text-xs font-semibold">
@@ -158,15 +158,20 @@ watch(() => props.open, async (newValue) => {
                 </div>
               </div>
             </div>
-            <div class="flex flex-col p-2 ">
+            <div class="flex flex-col p-2">
               <span class="text-xs text-secondary-400 mb-1">Price</span>
 
               <p class="flex self-start text-sm font-semibold">
                 {{ bookings?.currency }} {{ bookings?.unitAmount }}
               </p>
             </div>
-            <div class="">
+            <div class="flex  gap-2 items-start justify-end p-2">
               <UDropdownMenu :items="[[{ label: 'Cancel Booking', class: 'cursor-pointer text-red-500', disabled: ['cancelled', 'cancellation_processing'].includes(booking?.status ?? ''), onSelect: () => openCancelModal(bookings.id) }]]">
+                <div class="flex items-center gap-2 mt-1">
+                  <base-badge :status="booking?.status">
+                    {{ normalizeText(booking?.status) }}
+                  </base-badge>
+                </div>
                 <UButton
                   icon="i-lucide-ellipsis-vertical"
                   color="neutral"
