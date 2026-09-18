@@ -61,7 +61,7 @@ const columns = computed(() => [
   { accessorKey: "bookingCode", header: "Booking ID" },
   { accessorKey: "client", header: "Client" },
   { accessorKey: "itemName", header: "Session/Service" },
-  { accessorKey: "itemType", header: "Type" },
+  // { accessorKey: "itemType", header: "Type" },
   {
     accessorKey: "bookedFor",
     header: "Scheduled Date",
@@ -412,6 +412,7 @@ onMounted(async () => {
         :open="isDetailModalOpen"
         :booking="selectedBooking"
         @close="isDetailModalOpen = false"
+        @confirm="fetchBookings"
       />
     </div>
   </div>
