@@ -2,7 +2,7 @@
 import { computed, nextTick, reactive, ref, watch } from "vue";
 import * as z from "zod";
 
-import type { SpaSubType } from "~/types/spa";
+import type { SpaCategory, SpaCategoryOption, SpaSubType } from "~/types/spa";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
@@ -35,6 +35,7 @@ const currentStep = ref(0);
 const loading = ref(false);
 const initialLoading = ref(false);
 const apiError = ref<string | null>(null);
+const isAddCategoryModalOpen = ref(false);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const steps = [
@@ -48,10 +49,12 @@ const timeUnitOptions = [
 ] as const;
 
 const form = reactive<{
+  categoryId: number | null;
   name: string;
   description: string;
   prices: PricingRow[];
 }>({
+  categoryId: null,
   name: "",
   description: "",
   prices: [
@@ -63,6 +66,13 @@ const form = reactive<{
     },
   ],
 });
+
+const categoryOptions = computed<SpaCategoryOption[]>(() =>
+  spaStore.spaCategories.map(category => ({
+    label: category.name,
+    value: category.id,
+  })),
+);
 
 const isOpen = computed({
   get: () => props.open,
@@ -95,12 +105,17 @@ const priceRowSchema = z.object({
 });
 
 const stepOneSchema = z.object({
+  categoryId: z.number().int().positive("Spa category is required").nullable().refine(
+    value => value !== null,
+    "Spa category is required",
+  ),
   name: z.string().trim().min(1, "Spa type name is required"),
   description: z.string().trim().min(1, "Description is required"),
 });
 
 const schema = z
   .object({
+    categoryId: stepOneSchema.shape.categoryId,
     name: stepOneSchema.shape.name,
     description: stepOneSchema.shape.description,
     prices: z.array(priceRowSchema).min(1, "At least one price is required"),
@@ -120,6 +135,7 @@ const schema = z
 function resetForm(): void {
   currentStep.value = 0;
   apiError.value = null;
+  form.categoryId = null;
   form.name = "";
   form.description = "";
   form.prices = [
@@ -138,6 +154,10 @@ function clearApiError(): void {
 
 function closeDrawer(): void {
   emit("close");
+}
+
+function handleCategoryCreated(category: SpaCategory): void {
+  form.categoryId = category.id;
 }
 
 function previousStep(): void {
@@ -164,6 +184,7 @@ function removePricingRow(id: number): void {
 }
 
 function fillForm(subType: SpaSubType): void {
+  form.categoryId = subType.categoryId ?? null;
   form.name = subType.name;
   form.description = subType.description ?? "";
   form.prices = subType.prices.length
@@ -185,6 +206,7 @@ function fillForm(subType: SpaSubType): void {
 
 async function handleNext(): Promise<void> {
   const result = stepOneSchema.safeParse({
+    categoryId: form.categoryId,
     name: form.name,
     description: form.description,
   });
@@ -214,6 +236,7 @@ async function handleUpdate(): Promise<void> {
     clearApiError();
 
     await spaStore.updateSpaSubType(props.serviceId, {
+      categoryId: form.categoryId!,
       name: form.name.trim(),
       description: form.description.trim(),
       prices: form.prices.map(price => ({
@@ -265,7 +288,10 @@ watch(
 
     resetForm();
     await nextTick();
-    await loadService(props.serviceId);
+    await Promise.all([
+      spaStore.getSpaCategories(),
+      loadService(props.serviceId),
+    ]);
   },
 );
 </script>
@@ -298,6 +324,21 @@ watch(
 
         <div class="flex-1 overflow-y-auto px-5 py-3">
           <div v-if="currentStep === 0" class="grid gap-5">
+            <base-select-menu
+              v-model="form.categoryId"
+              name="categoryId"
+              label="Spa Category"
+              placeholder="Search Category"
+              search-placeholder="Search Category"
+              :options="categoryOptions"
+              show-add-action
+              add-action-label="Add Category"
+              :empty-icon="ICONS.FILE"
+              empty-message="No categories yet. Add a new category."
+              required
+              @add="isAddCategoryModalOpen = true"
+            />
+
             <base-input
               v-model="form.name"
               name="name"
@@ -407,4 +448,10 @@ watch(
       </template>
     </UForm>
   </base-drawer>
+
+  <offerings-spa-add-category-modal
+    :open="isAddCategoryModalOpen"
+    @close="isAddCategoryModalOpen = false"
+    @created="handleCategoryCreated"
+  />
 </template>
