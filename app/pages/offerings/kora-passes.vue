@@ -85,7 +85,7 @@ async function handleSendInvitation(payload: { passId: number; emails: string[];
       </template>
     </base-page-header>
 
-    <div class="rounded-b-xl space-y-10">
+    <div class="rounded-b-xl space-y-5">
       <!-- Loading State -->
       <div v-if="koraPassesStore.loading && !koraPasses.data.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
@@ -95,25 +95,16 @@ async function handleSendInvitation(payload: { passId: number; emails: string[];
         />
       </div>
 
-      <div v-else class="space-y-10">
+      <div v-else class="space-y-5">
         <!-- Regular Passes -->
         <section>
-          <div class="mb-4">
-            <h2 class="text-xl font-semibold text-secondary-900">
-              Regular Passes
-            </h2>
-            <p class="text-sm text-secondary-500">
-              Passes available on the website.
-            </p>
-          </div>
-
           <base-empty
             v-if="!regularPasses.length"
             title="No regular passes found"
-            description="Create a regular pass to display it here."
+            description="Create a pass to display it here."
           />
 
-          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <OfferingsKoraPassCard
               v-for="pass in regularPasses"
               :key="pass.id"
@@ -126,14 +117,14 @@ async function handleSendInvitation(payload: { passId: number; emails: string[];
 
         <!-- Invitation Passes -->
         <section>
-          <div class="mb-4">
-            <h2 class="text-xl font-semibold text-secondary-900">
+          <base-page-header class="mb-4">
+            <template #title>
               Invitation Passes
-            </h2>
-            <p class="text-sm text-secondary-500">
-              Private passes that are not displayed on the website.
-            </p>
-          </div>
+            </template>
+            <template #description>
+              List of invitation passes
+            </template>
+          </base-page-header>
 
           <base-empty
             v-if="!invitationPasses.length"
@@ -141,7 +132,7 @@ async function handleSendInvitation(payload: { passId: number; emails: string[];
             description="Invitation passes will appear here once created."
           />
 
-          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <OfferingsKoraPassCard
               v-for="pass in invitationPasses"
               :key="pass.id"
