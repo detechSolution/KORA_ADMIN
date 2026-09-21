@@ -113,10 +113,6 @@ function getMemberBenefitPercent(serviceType: string): number {
   return getBenefitPercent(selectedMember.value?.membershipBenefits, serviceType);
 }
 
-/** Discount percent for the selected member's guests/visitors on a service type. */
-function getGuestBenefitPercent(serviceType: string): number {
-  return getBenefitPercent(selectedMember.value?.guestBenefits, serviceType);
-}
 const memberName = computed(() => selectedMember.value?.fullName ?? selectedMember.value?.label ?? "Member");
 
 type OverviewRow = {
@@ -163,18 +159,10 @@ const rows = computed<OverviewRow[]>(() => {
   const result: OverviewRow[] = [];
 
   // Member row: discount comes from the selected member's membershipBenefits.
-  if (!form.value.guestOnly && form.value.serviceId) {
+  if (form.value.serviceId) {
     const memberBenefit = getMemberBenefitPercent(getServiceType(form.value));
     result.push(buildRow(form.value, memberName.value, memberBenefit));
   }
-
-  // Visitors are guests — their discount comes from the selected member's guestBenefits.
-  (form.value.visitors ?? []).forEach((v: any) => {
-    if (!v.serviceId)
-      return;
-    const guestBenefit = getGuestBenefitPercent(getServiceType(v));
-    result.push(buildRow(v, v.fullName || "Visitor", guestBenefit));
-  });
 
   return result;
 });

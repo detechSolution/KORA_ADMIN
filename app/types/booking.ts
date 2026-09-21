@@ -82,18 +82,6 @@ export type CreateExistingMemberBookingPayload = {
   };
   bookingDate?: string;
   bookingTime?: string;
-  visitors: Array<{
-    fullName: string;
-    phoneNumber: string;
-    email: string;
-    item: {
-      id: number;
-      name: string;
-      type: string;
-    };
-    bookingDate: string;
-    bookingTime?: string;
-  }>;
   promoCode?: string;
   paymentMethod: string;
 };

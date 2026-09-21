@@ -9,9 +9,10 @@ defineProps<{
 
   price: number;
   isActive: boolean;
+  isInvitation: boolean;
 }>();
 
-const emit = defineEmits(["edit"]);
+const emit = defineEmits(["edit", "invite"]);
 </script>
 
 <template>
@@ -34,16 +35,31 @@ const emit = defineEmits(["edit"]);
 
     <!-- Footer -->
     <div class="px-5 py-4 bg-stone-50/30 border-t border-stone-100 flex items-center justify-between mt-auto">
-      <div class="text-base font-bold text-secondary-900">
+      <div
+        v-if="!isInvitation"
+        class="text-base font-bold text-secondary-900"
+      >
         Rs. {{ price.toLocaleString() }}
       </div>
-      <button
-        type="button"
-        class="p-2 rounded-lg text-secondary-400 hover:text-primary hover:bg-primary/5 transition-all"
-        @click="emit('edit', id)"
-      >
-        <UIcon :name="ICONS.EDIT" class="w-4 h-4" />
-      </button>
+      <div>
+        <button
+          v-if="isInvitation"
+          type="button"
+          class="p-2 rounded-lg text-secondary-400 hover:text-primary hover:bg-primary/5 transition-all"
+          title="Add user"
+          aria-label="Add user"
+          @click="emit('invite', id)"
+        >
+          <UIcon :name="ICONS.USER_PLUS" class="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          class="p-2 rounded-lg text-secondary-400 hover:text-primary hover:bg-primary/5 transition-all"
+          @click="emit('edit', id)"
+        >
+          <UIcon :name="ICONS.EDIT" class="w-4 h-4" />
+        </button>
+      </div>
     </div>
   </div>
 </template>

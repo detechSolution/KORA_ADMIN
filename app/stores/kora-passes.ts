@@ -51,6 +51,7 @@ export const useKoraPassesStore = defineStore("kora-passes", () => {
         salonBenefit: form.salonBenefit,
         numberOfDays: form.validity,
         isActive: form.status,
+        isInvitation: form.isInvitation,
       };
       await http.post(API_ENDPOINTS.KORA_PASSES.CREATE, payload);
     }
@@ -77,11 +78,31 @@ export const useKoraPassesStore = defineStore("kora-passes", () => {
     }
   };
 
+  const invitePass = async (id: number, emails: string[], fromDate: string, toDate: string): Promise<void> => {
+    try {
+      loading.value = true;
+      const payload = {
+        emails,
+        fromDate,
+        toDate,
+      };
+      await http.post(API_ENDPOINTS.KORA_PASSES.INVITE(id), payload);
+    }
+    catch (error: unknown) {
+      console.error(error, "Invite Kora Pass Error");
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
   return {
     loading,
     koraPasses,
     getKoraPasses,
     createPass,
+    invitePass,
     updatePass,
   };
 });

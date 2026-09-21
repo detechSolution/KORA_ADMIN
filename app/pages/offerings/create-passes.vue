@@ -43,6 +43,7 @@ const schema = z.object({
   salonBenefit: z.coerce.number({ message: "Enter the salon benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
   description: z.string().refine(v => stripHtml(v).length > 0, { message: "Add a description for this pass" }),
   status: z.boolean(),
+  isInvitation: z.boolean(),
 });
 
 type Schema = z.output<typeof schema>;
@@ -59,6 +60,7 @@ const form = reactive<Schema>({
   salonBenefit: 0,
   description: "",
   status: true,
+  isInvitation: false,
 });
 
 async function handleCreatePass() {
@@ -109,7 +111,7 @@ async function handleCreatePass() {
       </template>
     </base-page-header>
 
-    <div class="bg-card rounded-xl border border-border shadow-sm p-6">
+    <div class="bg-card rounded-xl space-y-6 border border-border shadow-sm p-6">
       <!-- Info Alert -->
       <form-header-card
         label="Kora Pass Info"
@@ -125,138 +127,153 @@ async function handleCreatePass() {
         @submit="handleCreatePass"
       >
         <!-- Form Fields -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 shadow-sm p-4 rounded-lg">
-          <base-input
-            v-model="form.name"
-            name="name"
-            label="Pass Name*"
-            placeholder="Enter pass name"
-          />
-
-          <base-input
-            v-model.number="form.validity"
-            label="Pass Validity (Days)*"
-            name="validity"
-            type="number"
-            placeholder="Enter number of valid days"
-            class="w-full"
-          >
-            <template #trailing>
-              <span class="text-sm text-stone-400 pr-2">Days</span>
-            </template>
-          </base-input>
-
-          <base-input
-            v-model.number="form.spaBenefit"
-            name="spaBenefit"
-            label="Spa Benefit*"
-            type="number"
-            placeholder="Enter spa benefit percentage"
-            class="w-full"
-          >
-            <template #trailing>
-              <span class="text-sm text-stone-400 pr-2">%</span>
-            </template>
-          </base-input>
-
-          <base-input
-            v-model.number="form.classBenefit"
-            name="classBenefit"
-            label="Class Benefit*"
-            type="number"
-            placeholder="Enter class benefit percentage"
-            class="w-full"
-          >
-            <template #trailing>
-              <span class="text-sm text-stone-400 pr-2">%</span>
-            </template>
-          </base-input>
-
-          <base-input
-            v-model.number="form.eventBenefit"
-            name="eventBenefit"
-            label="Event Benefit*"
-            type="number"
-            placeholder="Enter event benefit percentage"
-            class="w-full"
-          >
-            <template #trailing>
-              <span class="text-sm text-stone-400 pr-2">%</span>
-            </template>
-          </base-input>
-
-          <base-input
-            v-model.number="form.workshopBenefit"
-            name="workshopBenefit"
-            label="Workshop Benefit*"
-            type="number"
-            placeholder="Enter workshop benefit percentage"
-            class="w-full"
-          >
-            <template #trailing>
-              <span class="text-sm text-stone-400 pr-2">%</span>
-            </template>
-          </base-input>
-
-          <base-input
-            v-model.number="form.cafeBenefit"
-            name="cafeBenefit"
-            label="Cafe Benefit*"
-            type="number"
-            placeholder="Enter cafe benefit percentage"
-            class="w-full"
-          >
-            <template #trailing>
-              <span class="text-sm text-stone-400 pr-2">%</span>
-            </template>
-          </base-input>
-
-          <base-input
-            v-model.number="form.salonBenefit"
-            name="salonBenefit"
-            label="Salon Benefit*"
-            type="number"
-            placeholder="Enter salon benefit percentage"
-            class="w-full"
-          >
-            <template #trailing>
-              <span class="text-sm text-stone-400 pr-2">%</span>
-            </template>
-          </base-input>
-
-          <div class="md:col-span-2">
+        <div class="shadow-sm p-4 rounded-lg flex flex-col gap-6 ">
+          <div>
+            <div class="flex gap-2 items-center">
+              <UCheckbox
+                v-model="form.isInvitation"
+              />
+              <h1 class="text-secondary font-medium text-sm">
+                Is this an invitation pass?
+              </h1>
+            </div>
+            <p class="text-stone-400 font-normal text-sm ml-6">
+              Invitation passes are not displayed on the website. Once a pass is created, you can invite users directly.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             <base-input
-              v-model.number="form.price"
+              v-model="form.name"
+              name="name"
+              label="Pass Name*"
+              placeholder="Enter pass name"
+            />
+
+            <base-input
+              v-model.number="form.validity"
+              label="Pass Validity (Days)*"
+              name="validity"
               type="number"
-              placeholder="Enter pass price"
-              name="price"
-              label="Pass Price*"
+              placeholder="Enter number of valid days"
               class="w-full"
             >
               <template #trailing>
-                <span class="text-sm text-stone-400 pr-2">Rs</span>
+                <span class="text-sm text-stone-400 pr-2">Days</span>
               </template>
             </base-input>
-          </div>
 
-          <div class="md:col-span-2">
-            <base-text-editor
-              v-model="form.description"
-              name="description"
-              label="Pass Description*"
-              placeholder="Write a short description about this service"
-              class="w-full min-h-32"
-            />
-          </div>
+            <base-input
+              v-model.number="form.spaBenefit"
+              name="spaBenefit"
+              label="Spa Benefit*"
+              type="number"
+              placeholder="Enter spa benefit percentage"
+              class="w-full"
+            >
+              <template #trailing>
+                <span class="text-sm text-stone-400 pr-2">%</span>
+              </template>
+            </base-input>
 
-          <div class="md:col-span-2 flex flex-col gap-2">
-            <span class="text-sm font-medium text-secondary-900">Status</span>
-            <base-switch
-              v-model="form.status"
-              name="status"
-              label=""
-              :show-label="false"
-            />
+            <base-input
+              v-model.number="form.classBenefit"
+              name="classBenefit"
+              label="Class Benefit*"
+              type="number"
+              placeholder="Enter class benefit percentage"
+              class="w-full"
+            >
+              <template #trailing>
+                <span class="text-sm text-stone-400 pr-2">%</span>
+              </template>
+            </base-input>
+
+            <base-input
+              v-model.number="form.eventBenefit"
+              name="eventBenefit"
+              label="Event Benefit*"
+              type="number"
+              placeholder="Enter event benefit percentage"
+              class="w-full"
+            >
+              <template #trailing>
+                <span class="text-sm text-stone-400 pr-2">%</span>
+              </template>
+            </base-input>
+
+            <base-input
+              v-model.number="form.workshopBenefit"
+              name="workshopBenefit"
+              label="Workshop Benefit*"
+              type="number"
+              placeholder="Enter workshop benefit percentage"
+              class="w-full"
+            >
+              <template #trailing>
+                <span class="text-sm text-stone-400 pr-2">%</span>
+              </template>
+            </base-input>
+
+            <base-input
+              v-model.number="form.cafeBenefit"
+              name="cafeBenefit"
+              label="Cafe Benefit*"
+              type="number"
+              placeholder="Enter cafe benefit percentage"
+              class="w-full"
+            >
+              <template #trailing>
+                <span class="text-sm text-stone-400 pr-2">%</span>
+              </template>
+            </base-input>
+
+            <base-input
+              v-model.number="form.salonBenefit"
+              name="salonBenefit"
+              label="Salon Benefit*"
+              type="number"
+              placeholder="Enter salon benefit percentage"
+              class="w-full"
+            >
+              <template #trailing>
+                <span class="text-sm text-stone-400 pr-2">%</span>
+              </template>
+            </base-input>
+
+            <div class="md:col-span-2">
+              <base-input
+                v-model.number="form.price"
+                type="number"
+                placeholder="Enter pass price"
+                name="price"
+                label="Pass Price*"
+                class="w-full"
+              >
+                <template #trailing>
+                  <span class="text-sm text-stone-400 pr-2">Rs</span>
+                </template>
+              </base-input>
+            </div>
+
+            <div class="md:col-span-2">
+              <base-text-editor
+                v-model="form.description"
+                name="description"
+                label="Pass Description*"
+                placeholder="Write a short description about this service"
+                class="w-full min-h-32"
+              />
+            </div>
+
+            <div class="md:col-span-2 flex flex-col gap-2">
+              <span class="text-sm font-medium text-secondary-900">Status</span>
+              <base-switch
+                v-model="form.status"
+                name="status"
+                label=""
+                :show-label="false"
+              />
+            </div>
           </div>
         </div>
 
