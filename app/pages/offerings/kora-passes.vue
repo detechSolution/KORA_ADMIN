@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 
+import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_KORA_PASSES } from "~/config/permissions";
 import { useKoraPassesStore } from "~/stores/kora-passes";
+import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
   auth: true,
@@ -14,9 +16,13 @@ definePageMeta({
 const koraPassesStore = useKoraPassesStore();
 
 const isEditDrawerOpen = ref(false);
+const isInvitationModalOpen = ref(false);
 const selectedPass = ref<any>(null);
 const { can } = usePermission();
+const { success: showSuccess, error: showError } = useNotification();
 const koraPasses = computed(() => koraPassesStore.koraPasses);
+const regularPasses = computed(() => koraPasses.value.data.filter((pass: any) => !pass.isInvitation));
+const invitationPasses = computed(() => koraPasses.value.data.filter((pass: any) => pass.isInvitation));
 
 onMounted(() => {
   koraPassesStore.getKoraPasses();
@@ -32,6 +38,25 @@ function handleEditPass(id: number) {
 
 function handleSuccess() {
   koraPassesStore.getKoraPasses();
+}
+
+function handleInvitePass(id: number) {
+  const pass = koraPasses.value.data.find((item: any) => item.id === id);
+  if (pass) {
+    selectedPass.value = pass;
+    isInvitationModalOpen.value = true;
+  }
+}
+
+async function handleSendInvitation(payload: { passId: number; emails: string[]; fromDate: string; toDate: string }) {
+  try {
+    await koraPassesStore.invitePass(payload.passId, payload.emails, payload.fromDate, payload.toDate);
+    showSuccess({ message: "Invitation sent successfully" });
+    isInvitationModalOpen.value = false;
+  }
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Failed to send invitation") });
+  }
 }
 </script>
 
@@ -60,7 +85,7 @@ function handleSuccess() {
       </template>
     </base-page-header>
 
-    <div class="rounded-b-xl">
+    <div class="rounded-b-xl space-y-5">
       <!-- Loading State -->
       <div v-if="koraPassesStore.loading && !koraPasses.data.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
@@ -70,20 +95,53 @@ function handleSuccess() {
         />
       </div>
 
-      <!-- Empty State -->
-      <base-empty
-        v-else-if="!koraPasses.data.length"
-        title="No passes found"
-      />
+      <div v-else class="space-y-5">
+        <!-- Regular Passes -->
+        <section>
+          <base-empty
+            v-if="!regularPasses.length"
+            title="No regular passes found"
+            description="Create a pass to display it here."
+          />
 
-      <!-- Passes Cards -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <OfferingsKoraPassCard
-          v-for="pass in koraPasses.data"
-          :key="pass.id"
-          v-bind="pass"
-          @edit="handleEditPass"
-        />
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <OfferingsKoraPassCard
+              v-for="pass in regularPasses"
+              :key="pass.id"
+              v-bind="pass"
+              @edit="handleEditPass"
+              @invite="handleInvitePass"
+            />
+          </div>
+        </section>
+
+        <!-- Invitation Passes -->
+        <section>
+          <base-page-header class="mb-4">
+            <template #title>
+              Invitation Passes
+            </template>
+            <template #description>
+              List of invitation passes
+            </template>
+          </base-page-header>
+
+          <base-empty
+            v-if="!invitationPasses.length"
+            title="No invitation passes found"
+            description="Invitation passes will appear here once created."
+          />
+
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <OfferingsKoraPassCard
+              v-for="pass in invitationPasses"
+              :key="pass.id"
+              v-bind="pass"
+              @edit="handleEditPass"
+              @invite="handleInvitePass"
+            />
+          </div>
+        </section>
       </div>
     </div>
 
@@ -93,6 +151,14 @@ function handleSuccess() {
       :pass="selectedPass"
       @close="isEditDrawerOpen = false"
       @success="handleSuccess"
+    />
+
+    <OfferingsSendInvitationModal
+      :open="isInvitationModalOpen"
+      :pass="selectedPass"
+      :loading="koraPassesStore.loading"
+      @close="isInvitationModalOpen = false"
+      @send="handleSendInvitation"
     />
   </div>
 </template>

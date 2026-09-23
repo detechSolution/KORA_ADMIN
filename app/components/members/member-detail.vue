@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 
+import ItemNameList from "~/components/base/item-name-list.vue";
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
 import { formatDate } from "~/utils/common";
@@ -263,7 +264,7 @@ watch(
           >
             <div class="flex items-center justify-between w-full">
               <p class="font-medium text-sm text-secondary">
-                {{ booking.itemName }}
+                <ItemNameList :value="booking.itemName" />
               </p>
 
               <p class="text-xs font-normal text-secondary-500">
@@ -294,7 +295,7 @@ watch(
           >
             <div class="flex w-full items-center justify-between">
               <div class="font-medium flex gap-2 items-center text-sm text-secondary">
-                {{ payment.title }}
+                <ItemNameList :value="payment.title" />
 
                 <base-badge uppercase>
                   {{ payment.bookingCode || payment.referenceCode }}

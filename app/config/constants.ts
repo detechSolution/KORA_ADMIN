@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
     GET_LIST: "/api/v1/passes",
     CREATE: "/api/v1/passes",
     UPDATE: (id: number) => `/api/v1/passes/${id}`,
+    INVITE: (id: number) => `/api/v1/passes/${id}/invite`,
   },
   SPA: {
     GET_SPA: "/api/v1/spa",
