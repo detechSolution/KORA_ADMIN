@@ -6,6 +6,7 @@ import type { Booking, BookingItemGroup, CreateExistingMemberBookingPayload, Cre
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
+import { hasServiceNamePrefixCollision } from "~/utils/service-names";
 
 export const useBookingStore = defineStore("booking", () => {
   const http = getHttp();
@@ -25,8 +26,24 @@ export const useBookingStore = defineStore("booking", () => {
   const getBookings = async (params: Record<string, any>): Promise<void> => {
     try {
       const qs = buildQueryString(params);
-      const response = await http.get(`${API_ENDPOINTS.BOOKINGS.BASE}?${qs}`) as any;
-      bookings.value = response;
+      const response = await http.get(`${API_ENDPOINTS.BOOKINGS.BASE}?${qs}`) as ApiResponse<Booking[]>;
+
+      const data = await Promise.all(response.data.map(async (booking) => {
+        if (!hasServiceNamePrefixCollision(booking.itemNames))
+          return booking;
+
+        try {
+          const details = await http.get(API_ENDPOINTS.BOOKINGS.GET(booking.id)) as { items?: Array<{ title?: string }> };
+          const itemNames = details.items?.map(item => item.title).filter((title): title is string => !!title);
+
+          return itemNames?.length ? { ...booking, itemNames } : booking;
+        }
+        catch {
+          return booking;
+        }
+      }));
+
+      bookings.value = { ...response, data };
     }
     catch (error: unknown) {
       console.error("Error fetching bookings:", error);

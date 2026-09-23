@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from "vue";
 
 import type { Booking } from "~/types/booking";
 
+import ItemNameList from "~/components/base/item-name-list.vue";
 import { useChartColors } from "~/composables/use-chart-colors";
 import { useNotification } from "~/composables/use-notification";
 import { usePermission } from "~/composables/use-permission";
@@ -302,24 +303,7 @@ const kpiData = computed(() => [
           </template>
 
           <template #itemName-cell="{ row }">
-            <div class="flex items-center gap-2">
-              <span class="text-sm text-secondary">
-                {{ row.original.itemNames?.[0] || "N/A" }}
-              </span>
-
-              <UTooltip
-                v-if="row.original.itemNames?.length > 1"
-                :delay-duration="0"
-                arrow
-                :text="`${row.original.itemNames.length - 1} more service${row.original.itemNames.length - 1 === 1 ? '' : 's'}`"
-              >
-                <span
-                  class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-stone-100 px-1.5 text-xs font-medium leading-none text-stone-500"
-                >
-                  +{{ row.original.itemNames.length - 1 }}
-                </span>
-              </UTooltip>
-            </div>
+            <ItemNameList :value="row.original.itemNames" class="text-sm text-secondary" />
           </template>
 
           <template #status-cell="{ row }">

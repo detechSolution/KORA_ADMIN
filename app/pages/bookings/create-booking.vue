@@ -5,7 +5,7 @@ import { ICONS } from "~/config/icons";
 
 const items = [
   {
-    label: "Existing Member / Guest",
+    label: "Existing Member",
     value: "existing",
   },
   {
