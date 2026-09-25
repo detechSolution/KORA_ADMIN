@@ -15,6 +15,11 @@ const serviceTypes = [
   { label: "Passes", value: "passes" },
 ];
 
+const roomTypes = [
+  { label: "Private Room", value: "private" },
+  { label: "Shared Room", value: "shared" },
+] as const;
+
 /* ── Time helpers ───────────────────────────────────────── */
 
 function parseTimeValue(value: string): Time | undefined {
@@ -161,6 +166,7 @@ watch(() => form.value.serviceType, async (newType, oldType) => {
   if (oldType !== undefined && newType !== oldType) {
     form.value.serviceId = undefined;
     form.value.durationId = null;
+    form.value.roomType = "private";
   }
 
   if (newType) {
@@ -223,6 +229,7 @@ async function fetchSpaTimes() {
       bookingDate: form.value.date,
       duration: selected.minutes ?? selected.duration ?? selected.value,
       timeUnit: selected.timeUnit ?? "minutes",
+      roomType: form.value.roomType,
     });
     spaTimes.value = times.map((item: any) => ({
       label: item.label,
@@ -244,7 +251,7 @@ async function fetchSpaTimes() {
   }
 }
 
-watch([() => form.value.date, () => form.value.durationId, () => form.value.serviceId], () => {
+watch([() => form.value.date, () => form.value.durationId, () => form.value.serviceId, () => form.value.roomType], () => {
   if (form.value.serviceType === "spa") {
     fetchSpaTimes();
   }
@@ -270,6 +277,37 @@ defineExpose({
         :options="serviceTypes"
         @update:model-value="form.date = ''"
       />
+
+      <!-- Spa: Room Type -->
+      <fieldset v-if="form.serviceType === 'spa'" class="space-y-2">
+        <legend class="text-sm font-medium">
+          Room Type
+        </legend>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label
+            v-for="room in roomTypes"
+            :key="room.value"
+            class="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors focus-within:ring-2 focus-within:ring-primary"
+            :class="form.roomType === room.value ? 'border-border bg-primary-50/60' : 'border-secondary-100 bg-white hover:border-primary-300'"
+          >
+            <input
+              v-model="form.roomType"
+              type="radio"
+              name="roomType"
+              :value="room.value"
+              class="sr-only"
+            >
+            <span
+              aria-hidden="true"
+              class="flex size-[18px] shrink-0 items-center justify-center rounded-full border"
+              :class="form.roomType === room.value ? 'border-primary bg-primary' : 'border-secondary-100 bg-white'"
+            >
+              <span v-if="form.roomType === room.value" class="size-1.5 rounded-full bg-white" />
+            </span>
+            <span>{{ room.label }}</span>
+          </label>
+        </div>
+      </fieldset>
 
       <base-select-menu
         v-if="form.serviceType"

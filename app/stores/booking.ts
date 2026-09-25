@@ -94,7 +94,12 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
-  const fetchSpaTimeAvailability = async (params: { bookingDate: string; duration: number; timeUnit: string }): Promise<any[]> => {
+  const fetchSpaTimeAvailability = async (params: {
+    bookingDate: string;
+    duration: number;
+    timeUnit: string;
+    roomType?: "private" | "shared";
+  }): Promise<any[]> => {
     try {
       const qs = new URLSearchParams({
         bookingDate: params.bookingDate,
@@ -102,7 +107,27 @@ export const useBookingStore = defineStore("booking", () => {
         timeUnit: params.timeUnit,
       }).toString();
       const res = await http.get(`${API_ENDPOINTS.BOOKINGS.SPA_TIME_AVAILABILITY}?${qs}`) as { data?: any[] };
-      return res.data ?? [];
+      const slots = res.data ?? [];
+
+      // A shared room can be reserved privately, but a private room cannot
+      // be used for a shared booking. Prefer room counts when the API sends
+      // them, and keep the old capacity fallback for older responses.
+      if (!params.roomType)
+        return slots;
+
+      return slots.filter((slot: any) => {
+        const availablePrivateRooms = Number(slot.availablePrivateRooms);
+        const availableSharedRooms = Number(slot.availableSharedRooms);
+
+        if (!Number.isNaN(availablePrivateRooms) && !Number.isNaN(availableSharedRooms)) {
+          return params.roomType === "private"
+            ? availablePrivateRooms + availableSharedRooms > 0
+            : availableSharedRooms > 0;
+        }
+
+        const availableCapacity = Number(slot.availableCapacity);
+        return !Number.isNaN(availableCapacity) && availableCapacity > 0;
+      });
     }
     catch (error: unknown) {
       console.error(error, "Fetch SPA Time Availability Error");
