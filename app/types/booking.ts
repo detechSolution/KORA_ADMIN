@@ -2,6 +2,7 @@ export type ServiceState = {
   serviceType: string;
   serviceId: number | undefined;
   durationId: number | null;
+  roomType: "private" | "shared";
   date: string;
   time: string;
   resolvedItemId?: number | null;
@@ -66,6 +67,7 @@ export type CreateNewClientBookingPayload = {
   };
   bookingDate: string;
   bookingTime?: string | undefined;
+  roomType?: "private" | "shared";
   fullName: string;
   phoneNumber?: string;
   email: string;
@@ -82,6 +84,7 @@ export type CreateExistingMemberBookingPayload = {
   };
   bookingDate?: string;
   bookingTime?: string;
+  roomType?: "private" | "shared";
   promoCode?: string;
   paymentMethod: string;
 };
