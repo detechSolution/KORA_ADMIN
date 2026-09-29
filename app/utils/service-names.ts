@@ -10,21 +10,26 @@ export function serviceNameKey(value: string): string {
     .trim();
 }
 
-export function uniqueServiceNames(value?: string | string[] | null): string[] {
+export function serviceNames(value?: string | string[] | null): string[] {
   const values = Array.isArray(value) ? value : [value];
-  const seen = new Set<string>();
 
   return values
     .flatMap(name => typeof name === "string" ? name.split(",") : [])
     .map(normalizeServiceName)
-    .filter((name) => {
-      const key = serviceNameKey(name);
-      if (!key || seen.has(key))
-        return false;
+    .filter(name => !!serviceNameKey(name));
+}
 
-      seen.add(key);
-      return true;
-    });
+export function uniqueServiceNames(value?: string | string[] | null): string[] {
+  const seen = new Set<string>();
+
+  return serviceNames(value).filter((name) => {
+    const key = serviceNameKey(name);
+    if (seen.has(key))
+      return false;
+
+    seen.add(key);
+    return true;
+  });
 }
 
 export function hasServiceNamePrefixCollision(value?: string | string[] | null): boolean {

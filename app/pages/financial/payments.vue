@@ -14,11 +14,6 @@ definePageMeta({
   permission: "payments.view",
 });
 
-const options = ref([
-  { label: "Paid", value: "paid" },
-  { label: "Refunded", value: "refunded" },
-]);
-
 const financeStore = useFinanceStore();
 const analyticsStore = useAnalyticsStore();
 const { pagination } = usePagination();
@@ -40,10 +35,11 @@ const columns = [
   { id: "amount", header: "Amount", accessorKey: "amount", accessorFn: (row: any) => `${row.currency} ${row.amount.toFixed(2)}` || "N/A" },
   { id: "paidAt", header: "Paid Date", accessorKey: "createdAt", accessorFn: (row: any) => formatDate(row.createdAt) || "N/A" },
   { id: "method", header: "Method", accessorKey: "method" },
-  { id: "status", header: "Status", accessorKey: "status" },
 ];
 
 const payments = computed(() => financeStore.payments);
+const route = useRoute();
+const router = useRouter();
 
 async function fetchPayments(): Promise<void> {
   try {
@@ -76,10 +72,15 @@ function clearFilters(): void {
 }
 
 onMounted(async () => {
+  const search = route.query.search as string;
+  state.value.search = search || "";
+
   await Promise.all([
     fetchPayments(),
     analyticsStore.getAnalyticsStats(),
   ]);
+
+  router.replace({ query: { search: undefined } });
 });
 </script>
 
@@ -114,13 +115,7 @@ onMounted(async () => {
             :no-of-months="2"
             class="w-full sm:w-auto sm:flex-1 "
           />
-          <base-select
-            v-model="state.status"
-            name="status"
-            placeholder="Status"
-            :options="options"
-            class="w-full sm:w-auto sm:flex-1 md:w-64"
-          />
+
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
               variant="outline"
@@ -181,12 +176,6 @@ onMounted(async () => {
         <template #method-cell="{ row }">
           <base-badge :status="row?.original?.method" :show-icon="true">
             {{ row?.original?.method }}
-          </base-badge>
-        </template>
-
-        <template #status-cell="{ row }">
-          <base-badge :status="row?.original?.status">
-            {{ row?.original?.status }}
           </base-badge>
         </template>
       </base-table>

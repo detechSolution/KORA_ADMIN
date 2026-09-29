@@ -25,6 +25,7 @@ const options = [
 const columns = [
   { header: "Client", accessorKey: "client" },
   { header: "Reference ID", accessorKey: "referenceCode" },
+  { header: "Session/Service", accessorKey: "bookingName" },
   { header: "Requested Date", accessorKey: "requestedDate", accessorFn: (row: any) => formatDate(row.requestedDate) || "N/A" },
   { header: "Refunded Date", accessorKey: "refundedDate", accessorFn: (row: any) => formatDate(row.refundedDate) || "N/A" },
   { header: "Amount", accessorKey: "amount" },
