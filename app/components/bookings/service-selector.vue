@@ -22,6 +22,11 @@ const serviceTypes = [
   { label: "Passes", value: "passes" },
 ];
 
+const roomTypes = [
+  { label: "Private Room", value: "private" },
+  { label: "Shared Room", value: "shared" },
+] as const;
+
 const localOptions = ref<any[]>([]);
 const localLoading = ref(false);
 const spaTimes = ref<{ label: string; value: string }[]>([]);
@@ -163,6 +168,7 @@ watch(() => form.value.serviceType, async (newType, oldType) => {
   if (oldType !== undefined && newType !== oldType) {
     form.value.serviceId = undefined;
     form.value.durationId = null;
+    form.value.roomType = "private";
     form.value.date = "";
     form.value.time = "";
     form.value.resolvedItemName = undefined;
@@ -215,7 +221,7 @@ watch(() => form.value.serviceId, (id, oldId) => {
 
 watch(() => form.value.durationId, updateResolved);
 
-watch([() => form.value.date, () => form.value.durationId, () => form.value.serviceId], async () => {
+watch([() => form.value.date, () => form.value.durationId, () => form.value.serviceId, () => form.value.roomType], async () => {
   if (form.value.serviceType !== "spa" || !form.value.date || !form.value.durationId) {
     spaTimes.value = [];
     return;
@@ -234,6 +240,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       bookingDate: form.value.date,
       duration: Number(selected.minutes ?? selected.duration ?? selected.value),
       timeUnit: selected.timeUnit ?? "minutes",
+      roomType: form.value.roomType,
     });
     spaTimes.value = res.map((t: any) => ({ label: t.label, value: t.time }));
     if (form.value.time && !spaTimes.value.some(t => t.value === form.value.time))
@@ -258,6 +265,37 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       :options="serviceTypes"
       @update:model-value="form.date = ''"
     />
+
+    <!-- Spa: Room Type -->
+    <fieldset v-if="form.serviceType === 'spa'" class="space-y-2">
+      <legend class="text-sm font-medium">
+        Room Type
+      </legend>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label
+          v-for="room in roomTypes"
+          :key="room.value"
+          class="flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 py-2.5 text-sm transition-colors focus-within:ring-2 focus-within:ring-primary"
+          :class="form.roomType === room.value ? 'border-border bg-primary-50/60' : 'border-secondary-100 bg-white hover:border-primary-300'"
+        >
+          <input
+            v-model="form.roomType"
+            type="radio"
+            :name="n('roomType')"
+            :value="room.value"
+            class="sr-only"
+          >
+          <span
+            aria-hidden="true"
+            class="flex size-[18px] shrink-0 items-center justify-center rounded-full border"
+            :class="form.roomType === room.value ? 'border-primary bg-primary' : 'border-secondary-100 bg-white'"
+          >
+            <span v-if="form.roomType === room.value" class="size-1.5 rounded-full bg-white" />
+          </span>
+          <span>{{ room.label }}</span>
+        </label>
+      </div>
+    </fieldset>
 
     <base-select-menu
       v-if="form.serviceType"

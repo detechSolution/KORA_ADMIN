@@ -66,6 +66,7 @@ const state = reactive({
   serviceType: "",
   serviceId: undefined as number | undefined,
   durationId: null as number | null,
+  roomType: "private" as "private" | "shared",
   date: "" as string,
   time: "" as string,
 
@@ -97,6 +98,7 @@ function resetForm(): void {
   state.serviceType = "";
   state.serviceId = undefined;
   state.durationId = null;
+  state.roomType = "private";
   state.date = "";
   state.time = "";
   state.resolvedItemId = null;
@@ -153,6 +155,7 @@ async function handleCreateBooking(): Promise<void> {
       },
       bookingDate: state.date,
       bookingTime: state.time || undefined,
+      roomType: state.serviceType === "spa" ? state.roomType : undefined,
     };
 
     await bookingStore.createExistingMemberBooking(payload);

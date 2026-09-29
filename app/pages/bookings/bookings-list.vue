@@ -19,13 +19,6 @@ definePageMeta({
   permission: "bookings.view",
 });
 
-const bookingStatusOptions = [
-  { label: "Pending", value: "pending_payment" },
-  { label: "Confirmed", value: "confirmed" },
-  { label: "Cancellation Processing", value: "cancellation_processing" },
-  { label: "Cancelled", value: "cancelled" },
-];
-
 const bookingTypeOptions = [
   { label: "Session", value: "session" },
   { label: "Spa", value: "spa" },
@@ -251,14 +244,6 @@ onMounted(async () => {
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 md:w-64"
-          />
-
-          <base-select
-            v-model="filters.status"
-            :options="bookingStatusOptions"
-            name="status"
-            placeholder="Select status"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
           />
 

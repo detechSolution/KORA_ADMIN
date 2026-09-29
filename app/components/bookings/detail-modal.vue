@@ -135,7 +135,7 @@ watch(() => props.open, async (newValue) => {
 
       <div class="flex flex-col gap-4">
         <h3 class="font-medium">
-          PARTICIPANTS & BOOKINGS
+          BOOKINGS
         </h3>
 
         <div v-for="bookings in (bookingDetails?.items ?? [])" :key="bookings.id">
@@ -166,12 +166,12 @@ watch(() => props.open, async (newValue) => {
               </p>
             </div>
             <div class="flex  gap-2 items-start justify-end p-2">
+              <div class="flex items-center gap-2 mt-1">
+                <base-badge :status="booking?.status">
+                  {{ normalizeText(booking?.status) }}
+                </base-badge>
+              </div>
               <UDropdownMenu :items="[[{ label: 'Cancel Booking', class: 'cursor-pointer text-red-500', disabled: ['cancelled', 'cancellation_processing'].includes(booking?.status ?? ''), onSelect: () => openCancelModal(bookings.id) }]]">
-                <div class="flex items-center gap-2 mt-1">
-                  <base-badge :status="booking?.status">
-                    {{ normalizeText(booking?.status) }}
-                  </base-badge>
-                </div>
                 <UButton
                   icon="i-lucide-ellipsis-vertical"
                   color="neutral"

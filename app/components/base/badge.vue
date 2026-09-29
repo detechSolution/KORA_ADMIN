@@ -59,6 +59,7 @@ const STATUS_MAP: Record<string, { color: BadgeColor; label: string; icon?: stri
   "approved": { color: "emerald", label: "Approved" },
   "rejected": { color: "red", label: "Rejected" },
   "session": { color: "purple", label: "Session" },
+  "user": { color: "yellow", label: "User" },
   "spa": { color: "blue", label: "Spa" },
   "passes": { color: "emerald", label: "Pass" },
   "member": { color: "blue", label: "Member" },

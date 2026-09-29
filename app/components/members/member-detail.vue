@@ -71,6 +71,28 @@ async function fetchBookingsandPayments() {
   }
 }
 
+async function handleBookingClick(bookingCode: string) {
+  if (!bookingCode)
+    return;
+
+  emit("close");
+  await navigateTo({
+    path: "/bookings/bookings-list",
+    query: { search: bookingCode },
+  });
+}
+
+async function handlePaymentClick(identifier: string) {
+  if (!identifier)
+    return;
+
+  emit("close");
+  await navigateTo({
+    path: "/financial/payments",
+    query: { search: identifier },
+  });
+}
+
 watch(
   () => props.open,
   (open: boolean) => {
@@ -260,20 +282,19 @@ watch(
           <div
             v-for="booking in memberBookings.data"
             :key="booking.id"
-            class="p-3 border gap-8 border-stone-200 rounded-md flex justify-between items-center"
+            class="p-3 border gap-8 border-stone-200 rounded-md flex justify-between items-center cursor-pointer"
+            @click="handleBookingClick(booking.bookingCode)"
           >
             <div class="flex items-center justify-between w-full">
-              <p class="font-medium text-sm text-secondary">
-                <ItemNameList :value="booking.itemName" />
-              </p>
-
-              <p class="text-xs font-normal text-secondary-500">
-                {{ formatDate(booking.bookedFor) }}
-              </p>
+              <div class="flex items-center gap-2">
+                <base-badge uppercase>
+                  {{ booking.bookingCode }}
+                </base-badge>
+                <p class="font-medium text-sm text-secondary">
+                  <ItemNameList :value="booking.itemName" />
+                </p>
+              </div>
             </div>
-            <base-badge :status="booking.status">
-              {{ booking.status }}
-            </base-badge>
           </div>
         </div>
         <div v-else>
@@ -291,24 +312,20 @@ watch(
           <div
             v-for="payment in memberPayments.data"
             :key="payment.id"
-            class="p-3 border gap-8 border-stone-200 rounded-md flex justify-between items-center"
+            class="p-3 border gap-8 border-stone-200 rounded-md flex justify-between items-center cursor-pointer"
+            @click="handlePaymentClick(payment.bookingCode || payment.referenceCode)"
           >
             <div class="flex w-full items-center justify-between">
               <div class="font-medium flex gap-2 items-center text-sm text-secondary">
-                <ItemNameList :value="payment.title" />
-
                 <base-badge uppercase>
                   {{ payment.bookingCode || payment.referenceCode }}
                 </base-badge>
+                <ItemNameList :value="payment.title" />
               </div>
               <p class="text-xs font-normal text-secondary-500">
                 {{ formatDate(payment.createdAt) }}
               </p>
             </div>
-
-            <base-badge :status="payment.status">
-              {{ payment.status }}
-            </base-badge>
           </div>
         </div>
         <div v-else>

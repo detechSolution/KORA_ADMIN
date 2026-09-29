@@ -69,7 +69,9 @@ const step3Schema = z.object({
 type Step1 = z.output<typeof step1Schema>;
 type Step2 = z.output<typeof step2Schema>;
 type Step3 = z.output<typeof step3Schema>;
-type FormState = Partial<Step1 & Step2 & Step3>;
+type FormState = Partial<Step1 & Step2 & Step3> & {
+  roomType?: "private" | "shared";
+};
 
 const currentSchema = computed(() => {
   const schemas = [step1Schema, step2Schema, step3Schema];
@@ -87,6 +89,7 @@ const form = reactive<FormState>({
   date: "",
   time: "",
   durationId: null,
+  roomType: "private",
   promoCode: "",
   paymentMethod: "cash",
 });
@@ -136,6 +139,7 @@ function resetForm(): void {
   form.date = "";
   form.time = "";
   form.durationId = null;
+  form.roomType = "private";
   form.promoCode = "";
   form.paymentMethod = "cash";
 
@@ -185,6 +189,7 @@ async function handleCreateBooking(): Promise<void> {
       },
       bookingDate: form.date,
       bookingTime: form.time,
+      roomType: isSpa ? form.roomType : undefined,
       fullName: form.fullName,
       phoneNumber: form.phone || "",
       email: form.email,

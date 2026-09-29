@@ -44,9 +44,8 @@ function handleAttendanceClick() {
 }
 
 function handleEditClick() {
-  if (isEnded.value || props.occupied > 0)
-    return;
-
+  // if (isEnded.value || props.occupied > 0)
+  //   return;
   emit("openEditSessionDrawer", props.id);
 }
 </script>
@@ -120,7 +119,7 @@ function handleEditClick() {
           />
         </UTooltip> -->
         <UTooltip
-          v-if="can(PERMISSIONS_SESSIONS.UPDATE) && !isEnded && occupied === 0"
+
           :delay-duration="0"
           text="Edit Session"
         >
