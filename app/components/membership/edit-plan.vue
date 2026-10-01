@@ -259,7 +259,7 @@ watch(
             <base-input
               v-model="state.spaBenefit"
               name="spaBenefit"
-              label="Spa*"
+              label="Spa"
               placeholder="0"
               type="number"
               class="w-full"
@@ -268,7 +268,7 @@ watch(
             <base-input
               v-model="state.classBenefit"
               name="classBenefit"
-              label="Class*"
+              label="Class"
               placeholder="0"
               type="number"
               class="w-full"
@@ -280,7 +280,7 @@ watch(
             <base-input
               v-model="state.eventBenefit"
               name="eventBenefit"
-              label="Event*"
+              label="Event"
               placeholder="0"
               type="number"
               class="w-full"
@@ -289,7 +289,7 @@ watch(
             <base-input
               v-model="state.workshopBenefit"
               name="workshopBenefit"
-              label="Workshop*"
+              label="Workshop"
               placeholder="0"
               type="number"
               class="w-full"
@@ -311,7 +311,7 @@ watch(
             <base-input
               v-model="state.spaGuestBenefit"
               name="spaGuestBenefit"
-              label="Spa*"
+              label="Spa"
               placeholder="0"
               type="number"
               class="w-full"
@@ -320,7 +320,7 @@ watch(
             <base-input
               v-model="state.classGuestBenefit"
               name="classGuestBenefit"
-              label="Class*"
+              label="Class"
               placeholder="0"
               type="number"
               class="w-full"
@@ -331,7 +331,7 @@ watch(
             <base-input
               v-model="state.eventGuestBenefit"
               name="eventGuestBenefit"
-              label="Event*"
+              label="Event"
               placeholder="0"
               type="number"
               class="w-full"
@@ -340,7 +340,7 @@ watch(
             <base-input
               v-model="state.workshopGuestBenefit"
               name="workshopGuestBenefit"
-              label="Workshop*"
+              label="Workshop"
               placeholder="0"
               type="number"
               class="w-full"

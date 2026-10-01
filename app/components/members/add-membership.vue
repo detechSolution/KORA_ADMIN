@@ -244,7 +244,7 @@ watch(
             </h2>
 
             <UFormField name="membershipPlanOptionId">
-              <div class="flex flex-col px-2 gap-2 max-h-[55vh] overflow-y-auto">
+              <div class="flex flex-col px-2 gap-2 max-h-[57vh] overflow-y-auto">
                 <members-membership-card
                   v-for="plan in membershipStore.plans.data.filter(p => p.isPurchasable)"
                   :key="plan.id"
@@ -262,7 +262,7 @@ watch(
             <base-date-picker
               v-model="state.subscriptionStartDate"
               name="subscriptionStartDate"
-              label="Start Date*"
+              label="Start Date"
               placeholder="Select start date"
             />
           </div>

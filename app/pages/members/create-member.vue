@@ -40,7 +40,11 @@ const appliedPromo = ref<{ code: string; type: string; amount: number; isValid: 
 
 const stepOneSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phoneNumber: z.coerce.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
+  phoneNumber: z
+    .string()
+    .regex(/^\d{10}$/, "Phone number must be exactly 10 digits")
+    .optional()
+    .or(z.literal("")),
   email: z.string().email("Invalid email address"),
   identificationDocument: z.file({ error: "Identification document is required" }),
 });
@@ -295,7 +299,7 @@ onMounted(() => {
                     <base-input
                       v-model="state.fullName"
                       name="fullName"
-                      label="Member Name*"
+                      label="Member Name"
                       placeholder="Enter member name"
                     />
 
@@ -303,7 +307,7 @@ onMounted(() => {
                       <base-input
                         v-model="state.phoneNumber"
                         name="phoneNumber"
-                        label="Phone Number*"
+                        label="Phone Number (Optional)"
                         placeholder="Enter phone number"
                         class="w-full"
                         type="tel"
@@ -313,7 +317,7 @@ onMounted(() => {
                       <base-input
                         v-model="state.email"
                         name="email"
-                        label="Email Address*"
+                        label="Email Address"
                         placeholder="Enter email address"
                         class="w-full"
                       />
@@ -322,7 +326,7 @@ onMounted(() => {
                     <base-file-upload
                       v-model="state.identificationDocument"
                       name="identificationDocument"
-                      label="Identification Document*"
+                      label="Identification Document"
                       placeholder="Drop your image here"
                       :max-file-size="5 * 1024 * 1024"
                       accept="image"
@@ -362,7 +366,7 @@ onMounted(() => {
                     <base-date-picker
                       v-model="state.subscriptionStartDate"
                       name="subscriptionStartDate"
-                      label="Start Date*"
+                      label="Start Date"
                       placeholder="Select start date"
                     />
                   </div>

@@ -137,7 +137,7 @@ watch(
           <base-input
             v-model="state.fullName"
             name="fullName"
-            label="Admin Name*"
+            label="Admin Name"
             placeholder="Enter admin name"
           />
 
@@ -145,7 +145,7 @@ watch(
             <base-input
               v-model="state.phoneNumber"
               name="phoneNumber"
-              label="Phone Number*"
+              label="Phone Number"
               placeholder="Enter phone number"
               type="tel"
               @keydown="preventInvalidNumberInput"
@@ -154,7 +154,7 @@ watch(
             <base-input
               v-model="state.email"
               name="email"
-              label="Email Address*"
+              label="Email Address"
               placeholder="Enter email address"
             />
           </div>
@@ -162,7 +162,7 @@ watch(
           <base-select
             v-model="state.adminRoleId"
             name="adminRoleId"
-            label="Select Role*"
+            label="Select Role"
             placeholder="Select role"
             :options="roleOptions"
           />

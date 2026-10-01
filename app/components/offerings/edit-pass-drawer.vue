@@ -132,13 +132,13 @@ async function handleUpdatePass() {
           <base-input
             v-model="form.name"
             name="name"
-            label="Pass Name"
+            label="Pass Name*"
             placeholder="Enter pass name"
           />
 
           <base-input
             v-model.number="form.validity"
-            label="Pass Validity (Days)"
+            label="Pass Validity (Days)*"
             name="validity"
             type="number"
             placeholder="Enter number of valid days"
@@ -150,7 +150,7 @@ async function handleUpdatePass() {
 
           <base-input
             v-model.number="form.price"
-            label="Pass Price"
+            label="Pass Price*"
             name="price"
             type="number"
             placeholder="Enter pass price"
@@ -162,7 +162,7 @@ async function handleUpdatePass() {
 
           <base-input
             v-model.number="form.spaBenefit"
-            label="Spa Benefit*"
+            label="Spa Benefit"
             name="spaBenefit"
             type="number"
             placeholder="Enter spa benefit percentage"
@@ -173,7 +173,7 @@ async function handleUpdatePass() {
           </base-input>
           <base-input
             v-model.number="form.classBenefit"
-            label="Class Benefit*"
+            label="Class Benefit"
             name="classBenefit"
             type="number"
             placeholder="Enter class benefit percentage"
@@ -184,7 +184,7 @@ async function handleUpdatePass() {
           </base-input>
           <base-input
             v-model.number="form.eventBenefit"
-            label="Event Benefit*"
+            label="Event Benefit"
             name="eventBenefit"
             type="number"
             placeholder="Enter event benefit percentage"
@@ -195,7 +195,7 @@ async function handleUpdatePass() {
           </base-input>
           <base-input
             v-model.number="form.workshopBenefit"
-            label="Workshop Benefit*"
+            label="Workshop Benefit"
             name="workshopBenefit"
             type="number"
             placeholder="Enter workshop benefit percentage"
@@ -206,7 +206,7 @@ async function handleUpdatePass() {
           </base-input>
           <base-input
             v-model.number="form.cafeBenefit"
-            label="Cafe Benefit*"
+            label="Cafe Benefit"
             name="cafeBenefit"
             type="number"
             placeholder="Enter cafe benefit percentage"
@@ -217,7 +217,7 @@ async function handleUpdatePass() {
           </base-input>
           <base-input
             v-model.number="form.salonBenefit"
-            label="Salon Benefit*"
+            label="Salon Benefit"
             name="salonBenefit"
             type="number"
             placeholder="Enter salon benefit percentage"

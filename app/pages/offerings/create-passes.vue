@@ -165,7 +165,7 @@ async function handleCreatePass() {
             <base-input
               v-model.number="form.spaBenefit"
               name="spaBenefit"
-              label="Spa Benefit*"
+              label="Spa Benefit"
               type="number"
               placeholder="Enter spa benefit percentage"
               class="w-full"
@@ -178,7 +178,7 @@ async function handleCreatePass() {
             <base-input
               v-model.number="form.classBenefit"
               name="classBenefit"
-              label="Class Benefit*"
+              label="Class Benefit"
               type="number"
               placeholder="Enter class benefit percentage"
               class="w-full"
@@ -191,7 +191,7 @@ async function handleCreatePass() {
             <base-input
               v-model.number="form.eventBenefit"
               name="eventBenefit"
-              label="Event Benefit*"
+              label="Event Benefit"
               type="number"
               placeholder="Enter event benefit percentage"
               class="w-full"
@@ -204,7 +204,7 @@ async function handleCreatePass() {
             <base-input
               v-model.number="form.workshopBenefit"
               name="workshopBenefit"
-              label="Workshop Benefit*"
+              label="Workshop Benefit"
               type="number"
               placeholder="Enter workshop benefit percentage"
               class="w-full"
@@ -217,7 +217,7 @@ async function handleCreatePass() {
             <base-input
               v-model.number="form.cafeBenefit"
               name="cafeBenefit"
-              label="Cafe Benefit*"
+              label="Cafe Benefit"
               type="number"
               placeholder="Enter cafe benefit percentage"
               class="w-full"
@@ -230,7 +230,7 @@ async function handleCreatePass() {
             <base-input
               v-model.number="form.salonBenefit"
               name="salonBenefit"
-              label="Salon Benefit*"
+              label="Salon Benefit"
               type="number"
               placeholder="Enter salon benefit percentage"
               class="w-full"

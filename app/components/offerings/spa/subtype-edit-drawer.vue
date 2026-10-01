@@ -335,7 +335,6 @@ watch(
               add-action-label="Add Category"
               :empty-icon="ICONS.FILE"
               empty-message="No categories yet. Add a new category."
-              required
               @add="isAddCategoryModalOpen = true"
             />
 
@@ -344,7 +343,6 @@ watch(
               name="name"
               label="Spa Type Name"
               placeholder="e.g. Oil massage, stone healing"
-              required
               @update:model-value="clearApiError"
             />
 
@@ -354,7 +352,6 @@ watch(
               label="About This Service Type"
               type="textarea"
               placeholder="Describe this service type"
-              required
               @update:model-value="clearApiError"
             />
           </div>
@@ -374,7 +371,6 @@ watch(
                   :name="`prices.${index}.duration`"
                   label="Duration"
                   placeholder="Enter duration"
-                  required
                   @update:model-value="clearApiError"
                 />
 
@@ -383,7 +379,6 @@ watch(
                   :name="`prices.${index}.timeUnit`"
                   label="Time Unit"
                   :options="[...timeUnitOptions]"
-                  required
                 />
 
                 <base-input
@@ -391,7 +386,6 @@ watch(
                   :name="`prices.${index}.price`"
                   label="Price (Rs)"
                   placeholder="Enter price"
-                  required
                   @update:model-value="clearApiError"
                 />
 

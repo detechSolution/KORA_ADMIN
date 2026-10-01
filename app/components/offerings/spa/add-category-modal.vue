@@ -92,7 +92,6 @@ function handleClose(): void {
         name="name"
         label="Category Name"
         placeholder="Enter a new category"
-        required
       />
 
       <div class="flex justify-end gap-2">
