@@ -158,7 +158,7 @@ async function handleCreatePromoCode() {
                 <base-input
                   v-model="state.code"
                   name="code"
-                  label="Code Name*"
+                  label="Code Name"
                   placeholder="Enter admin name"
                 />
               </div>

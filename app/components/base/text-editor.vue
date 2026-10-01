@@ -47,7 +47,6 @@ const props = withDefaults(defineProps<Props>(), {
     ],
     [
       { kind: "link", icon: "i-lucide-link", tooltip: { text: "Add or remove link" } },
-      { kind: "image", icon: "i-lucide-image", tooltip: { text: "Insert image" } },
       { kind: "horizontalRule", icon: "i-lucide-minus", tooltip: { text: "Divider" } },
     ],
     [

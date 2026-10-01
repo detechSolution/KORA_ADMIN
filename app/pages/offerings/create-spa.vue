@@ -364,7 +364,6 @@ onMounted(async () => {
                       add-action-label="Add Category"
                       :empty-icon="ICONS.FILE"
                       empty-message="No categories yet. Add a new category."
-                      required
                       @add="isAddCategoryModalOpen = true"
                     />
 
@@ -373,7 +372,6 @@ onMounted(async () => {
                       name="name"
                       label="Spa Type Name"
                       placeholder="e.g. Oil massage, stone healing"
-                      required
                       @update:model-value="clearApiError"
                     />
 
@@ -383,7 +381,6 @@ onMounted(async () => {
                       label="About This Service Type"
                       type="textarea"
                       placeholder="Describe this service type"
-                      required
                       @update:model-value="clearApiError"
                     />
                   </div>
@@ -413,7 +410,6 @@ onMounted(async () => {
                                 :name="`prices.${index}.duration`"
                                 label="Duration"
                                 placeholder="Enter duration"
-                                required
                                 @update:model-value="clearApiError"
                               />
 
@@ -422,7 +418,6 @@ onMounted(async () => {
                                 :name="`prices.${index}.timeUnit`"
                                 label="Time Unit"
                                 :options="[...timeUnitOptions]"
-                                required
                               />
 
                               <base-input
@@ -430,7 +425,6 @@ onMounted(async () => {
                                 :name="`prices.${index}.price`"
                                 label="Price (Rs)"
                                 placeholder="Enter Price"
-                                required
                                 @update:model-value="clearApiError"
                               />
 

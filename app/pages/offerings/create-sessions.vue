@@ -372,7 +372,7 @@ onMounted(async () => {
 
                     <UFormField
                       name="sessionType"
-                      label="Session Type*"
+                      label="Session Type"
                       :ui="{
                         error: 'mt-1 text-red-500 text-xs',
                       }"
@@ -396,7 +396,7 @@ onMounted(async () => {
                     <base-file-upload
                       v-model="form.bannerImage"
                       accept="image"
-                      label="Banner Image*"
+                      label="Banner Image"
                       name="bannerImage"
                       class-names="min-h-32"
                     />
@@ -404,7 +404,7 @@ onMounted(async () => {
                     <base-file-upload
                       v-model="form.bannerVideo"
                       accept="video"
-                      label="Banner Video*"
+                      label="Banner Video"
                       name="bannerVideo"
                       class-names="min-h-32"
                     />
@@ -412,7 +412,7 @@ onMounted(async () => {
                     <base-text-editor
                       v-model="form.sessionDescription"
                       name="sessionDescription"
-                      label="About this session*"
+                      label="About this session"
                       placeholder="Enter the session description details here..."
                       class="w-full min-h-30 max-h-60 overflow-y-auto"
                     />
@@ -439,47 +439,45 @@ onMounted(async () => {
                     <base-input
                       v-model="form.venue"
                       name="venue"
-                      label="Venue"
+                      label="Venue*"
                       placeholder="Enter venue location"
                     />
                     <base-input
                       v-model.number="form.capacity"
                       name="capacity"
-                      label="Capacity"
+                      label="Capacity*"
                       type="number"
                       placeholder="Max participants"
                     />
                     <base-date-picker
                       v-model="form.date"
                       name="date"
-                      label="Session Dates"
+                      label="Session Dates*"
                       multiple
                       :no-of-months="1"
                     />
                     <UFormField
                       name="startTime"
-                      label="Start Time"
+                      label="Start Time*"
                       :ui="{
                         error: 'mt-1 text-red-500 text-xs',
                       }"
                     >
                       <UInputTime
                         v-model="startTimeModel"
-                        label="Start Time"
                         :trailing-icon="ICONS.CLOCK"
                         class="w-full"
                       />
                     </UFormField>
                     <UFormField
                       name="endTime"
-                      label="End Time"
+                      label="End Time*"
                       :ui="{
                         error: 'mt-1 text-red-500 text-xs',
                       }"
                     >
                       <UInputTime
                         v-model="endTimeModel"
-                        label="End Time"
                         :trailing-icon="ICONS.CLOCK"
                         class="w-full"
                       />
