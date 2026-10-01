@@ -67,8 +67,8 @@ const state = reactive<Partial<Schema>>({
 
 const discountValueLabel = computed(() =>
   state.discountType === "percent"
-    ? "Discount Percentage (%)*"
-    : "Discount Amount (Rs)*",
+    ? "Discount Percentage (%)"
+    : "Discount Amount (Rs)",
 );
 
 function populateForm(promoCode: PromoCode | null): void {
@@ -154,14 +154,14 @@ watch(
           <base-input
             v-model="state.code"
             name="code"
-            label="Code Name*"
+            label="Code Name"
             placeholder="Enter code name"
           />
 
           <base-select
             v-model="state.discountType"
             name="discountType"
-            label="Discount Type*"
+            label="Discount Type"
             placeholder="Select discount type"
             :options="discountTypeOptions"
           />
@@ -177,7 +177,7 @@ watch(
           <base-input
             v-model.number="state.redemptionLimit"
             name="redemptionLimit"
-            label="Redemption Limit*"
+            label="Redemption Limit"
             placeholder="Enter redemption limit"
             type="number"
           />
@@ -185,7 +185,7 @@ watch(
           <base-date-picker
             v-model="state.expiresAt"
             name="expiresAt"
-            label="Expires At*"
+            label="Expires At"
             placeholder="Select expiry date"
             :no-of-months="1"
           />

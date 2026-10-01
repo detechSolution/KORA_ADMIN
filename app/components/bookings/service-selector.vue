@@ -325,7 +325,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
         v-if="form.serviceId"
         v-model="form.date"
         :name="n('date')"
-        label="Date*"
+        label="Date"
         placeholder="Select date"
         :no-of-months="1"
         :allowed-weekdays="spaAvailableDays"
@@ -340,7 +340,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       <base-date-picker
         v-model="form.date"
         :name="n('date')"
-        label="Date*"
+        label="Date"
         placeholder="Select date"
         :no-of-months="1"
         :disabled="form.serviceType === 'session'"
@@ -348,7 +348,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       />
       <UFormField
         :name="n('time')"
-        label="Time*"
+        label="Time"
         :ui="{ error: 'mt-1 text-red-500 text-xs' }"
       >
         <UInputTime
@@ -365,7 +365,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       v-else-if="form.serviceId && form.serviceType === 'passes'"
       v-model="form.date"
       :name="n('date')"
-      label="Date*"
+      label="Date"
       placeholder="Select date"
       :no-of-months="1"
     />
@@ -374,7 +374,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
     <UFormField
       v-if="form.serviceType === 'spa' && form.serviceId && form.durationId"
       :name="n('time')"
-      label="Available Times*"
+      label="Available Times"
       :ui="{ error: 'mt-1 text-red-500 text-xs' }"
     >
       <div

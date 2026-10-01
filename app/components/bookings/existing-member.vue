@@ -205,7 +205,7 @@ onMounted(async () => {
               v-model="state.selectedMemberId"
               v-model:search-term="memberSearchTerm"
               name="selectedMemberId"
-              label="Select an existing member*"
+              label="Select an existing member"
               placeholder="Select a member"
               :options="membersOptions"
             />

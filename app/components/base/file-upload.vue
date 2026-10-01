@@ -191,7 +191,7 @@ function getDefaultDescription(fileType: FileType): string {
               />
             </div>
             <div class="flex min-w-0 flex-col overflow-hidden">
-              <span class="truncate text-sm font-medium text-stone-900 text-wrap">
+              <span class="break-all text-sm font-medium text-stone-900">
                 {{ getFileName(file) }}
               </span>
               <span class="text-xs text-stone-500">

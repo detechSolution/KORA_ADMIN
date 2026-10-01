@@ -245,7 +245,6 @@ watch(
           <UFormField
             name="availableDays"
             label="Available Days"
-            required
             :ui="{ error: 'mt-1 text-red-500 text-xs' }"
           >
             <div class="flex flex-wrap gap-2">
@@ -270,7 +269,6 @@ watch(
             <UFormField
               name="availableFromTime"
               label="From"
-              required
               :ui="{ error: 'mt-1 text-red-500 text-xs' }"
             >
               <UInputTime
@@ -283,7 +281,6 @@ watch(
             <UFormField
               name="availableToTime"
               label="To"
-              required
               :ui="{ error: 'mt-1 text-red-500 text-xs' }"
             >
               <UInputTime
@@ -298,7 +295,6 @@ watch(
             <UFormField
               name="privateRoomCount"
               label="Private Room Count"
-              required
               :ui="{ error: 'mt-1 text-red-500 text-xs' }"
             >
               <UInput
@@ -314,7 +310,6 @@ watch(
             <UFormField
               name="sharedRoomCount"
               label="Shared Room Count"
-              required
               :ui="{ error: 'mt-1 text-red-500 text-xs' }"
             >
               <UInput
@@ -332,7 +327,6 @@ watch(
             v-model="form.description"
             label="Description"
             name="description"
-            required
           />
         </div>
       </div>
