@@ -37,11 +37,11 @@ export const useSpaStore = defineStore("spa", () => {
 
       if ("id" in spa) {
         spaInfo.value = spa;
-        spaData.value = spa.subTypes;
+        spaData.value = spa.categories ?? [];
       }
       else {
         spaInfo.value = null;
-        spaData.value = spa.subTypes ?? [];
+        spaData.value = spa.categories ?? [];
       }
     }
     catch (error: unknown) {
@@ -100,6 +100,20 @@ export const useSpaStore = defineStore("spa", () => {
     }
     catch (error: unknown) {
       console.error(error, "Create Spa Category Error");
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
+  const deleteSpaCategory = async (id: number): Promise<void> => {
+    loading.value = true;
+    try {
+      await http.delete(API_ENDPOINTS.SPA.DELETE_CATEGORY(id));
+    }
+    catch (error: unknown) {
+      console.error(error, "Delete Spa Category Error");
       throw error;
     }
     finally {
@@ -212,5 +226,6 @@ export const useSpaStore = defineStore("spa", () => {
     getSpaSubTypeById,
     updateSpaSubType,
     deleteSpaSubType,
+    deleteSpaCategory,
   };
 });
