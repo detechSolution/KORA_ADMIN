@@ -89,10 +89,6 @@ async function handleSaveAttendance() {
   }
 }
 
-function getInitials(name: string) {
-  return name.split(" ").map(n => n[0]).join("").toUpperCase();
-}
-
 function startAttendance(): void {
   if (!isReadOnly.value)
     attendanceStarted.value = true;
@@ -196,12 +192,22 @@ watch(() => props.open, (newVal) => {
           >
             <div class="p-3 w-full flex justify-between">
               <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-secondary-500 font-bold text-sm border border-stone-200">
-                  {{ getInitials(item.name) }}
-                </div>
+                <base-avatar :name="item.name" />
                 <div class="flex flex-col gap-0.5">
                   <div class="flex items-center gap-2">
                     <span class="text-base font-semibold text-secondary-800">{{ item.name }}</span>
+                    <UTooltip
+                      v-if="item.bookingCount > 1"
+                      :delay-duration="0"
+                      arrow
+                      :text="`${item.bookingCount - 1} Bookings`"
+                    >
+                      <span
+                        class="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-stone-300 bg-stone-50 px-1.5 text-xs font-medium leading-none text-stone-500"
+                      >
+                        +{{ item.bookingCount - 1 }}
+                      </span>
+                    </UTooltip>
                     <base-badge
                       v-if="item.attendanceStatus === 'attended'"
                       color="success"

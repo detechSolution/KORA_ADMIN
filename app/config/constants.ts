@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
     UPDATE_SUB_TYPE: (id: number) => `/api/v1/spa/sub-types/${id}`,
     DELETE_SUB_TYPE: (id: number) => `/api/v1/spa/sub-types/${id}`,
     GET_SUB_TYPE: (id: number) => `/api/v1/spa/sub-types/${id}`,
+    DELETE_CATEGORY: (id: number) => `/api/v1/spa/categories/${id}`,
   },
   COMMUNITIES: {
     CREATE: "/api/v1/communities",

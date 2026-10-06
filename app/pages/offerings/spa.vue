@@ -29,7 +29,9 @@ const deleting = ref(false);
 const isEditDrawerOpen = ref(false);
 const isSettingsDrawerOpen = ref(false);
 const isDeleteModalOpen = ref(false);
+const isDeleteCategoryModalOpen = ref(false);
 const selectedServiceId = ref<number | null>(null);
+const selectedCategoryId = ref<number | null>(null);
 const selectedService = ref<SpaSubType | null>(null);
 const router = useRouter();
 const { can } = usePermission();
@@ -114,9 +116,19 @@ function openDeleteModal(service: SpaSubType): void {
   isDeleteModalOpen.value = true;
 }
 
+function openDeleteCategoryModal(categoryId: number): void {
+  selectedCategoryId.value = categoryId;
+  isDeleteCategoryModalOpen.value = true;
+}
+
 function closeDeleteModal(): void {
   selectedService.value = null;
   isDeleteModalOpen.value = false;
+}
+
+function closeDeleteCategoryModal(): void {
+  selectedCategoryId.value = null;
+  isDeleteCategoryModalOpen.value = false;
 }
 
 async function handleServiceUpdated(): Promise<void> {
@@ -159,6 +171,21 @@ function formatTime(time: string): string {
 
   const displayHour = parsedHour % 12 || 12;
   return `${String(displayHour).padStart(2, "0")}:${minutes}`;
+}
+
+async function handleCategoryDelete(categoryId: number): Promise<void> {
+  try {
+    deleting.value = true;
+    await spaStore.deleteSpaCategory(categoryId);
+    success({ message: "Spa category deleted successfully" });
+    await fetchSpaData();
+  }
+  catch (error: unknown) {
+    showError({ message: getApiErrorMessage(error, "Failed to delete spa category") });
+  }
+  finally {
+    deleting.value = false;
+  }
 }
 
 function clearFilters(): void {
@@ -299,18 +326,43 @@ function clearFilters(): void {
 
     <div
       v-else
-      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
+      class="flex flex-col gap-4"
     >
-      <service-card
-        v-for="service in spadata"
-        :id="service.id"
-        :key="service.id"
-        :name="service.name"
-        :description="service.description ?? ''"
-        :prices="service.prices"
-        @edit="openEditDrawer"
-        @delete="openDeleteModal(service)"
-      />
+      <div
+        v-for="spaType in spadata"
+        :key="spaType.id"
+        class="flex flex-col gap-4"
+      >
+        <div class="bg-[#F9F6F2] p-3 border  border-stone-200 rounded-xl w-full flex justify-between items-center">
+          <p class="text-base text-secondary font-semibold">
+            Category: {{ spaType.name }}
+          </p>
+
+          <button
+            v-if="can(PERMISSIONS_SPA.DELETE)"
+            type="button"
+            class="w-fit h-fit cursor-pointer text-red-500 flex items-center gap-1 text-xs"
+            @click="openDeleteCategoryModal(spaType.id)"
+          >
+            Delete Category <UIcon :name="ICONS.TRASH_2" class=" h-3 w-3" />
+          </button>
+        </div>
+
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
+        >
+          <service-card
+            v-for="service in spaType.services"
+            :id="service.id"
+            :key="service.id"
+            :name="service.name"
+            :description="service.description ?? ''"
+            :prices="service.prices"
+            @edit="openEditDrawer"
+            @delete="openDeleteModal(service)"
+          />
+        </div>
+      </div>
     </div>
 
     <OfferingsSpaSubtypeEditDrawer
@@ -333,6 +385,13 @@ function clearFilters(): void {
       :loading="deleting"
       @close="closeDeleteModal"
       @confirm="handleDeleteSubtype"
+    />
+
+    <OfferingsSpaCategoryDeleteModal
+      :open="isDeleteCategoryModalOpen"
+      :loading="deleting"
+      @close="closeDeleteCategoryModal"
+      @confirm="handleCategoryDelete(selectedCategoryId)"
     />
   </div>
 </template>
