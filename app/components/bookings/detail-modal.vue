@@ -51,6 +51,7 @@ async function handleCancelBooking() {
     selectedBookingItemId.value = null;
     await fetchBookingDetails();
     emit("confirm");
+    emit("close");
   }
   catch (error) {
     showError({
