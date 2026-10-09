@@ -22,8 +22,8 @@ const { error: showError } = useNotification();
 const state = ref({
   search: "",
   dateRange: {
-    start: null,
-    end: null,
+    start: null as string | null,
+    end: null as string | null,
   },
   status: null,
 });
@@ -73,7 +73,9 @@ function clearFilters(): void {
 
 onMounted(async () => {
   const search = route.query.search as string;
+  const date = typeof route.query.date === "string" ? route.query.date : null;
   state.value.search = search || "";
+  state.value.dateRange = { start: date, end: date };
 
   await Promise.all([
     fetchPayments(),

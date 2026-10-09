@@ -24,6 +24,7 @@ const options = [
 const typeOptions = [
   { label: "Member", value: "member" },
   { label: "Guest", value: "guest" },
+  { label: "User", value: "user" },
 ];
 
 const columns = [

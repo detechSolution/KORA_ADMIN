@@ -35,7 +35,7 @@ const step1Schema = z.object({
 
 const step2Schema = z.object({
   serviceType: z.string().min(1, "Service type is required"),
-  serviceId: z.coerce.number().min(1, "Service selection is required"),
+  serviceId: z.coerce.number({ message: "Please select a service" }).min(1, "Please select a service"),
   date: z.string().min(1, "Date is required"),
   time: z.string().optional(),
   durationId: z.number().nullable().optional(),

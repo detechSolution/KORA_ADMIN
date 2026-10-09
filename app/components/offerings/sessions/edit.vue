@@ -23,11 +23,11 @@ type Props = {
 
 const currentStep = ref(0);
 const loading = ref(false);
-const sessionTypeOptions = [
-  { label: "Class", value: "class" },
-  { label: "Event", value: "event" },
-  { label: "Workshop", value: "workshop" },
-];
+// const sessionTypeOptions = [
+//   { label: "Class", value: "class" },
+//   { label: "Event", value: "event" },
+//   { label: "Workshop", value: "workshop" },
+// ];
 
 const instructorOptions = computed(() =>
   instructorsStore.instructors.data
@@ -285,7 +285,7 @@ onMounted(() => {
             required
           />
 
-          <UFormField
+          <!-- <UFormField
             name="sessionType"
             label="Session Type"
             :ui="{
@@ -307,7 +307,7 @@ onMounted(() => {
                 {{ type.label }}
               </button>
             </div>
-          </UFormField>
+          </UFormField> -->
 
           <base-file-upload
             v-model="form.bannerImage"
