@@ -17,6 +17,7 @@ definePageMeta({
 });
 
 const router = useRouter();
+const route = useRoute();
 const { can } = usePermission();
 const loading = ref(false);
 const { success, error: showError } = useNotification();
@@ -37,7 +38,7 @@ const state = ref({
   status: "active",
   referenceNumber: "",
   selectedSessionType: "",
-  referenceDateRange: { start: null, end: null },
+  referenceDateRange: { start: null as string | null, end: null as string | null },
 });
 
 const sessionTypeOptions = [
@@ -159,7 +160,11 @@ function isSessionDeletable(sessionDate: string): boolean {
 }
 
 onMounted(() => {
+  const date = typeof route.query.date === "string" ? route.query.date : null;
+  state.value.referenceDateRange = { start: date, end: date };
   loadSessions();
+  if (date)
+    router.replace({ query: {} });
 });
 </script>
 
