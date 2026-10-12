@@ -79,14 +79,13 @@ export type CreateNewClientBookingPayload = {
 
 export type CreateExistingMemberBookingPayload = {
   selectedMemberId: number;
-  item?: {
+  items: Array<{
     id: number;
     name: string;
     type: string;
-  };
+  }>;
   bookingDate?: string;
   bookingTime?: string;
-  quantity?: number;
   roomType?: "private" | "shared";
   promoCode?: string;
   paymentMethod: string;

@@ -163,18 +163,18 @@ async function handleCreateBooking(): Promise<void> {
     await formRef.value?.validate();
     loading.value = true;
 
+    const quantity = state.sessionQuantity ?? 1;
     const payload: CreateExistingMemberBookingPayload = {
       selectedMemberId: state.selectedMemberId!,
       promoCode: overviewRef.value?.appliedPromo?.code || undefined,
       paymentMethod: state.paymentMethod,
-      item: {
+      item: Array.from({ length: quantity }, () => ({
         id: state.resolvedItemId!,
         name: state.resolvedItemName!,
         type: state.resolvedItemType!,
-      },
+      })),
       bookingDate: state.date,
       bookingTime: state.time || undefined,
-      quantity: state.sessionQuantity ?? undefined,
       roomType: state.serviceType === "spa" ? state.roomType : undefined,
     };
 
