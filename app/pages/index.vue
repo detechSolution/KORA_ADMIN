@@ -172,18 +172,20 @@ const consistentMembersColumns = [
 ];
 
 // Computed KPI data from store
+const today = new Date();
+const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 const kpiData = computed(() => [
   {
     title: "Today's Appointments",
     icon: ICONS.INQUIRIES,
     value: analyticsData.value.todayBookings,
-    link: { path: "/bookings/bookings-list" },
+    link: { path: "/bookings/bookings-list", query: { date: todayDate } },
   },
   {
     title: "Today's Sessions",
     icon: ICONS.CALENDAR,
     value: analyticsData.value.todaySessions,
-    link: { path: "/offerings/session" },
+    link: { path: "/offerings/session", query: { date: todayDate } },
   },
   {
     title: "Total Members",
@@ -195,7 +197,7 @@ const kpiData = computed(() => [
     title: "Today's Revenue",
     icon: ICONS.CHART_LINE,
     value: `Rs ${analyticsData.value.todayRevenue}`,
-    link: { path: "/financial/payments" },
+    link: { path: "/financial/payments", query: { date: todayDate } },
   },
 ]);
 </script>
@@ -216,7 +218,7 @@ const kpiData = computed(() => [
         <dashboard-kpi-card
           v-for="(kpi, index) in kpiData"
           :key="index"
-          class="px-6 border-border"
+          class="px-6 border-border cursor-pointer"
           :class="[
             index % 2 === 0 ? 'md:border-r' : 'md:border-r-0',
             index !== 3 ? 'xl:border-r' : 'xl:border-r-0',
@@ -224,7 +226,7 @@ const kpiData = computed(() => [
           :title="kpi.title"
           :value="kpi.value"
           :icon="kpi.icon"
-          :link="kpi.link"
+          @click="navigateTo(kpi.link)"
         />
       </div>
 

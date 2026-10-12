@@ -57,6 +57,7 @@ export const ICONS = {
   LOADING: "i-lucide-loader",
   PERCENT: "i-lucide-percent",
   USER_STAR: "i-lucide-user-star",
+  EXTERNAL_LINK: "i-lucide-external-link",
 
   // UI Elements
   ELLIPSIS_VERTICAL: "i-lucide-ellipsis-vertical",

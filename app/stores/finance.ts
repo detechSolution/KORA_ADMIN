@@ -144,6 +144,17 @@ export const useFinanceStore = defineStore("finance", () => {
     }
   };
 
+  const printInvoice = async (id: string | number) => {
+    try {
+      const response = await http.get<{ printUrl: string }>(API_ENDPOINTS.PAYMENTS.PRINT_INVOICE(id));
+      return response;
+    }
+    catch (error) {
+      console.error("Error printing invoice:", error);
+      throw error;
+    }
+  };
+
   return {
     payments,
     fetchPayments,
@@ -156,5 +167,6 @@ export const useFinanceStore = defineStore("finance", () => {
     cancellationDetails,
     fetchCancellationDetails,
     updateRefund,
+    printInvoice,
   };
 });

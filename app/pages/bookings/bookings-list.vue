@@ -190,7 +190,9 @@ const router = useRouter();
 
 onMounted(async () => {
   const search = route.query.search as string;
+  const date = typeof route.query.date === "string" ? route.query.date : null;
   filters.value.search = search || "";
+  filters.value.dateRange = { start: date, end: date };
 
   await Promise.all([
     fetchBookings(),

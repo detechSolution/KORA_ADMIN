@@ -4,10 +4,13 @@ import { useRouter } from "vue-router";
 
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
+import { ACCESS_CARDS } from "~/config/permissions";
 import { useAccessControlStore } from "~/stores/access-control";
 import { formatDate } from "~/utils/common";
 
-definePageMeta({ auth: true, layout: "dashboard" });
+const { can } = usePermission();
+
+definePageMeta({ auth: true, layout: "dashboard", permission: ACCESS_CARDS.VIEW });
 
 const validityOptions = [{ label: "Valid", value: "valid" }, { label: "Invalid", value: "invalid" }];
 const doorOptions = [
@@ -100,6 +103,7 @@ onMounted(fetchCards);
       <template #actions>
         <NuxtLink to="/access-control/create-access-card">
           <base-button
+            v-if="can(ACCESS_CARDS.CREATE)"
             variant="solid"
             size="lg"
             :leading-icon="ICONS.PLUS"
@@ -204,7 +208,25 @@ onMounted(fetchCards);
           <base-badge :status="row.original.validity" />
         </template>
         <template #actions-cell="{ row }">
-          <base-dropdown-menu :items="[{ label: 'Remove Card Access', class: 'cursor-pointer', onSelect: () => openDeleteConfirmation(row.original.id, row.original.fullName) }, { label: 'Edit Access', class: 'cursor-pointer', onSelect: () => editAccessCard(row.original.id) }]">
+          <base-dropdown-menu
+            :items="[
+              ...(can(ACCESS_CARDS.DELETE)
+                ? [{
+                  label: 'Remove Card Access',
+                  class: 'cursor-pointer',
+                  onSelect: () => openDeleteConfirmation(row.original.id, row.original.fullName),
+                }]
+                : []),
+
+              ...(can(ACCESS_CARDS.UPDATE)
+                ? [{
+                  label: 'Edit Access',
+                  class: 'cursor-pointer',
+                  onSelect: () => editAccessCard(row.original.id),
+                }]
+                : []),
+            ]"
+          >
             <base-button :icon="ICONS.ELLIPSIS_VERTICAL" variant="ghost" />
           </base-dropdown-menu>
         </template>
