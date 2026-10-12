@@ -99,6 +99,17 @@ export const PERMISSIONS_REFUNDS = {
 //   CREATE: "uploads.create",
 // } as const;
 
+export const ACCESS_CARDS = {
+  CREATE: "access_cards.create",
+  VIEW: "access_cards.view",
+  UPDATE: "access_cards.update",
+  DELETE: "access_cards.delete",
+} as const;
+
+export const ACCESS_LOGS = {
+  VIEW: "access_logs.view",
+} as const;
+
 export const PERMISSIONS_INSTRUCTORS = {
   CREATE: "instructors.create",
   DELETE: "instructors.delete",

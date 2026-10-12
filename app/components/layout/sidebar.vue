@@ -8,6 +8,8 @@ import { useRoute, useRouter } from "vue-router";
 import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
 import {
+  ACCESS_CARDS,
+  ACCESS_LOGS,
   PERMISSIONS_ADMINISTRATION,
   PERMISSIONS_BOOKINGS,
   PERMISSIONS_INSTRUCTORS,
@@ -188,8 +190,8 @@ const rawItems: NavItemWithPermission[] = [{
   icon: ICONS.DOOR_LOCK,
   defaultOpen: false,
   children: [
-    { label: "Access Cards", to: "/access-control/access-cards", icon: ICONS.CARD },
-    { label: "Access Logs", to: "/access-control/access-logs", icon: ICONS.FILE_KEY },
+    { label: "Access Cards", to: "/access-control/access-cards", icon: ICONS.CARD, permission: ACCESS_CARDS.VIEW },
+    { label: "Access Logs", to: "/access-control/access-logs", icon: ICONS.FILE_KEY, permission: ACCESS_LOGS.VIEW },
   ],
 }, {
   label: "Instructors",
