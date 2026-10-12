@@ -15,6 +15,7 @@ import { getApiErrorMessage } from "~/utils/error";
 definePageMeta({
   auth: true,
   layout: "dashboard",
+  permission: "access_cards.create",
 });
 
 const { success, error: showError } = useNotification();

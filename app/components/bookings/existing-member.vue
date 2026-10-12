@@ -7,6 +7,7 @@ import type { CreateExistingMemberBookingPayload } from "~/types/booking";
 import type { StepItem } from "~/types/stepper";
 
 import { useNotification } from "~/composables/use-notification";
+import { SESSION_TYPE } from "~/config/constants";
 import { useBookingStore } from "~/stores/booking";
 import { useMembershipStore } from "~/stores/membership";
 import { getApiErrorMessage } from "~/utils/error";
@@ -40,8 +41,24 @@ const stepOneSchema = z.object({
   serviceId: z.coerce.number({ message: "Please select a service" }).min(1, "Please select a service"),
   date: z.string().min(1, "Please select a date"),
   durationId: z.number().nullable().optional(),
+  sessionQuantity: z.number().int().min(1).nullable().optional(),
   time: z.string().optional(),
 }).superRefine((data, ctx) => {
+  const selectedItem = bookingStore.bookingItemOptions
+    .flatMap(group => group.items)
+    .find(item => item.id === data.serviceId);
+  const sessionType = String(selectedItem?.sessionType ?? "").toLowerCase();
+  if (data.serviceType === "session" && (sessionType === SESSION_TYPE.EVENT || sessionType === SESSION_TYPE.WORKSHOP)) {
+    if (!data.sessionQuantity) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sessionQuantity"], message: "Please select a quantity" });
+    }
+    else {
+      const capacity = Number(selectedItem?.capacity);
+      const occupied = Number(selectedItem?.occupied ?? 0);
+      if (Number.isFinite(capacity) && data.sessionQuantity > Math.max(0, capacity - (Number.isFinite(occupied) ? occupied : 0)))
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sessionQuantity"], message: "Quantity exceeds available spots" });
+    }
+  }
   if (data.serviceType === "spa") {
     if (!data.durationId)
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["durationId"], message: "Please select a duration for the spa service" });
@@ -66,6 +83,7 @@ const state = reactive({
   serviceType: "",
   serviceId: undefined as number | undefined,
   durationId: null as number | null,
+  sessionQuantity: null as number | null,
   roomType: "private" as "private" | "shared",
   date: "" as string,
   time: "" as string,
@@ -98,6 +116,7 @@ function resetForm(): void {
   state.serviceType = "";
   state.serviceId = undefined;
   state.durationId = null;
+  state.sessionQuantity = null;
   state.roomType = "private";
   state.date = "";
   state.time = "";
@@ -144,15 +163,16 @@ async function handleCreateBooking(): Promise<void> {
     await formRef.value?.validate();
     loading.value = true;
 
+    const quantity = state.sessionQuantity ?? 1;
     const payload: CreateExistingMemberBookingPayload = {
       selectedMemberId: state.selectedMemberId!,
       promoCode: overviewRef.value?.appliedPromo?.code || undefined,
       paymentMethod: state.paymentMethod,
-      item: {
+      item: Array.from({ length: quantity }, () => ({
         id: state.resolvedItemId!,
         name: state.resolvedItemName!,
         type: state.resolvedItemType!,
-      },
+      })),
       bookingDate: state.date,
       bookingTime: state.time || undefined,
       roomType: state.serviceType === "spa" ? state.roomType : undefined,

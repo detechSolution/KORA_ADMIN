@@ -4,6 +4,7 @@ import { computed, ref, watch } from "vue";
 
 import type { ServiceState } from "~/types/booking";
 
+import { SESSION_TYPE } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 
@@ -70,7 +71,20 @@ const serviceOptions = computed<SelectOption[]>(() => {
 });
 
 const selectedGroup = computed(() => findGroup(form.value.serviceId));
+const selectedItem = computed(() => findItem(form.value.serviceId));
 const showDuration = computed(() => selectedGroup.value?.type?.toLowerCase() === "spa");
+const showSessionQuantity = computed(() => {
+  const sessionType = String(selectedItem.value?.sessionType ?? "").toLowerCase();
+  return form.value.serviceType === "session"
+    && (sessionType === SESSION_TYPE.EVENT || sessionType === SESSION_TYPE.WORKSHOP);
+});
+const availableQuantity = computed(() => {
+  const capacity = Number(selectedItem.value?.capacity);
+  if (!Number.isFinite(capacity))
+    return undefined;
+  const occupied = Number(selectedItem.value?.occupied ?? 0);
+  return Math.max(0, Math.floor(capacity - (Number.isFinite(occupied) ? occupied : 0)));
+});
 
 const durationOptions = computed(() => {
   const item = findItem(form.value.serviceId);
@@ -221,6 +235,23 @@ watch(() => form.value.serviceId, (id, oldId) => {
 
 watch(() => form.value.durationId, updateResolved);
 
+watch(
+  [() => form.value.serviceId, showSessionQuantity, availableQuantity],
+  ([id, showQuantity, maxQuantity], [previousId]) => {
+    if (!showQuantity || maxQuantity === 0) {
+      form.value.sessionQuantity = null;
+      return;
+    }
+
+    const quantity = form.value.sessionQuantity;
+    if (id !== previousId || quantity == null || !Number.isInteger(quantity) || quantity < 1)
+      form.value.sessionQuantity = 1;
+    else if (maxQuantity !== undefined && quantity > maxQuantity)
+      form.value.sessionQuantity = maxQuantity;
+  },
+  { immediate: true },
+);
+
 watch([() => form.value.date, () => form.value.durationId, () => form.value.serviceId, () => form.value.roomType], async () => {
   if (form.value.serviceType !== "spa" || !form.value.date || !form.value.durationId) {
     spaTimes.value = [];
@@ -334,7 +365,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
 
     <!-- Session: Date + Time side by side -->
     <div
-      v-else-if="form.serviceId && form.serviceType === 'session'"
+      v-if="form.serviceId && form.serviceType === 'session'"
       class="grid grid-cols-2 gap-4"
     >
       <base-date-picker
@@ -368,6 +399,18 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       label="Date"
       placeholder="Select date"
       :no-of-months="1"
+    />
+
+    <base-input-number
+      v-if="showSessionQuantity"
+      v-model="form.sessionQuantity"
+      :name="n('sessionQuantity')"
+      label="Quantity"
+      placeholder="Select quantity"
+      class="w-24"
+      :min="1"
+      :max="availableQuantity"
+      :disabled="availableQuantity === 0"
     />
 
     <!-- Spa: time slots -->

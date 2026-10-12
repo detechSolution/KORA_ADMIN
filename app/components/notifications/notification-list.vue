@@ -197,7 +197,7 @@ async function handleLoadMore() {
 
       <div
         v-if="hasUnread && activeTab === 'unread'"
-        class="text-sm font-medium leading-5 text-stone-600 transition-colors hover:text-stone-950"
+        class="text-sm font-medium leading-5 text-stone-600 transition-colors hover:text-stone-950 cursor-pointer"
         @click="handleMarkAllAsRead"
       >
         Mark all as read
@@ -236,7 +236,7 @@ async function handleLoadMore() {
             v-for="item in group.items"
             :key="item.id"
             type="button"
-            class="group flex w-full items-start gap-4 py-4 text-left transition-colors hover:bg-stone-50"
+            class="group flex w-full items-start gap-4 py-4 text-left transition-colors cursor-pointer hover:bg-stone-50"
             :class="{ 'cursor-default': isNotificationRead(item) && !item.targetUrl }"
             @click="handleNotificationClick(item)"
           >

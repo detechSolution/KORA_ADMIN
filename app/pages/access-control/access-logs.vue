@@ -5,7 +5,7 @@ import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useAccessControlStore } from "~/stores/access-control";
 
-definePageMeta({ auth: true, layout: "dashboard" });
+definePageMeta({ auth: true, layout: "dashboard", permission: "access_logs.view" });
 
 const typeOptions = [{ label: "Member", value: "member" }, { label: "Non-Member", value: "non_member" }];
 const gateOptions = [
