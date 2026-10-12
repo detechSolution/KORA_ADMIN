@@ -10,7 +10,7 @@ import { formatDate } from "~/utils/common";
 
 const { can } = usePermission();
 
-definePageMeta({ auth: true, layout: "dashboard" });
+definePageMeta({ auth: true, layout: "dashboard", permission: ACCESS_CARDS.VIEW });
 
 const validityOptions = [{ label: "Valid", value: "valid" }, { label: "Invalid", value: "invalid" }];
 const doorOptions = [
