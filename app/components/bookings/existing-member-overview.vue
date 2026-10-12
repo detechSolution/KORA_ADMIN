@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 
 import { findServiceGroup, findServiceItem } from "~/composables/services/use-booking";
 import { useNotification } from "~/composables/use-notification";
+import { SESSION_TYPE } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 import { useMembershipStore } from "~/stores/membership";
@@ -22,9 +23,18 @@ const paymentMethods = [
   { value: "online", label: "Online Transfer", description: "Fonepay / bank / card transfer", icon: ICONS.WIFI },
 ];
 
+function getServiceQuantity(svc: any): number {
+  const sessionType = String(findServiceItem(svc.serviceId)?.sessionType ?? "").toLowerCase();
+  if (sessionType !== SESSION_TYPE.EVENT && sessionType !== SESSION_TYPE.WORKSHOP)
+    return 1;
+  const quantity = Number(svc.sessionQuantity);
+  return Number.isInteger(quantity) && quantity > 0 ? quantity : 1;
+}
+
 function getServicePrice(svc: any): number {
+  const quantity = getServiceQuantity(svc);
   if (svc.resolvedPrice != null)
-    return Number(svc.resolvedPrice) || 0;
+    return (Number(svc.resolvedPrice) || 0) * quantity;
 
   const item = findServiceItem(svc.serviceId);
   if (!item)
@@ -38,11 +48,11 @@ function getServicePrice(svc: any): number {
     const selected = durations.find((d: any) => d?.id === svc.durationId);
     const price = Number(selected?.amount ?? selected?.price);
     if (!Number.isNaN(price))
-      return price;
+      return price * quantity;
   }
 
   const price = Number(item.amount ?? item.price);
-  return Number.isNaN(price) ? 0 : price;
+  return Number.isNaN(price) ? 0 : price * quantity;
 }
 
 function getServiceName(svc: any): string {
@@ -144,7 +154,7 @@ function buildRow(svc: any, client: string, benefitPercent: number): OverviewRow
   const price = getServicePrice(svc);
   return {
     client,
-    service: getServiceName(svc),
+    service: `${getServiceName(svc)}${getServiceQuantity(svc) > 1 ? ` × ${getServiceQuantity(svc)}` : ""}`,
     serviceType: getServiceType(svc),
     durationLabel: getDurationLabel(svc),
     date: formatDate(svc.date),

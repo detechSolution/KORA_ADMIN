@@ -138,6 +138,7 @@ export const API_ENDPOINTS = {
     SUMMARY: "/api/v1/payments/summary",
     DETAIL: (id: number) => `/api/v1/payments/${id}`,
     UPDATE: (id: number) => `/api/v1/payments/${id}/refund`,
+    PRINT_INVOICE: (id: string | number) => `/api/v1/payments/${id}/print-invoice`,
   },
   // used
   PROMO_CODES: {

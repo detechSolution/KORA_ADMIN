@@ -29,11 +29,12 @@ const state = ref({
 });
 
 const columns = [
+  { id: "referenceCode", header: "Reference ID", accessorKey: "referenceCode" },
   { id: "user", header: "Client", accessorKey: "user" },
   { id: "checkoutCode", header: "Payment ID", accessorKey: "checkoutCode", accessorFn: (row: any) => row.checkoutCode || "N/A" },
-  { id: "referenceCode", header: "Reference ID", accessorKey: "referenceCode" },
   { id: "amount", header: "Amount", accessorKey: "amount", accessorFn: (row: any) => `${row.currency} ${row.amount.toFixed(2)}` || "N/A" },
   { id: "paidAt", header: "Paid Date", accessorKey: "createdAt", accessorFn: (row: any) => formatDate(row.createdAt) || "N/A" },
+  { id: "tiggInvoiceCode", header: "Invoice No", accessorKey: "tiggInvoiceCode" },
   { id: "method", header: "Method", accessorKey: "method" },
 ];
 
@@ -69,6 +70,18 @@ function clearFilters(): void {
   state.value.status = null;
   state.value.dateRange = { start: null, end: null };
   handleSearchClick();
+}
+
+async function handleInvoiceClick(id: string | number): Promise<void> {
+  try {
+    const response = await financeStore.printInvoice(id);
+    window.open(response?.printUrl, "_blank", "noopener,noreferrer");
+  }
+  catch (error) {
+    showError({
+      message: getApiErrorMessage(error, "Failed to print invoice"),
+    });
+  }
 }
 
 onMounted(async () => {
@@ -173,6 +186,19 @@ onMounted(async () => {
           <base-badge uppercase>
             {{ row?.original?.referenceCode || "-" }}
           </base-badge>
+        </template>
+
+        <template #tiggInvoiceCode-cell="{ row }">
+          <div
+            v-if="row?.original?.tiggInvoiceCode"
+            class="flex items-center gap-2 cursor-pointer hover:underline text-blue-600"
+            @click="handleInvoiceClick(row.original.id)"
+          >
+            <span>{{ row.original.tiggInvoiceCode }}</span>
+            <UIcon :name="ICONS.EXTERNAL_LINK" />
+          </div>
+
+          <span v-else>N/A</span>
         </template>
 
         <template #method-cell="{ row }">

@@ -5,6 +5,7 @@ export type ServiceState = {
   roomType: "private" | "shared";
   date: string;
   time: string;
+  sessionQuantity?: number | null;
   resolvedItemId?: number | null;
   resolvedItemName?: string;
   resolvedItemType?: string;
@@ -36,6 +37,7 @@ export type Booking = {
   clientEmail?: string;
   clientPhoneNumber?: string;
   visitors?: any[];
+  invoicePdfUrl?: string;
 };
 
 export type BookingItemGroup = {
@@ -84,6 +86,7 @@ export type CreateExistingMemberBookingPayload = {
   };
   bookingDate?: string;
   bookingTime?: string;
+  quantity?: number;
   roomType?: "private" | "shared";
   promoCode?: string;
   paymentMethod: string;
