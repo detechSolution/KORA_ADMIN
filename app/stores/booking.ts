@@ -157,9 +157,9 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
-  const requestBookingCancellation = async (bookingId: number): Promise<void> => {
+  const requestBookingCancellation = async (bookingId: number, itemId: number): Promise<void> => {
     try {
-      await http.patch(API_ENDPOINTS.BOOKINGS.REQUEST_CANCELLATION(bookingId));
+      await http.patch(API_ENDPOINTS.BOOKINGS.REQUEST_CANCELLATION(bookingId, itemId));
     }
     catch (error: unknown) {
       console.error(error, "Request Booking Cancellation Error");

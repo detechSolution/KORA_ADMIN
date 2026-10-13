@@ -42,12 +42,14 @@ function openCancelModal(id: number) {
 }
 
 async function handleCancelBooking() {
-  if (!selectedBookingItemId.value)
+  const bookingId = props.booking?.id;
+  const itemId = selectedBookingItemId.value;
+  if (bookingId == null || itemId == null || isCancelling.value)
     return;
 
   try {
     isCancelling.value = true;
-    await bookingStore.requestBookingCancellation(selectedBookingItemId.value);
+    await bookingStore.requestBookingCancellation(bookingId, itemId);
     success({ message: "Booking cancelled successfully" });
     isCancelModalOpen.value = false;
     selectedBookingItemId.value = null;
@@ -170,7 +172,7 @@ watch(
           BOOKINGS
         </h3>
 
-        <div v-for="item in bookingDetails?.items ?? []" :key="item.id">
+        <div v-for="item in bookingDetails?.items.sort((a, b) => b.id - a.id) ?? []" :key="item.id">
           <div
             class="border border-border rounded-xl gap-2 md:gap-0 grid md:grid-cols-[2fr_2fr_1fr_auto] grid-cols-1 p-3"
           >
@@ -251,7 +253,7 @@ watch(
       :loading="isCancelling"
       @close="
         isCancelModalOpen = false;
-        selectedBookingItemId.value = null;
+        selectedBookingItemId = null;
       "
       @confirm="handleCancelBooking"
     />

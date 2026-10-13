@@ -25,7 +25,7 @@ const bookingTypeOptions = [
   { label: "Pass", value: "passes" },
 ];
 
-const { success, error: showError } = useNotification();
+const { error: showError } = useNotification();
 const analyticsStore = useAnalyticsStore();
 const bookingStore = useBookingStore();
 const bookings = computed(() => bookingStore.bookings);
@@ -33,10 +33,8 @@ const { pagination } = usePagination();
 const { can } = usePermission();
 const loading = ref(false);
 const loadingSummary = ref(false);
-const loadingCancel = ref(false);
 
 const isDetailModalOpen = ref(false);
-const isCancelModalOpen = ref(false);
 
 const selectedBooking = ref<Booking | null>(null);
 const summary = ref<any>(null);
@@ -145,44 +143,9 @@ function clearFilters(): void {
   fetchBookings();
 }
 
-// function openCancelModal(booking: any): void {
-//   selectedBooking.value = booking;
-//   isCancelModalOpen.value = true;
-// }
-
 function openViewModal(booking: any): void {
   selectedBooking.value = booking;
   isDetailModalOpen.value = true;
-}
-
-async function handleRequestCancellation(): Promise<void> {
-  if (!selectedBooking.value?.id)
-    return;
-
-  try {
-    loadingCancel.value = true;
-
-    await bookingStore.requestBookingCancellation(
-      selectedBooking.value.id,
-    );
-
-    success({ message: "Cancellation requested successfully" });
-
-    await fetchBookings();
-  }
-  catch (err: unknown) {
-    showError({
-      message: getApiErrorMessage(
-        err,
-        "Failed to request booking cancellation",
-      ),
-    });
-  }
-  finally {
-    loadingCancel.value = false;
-    isCancelModalOpen.value = false;
-    selectedBooking.value = null;
-  }
 }
 
 const route = useRoute();
@@ -353,13 +316,6 @@ onMounted(async () => {
                 label: 'View Details',
                 onSelect: () => openViewModal(row.original),
               },
-              //{
-              //  label: 'Cancel Booking',
-              //  color: 'error',
-              //  class: 'cursor-pointer',
-              //  disabled: row.original.status !== 'confirmed',
-              //  onSelect: () => openCancelModal(row.original),
-              //},
             ]"
           />
         </template>
@@ -370,13 +326,6 @@ onMounted(async () => {
         :items-per-page="pagination.pageSize"
         :disabled="loading"
         @update:page="(v) => { pagination.page = v; fetchBookings(); }"
-      />
-
-      <bookings-delete-modal
-        :open="isCancelModalOpen"
-        :loading="loadingCancel"
-        @close="isCancelModalOpen = false"
-        @confirm="handleRequestCancellation"
       />
 
       <bookings-detail-modal
