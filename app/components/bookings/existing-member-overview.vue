@@ -7,6 +7,7 @@ import { SESSION_TYPE } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 import { useMembershipStore } from "~/stores/membership";
+import { isBookingDateWithinPlan } from "~/utils/booking-benefits";
 import { getApiErrorMessage } from "~/utils/error";
 
 const form = defineModel<any>({ required: true });
@@ -119,7 +120,10 @@ const selectedMember = computed(() =>
 );
 
 /** Discount percent for the selected member on a service type. */
-function getMemberBenefitPercent(serviceType: string): number {
+function getMemberBenefitPercent(serviceType: string, bookingDate: unknown): number {
+  if (!isBookingDateWithinPlan(bookingDate, selectedMember.value?.startDate, selectedMember.value?.endDate))
+    return 0;
+
   return getBenefitPercent(selectedMember.value?.membershipBenefits, serviceType);
 }
 
@@ -170,7 +174,7 @@ const rows = computed<OverviewRow[]>(() => {
 
   // Member row: discount comes from the selected member's membershipBenefits.
   if (form.value.serviceId) {
-    const memberBenefit = getMemberBenefitPercent(getServiceType(form.value));
+    const memberBenefit = getMemberBenefitPercent(getServiceType(form.value), form.value.date);
     result.push(buildRow(form.value, memberName.value, memberBenefit));
   }
 
