@@ -79,7 +79,7 @@ export type CreateNewClientBookingPayload = {
 
 export type CreateExistingMemberBookingPayload = {
   selectedMemberId: number;
-  items: Array<{
+  item: Array<{
     id: number;
     name: string;
     type: string;

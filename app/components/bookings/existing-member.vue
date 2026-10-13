@@ -168,7 +168,7 @@ async function handleCreateBooking(): Promise<void> {
       selectedMemberId: state.selectedMemberId!,
       promoCode: overviewRef.value?.appliedPromo?.code || undefined,
       paymentMethod: state.paymentMethod,
-      items: Array.from({ length: quantity }, () => ({
+      item: Array.from({ length: quantity }, () => ({
         id: state.resolvedItemId!,
         name: state.resolvedItemName!,
         type: state.resolvedItemType!,
