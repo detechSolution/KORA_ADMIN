@@ -52,7 +52,7 @@ function findGroup(id: number | undefined): any {
 type SelectOption
   = | { type: "label"; label: string }
     | { type: "separator" }
-    | { label: string; value: number; description?: string; metaColor?: string; meta?: string };
+    | { label: string; value: number; description?: string; metaColor?: "error" | "success"; meta?: string; badge?: { label: string } };
 
 const serviceOptions = computed<SelectOption[]>(() => {
   const groupsWithItems = localOptions.value.filter((group: any) => group.items?.length);
@@ -63,8 +63,11 @@ const serviceOptions = computed<SelectOption[]>(() => {
       label: item.name,
       value: item.id,
       description: item.sessionDate,
+      badge: group.type === "session" && item.sessionType
+        ? { label: String(item.sessionType).toLowerCase() }
+        : undefined,
       meta: group.type === "session" ? `${item.occupied}/${item.capacity}` : undefined,
-      metaColor: item.occupied === item.capacity ? "error" : "success",
+      metaColor: Number(item.occupied) >= Number(item.capacity) ? "error" : "success",
     })),
     ...(i < arr.length - 1 ? [{ type: "separator" } as SelectOption] : []),
   ]);
@@ -337,6 +340,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       empty-message="No services available for the selected type."
       :options="serviceOptions"
       :loading="localLoading"
+      selected-badge
       class="w-full"
     />
 
@@ -412,6 +416,9 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       :max="availableQuantity"
       :disabled="availableQuantity === 0"
     />
+    <p v-if="showSessionQuantity && availableQuantity !== undefined" class="text-xs text-stone-500">
+      {{ availableQuantity }} spots remaining
+    </p>
 
     <!-- Spa: time slots -->
     <UFormField
