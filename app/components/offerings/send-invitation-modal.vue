@@ -11,7 +11,15 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: "close"): void;
-  (event: "send", payload: { passId: number; emails: string[]; fromDate: string; toDate: string }): void;
+  (
+    event: "send",
+    payload: {
+      passId: number;
+      emails: string[];
+      fromDate: string;
+      toDate: string;
+    }
+  ): void;
 }>();
 
 const formRef = ref<any>(null);
@@ -22,10 +30,23 @@ const emailSchema = z.string().trim().email("Enter a valid email address");
 
 const schema = z.object({
   emails: z.array(emailSchema).min(1, "Enter at least one email address"),
-  dateRange: z.object({
-    start: z.string().nullable(),
-    end: z.string().nullable(),
-  }).refine(({ start, end }) => Boolean(start && end), "Select a start and end date").refine(({ start }) => !start || start >= minimumInvitationDate, "Start date cannot be in the past").refine(({ start, end }) => !start || !end || end >= start, "End date cannot be before the start date"),
+  dateRange: z
+    .object({
+      start: z.string().nullable(),
+      end: z.string().nullable(),
+    })
+    .refine(
+      ({ start, end }) => Boolean(start && end),
+      "Select a start and end date"
+    )
+    .refine(
+      ({ start }) => !start || start >= minimumInvitationDate,
+      "Start date cannot be in the past"
+    )
+    .refine(
+      ({ start, end }) => !start || !end || end >= start,
+      "End date cannot be before the start date"
+    ),
 });
 
 const form = reactive<z.output<typeof schema>>({
@@ -49,20 +70,18 @@ async function handleEmailAdd(email: string) {
   }
 
   await nextTick();
-  form.emails = form.emails.filter(item => item !== email);
+  form.emails = form.emails.filter((item) => item !== email);
   emailError.value = `${email} is not a valid email address`;
 }
 
 async function handleSendInvitation() {
   try {
     await formRef.value?.validate();
-  }
-  catch {
+  } catch {
     return;
   }
 
-  if (!props.pass?.id)
-    return;
+  if (!props.pass?.id) return;
 
   emit("send", {
     passId: props.pass.id,
@@ -72,10 +91,12 @@ async function handleSendInvitation() {
   });
 }
 
-watch(() => props.open, (open) => {
-  if (open)
-    resetForm();
-});
+watch(
+  () => props.open,
+  (open) => {
+    if (open) resetForm();
+  }
+);
 </script>
 
 <template>
@@ -96,6 +117,7 @@ watch(() => props.open, (open) => {
       <UFormField
         name="emails"
         label="Enter Email Addresses"
+        help="Press Enter or Tab to add each email address."
         :error="emailError || undefined"
         :ui="{
           error: 'mt-1 text-red-500 text-xs',
@@ -105,6 +127,9 @@ watch(() => props.open, (open) => {
         <UInputTags
           v-model="form.emails"
           placeholder="Enter Email addresses.."
+          add-on-blur
+          add-on-tab
+          :convert-value="(email: string) => email.trim()"
           class="w-full"
           size="lg"
           :ui="{
@@ -137,6 +162,7 @@ watch(() => props.open, (open) => {
           type="submit"
           variant="solid"
           size="md"
+          @click="emit('send', { passId: props.pass.id, emails: form.emails, fromDate: form.dateRange.start as string, toDate: form.dateRange.end as string })"
           class="bg-stone-900 hover:bg-stone-800"
           :loading="props.loading"
           :disabled="props.loading"
