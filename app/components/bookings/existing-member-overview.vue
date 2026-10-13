@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
-import { findServiceGroup, findServiceItem } from "~/composables/services/use-booking";
+import {
+  findServiceGroup,
+  findServiceItem,
+} from "~/composables/services/use-booking";
 import { useNotification } from "~/composables/use-notification";
 import { SESSION_TYPE } from "~/config/constants";
 import { ICONS } from "~/config/icons";
@@ -17,16 +20,36 @@ const membershipStore = useMembershipStore();
 const { error: showError, success } = useNotification();
 
 const promoLoading = ref(false);
-const appliedPromo = ref<{ code: string; type: string; amount: number; isValid: boolean } | null>(null);
+const appliedPromo = ref<{
+  code: string;
+  type: string;
+  amount: number;
+  isValid: boolean;
+} | null>(null);
 
 const paymentMethods = [
-  { value: "cash", label: "Cash", description: "Paid at counter", icon: ICONS.MONEY },
-  { value: "online", label: "Online Transfer", description: "Fonepay / bank / card transfer", icon: ICONS.WIFI },
+  {
+    value: "cash",
+    label: "Cash",
+    description: "Paid at counter",
+    icon: ICONS.MONEY,
+  },
+  {
+    value: "online",
+    label: "Online Transfer",
+    description: "Fonepay / bank / card transfer",
+    icon: ICONS.WIFI,
+  },
 ];
 
 function getServiceQuantity(svc: any): number {
-  const sessionType = String(findServiceItem(svc.serviceId)?.sessionType ?? "").toLowerCase();
-  if (sessionType !== SESSION_TYPE.EVENT && sessionType !== SESSION_TYPE.WORKSHOP)
+  const sessionType = String(
+    findServiceItem(svc.serviceId)?.sessionType ?? ""
+  ).toLowerCase();
+  if (
+    sessionType !== SESSION_TYPE.EVENT &&
+    sessionType !== SESSION_TYPE.WORKSHOP
+  )
     return 1;
   const quantity = Number(svc.sessionQuantity);
   return Number.isInteger(quantity) && quantity > 0 ? quantity : 1;
@@ -38,8 +61,7 @@ function getServicePrice(svc: any): number {
     return (Number(svc.resolvedPrice) || 0) * quantity;
 
   const item = findServiceItem(svc.serviceId);
-  if (!item)
-    return 0;
+  if (!item) return 0;
 
   const group = findServiceGroup(svc.serviceId);
   const isSpa = (svc.serviceType || group?.type || "").toLowerCase() === "spa";
@@ -48,8 +70,7 @@ function getServicePrice(svc: any): number {
     const durations: any[] = Array.isArray(item.duration) ? item.duration : [];
     const selected = durations.find((d: any) => d?.id === svc.durationId);
     const price = Number(selected?.amount ?? selected?.price);
-    if (!Number.isNaN(price))
-      return price * quantity;
+    if (!Number.isNaN(price)) return price * quantity;
   }
 
   const price = Number(item.amount ?? item.price);
@@ -57,11 +78,18 @@ function getServicePrice(svc: any): number {
 }
 
 function getServiceName(svc: any): string {
-  return svc.resolvedItemName ?? findServiceItem(svc.serviceId)?.name ?? "Service";
+  return (
+    svc.resolvedItemName ?? findServiceItem(svc.serviceId)?.name ?? "Service"
+  );
 }
 
 function getServiceType(svc: any): string {
-  return (svc.resolvedItemType ?? svc.serviceType ?? findServiceGroup(svc.serviceId)?.type ?? "").toString();
+  return (
+    svc.resolvedItemType ??
+    svc.serviceType ??
+    findServiceGroup(svc.serviceId)?.type ??
+    ""
+  ).toString();
 }
 
 const SERVICE_TYPE_TO_BENEFIT: Record<string, string> = {
@@ -72,18 +100,20 @@ const SERVICE_TYPE_TO_BENEFIT: Record<string, string> = {
   workshop: "workshop",
 };
 
-function getBenefitPercent(benefits: Record<string, unknown> | undefined, serviceType: string): number {
-  if (!benefits)
-    return 0;
+function getBenefitPercent(
+  benefits: Record<string, unknown> | undefined,
+  serviceType: string
+): number {
+  if (!benefits) return 0;
 
-  const key = SERVICE_TYPE_TO_BENEFIT[(serviceType || "").toLowerCase()] ?? serviceType;
+  const key =
+    SERVICE_TYPE_TO_BENEFIT[(serviceType || "").toLowerCase()] ?? serviceType;
   const percent = Number(benefits[key]);
   return Number.isNaN(percent) ? 0 : percent;
 }
 
 function getDurationLabel(svc: any): string {
-  if (svc.resolvedDurationLabel)
-    return svc.resolvedDurationLabel;
+  if (svc.resolvedDurationLabel) return svc.resolvedDurationLabel;
 
   const item = findServiceItem(svc.serviceId);
   const durations: any[] = Array.isArray(item?.duration) ? item.duration : [];
@@ -92,22 +122,22 @@ function getDurationLabel(svc: any): string {
 }
 
 function formatDate(dateStr: string | undefined): string {
-  if (!dateStr)
-    return "";
+  if (!dateStr) return "";
   const d = new Date(`${dateStr}T00:00:00`);
-  if (Number.isNaN(d.getTime()))
-    return dateStr;
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function formatTime(timeStr: string | undefined): string {
-  if (!timeStr)
-    return "";
+  if (!timeStr) return "";
   const [h = "0", m = "0"] = timeStr.split(":");
   const hour = Number(h);
   const minute = Number(m);
-  if (Number.isNaN(hour) || Number.isNaN(minute))
-    return timeStr;
+  if (Number.isNaN(hour) || Number.isNaN(minute)) return timeStr;
   const period = hour >= 12 ? "PM" : "AM";
   const hour12 = hour % 12 || 12;
   return `${hour12}:${String(minute).padStart(2, "0")} ${period}`;
@@ -115,19 +145,37 @@ function formatTime(timeStr: string | undefined): string {
 
 const selectedMember = computed(() =>
   (membershipStore.membershipOptions as any[]).find(
-    (m: any) => m.memberId === form.value.selectedMemberId,
-  ),
+    (m: any) => m.memberId === form.value.selectedMemberId
+  )
 );
 
 /** Discount percent for the selected member on a service type. */
-function getMemberBenefitPercent(serviceType: string, bookingDate: unknown): number {
-  if (!isBookingDateWithinPlan(bookingDate, selectedMember.value?.startDate, selectedMember.value?.endDate))
+function getMemberBenefitPercent(
+  serviceType: string,
+  bookingDate: unknown
+): number {
+  if (
+    !isBookingDateWithinPlan(
+      bookingDate,
+      selectedMember.value?.startDate,
+      selectedMember.value?.endDate
+    )
+  )
     return 0;
 
-  return getBenefitPercent(selectedMember.value?.membershipBenefits, serviceType);
+  return getBenefitPercent(
+    selectedMember.value?.passId
+      ? selectedMember.value?.passBenefits
+      : selectedMember.value?.membershipBenefits,
+    serviceType,
+    serviceType
+  );
 }
 
-const memberName = computed(() => selectedMember.value?.fullName ?? selectedMember.value?.label ?? "Member");
+const memberName = computed(
+  () =>
+    selectedMember.value?.fullName ?? selectedMember.value?.label ?? "Member"
+);
 
 type OverviewRow = {
   client: string;
@@ -154,11 +202,17 @@ function rowData(row: { original: Record<string, unknown> }): OverviewRow {
   return row.original as OverviewRow;
 }
 
-function buildRow(svc: any, client: string, benefitPercent: number): OverviewRow {
+function buildRow(
+  svc: any,
+  client: string,
+  benefitPercent: number
+): OverviewRow {
   const price = getServicePrice(svc);
   return {
     client,
-    service: `${getServiceName(svc)}${getServiceQuantity(svc) > 1 ? ` × ${getServiceQuantity(svc)}` : ""}`,
+    service: `${getServiceName(svc)}${
+      getServiceQuantity(svc) > 1 ? ` × ${getServiceQuantity(svc)}` : ""
+    }`,
     serviceType: getServiceType(svc),
     durationLabel: getDurationLabel(svc),
     date: formatDate(svc.date),
@@ -174,19 +228,24 @@ const rows = computed<OverviewRow[]>(() => {
 
   // Member row: discount comes from the selected member's membershipBenefits.
   if (form.value.serviceId) {
-    const memberBenefit = getMemberBenefitPercent(getServiceType(form.value), form.value.date);
+    const memberBenefit = getMemberBenefitPercent(
+      getServiceType(form.value),
+      form.value.date
+    );
     result.push(buildRow(form.value, memberName.value, memberBenefit));
   }
 
   return result;
 });
 
-const subTotal = computed(() => rows.value.reduce((sum, r) => sum + r.price, 0));
-const benefitDiscount = computed(() => rows.value.reduce((sum, r) => sum + r.benefitAmount, 0));
-
+const subTotal = computed(() =>
+  rows.value.reduce((sum, r) => sum + r.price, 0)
+);
+const benefitDiscount = computed(() =>
+  rows.value.reduce((sum, r) => sum + r.benefitAmount, 0)
+);
 const promoDiscount = computed(() => {
-  if (!appliedPromo.value?.isValid)
-    return 0;
+  if (!appliedPromo.value?.isValid) return 0;
   const base = Math.max(0, subTotal.value - benefitDiscount.value);
   if (appliedPromo.value.type === "fixed")
     return Math.min(appliedPromo.value.amount, base);
@@ -194,12 +253,11 @@ const promoDiscount = computed(() => {
 });
 
 const totalAmount = computed(() =>
-  Math.max(0, subTotal.value - benefitDiscount.value - promoDiscount.value),
+  Math.max(0, subTotal.value - benefitDiscount.value - promoDiscount.value)
 );
 
 async function applyPromoCode(): Promise<void> {
-  if (!form.value.promoCode?.trim())
-    return;
+  if (!form.value.promoCode?.trim()) return;
   promoLoading.value = true;
   try {
     const data = await bookingStore.validatePromoCode(form.value.promoCode);
@@ -211,17 +269,14 @@ async function applyPromoCode(): Promise<void> {
         isValid: true,
       };
       success({ message: "Promo code applied successfully" });
-    }
-    else {
+    } else {
       appliedPromo.value = null;
       showError({ message: "Invalid promo code" });
     }
-  }
-  catch (error) {
+  } catch (error) {
     appliedPromo.value = null;
     showError({ message: getApiErrorMessage(error, "Invalid promo code") });
-  }
-  finally {
+  } finally {
     promoLoading.value = false;
   }
 }
@@ -242,7 +297,9 @@ defineExpose({
 <template>
   <section class="space-y-6">
     <!-- Booking Overview -->
-    <div class="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
+    <div
+      class="rounded-xl border border-border bg-white shadow-sm overflow-hidden"
+    >
       <h3 class="text-sm font-semibold text-stone-900 px-5 sm:px-6 pt-5">
         Booking Overview
       </h3>
@@ -266,26 +323,21 @@ defineExpose({
               <div class="flex flex-col">
                 <span class="text-stone-700">{{ rowData(row).service }}</span>
                 <span class="text-xs text-stone-400 capitalize">
-                  <template v-if="rowData(row).durationLabel">{{ rowData(row).durationLabel }}</template>
+                  <template v-if="rowData(row).durationLabel">{{
+                    rowData(row).durationLabel
+                  }}</template>
                 </span>
               </div>
             </template>
 
             <template #schedule-cell="{ row }">
-              <div
-                v-if="rowData(row).date"
-                class="flex flex-col"
-              >
+              <div v-if="rowData(row).date" class="flex flex-col">
                 <span class="text-stone-700">{{ rowData(row).date }}</span>
-                <span
-                  v-if="rowData(row).time"
-                  class="text-xs text-stone-400"
-                >{{ rowData(row).time }}</span>
+                <span v-if="rowData(row).time" class="text-xs text-stone-400">{{
+                  rowData(row).time
+                }}</span>
               </div>
-              <span
-                v-else
-                class="text-stone-400 text-xs"
-              >—</span>
+              <span v-else class="text-stone-400 text-xs">—</span>
             </template>
 
             <template #benefitPercent-cell="{ row }">
@@ -295,10 +347,7 @@ defineExpose({
               >
                 {{ rowData(row).benefitPercent }}% Off
               </base-badge>
-              <span
-                v-else
-                class="text-stone-400 text-xs"
-              >—</span>
+              <span v-else class="text-stone-400 text-xs">—</span>
             </template>
 
             <template #price-cell="{ row }">
@@ -316,9 +365,14 @@ defineExpose({
         </div>
 
         <!-- Totals -->
-        <div class="rounded-lg bg-stone-50 border border-stone-100 p-4 space-y-2">
+        <div
+          class="rounded-lg bg-stone-50 border border-stone-100 p-4 space-y-2"
+        >
           <div class="flex justify-between text-sm font-medium text-stone-900">
-            <span>Sub-Total ({{ rows.length }} {{ rows.length === 1 ? "Service" : "Services" }})</span>
+            <span
+              >Sub-Total ({{ rows.length }}
+              {{ rows.length === 1 ? "Service" : "Services" }})</span
+            >
             <span>Rs. {{ subTotal }}</span>
           </div>
           <div
@@ -335,7 +389,9 @@ defineExpose({
             <span>Promo Discount</span>
             <span class="text-emerald-600">- Rs. {{ promoDiscount }}</span>
           </div>
-          <div class="border-t border-stone-200 pt-3 mt-1 flex justify-between font-bold text-stone-900">
+          <div
+            class="border-t border-stone-200 pt-3 mt-1 flex justify-between font-bold text-stone-900"
+          >
             <span>Total Amount</span>
             <span>Rs.{{ totalAmount }}</span>
           </div>
@@ -355,14 +411,8 @@ defineExpose({
           @update:model-value="removePromo"
           @keypress.enter="applyPromoCode"
         />
-        <div
-          v-if="appliedPromo?.isValid"
-          class="absolute right-2 bottom-0.5"
-        >
-          <UIcon
-            :name="ICONS.CIRCLE_CHECK"
-            class="w-5 h-5 text-green-500"
-          />
+        <div v-if="appliedPromo?.isValid" class="absolute right-2 bottom-0.5">
+          <UIcon :name="ICONS.CIRCLE_CHECK" class="w-5 h-5 text-green-500" />
         </div>
       </div>
       <base-button
@@ -382,20 +432,25 @@ defineExpose({
           v-for="method in paymentMethods"
           :key="method.value"
           class="border rounded-lg p-3 cursor-pointer flex items-center gap-3 transition-all min-w-0"
-          :class="form.paymentMethod === method.value
-            ? 'border-stone-200 bg-[#F9F6F2]'
-            : 'border-stone-200 hover:border-stone-300'"
+          :class="
+            form.paymentMethod === method.value
+              ? 'border-stone-200 bg-[#F9F6F2]'
+              : 'border-stone-200 hover:border-stone-300'
+          "
           @click="form.paymentMethod = method.value"
         >
-          <div class="bg-primary-700 p-2 rounded-full flex items-center justify-center shrink-0">
-            <UIcon
-              :name="method.icon"
-              class="w-5 h-5 text-white"
-            />
+          <div
+            class="bg-primary-700 p-2 rounded-full flex items-center justify-center shrink-0"
+          >
+            <UIcon :name="method.icon" class="w-5 h-5 text-white" />
           </div>
           <div class="flex flex-col min-w-0">
-            <span class="text-sm font-semibold truncate">{{ method.label }}</span>
-            <span class="text-xs text-stone-500 truncate">{{ method.description }}</span>
+            <span class="text-sm font-semibold truncate">{{
+              method.label
+            }}</span>
+            <span class="text-xs text-stone-500 truncate">{{
+              method.description
+            }}</span>
           </div>
         </div>
       </div>
