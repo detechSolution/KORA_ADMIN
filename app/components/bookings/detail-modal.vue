@@ -172,7 +172,7 @@ watch(
           BOOKINGS
         </h3>
 
-        <div v-for="bookings in bookingDetails?.items ?? []" :key="bookings.id">
+        <div v-for="item in bookingDetails?.items.sort((a, b) => b.id - a.id) ?? []" :key="item.id">
           <div
             class="border border-border rounded-xl gap-2 md:gap-0 grid md:grid-cols-[2fr_2fr_1fr_auto] grid-cols-1 p-3"
           >
@@ -181,7 +181,7 @@ watch(
             >
               <span class="text-xs text-secondary-400 mb-1">Session/Service Name</span>
               <h2 class="text-sm font-semibold">
-                {{ bookings?.title }}
+                {{ item?.title }}
               </h2>
             </div>
             <div
@@ -189,19 +189,19 @@ watch(
             >
               <span class="text-xs text-secondary-400 mb-1">
                 {{
-                  `Date ${bookings?.itemType !== "passes" ? " & Time" : ""}`
+                  `Date ${item?.itemType !== "passes" ? " & Time" : ""}`
                 }}</span>
               <div class="text-xs font-semibold">
                 <div class="flex items-center gap-2">
                   <UIcon :name="ICONS.CALENDAR" />
-                  <h2>{{ formatDate(bookings?.scheduledAt) || "N/A" }}</h2>
+                  <h2>{{ formatDate(item?.scheduledAt) || "N/A" }}</h2>
                 </div>
                 <div
-                  v-if="bookings?.itemType !== 'passes'"
+                  v-if="item?.itemType !== 'passes'"
                   class="flex items-center gap-2"
                 >
                   <UIcon :name="ICONS.CLOCK" />
-                  <h2>{{ formatLocalTime(bookings?.scheduledAt) || "N/A" }}</h2>
+                  <h2>{{ formatLocalTime(item?.scheduledAt) || "N/A" }}</h2>
                 </div>
               </div>
             </div>
@@ -209,13 +209,13 @@ watch(
               <span class="text-xs text-secondary-400 mb-1">Price</span>
 
               <p class="flex self-start text-sm font-semibold">
-                {{ bookings?.currency }} {{ bookings?.unitAmount }}
+                {{ item?.currency }} {{ item?.unitAmount }}
               </p>
             </div>
             <div class="flex gap-2 items-start justify-end p-2">
               <div class="flex items-center gap-2 mt-1">
-                <base-badge :status="booking?.status">
-                  {{ normalizeText(booking?.status) }}
+                <base-badge :status="item?.status">
+                  {{ item?.status }}
                 </base-badge>
               </div>
               <UDropdownMenu
@@ -227,8 +227,8 @@ watch(
                       disabled: [
                         'cancelled',
                         'cancellation_processing',
-                      ].includes(booking?.status ?? ''),
-                      onSelect: () => openCancelModal(bookings.id),
+                      ].includes(item?.status ?? ''),
+                      onSelect: () => openCancelModal(item.id),
                     },
                   ],
                 ]"
