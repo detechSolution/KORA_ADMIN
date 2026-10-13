@@ -48,6 +48,7 @@ function getServicePrice(serviceId: number | undefined): number {
 
   const group = findServiceGroup(serviceId);
   const isSpa = group?.type?.toLowerCase() === "spa";
+  const quantity = isSpa && form.value.roomType === "shared" ? 2 : 1;
 
   if (isSpa) {
     const rawDurations = item?.duration;
@@ -57,11 +58,11 @@ function getServicePrice(serviceId: number | undefined): number {
 
     const selectedPrice = Number(selected?.amount);
     if (!Number.isNaN(selectedPrice))
-      return selectedPrice;
+      return selectedPrice * quantity;
   }
 
   const itemPrice = Number(item?.amount);
-  return Number.isNaN(itemPrice) ? 0 : itemPrice;
+  return Number.isNaN(itemPrice) ? 0 : itemPrice * quantity;
 }
 
 function getPromoDiscount(): number {

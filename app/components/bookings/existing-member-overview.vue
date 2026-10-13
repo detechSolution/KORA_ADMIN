@@ -43,14 +43,19 @@ const paymentMethods = [
 ];
 
 function getServiceQuantity(svc: any): number {
+  const serviceType = (svc.serviceType || findServiceGroup(svc.serviceId)?.type || "").toLowerCase();
+  if (serviceType === "spa")
+    return svc.roomType === "shared" ? 2 : 1;
+
   const sessionType = String(
-    findServiceItem(svc.serviceId)?.sessionType ?? ""
+    findServiceItem(svc.serviceId)?.sessionType ?? "",
   ).toLowerCase();
   if (
-    sessionType !== SESSION_TYPE.EVENT &&
-    sessionType !== SESSION_TYPE.WORKSHOP
-  )
+    sessionType !== SESSION_TYPE.EVENT
+    && sessionType !== SESSION_TYPE.WORKSHOP
+  ) {
     return 1;
+  }
   const quantity = Number(svc.sessionQuantity);
   return Number.isInteger(quantity) && quantity > 0 ? quantity : 1;
 }
@@ -61,7 +66,8 @@ function getServicePrice(svc: any): number {
     return (Number(svc.resolvedPrice) || 0) * quantity;
 
   const item = findServiceItem(svc.serviceId);
-  if (!item) return 0;
+  if (!item)
+    return 0;
 
   const group = findServiceGroup(svc.serviceId);
   const isSpa = (svc.serviceType || group?.type || "").toLowerCase() === "spa";
@@ -70,7 +76,8 @@ function getServicePrice(svc: any): number {
     const durations: any[] = Array.isArray(item.duration) ? item.duration : [];
     const selected = durations.find((d: any) => d?.id === svc.durationId);
     const price = Number(selected?.amount ?? selected?.price);
-    if (!Number.isNaN(price)) return price * quantity;
+    if (!Number.isNaN(price))
+      return price * quantity;
   }
 
   const price = Number(item.amount ?? item.price);
@@ -85,10 +92,10 @@ function getServiceName(svc: any): string {
 
 function getServiceType(svc: any): string {
   return (
-    svc.resolvedItemType ??
-    svc.serviceType ??
-    findServiceGroup(svc.serviceId)?.type ??
-    ""
+    svc.resolvedItemType
+    ?? svc.serviceType
+    ?? findServiceGroup(svc.serviceId)?.type
+    ?? ""
   ).toString();
 }
 
@@ -102,18 +109,20 @@ const SERVICE_TYPE_TO_BENEFIT: Record<string, string> = {
 
 function getBenefitPercent(
   benefits: Record<string, unknown> | undefined,
-  serviceType: string
+  serviceType: string,
 ): number {
-  if (!benefits) return 0;
+  if (!benefits)
+    return 0;
 
-  const key =
-    SERVICE_TYPE_TO_BENEFIT[(serviceType || "").toLowerCase()] ?? serviceType;
+  const key
+    = SERVICE_TYPE_TO_BENEFIT[(serviceType || "").toLowerCase()] ?? serviceType;
   const percent = Number(benefits[key]);
   return Number.isNaN(percent) ? 0 : percent;
 }
 
 function getDurationLabel(svc: any): string {
-  if (svc.resolvedDurationLabel) return svc.resolvedDurationLabel;
+  if (svc.resolvedDurationLabel)
+    return svc.resolvedDurationLabel;
 
   const item = findServiceItem(svc.serviceId);
   const durations: any[] = Array.isArray(item?.duration) ? item.duration : [];
@@ -122,9 +131,11 @@ function getDurationLabel(svc: any): string {
 }
 
 function formatDate(dateStr: string | undefined): string {
-  if (!dateStr) return "";
+  if (!dateStr)
+    return "";
   const d = new Date(`${dateStr}T00:00:00`);
-  if (Number.isNaN(d.getTime())) return dateStr;
+  if (Number.isNaN(d.getTime()))
+    return dateStr;
   return d.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -133,11 +144,13 @@ function formatDate(dateStr: string | undefined): string {
 }
 
 function formatTime(timeStr: string | undefined): string {
-  if (!timeStr) return "";
+  if (!timeStr)
+    return "";
   const [h = "0", m = "0"] = timeStr.split(":");
   const hour = Number(h);
   const minute = Number(m);
-  if (Number.isNaN(hour) || Number.isNaN(minute)) return timeStr;
+  if (Number.isNaN(hour) || Number.isNaN(minute))
+    return timeStr;
   const period = hour >= 12 ? "PM" : "AM";
   const hour12 = hour % 12 || 12;
   return `${hour12}:${String(minute).padStart(2, "0")} ${period}`;
@@ -145,36 +158,37 @@ function formatTime(timeStr: string | undefined): string {
 
 const selectedMember = computed(() =>
   (membershipStore.membershipOptions as any[]).find(
-    (m: any) => m.memberId === form.value.selectedMemberId
-  )
+    (m: any) => m.memberId === form.value.selectedMemberId,
+  ),
 );
 
 /** Discount percent for the selected member on a service type. */
 function getMemberBenefitPercent(
   serviceType: string,
-  bookingDate: unknown
+  bookingDate: unknown,
 ): number {
   if (
     !isBookingDateWithinPlan(
       bookingDate,
       selectedMember.value?.startDate,
-      selectedMember.value?.endDate
+      selectedMember.value?.endDate,
     )
-  )
+  ) {
     return 0;
+  }
 
   return getBenefitPercent(
     selectedMember.value?.passId
       ? selectedMember.value?.passBenefits
       : selectedMember.value?.membershipBenefits,
     serviceType,
-    serviceType
+    serviceType,
   );
 }
 
 const memberName = computed(
   () =>
-    selectedMember.value?.fullName ?? selectedMember.value?.label ?? "Member"
+    selectedMember.value?.fullName ?? selectedMember.value?.label ?? "Member",
 );
 
 type OverviewRow = {
@@ -205,7 +219,7 @@ function rowData(row: { original: Record<string, unknown> }): OverviewRow {
 function buildRow(
   svc: any,
   client: string,
-  benefitPercent: number
+  benefitPercent: number,
 ): OverviewRow {
   const price = getServicePrice(svc);
   return {
@@ -230,7 +244,7 @@ const rows = computed<OverviewRow[]>(() => {
   if (form.value.serviceId) {
     const memberBenefit = getMemberBenefitPercent(
       getServiceType(form.value),
-      form.value.date
+      form.value.date,
     );
     result.push(buildRow(form.value, memberName.value, memberBenefit));
   }
@@ -239,13 +253,14 @@ const rows = computed<OverviewRow[]>(() => {
 });
 
 const subTotal = computed(() =>
-  rows.value.reduce((sum, r) => sum + r.price, 0)
+  rows.value.reduce((sum, r) => sum + r.price, 0),
 );
 const benefitDiscount = computed(() =>
-  rows.value.reduce((sum, r) => sum + r.benefitAmount, 0)
+  rows.value.reduce((sum, r) => sum + r.benefitAmount, 0),
 );
 const promoDiscount = computed(() => {
-  if (!appliedPromo.value?.isValid) return 0;
+  if (!appliedPromo.value?.isValid)
+    return 0;
   const base = Math.max(0, subTotal.value - benefitDiscount.value);
   if (appliedPromo.value.type === "fixed")
     return Math.min(appliedPromo.value.amount, base);
@@ -253,11 +268,12 @@ const promoDiscount = computed(() => {
 });
 
 const totalAmount = computed(() =>
-  Math.max(0, subTotal.value - benefitDiscount.value - promoDiscount.value)
+  Math.max(0, subTotal.value - benefitDiscount.value - promoDiscount.value),
 );
 
 async function applyPromoCode(): Promise<void> {
-  if (!form.value.promoCode?.trim()) return;
+  if (!form.value.promoCode?.trim())
+    return;
   promoLoading.value = true;
   try {
     const data = await bookingStore.validatePromoCode(form.value.promoCode);
@@ -269,14 +285,17 @@ async function applyPromoCode(): Promise<void> {
         isValid: true,
       };
       success({ message: "Promo code applied successfully" });
-    } else {
+    }
+    else {
       appliedPromo.value = null;
       showError({ message: "Invalid promo code" });
     }
-  } catch (error) {
+  }
+  catch (error) {
     appliedPromo.value = null;
     showError({ message: getApiErrorMessage(error, "Invalid promo code") });
-  } finally {
+  }
+  finally {
     promoLoading.value = false;
   }
 }
@@ -369,10 +388,8 @@ defineExpose({
           class="rounded-lg bg-stone-50 border border-stone-100 p-4 space-y-2"
         >
           <div class="flex justify-between text-sm font-medium text-stone-900">
-            <span
-              >Sub-Total ({{ rows.length }}
-              {{ rows.length === 1 ? "Service" : "Services" }})</span
-            >
+            <span>Sub-Total ({{ rows.length }}
+              {{ rows.length === 1 ? "Service" : "Services" }})</span>
             <span>Rs. {{ subTotal }}</span>
           </div>
           <div
