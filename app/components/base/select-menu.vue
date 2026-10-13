@@ -53,6 +53,7 @@ type Props = {
   hiddenSelectedValues?: any[];
   showAddAction?: boolean;
   addActionLabel?: string;
+  selectedBadge?: boolean;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -73,6 +74,7 @@ const props = withDefaults(defineProps<Props>(), {
   hiddenSelectedValues: () => [],
   showAddAction: false,
   addActionLabel: "Add item",
+  selectedBadge: false,
 });
 
 const emit = defineEmits<{
@@ -126,6 +128,7 @@ function isSelected(value: any): boolean {
 const isLabelItem = (item: SelectOption): item is LabelOption => (item as any).type === "label";
 const isRichOption = (item: SelectOption): item is RichOption => !("type" in item) && ("meta" in item || "badge" in item);
 const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "value" in item;
+const selectedOption = computed(() => props.options.find(option => hasValue(option) && option.value === props.modelValue));
 </script>
 
 <template>
@@ -169,6 +172,18 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
         <UIcon :name="props.leadingIcon" />
       </template>
 
+      <template v-if="props.selectedBadge" #default>
+        <span v-if="selectedOption && hasValue(selectedOption)" class="flex min-w-0 items-center gap-2">
+          <span class="truncate">{{ selectedOption.label }}</span>
+          <base-badge
+            v-if="isRichOption(selectedOption) && selectedOption.badge?.label"
+            :status="selectedOption.badge.label"
+            class="shrink-0 px-1.5 py-0 text-[11px] shadow-none"
+          />
+        </span>
+        <span v-else class="text-stone-400">{{ props.placeholder }}</span>
+      </template>
+
       <template #empty>
         <slot name="empty">
           <div class="flex flex-col items-center justify-center gap-2 px-3 py-6 text-center text-sm text-stone-500">
@@ -195,9 +210,9 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
         <!-- Selectable item -->
         <div
           v-else
-          class="flex w-full items-center justify-between gap-3"
+          class="flex w-full min-w-0 items-center gap-3"
         >
-          <div class="flex min-w-0 items-center gap-2">
+          <div class="flex min-w-0 flex-1 items-center gap-2">
             <!-- Checkbox -->
             <span
               v-if="props.showCheckbox"
@@ -233,13 +248,10 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
 
                 <base-badge
                   v-if="item.badge?.label"
-                  :label="item.badge.label"
-                  size="xs"
-                  variant="soft"
+                  :status="item.badge.label"
                   :color="item.badge.color"
-                >
-                  {{ item.badge.label }}
-                </base-badge>
+                  class="shrink-0 px-1.5 py-0 text-[11px] shadow-none"
+                />
               </div>
 
               <p v-if="item.description" class="text-xs text-stone-400">
@@ -248,22 +260,23 @@ const hasValue = (item: SelectOption): item is RichOption | SimpleOption => "val
             </div>
           </div>
 
-          <!-- Meta value -->
-          <span
-            v-if="isRichOption(item) && item.meta"
-            class="shrink-0 text-xs font-medium"
-            :class="item.metaColor === 'error' ? 'text-red-500' : 'text-emerald-500'"
-          >
-            {{ item.meta }}
-          </span>
+          <div class="flex shrink-0 items-center gap-3">
+            <span
+              v-if="isRichOption(item) && item.meta"
+              class="text-xs font-medium"
+              :class="item.metaColor === 'error' ? 'text-red-500' : 'text-emerald-500'"
+            >
+              {{ item.meta }}
+            </span>
 
-          <!-- Selected state -->
-          <UIcon
-            v-if="!props.showCheckbox && isSelected(hasValue(item) ? item.value : null)"
-            :name="ICONS.CHECK"
-            class="h-4 w-4 shrink-0 text-primary"
-            aria-hidden="true"
-          />
+            <UIcon
+              v-if="!props.showCheckbox"
+              :name="ICONS.CHECK"
+              class="h-4 w-4 text-primary"
+              :class="isSelected(hasValue(item) ? item.value : null) ? 'visible' : 'invisible'"
+              aria-hidden="true"
+            />
+          </div>
         </div>
       </template>
 
