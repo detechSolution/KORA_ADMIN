@@ -42,12 +42,14 @@ function openCancelModal(id: number) {
 }
 
 async function handleCancelBooking() {
-  if (!selectedBookingItemId.value)
+  const bookingId = props.booking?.id;
+  const itemId = selectedBookingItemId.value;
+  if (bookingId == null || itemId == null || isCancelling.value)
     return;
 
   try {
     isCancelling.value = true;
-    await bookingStore.requestBookingCancellation(selectedBookingItemId.value);
+    await bookingStore.requestBookingCancellation(bookingId, itemId);
     success({ message: "Booking cancelled successfully" });
     isCancelModalOpen.value = false;
     selectedBookingItemId.value = null;
@@ -251,7 +253,7 @@ watch(
       :loading="isCancelling"
       @close="
         isCancelModalOpen = false;
-        selectedBookingItemId.value = null;
+        selectedBookingItemId = null;
       "
       @confirm="handleCancelBooking"
     />
