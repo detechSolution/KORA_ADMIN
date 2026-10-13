@@ -37,15 +37,15 @@ const schema = z.object({
     })
     .refine(
       ({ start, end }) => Boolean(start && end),
-      "Select a start and end date"
+      "Select a start and end date",
     )
     .refine(
       ({ start }) => !start || start >= minimumInvitationDate,
-      "Start date cannot be in the past"
+      "Start date cannot be in the past",
     )
     .refine(
       ({ start, end }) => !start || !end || end >= start,
-      "End date cannot be before the start date"
+      "End date cannot be before the start date",
     ),
 });
 
@@ -70,18 +70,20 @@ async function handleEmailAdd(email: string) {
   }
 
   await nextTick();
-  form.emails = form.emails.filter((item) => item !== email);
+  form.emails = form.emails.filter(item => item !== email);
   emailError.value = `${email} is not a valid email address`;
 }
 
 async function handleSendInvitation() {
   try {
     await formRef.value?.validate();
-  } catch {
+  }
+  catch {
     return;
   }
 
-  if (!props.pass?.id) return;
+  if (!props.pass?.id)
+    return;
 
   emit("send", {
     passId: props.pass.id,
@@ -94,8 +96,9 @@ async function handleSendInvitation() {
 watch(
   () => props.open,
   (open) => {
-    if (open) resetForm();
-  }
+    if (open)
+      resetForm();
+  },
 );
 </script>
 
@@ -162,10 +165,10 @@ watch(
           type="submit"
           variant="solid"
           size="md"
-          @click="emit('send', { passId: props.pass.id, emails: form.emails, fromDate: form.dateRange.start as string, toDate: form.dateRange.end as string })"
           class="bg-stone-900 hover:bg-stone-800"
           :loading="props.loading"
           :disabled="props.loading"
+          @click="emit('send', { passId: props.pass.id, emails: form.emails, fromDate: form.dateRange.start as string, toDate: form.dateRange.end as string })"
         >
           Send Invitation
         </base-button>
