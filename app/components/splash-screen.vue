@@ -4,8 +4,10 @@ import { computed } from "vue";
 import { useAuthStore } from "~/stores/auth";
 
 const authStore = useAuthStore();
+const route = useRoute();
 
-const isVisible = computed(() => authStore.isCheckingAuth);
+// The login form already shows progress while verifying the new session.
+const isVisible = computed(() => authStore.isCheckingAuth && route.name !== "login");
 </script>
 
 <template>

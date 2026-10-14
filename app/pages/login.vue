@@ -47,10 +47,16 @@ function clearApiError(): void {
 }
 
 async function handleLogin(): Promise<void> {
+  if (loading.value) {
+    return;
+  }
   try {
     await formRef.value?.validate();
   }
   catch {
+    return;
+  }
+  if (loading.value) {
     return;
   }
   try {
@@ -62,7 +68,7 @@ async function handleLogin(): Promise<void> {
       rememberMe: rememberMe.value,
     };
     await authStore.login(payload as { email: string; password: string; rememberMe: boolean });
-    router.push({ name: "index" });
+    await router.replace({ name: "index" });
   }
   catch (error: unknown) {
     const errorMessage = getApiErrorMessage(error, "Something went wrong. Please try again.");

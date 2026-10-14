@@ -17,6 +17,7 @@ export const useAuthStore = defineStore("auth", () => {
   const unAuthorizedError = ref(false);
   const isCheckingAuth = ref(false);
   const lastAuthCheck = ref<number>(0); // Track last check time
+  let authCheckPromise: Promise<void> | null = null;
 
   const user = ref<{
     id: number | null;
@@ -82,6 +83,7 @@ export const useAuthStore = defineStore("auth", () => {
 
   const clearAuthData = () => {
     isAuthenticated.value = false;
+    lastAuthCheck.value = 0;
     user.value = {
       id: null,
       email: "",
@@ -112,13 +114,8 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  const checkAuth = async (force = false): Promise<void> => {
+  const performAuthCheck = async (force: boolean): Promise<void> => {
     const now = Date.now();
-
-    // Skip if recently checked (unless forced)
-    if (!force && (now - lastAuthCheck.value) < AUTH_CHECK_INTERVAL) {
-      return; // Use cached auth state
-    }
 
     // If no tokens, clear auth immediately
     if (!storage.hasTokens()) {
@@ -126,34 +123,52 @@ export const useAuthStore = defineStore("auth", () => {
       return;
     }
 
+    // Skip if recently checked (unless forced)
+    if (!force && (now - lastAuthCheck.value) < AUTH_CHECK_INTERVAL) {
+      return; // Use cached auth state
+    }
+
     isCheckingAuth.value = true;
     try {
-      const response = await http.get(API_ENDPOINTS.AUTH.ME) as { success?: boolean; code?: string; data?: { user?: Record<string, unknown>; permissions?: string[] } };
-      const payload = response;
-      if (payload) {
-        const u = payload as Record<string, unknown>;
-        isAuthenticated.value = true;
-        user.value.id = (u.id as number) ?? null;
-        user.value.email = (u.email as string) ?? "";
-        user.value.name = (u.fullName as string) ?? "";
-        user.value.phone = (u.phoneNumber as string) ?? "";
-        // user.value.avatar = (u.avatar as string) ?? "";
-        // user.value.is_active = u.is_active as boolean | undefined;
-        user.value.role_id = (u?.adminRole?.id as number | null) ?? null;
-        // user.value.last_login_at = (u.last_login_at as string | null) ?? null;
-        permissions.value = Array.isArray(u?.permissions) ? u.permissions : [];
-        saveUserToStorage();
-        lastAuthCheck.value = now;
+      const payload = await http.get<{
+        id?: number;
+        email?: string;
+        fullName?: string;
+        phoneNumber?: string;
+        adminRole?: { id?: number | null };
+        permissions?: string[];
+      } | null>(API_ENDPOINTS.AUTH.ME);
+      if (!payload) {
+        throw new Error("Unable to verify your session. Please try again.");
       }
+      isAuthenticated.value = true;
+      user.value.id = payload.id ?? null;
+      user.value.email = payload.email ?? "";
+      user.value.name = payload.fullName ?? "";
+      user.value.phone = payload.phoneNumber ?? "";
+      user.value.role_id = payload.adminRole?.id ?? null;
+      permissions.value = Array.isArray(payload.permissions) ? payload.permissions : [];
+      saveUserToStorage();
+      lastAuthCheck.value = now;
     }
     catch (error: unknown) {
       console.error(error, "Check Auth Error");
       clearAuthData();
       logout();
+      throw error;
     }
     finally {
       isCheckingAuth.value = false;
     }
+  };
+
+  const checkAuth = async (force = false): Promise<void> => {
+    if (!authCheckPromise) {
+      authCheckPromise = performAuthCheck(force).finally(() => {
+        authCheckPromise = null;
+      });
+    }
+    await authCheckPromise;
   };
 
   // Smart check: only checks if needed (cached)
@@ -171,12 +186,21 @@ export const useAuthStore = defineStore("auth", () => {
   const login = async (payload: { email: string; password: string; rememberMe: boolean }): Promise<void> => {
     try {
       unAuthorizedError.value = false;
-      const { accessToken, refreshToken } = await http.post(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password, rememberMe: payload.rememberMe }) as any;
-      if (accessToken && refreshToken) {
-        storage.setTokens(accessToken, refreshToken);
-        isAuthenticated.value = true;
-        // After login, immediately check auth to get user data
-        await checkAuth(true);
+      // Let any previous session check finish before storing the new session.
+      if (authCheckPromise) {
+        await authCheckPromise.catch(() => {});
+      }
+      const { accessToken, refreshToken } = await http.post<{ accessToken?: string; refreshToken?: string }>(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password, rememberMe: payload.rememberMe });
+      if (!accessToken || !refreshToken) {
+        throw new Error("Invalid login response. Please try again.");
+      }
+      if (!storage.setTokens(accessToken, refreshToken)) {
+        logout();
+        throw new Error("Unable to save your session. Please try again.");
+      }
+      await checkAuth(true);
+      if (!isAuthenticated.value) {
+        throw new Error("Unable to verify your session. Please try again.");
       }
     }
     catch (error: unknown) {
