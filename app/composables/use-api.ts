@@ -100,6 +100,10 @@ function createHttpClient(config: HttpClientConfig) {
       if (error instanceof Error && error.name === "AbortError") {
         throw new Error("Request timeout");
       }
+      // Invalid login credentials belong to the form, not the session-expiry handler.
+      if (endpoint === API_ENDPOINTS.AUTH.LOGIN) {
+        throw error;
+      }
       if (isApiError(error) && error.status === 401 && !options._retry && endpoint !== API_ENDPOINTS.AUTH.REFRESH) {
         const refreshToken = storage.getRefreshToken();
         if (!refreshToken) {
