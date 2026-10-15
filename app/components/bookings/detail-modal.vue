@@ -118,44 +118,16 @@ watch(
     @close="emit('close')"
   >
     <div class="flex flex-col gap-10 p-6 overflow-y-auto max-h-[80vh] text-sm">
-      <div class="grid grid-cols-2 gap-8">
+      <div class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <!-- Customer Section -->
 
-        <div class="flex flex-col gap-1">
+        <div class="flex min-w-0 flex-col gap-1 sm:col-start-1 sm:row-start-1">
           <span class="text-xs text-secondary-400 mb-1">Booking ID</span>
           <span class="font-medium text-secondary-900">{{
             booking?.bookingCode
           }}</span>
         </div>
-
-        <!-- Details Section -->
-        <!-- <div class="flex flex-col gap-1">
-          <span class="text-xs text-secondary-400 mb-1">Status</span>
-
-          <div class="flex items-center gap-2 mt-1">
-            <base-badge :status="booking?.status" :show-icon="true">
-              {{ normalizeText(booking?.status) }}
-            </base-badge>
-          </div>
-        </div> -->
-        <div class="flex flex-col gap-1">
-          <span class="text-xs text-secondary-400 mb-1">Booked By</span>
-          <div class="font-medium text-secondary-900 flex flex-col gap-1">
-            <span class="capitalize">{{
-              bookingDetails?.booker?.fullName
-            }}</span>
-            <span>{{ booking?.clientPhoneNumber }}</span>
-          </div>
-        </div>
-
-        <div class="flex flex-col gap-1">
-          <span class="text-xs text-secondary-400 mb-1">Booked Date</span>
-          <div class="font-medium text-secondary-900 flex flex-col gap-1">
-            <span>{{ formatDate(booking?.bookedDate) }}</span>
-            <span>{{ formatLocalTime(booking?.bookedDate) }}</span>
-          </div>
-        </div>
-        <div v-if="booking?.tiggInvoiceId !== null" class="flex flex-col gap-1">
+        <div v-if="booking?.tiggInvoiceId !== null" class="flex min-w-0 flex-col gap-1 sm:col-start-2 sm:row-start-1">
           <span class="text-xs text-secondary-400 mb-1">Invoice Number</span>
           <div class="font-medium text-secondary-900 flex flex-col gap-1">
             <span
@@ -163,6 +135,34 @@ watch(
               @click="handleInvoiceClick(bookingDetails?.paymentId)"
             >
               {{ booking?.tiggInvoiceCode }} <UIcon :name="ICONS.EXTERNAL_LINK" /></span>
+          </div>
+        </div>
+
+        <div class="flex min-w-0 flex-col gap-1 sm:col-start-1 sm:row-start-2">
+          <span class="text-xs text-secondary-400 mb-1">Booked By</span>
+          <div class="font-medium text-secondary-900 flex flex-col gap-1">
+            <span class="capitalize">{{
+              bookingDetails?.booker?.fullName
+            }}</span>
+            <div class="flex flex-wrap gap-x-2 gap-y-1 text-secondary-500 font-normal text-xs">
+              <div class="flex gap-2 items-center">
+                <UIcon :name="ICONS.PHONE" />
+                <span>{{ bookingDetails?.booker?.phoneNumber }}</span>
+              </div>
+              |
+              <div class="flex gap-2 items-center">
+                <UIcon :name="ICONS.MAIL" />
+                <span>{{ bookingDetails?.booker?.email }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex min-w-0 flex-col gap-1 sm:col-start-2 sm:row-start-2">
+          <span class="text-xs text-secondary-400 mb-1">Booked Date</span>
+          <div class="font-medium text-secondary-900 flex flex-col gap-1">
+            <span>{{ formatDate(booking?.bookedDate) }}</span>
+            <span>{{ formatLocalTime(booking?.bookedDate) }}</span>
           </div>
         </div>
       </div>
