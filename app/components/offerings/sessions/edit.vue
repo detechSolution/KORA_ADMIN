@@ -280,9 +280,8 @@ onMounted(() => {
           <base-input
             v-model="form.sessionName"
             name="name"
-            label="Spa Type Name"
-            placeholder="e.g. Oil massage, stone healing"
-            required
+            label="Session Name"
+            placeholder="Enter session name"
           />
 
           <!-- <UFormField
@@ -315,7 +314,6 @@ onMounted(() => {
             label="Banner Image"
             name="bannerImage"
             class-names="min-h-32"
-            required
           />
 
           <base-file-upload
@@ -332,7 +330,6 @@ onMounted(() => {
             label="About this session"
             placeholder="Enter the session description details here..."
             class="w-full min-h-30 max-h-60 overflow-y-auto"
-            required
           />
         </section>
 
@@ -345,12 +342,11 @@ onMounted(() => {
             <base-select-searchable
               v-model="form.instructorId"
               name="instructorId"
-              label="Instructor Name"
+              label="Instructor Name (Optional)"
               placeholder="Select instructor"
               :options="instructorOptions"
               :loading="instructorsStore.loading"
               clearable
-              required
             />
             <base-input
               v-model="form.venue"
@@ -373,7 +369,7 @@ onMounted(() => {
             />
             <UFormField
               name="startTime"
-              label="Start Time*"
+              label="Start Time"
               :ui="{
                 error: 'mt-1 text-red-500 text-xs',
               }"
@@ -387,7 +383,7 @@ onMounted(() => {
             </UFormField>
             <UFormField
               name="endTime"
-              label="End Time*"
+              label="End Time"
               :ui="{
                 error: 'mt-1 text-red-500 text-xs',
               }"
