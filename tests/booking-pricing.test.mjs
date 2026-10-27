@@ -9,7 +9,7 @@ import { computed, ref } from "vue";
 
 import { isBookingDateWithinPlan } from "../app/utils/booking-benefits.ts";
 
-function loadPricing(component, serviceType = "spa") {
+function loadPricing(component, serviceType = "spa", options = {}) {
   const item = { id: 1, name: "Spa", amount: 450, duration: [{ id: 2, amount: 450 }], sessionType: "event" };
   const group = { type: serviceType, items: [item] };
   const form = ref({
@@ -39,6 +39,7 @@ function loadPricing(component, serviceType = "spa") {
         membershipBenefits: { spa: 18 },
         startDate: "2026-09-18",
         endDate: "2026-10-17",
+        ...options.member,
       }],
     }),
     useNotification: () => ({}),
@@ -46,7 +47,35 @@ function loadPricing(component, serviceType = "spa") {
     ICONS: {},
     SESSION_TYPE: { EVENT: "event", WORKSHOP: "workshop" },
   });
-  return { form, pricing };
+  return { form, pricing, item };
+}
+
+for (const plan of ["membership", "pass", "invitation pass"]) {
+  test(`${plan} pricing uses each session's configured discount`, () => {
+    const benefits = { class: 45, event: 10, workshop: 25 };
+    const member = plan === "membership"
+      ? { membershipBenefits: benefits }
+      : { passId: 7, passBenefits: benefits, membershipBenefits: { class: 90, event: 90, workshop: 90 }, isInvitation: plan === "invitation pass" };
+    const { form, pricing, item } = loadPricing("bookings/existing-member-overview.vue", "session", { member });
+    form.value.resolvedItemType = "session";
+    form.value.resolvedPrice = 240;
+
+    for (const [sessionType, percent] of Object.entries(benefits)) {
+      item.sessionType = sessionType;
+      // Match selecting a different offering so the computed rows recalculate.
+      form.value.serviceId += 1;
+      assert.equal(pricing.benefitDiscount.value, Math.round(240 * percent / 100));
+      assert.equal(pricing.totalAmount.value, 240 - Math.round(240 * percent / 100));
+    }
+
+    item.sessionType = "event";
+    benefits.event = 0;
+    form.value.serviceId += 1;
+    assert.equal(pricing.benefitDiscount.value, 0);
+    delete benefits.event;
+    form.value.serviceId += 1;
+    assert.equal(pricing.benefitDiscount.value, 0);
+  });
 }
 
 test("shared spa pricing doubles the member subtotal and benefit discount", () => {

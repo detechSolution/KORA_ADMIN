@@ -79,7 +79,7 @@ async function loadCard(): Promise<void> {
   });
   state.fullName = card.fullName;
   state.phoneNumber = card.phoneNumber;
-  state.cardNumber = Number.parseInt(card.cardNumber, 16).toString().padStart(10, "0");
+  state.cardNumber = card.cardNumber;
   state.doorNumbers = [...card.doorNumbers];
   state.validFrom = dateValue(card.validFrom);
   state.validUntil = dateValue(card.validUntil);
