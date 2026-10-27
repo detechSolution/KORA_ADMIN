@@ -20,7 +20,7 @@ const doorOptions = [
 ];
 const columns = [
   { id: "client", accessorKey: "fullName", header: "Client" },
-  { id: "cardNumber", accessorKey: "cardNumber", header: "Card Number", accessorFn: (row: any) => Number.parseInt(row.cardNumber, 16).toString().padStart(10, "0") },
+  { id: "cardNumber", accessorKey: "cardNumber", header: "Card Number" },
   { id: "expiryDate", accessorKey: "expiryDate", header: "Expiry Date", accessorFn: (row: any) => formatDate(row.expiryDate) },
   { id: "doorAccess", accessorKey: "doorAccess", header: "Door Access" },
   { id: "validity", accessorKey: "validity", header: "Validity" },

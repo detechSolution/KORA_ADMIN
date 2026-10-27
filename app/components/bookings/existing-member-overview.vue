@@ -91,12 +91,18 @@ function getServiceName(svc: any): string {
 }
 
 function getServiceType(svc: any): string {
-  return (
+  const serviceType = String(
     svc.resolvedItemType
-    ?? svc.serviceType
-    ?? findServiceGroup(svc.serviceId)?.type
-    ?? ""
-  ).toString();
+    || svc.serviceType
+    || findServiceGroup(svc.serviceId)?.type
+    || "",
+  ).toLowerCase();
+
+  // Sessions share an API item type, but their benefits depend on the offering.
+  if (serviceType === "session")
+    return String(findServiceItem(svc.serviceId)?.sessionType ?? "").toLowerCase();
+
+  return serviceType;
 }
 
 const SERVICE_TYPE_TO_BENEFIT: Record<string, string> = {
@@ -181,7 +187,6 @@ function getMemberBenefitPercent(
     selectedMember.value?.passId
       ? selectedMember.value?.passBenefits
       : selectedMember.value?.membershipBenefits,
-    serviceType,
     serviceType,
   );
 }
