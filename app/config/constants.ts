@@ -169,6 +169,8 @@ export const API_ENDPOINTS = {
     GET_DETAILS: (id: number) => `/api/v1/mails/${id}`,
   },
   ACCESS_CONTROL: {
+    GET_DOOR_PINS: "/api/v1/access-control/doors/pins",
+    SET_DOOR_PIN: (doorNumber: number) => `/api/v1/access-control/doors/${doorNumber}/pin`,
     GET_USER: "/api/v1/access-control/cards/user-options",
     POST: "/api/v1/access-control/cards",
     GET_CARDS: "/api/v1/access-control/cards",
