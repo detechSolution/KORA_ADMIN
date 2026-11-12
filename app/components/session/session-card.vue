@@ -99,7 +99,7 @@ function handleEditClick() {
         <UTooltip
           v-if="can(PERMISSIONS_SESSIONS.UPDATE)"
           :delay-duration="0"
-          :text="isEnded ? 'View Attendance (Session has ended)' : 'Attendance'"
+          :text="isEnded ? 'Attendance (Session has ended)' : 'Attendance'"
         >
           <UIcon
             :name="ICONS.CLIPBOARD_CHECK"

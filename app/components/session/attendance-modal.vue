@@ -31,6 +31,8 @@ const sessionAttendanceSummary = computed(() =>
 const loading = ref(false);
 const isSaving = ref(false);
 const attendanceStarted = ref(false);
+const currentTime = ref(Date.now());
+const attendanceGracePeriodMs = 150 * 60 * 1000;
 
 const isReadOnly = computed(() => {
   const session = props.session;
@@ -38,7 +40,7 @@ const isReadOnly = computed(() => {
     return false;
 
   const endTime = getNepalTimestamp(session.sessionDate, session.endTime);
-  return !Number.isNaN(endTime) && endTime <= Date.now();
+  return !Number.isNaN(endTime) && endTime + attendanceGracePeriodMs <= currentTime.value;
 });
 
 async function fetchAttendance() {
@@ -57,6 +59,7 @@ async function fetchAttendance() {
 }
 
 function toggleStatus(id: number, status: "attended" | "no_show") {
+  currentTime.value = Date.now();
   if (isReadOnly.value || !attendanceStarted.value)
     return;
 
@@ -67,6 +70,7 @@ function toggleStatus(id: number, status: "attended" | "no_show") {
 }
 
 async function handleSaveAttendance() {
+  currentTime.value = Date.now();
   if (isReadOnly.value || !attendanceStarted.value)
     return;
 
@@ -90,16 +94,22 @@ async function handleSaveAttendance() {
 }
 
 function startAttendance(): void {
+  currentTime.value = Date.now();
   if (!isReadOnly.value)
     attendanceStarted.value = true;
 }
 
-watch(() => props.open, (newVal) => {
+watch(() => props.open, (newVal, _oldVal, onCleanup) => {
   if (newVal) {
+    currentTime.value = Date.now();
+    const timer = setInterval(() => {
+      currentTime.value = Date.now();
+    }, 1000);
+    onCleanup(() => clearInterval(timer));
     attendanceStarted.value = false;
     fetchAttendance();
   }
-});
+}, { immediate: true });
 </script>
 
 <template>
@@ -172,7 +182,7 @@ watch(() => props.open, (newVal) => {
           v-if="isReadOnly"
           class="mt-4 rounded-lg bg-[#F9F6F2] px-4 py-3 text-sm text-stone-600"
         >
-          This session has ended. Attendance is view-only.
+          Attendance is view-only.
         </div>
         <div v-if="sessionsStore.loading" class="py-10 flex flex-col items-center justify-center gap-2 text-secondary-300">
           <UIcon :name="ICONS.REFRESH_CW" class="w-8 h-8 animate-spin" />
