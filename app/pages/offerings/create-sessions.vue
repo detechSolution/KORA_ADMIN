@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Time } from "@internationalized/date";
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import * as z from "zod";
 
@@ -40,7 +40,7 @@ const instructorOptions = computed(() =>
 );
 
 type ValidatableForm = {
-  validate: () => Promise<void>;
+  validate: (options?: { name?: string; silent?: boolean }) => Promise<unknown>;
 };
 
 const formRef = ref<ValidatableForm | null>(null);
@@ -87,8 +87,8 @@ function formatTimeValue(value: Time | undefined): string {
 const step1Schema = z.object({
   sessionName: z.string().trim().min(1, "Session name is required"),
   sessionType: sessionTypeSchema,
-  bannerImage: z.string().or(z.instanceof(File)),
-  bannerVideo: z.string().or(z.instanceof(File)),
+  bannerImage: z.union([z.string(), z.instanceof(File)], { error: "Please upload a banner image" }),
+  bannerVideo: z.union([z.string(), z.instanceof(File)], { error: "Please upload a banner video" }),
   sessionDescription: z.string().refine(v => stripHtml(v).length > 0, { message: "Description is required" }),
 });
 
@@ -273,6 +273,14 @@ async function handleCreateSession(): Promise<void> {
     loading.value = false;
   }
 }
+
+watch(() => form.sessionDescription, async () => {
+  if (currentStep.value !== 0)
+    return;
+
+  await nextTick();
+  await formRef.value?.validate({ name: "sessionDescription", silent: true });
+});
 
 watch(() => form.isFreeSession, (isFree) => {
   if (isFree) {
