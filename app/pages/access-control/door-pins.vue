@@ -4,9 +4,9 @@ import { onMounted, ref } from "vue";
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
 import { ICONS } from "~/config/icons";
-import { PERMISSIONS_MEMBERS } from "~/config/permissions";
+import { ACCESS_CONTROL } from "~/config/permissions";
 
-definePageMeta({ auth: true, layout: "dashboard", permission: PERMISSIONS_MEMBERS.UPDATE });
+definePageMeta({ auth: true, layout: "dashboard", permission: ACCESS_CONTROL.PINS_MANAGE });
 
 type DoorStatus = "unknown" | "queued" | "delivered" | "succeeded" | "failed";
 type Door = {
@@ -17,6 +17,7 @@ type Door = {
   acknowledgedAt: string | null;
 };
 const http = getHttp();
+const { can } = usePermission();
 const doors = ref<Door[]>([]);
 const loading = ref(true);
 const loadError = ref("");
@@ -36,6 +37,8 @@ const labels: Record<DoorStatus, string> = {
 };
 
 async function refresh() {
+  if (!can(ACCESS_CONTROL.PINS_MANAGE))
+    return;
   loading.value = true;
   loadError.value = "";
   try {
@@ -50,6 +53,8 @@ async function refresh() {
   }
 }
 function openEditor(door: Door) {
+  if (!can(ACCESS_CONTROL.PINS_MANAGE))
+    return;
   selected.value = door;
   pin.value = "";
   confirmation.value = "";
@@ -65,7 +70,7 @@ function closeEditor() {
   showPin.value = false;
 }
 async function save() {
-  if (!selected.value || saving.value)
+  if (!can(ACCESS_CONTROL.PINS_MANAGE) || !selected.value || saving.value)
     return;
   formError.value = "";
   if (!/^\d{4,8}$/.test(pin.value)) {
@@ -187,6 +192,7 @@ onMounted(refresh);
             </p>
           </div>
           <base-button
+            v-if="can(ACCESS_CONTROL.PINS_MANAGE)"
             variant="outline"
             class="self-start"
             @click="openEditor(door)"

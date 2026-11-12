@@ -110,6 +110,12 @@ export const ACCESS_LOGS = {
   VIEW: "access_logs.view",
 } as const;
 
+export const ACCESS_CONTROL = {
+  PINS_MANAGE: "access_control.pins.manage",
+  READER_RESET: "access_control.reader.reset",
+  CONTROLLER_WIPE: "access_control.controller.wipe",
+} as const;
+
 export const PERMISSIONS_INSTRUCTORS = {
   CREATE: "instructors.create",
   DELETE: "instructors.delete",

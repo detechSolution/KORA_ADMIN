@@ -9,6 +9,7 @@ import { usePermission } from "~/composables/use-permission";
 import { ICONS } from "~/config/icons";
 import {
   ACCESS_CARDS,
+  ACCESS_CONTROL,
   ACCESS_LOGS,
   PERMISSIONS_ADMINISTRATION,
   PERMISSIONS_BOOKINGS,
@@ -191,7 +192,7 @@ const rawItems: NavItemWithPermission[] = [{
   defaultOpen: false,
   children: [
     { label: "Access Cards", to: "/access-control/access-cards", icon: ICONS.CARD, permission: ACCESS_CARDS.VIEW },
-    { label: "Door PINs", to: "/access-control/door-pins", icon: ICONS.DOOR_LOCK, permission: ACCESS_CARDS.VIEW },
+    { label: "Door PINs", to: "/access-control/door-pins", icon: ICONS.DOOR_LOCK, permission: ACCESS_CONTROL.PINS_MANAGE },
     { label: "Access Logs", to: "/access-control/access-logs", icon: ICONS.FILE_KEY, permission: ACCESS_LOGS.VIEW },
   ],
 }, {
