@@ -5,7 +5,7 @@ import { stripTypeScriptTypes } from "node:module";
 // eslint-disable-next-line test/no-import-node-test -- Use the existing Node runner without adding a dependency.
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 import { isBookingDateWithinPlan } from "../app/utils/booking-benefits.ts";
 
@@ -28,6 +28,7 @@ function loadPricing(component, serviceType = "spa", options = {}) {
   runInNewContext(script, {
     computed,
     ref,
+    watch,
     defineModel: () => form,
     defineExpose: (value) => { pricing = value; },
     findServiceItem: () => item,

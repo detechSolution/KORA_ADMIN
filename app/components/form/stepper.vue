@@ -10,13 +10,16 @@ type Step = {
 type Props = {
   steps: Step[];
   currentStep: number;
+  maxStep?: number;
+  disabled?: boolean;
   ariaLabel?: string;
   orientation?: "horizontal" | "vertical";
 };
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   ariaLabel: "Progress",
   orientation: "vertical",
+  disabled: false,
 });
 
 const emit = defineEmits<{
@@ -25,6 +28,10 @@ const emit = defineEmits<{
 
 function getStepLabel(step: Step) {
   return step.label ?? step.title ?? "";
+}
+
+function canSelectStep(index: number): boolean {
+  return !props.disabled && index <= (props.maxStep ?? props.currentStep);
 }
 </script>
 
@@ -56,11 +63,12 @@ function getStepLabel(step: Step) {
               : index < currentStep
                 ? 'bg-primary/10 text-primary border-primary'
                 : 'bg-muted/50 text-muted-foreground border-border',
+            canSelectStep(index) ? 'cursor-pointer hover:border-primary' : 'cursor-default',
           ]"
           :aria-label="`Go to step ${index + 1}: ${getStepLabel(step)}`"
           :aria-current="index === currentStep ? 'step' : undefined"
-          :disabled="index > currentStep"
-          @click="index <= currentStep && emit('select', index)"
+          :disabled="!canSelectStep(index)"
+          @click="canSelectStep(index) && emit('select', index)"
         >
           <UIcon
             v-if="index < currentStep"
@@ -97,11 +105,12 @@ function getStepLabel(step: Step) {
                   ? 'bg-primary-700 text-primary-foreground border-primary-700 ring-2 ring-offset-2 ring-primary-700'
                   : index < currentStep
                     ? 'bg-primary/10 text-primary border-primary cursor-pointer hover:bg-primary/20'
-                    : 'bg-muted text-muted-foreground border-border cursor-default',
+                    : 'bg-muted text-muted-foreground border-border',
+                canSelectStep(index) ? 'cursor-pointer hover:border-primary' : 'cursor-default',
               ]"
               :aria-current="index === currentStep ? 'step' : undefined"
-              :disabled="index > currentStep"
-              @click="index <= currentStep && emit('select', index)"
+              :disabled="!canSelectStep(index)"
+              @click="canSelectStep(index) && emit('select', index)"
             >
               <UIcon
                 v-if="index < currentStep"
@@ -143,11 +152,12 @@ function getStepLabel(step: Step) {
                   ? 'bg-primary-700 text-primary-foreground border-primary-700 ring-2 ring-offset-2 ring-primary-700'
                   : index < currentStep
                     ? 'bg-primary/10 text-primary border-primary cursor-pointer hover:bg-primary/20'
-                    : 'bg-muted text-muted-foreground border-border cursor-default',
+                    : 'bg-muted text-muted-foreground border-border',
+                canSelectStep(index) ? 'cursor-pointer hover:border-primary' : 'cursor-default',
               ]"
               :aria-current="index === currentStep ? 'step' : undefined"
-              :disabled="index > currentStep"
-              @click="index <= currentStep && emit('select', index)"
+              :disabled="!canSelectStep(index)"
+              @click="canSelectStep(index) && emit('select', index)"
             >
               <UIcon
                 v-if="index < currentStep"

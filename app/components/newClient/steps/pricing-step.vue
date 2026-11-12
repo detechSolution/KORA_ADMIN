@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 import { useBookingStore } from "~/stores/booking";
 
@@ -88,12 +88,15 @@ const totalPrice = computed(() => {
 });
 
 async function applyPromoCode(): Promise<void> {
-  if (!form.value.promoCode?.trim())
+  const code = form.value.promoCode?.trim();
+  if (!code)
     return;
 
   try {
     promoLoading.value = true;
-    const data = await bookingStore.validatePromoCode(form.value.promoCode);
+    const data = await bookingStore.validatePromoCode(code);
+    if (form.value.promoCode?.trim() !== code)
+      return;
 
     if (data?.isValid) {
       promoValidation.value = "success";
@@ -122,7 +125,10 @@ async function applyPromoCode(): Promise<void> {
 
 function removePromo() {
   appliedPromo.value = null;
+  promoValidation.value = null;
 }
+
+watch(() => form.value.promoCode, removePromo);
 
 defineExpose({
   appliedPromo,
