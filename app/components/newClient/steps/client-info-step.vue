@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { preventInvalidNumberInput } from "~/utils/common";
-
 const form = defineModel<any>({ required: true });
 </script>
 
@@ -20,7 +18,6 @@ const form = defineModel<any>({ required: true });
           label="Phone Number (Optional)"
           placeholder="Enter phone number"
           type="tel"
-          @keydown="preventInvalidNumberInput"
         />
         <base-input
           v-model="form.email"

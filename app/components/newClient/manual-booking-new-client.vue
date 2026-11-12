@@ -29,7 +29,10 @@ const steps = [
 
 const step1Schema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phone: z.coerce.string().regex(/^(?:\d{10})?$/, "Phone number must be exactly 10 digits"),
+  phone: z.string().nullish().transform(value => value?.trim().replace(/[\s()-]/g, "") || undefined).refine(
+    value => value === undefined || /^(?:\d{10}|\+[1-9]\d{6,14})$/.test(value),
+    "Please enter a valid phone number",
+  ),
   email: z.string().min(1, "Email address is required").email("Invalid email address"),
 });
 
@@ -151,6 +154,7 @@ async function handleCreateBooking(): Promise<void> {
 
   try {
     loading.value = true;
+    const clientInfo = step1Schema.parse(form);
 
     if (!form.serviceId || !form.date || !form.fullName || !form.email || !form.paymentMethod) {
       console.warn("Missing required fields");
@@ -191,7 +195,7 @@ async function handleCreateBooking(): Promise<void> {
       bookingTime: form.time,
       roomType: isSpa ? form.roomType : undefined,
       fullName: form.fullName,
-      phoneNumber: form.phone || "",
+      ...(clientInfo.phone ? { phoneNumber: clientInfo.phone } : {}),
       email: form.email,
       promoCode: form.promoCode || undefined,
       paymentMethod: form.paymentMethod,
