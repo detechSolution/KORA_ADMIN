@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, nextTick, reactive, ref } from "vue";
 import z from "zod";
 
 import type { CreateNewClientBookingPayload } from "~/types/booking";
@@ -13,11 +13,21 @@ import { getApiErrorMessage } from "~/utils/error";
 
 const loading = ref(false);
 const currentStep = ref(0);
+const navigating = ref(false);
 const bookingStore = useBookingStore();
 const { success, error: showError } = useNotification();
 
-const step2Ref = ref<any>(null);
-const step3Ref = ref<any>(null);
+type ScheduleStep = {
+  showDuration: boolean;
+  spaAvailableDays: string[];
+  weekdayFromDate: (date: string | undefined) => string | null;
+  loadingTimes: boolean;
+};
+type PricingStep = {
+  appliedPromo: { isValid: boolean; code: string } | null;
+};
+const step2Ref = ref<ScheduleStep | null>(null);
+const step3Ref = ref<PricingStep | null>(null);
 
 const steps = [
   { id: 1, title: "Client Info", description: "Client contact info" },
@@ -44,6 +54,13 @@ const step2Schema = z.object({
   durationId: z.number().nullable().optional(),
 }).superRefine((data, ctx) => {
   if (data.serviceType === "spa") {
+    if (!data.durationId || data.durationId <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["durationId"],
+        message: "Please select a duration",
+      });
+    }
     if (!data.time) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -102,25 +119,35 @@ const form = reactive<FormState>({
 type ValidatableForm = { validate: () => Promise<void> };
 const formRef = ref<ValidatableForm | null>(null);
 
+const maxReachableStep = computed(() => {
+  if (!step1Schema.safeParse(form).success)
+    return 0;
+  if (!step2Schema.safeParse(form).success || !validateScheduleSelection())
+    return 1;
+  return 2;
+});
+
 async function handleNext(): Promise<void> {
-  if (!await validateCurrentStep())
+  if (navigating.value || loading.value || currentStep.value >= steps.length - 1)
     return;
-  currentStep.value = Math.min(currentStep.value + 1, steps.length - 1);
+
+  navigating.value = true;
+  try {
+    if (await validateCurrentStep())
+      currentStep.value = Math.min(currentStep.value + 1, steps.length - 1);
+  }
+  finally {
+    navigating.value = false;
+  }
 }
 
 async function validateCurrentStep(): Promise<boolean> {
   try {
-    await formRef.value?.validate();
-    if (currentStep.value === 1 && step2Ref.value) {
-      const { showDuration, spaAvailableDays, weekdayFromDate } = step2Ref.value;
-      if (showDuration) {
-        const allowed = spaAvailableDays ?? [];
-        const weekday = weekdayFromDate(form.date);
-        if (!weekday || !allowed.includes(weekday)) {
-          return false;
-        }
-      }
-    }
+    if (!formRef.value)
+      return false;
+    await formRef.value.validate();
+    if (currentStep.value === 1)
+      return validateScheduleSelection();
     return true;
   }
   catch {
@@ -128,8 +155,41 @@ async function validateCurrentStep(): Promise<boolean> {
   }
 }
 
+function validateScheduleSelection(): boolean {
+  if (bookingStore.loading || step2Ref.value?.loadingTimes)
+    return false;
+  if (step2Ref.value?.showDuration) {
+    const { spaAvailableDays, weekdayFromDate } = step2Ref.value;
+    const allowed = spaAvailableDays ?? [];
+    const weekday = weekdayFromDate(form.date);
+    if (!weekday || (allowed.length > 0 && !allowed.includes(weekday)))
+      return false;
+  }
+  return true;
+}
+
 function handleBack(): void {
-  currentStep.value = Math.max(currentStep.value - 1, 0);
+  void goToStep(currentStep.value - 1);
+}
+
+async function goToStep(step: number): Promise<void> {
+  if (navigating.value || loading.value || !Number.isInteger(step) || step < 0 || step >= steps.length || step === currentStep.value)
+    return;
+  if (step < currentStep.value) {
+    currentStep.value = step;
+    return;
+  }
+  if (step > maxReachableStep.value)
+    return;
+
+  navigating.value = true;
+  try {
+    if (await validateCurrentStep() && step <= maxReachableStep.value)
+      currentStep.value = step;
+  }
+  finally {
+    navigating.value = false;
+  }
 }
 
 /* ── Actions ────────────────────────────────────────────── */
@@ -149,11 +209,27 @@ function resetForm(): void {
   currentStep.value = 0;
 }
 async function handleCreateBooking(): Promise<void> {
-  if (!await validateCurrentStep())
+  if (loading.value || navigating.value || currentStep.value !== steps.length - 1)
     return;
 
   try {
     loading.value = true;
+    const schemas = [step1Schema, step2Schema, step3Schema];
+    for (const [step, schema] of schemas.entries()) {
+      if (!schema.safeParse(form).success) {
+        currentStep.value = step;
+        await nextTick();
+        await validateCurrentStep();
+        return;
+      }
+    }
+    if (!await validateCurrentStep())
+      return;
+    if (!validateScheduleSelection()) {
+      currentStep.value = 1;
+      showError({ message: "Please review the selected schedule before booking." });
+      return;
+    }
     const clientInfo = step1Schema.parse(form);
 
     if (!form.serviceId || !form.date || !form.fullName || !form.email || !form.paymentMethod) {
@@ -163,13 +239,15 @@ async function handleCreateBooking(): Promise<void> {
 
     const serviceItem = findServiceItem(form.serviceId);
     if (!serviceItem) {
-      console.warn("Service item not found");
+      currentStep.value = 1;
+      showError({ message: "Please select an available service." });
       return;
     }
 
     const serviceGroup = findServiceGroup(form.serviceId);
-    if (!serviceGroup) {
-      console.warn("Service group not found");
+    if (!serviceGroup || serviceGroup.type?.toLowerCase() !== form.serviceType) {
+      currentStep.value = 1;
+      showError({ message: "Please select an available service for the selected type." });
       return;
     }
 
@@ -185,7 +263,7 @@ async function handleCreateBooking(): Promise<void> {
       return;
     }
 
-    const payload = {
+    const payload: CreateNewClientBookingPayload = {
       itemType: {
         id: itemTypeId,
         name: serviceItem.name,
@@ -197,13 +275,13 @@ async function handleCreateBooking(): Promise<void> {
       fullName: form.fullName,
       ...(clientInfo.phone ? { phoneNumber: clientInfo.phone } : {}),
       email: form.email,
-      promoCode: form.promoCode || undefined,
+      promoCode: step3Ref.value?.appliedPromo?.isValid ? step3Ref.value.appliedPromo.code : undefined,
       paymentMethod: form.paymentMethod,
     };
     if (payload.bookingTime === "" || payload.itemType.type.toLowerCase() === "session") {
       delete payload.bookingTime;
     }
-    await bookingStore.createNewClientBooking(payload as CreateNewClientBookingPayload);
+    await bookingStore.createNewClientBooking(payload);
 
     success({ message: "Booking created successfully" });
     resetForm();
@@ -224,9 +302,11 @@ async function handleCreateBooking(): Promise<void> {
       <FormStepper
         :steps="steps"
         :current-step="currentStep"
+        :max-step="Math.max(currentStep, maxReachableStep)"
+        :disabled="navigating || loading"
         orientation="horizontal"
         class="mb-8"
-        @select="(step) => currentStep = step"
+        @select="goToStep"
       />
 
       <div class="flex-1 min-w-0">
@@ -237,17 +317,17 @@ async function handleCreateBooking(): Promise<void> {
           :validate-on="['input', 'change', 'blur']"
           class="flex flex-col gap-6 min-h-80"
         >
-          <Transition name="step-fade" mode="out-in">
+          <div>
             <!-- Step 1: Client Info -->
             <NewClientStepsClientInfoStep
-              v-if="currentStep === 0"
+              v-show="currentStep === 0"
               key="step-1"
               v-model="form"
             />
 
             <!-- Step 2: Schedule -->
             <NewClientStepsScheduleStep
-              v-else-if="currentStep === 1"
+              v-show="currentStep === 1"
               ref="step2Ref"
               key="step-2"
               v-model="form"
@@ -255,12 +335,12 @@ async function handleCreateBooking(): Promise<void> {
 
             <!-- Step 3: Pricing -->
             <NewClientStepsPricingStep
-              v-else-if="currentStep === 2"
+              v-show="currentStep === 2"
               ref="step3Ref"
               key="step-3"
               v-model="form"
             />
-          </Transition>
+          </div>
 
           <!-- Navigation -->
           <div
@@ -270,12 +350,15 @@ async function handleCreateBooking(): Promise<void> {
             <base-button
               v-if="currentStep > 0"
               variant="outline"
+              :disabled="navigating || loading"
               @click="handleBack"
             >
               Back
             </base-button>
             <base-button
               v-if="currentStep < steps.length - 1"
+              :loading="navigating"
+              :disabled="loading || (currentStep === 1 && (bookingStore.loading || step2Ref?.loadingTimes))"
               @click="handleNext"
             >
               Next
@@ -283,6 +366,7 @@ async function handleCreateBooking(): Promise<void> {
             <base-button
               v-else
               :loading="loading"
+              :disabled="navigating"
               @click="handleCreateBooking"
             >
               Create Booking

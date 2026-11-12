@@ -5,17 +5,18 @@ import { stripTypeScriptTypes } from "node:module";
 // eslint-disable-next-line test/no-import-node-test -- Use the existing Node runner without adding a dependency.
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
-import { computed, reactive, ref } from "vue";
+import { computed, nextTick, reactive, ref } from "vue";
 import z from "zod";
 
 function loadBooking() {
   const source = readFileSync(new URL("../app/components/newClient/manual-booking-new-client.vue", import.meta.url), "utf8");
   const script = stripTypeScriptTypes(parse(source).descriptor.scriptSetup.content.replace(/^import\s[\s\S]*?;\s*/gm, ""));
   const payloads = [];
-  const state = runInNewContext(`${script}\n({ step1Schema, form, handleCreateBooking });`, {
+  const state = runInNewContext(`${script}\n({ step1Schema, form, handleCreateBooking, currentStep, currentSchema, formRef });`, {
     computed,
     reactive,
     ref,
+    nextTick,
     z,
     useBookingStore: () => ({ createNewClientBooking: async (payload) => { payloads.push(payload); } }),
     useNotification: () => ({ success() {}, error: (error) => { assert.fail(JSON.stringify(error)); } }),
@@ -24,6 +25,10 @@ function loadBooking() {
     getApiErrorMessage: error => error.message,
     console,
   });
+  state.currentStep.value = 2;
+  state.formRef.value = {
+    validate: async () => { state.currentSchema.value.parse(state.form); },
+  };
   return { ...state, payloads };
 }
 
@@ -58,7 +63,7 @@ test("invalid phone numbers and missing or invalid email stay blocked", () => {
 test("booking payload omits blank phones and normalizes supplied numbers", async () => {
   for (const [phone, expected] of [["", undefined], ["   ", undefined], ["9841234567", "9841234567"], ["+44 7700 900123", "+447700900123"]]) {
     const { form, handleCreateBooking, payloads } = loadBooking();
-    Object.assign(form, client, { phone, serviceId: 1, date: "2026-11-12" });
+    Object.assign(form, client, { phone, serviceType: "session", serviceId: 1, date: "2026-11-12" });
     await handleCreateBooking();
     assert.equal(payloads.length, 1);
     assert.equal(payloads[0].phoneNumber, expected);

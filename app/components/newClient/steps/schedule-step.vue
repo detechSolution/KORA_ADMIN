@@ -167,6 +167,8 @@ watch(() => form.value.serviceType, async (newType, oldType) => {
     form.value.serviceId = undefined;
     form.value.durationId = null;
     form.value.roomType = "private";
+    form.value.date = "";
+    form.value.time = "";
   }
 
   if (newType) {
@@ -174,7 +176,11 @@ watch(() => form.value.serviceType, async (newType, oldType) => {
   }
 }, { immediate: true });
 
-watch(() => form.value.serviceId, (id) => {
+watch([() => form.value.serviceId, selectedGroup], ([id], previous) => {
+  if (previous?.length && id !== previous[0]) {
+    form.value.durationId = null;
+    form.value.time = "";
+  }
   const group = selectedGroup.value;
   const item = findServiceItem(id);
   if (!group || !item) {
@@ -192,9 +198,9 @@ watch(() => form.value.serviceId, (id) => {
   }
 
   if (group.type?.toLowerCase() === "spa") {
-    const available = (group.availableDays ?? []) as string[];
+    const available = spaAvailableDays.value;
     const currentWeekday = weekdayFromDate(form.value.date);
-    if (!currentWeekday || !available.includes(currentWeekday)) {
+    if (available.length > 0 && (!currentWeekday || !available.includes(currentWeekday))) {
       const next = nextAvailableDate(available);
       if (next)
         form.value.date = next;
@@ -206,10 +212,13 @@ watch(() => form.value.serviceId, (id) => {
 
 const spaTimes = ref<{ label: string; value: string }[]>([]);
 const loadingTimes = ref(false);
+let spaTimesRequest = 0;
 
 async function fetchSpaTimes() {
+  const request = ++spaTimesRequest;
+  spaTimes.value = [];
+  loadingTimes.value = false;
   if (form.value.serviceType !== "spa" || !form.value.date || !form.value.durationId) {
-    spaTimes.value = [];
     return;
   }
 
@@ -217,7 +226,7 @@ async function fetchSpaTimes() {
   if (!item)
     return;
 
-  const durations = item.duration;
+  const durations = Array.isArray(item.duration) ? item.duration : [];
   const selected = durations.find((d: any) => d?.id === form.value.durationId);
 
   if (!selected)
@@ -231,6 +240,8 @@ async function fetchSpaTimes() {
       timeUnit: selected.timeUnit ?? "minutes",
       roomType: form.value.roomType,
     });
+    if (request !== spaTimesRequest)
+      return;
     spaTimes.value = times.map((item: any) => ({
       label: item.label,
       value: item.time,
@@ -243,18 +254,19 @@ async function fetchSpaTimes() {
     }
   }
   catch (error) {
+    if (request !== spaTimesRequest)
+      return;
     console.error(error);
     spaTimes.value = [];
   }
   finally {
-    loadingTimes.value = false;
+    if (request === spaTimesRequest)
+      loadingTimes.value = false;
   }
 }
 
-watch([() => form.value.date, () => form.value.durationId, () => form.value.serviceId, () => form.value.roomType], () => {
-  if (form.value.serviceType === "spa") {
-    fetchSpaTimes();
-  }
+watch([() => form.value.date, () => form.value.durationId, () => form.value.serviceId, () => form.value.roomType, () => form.value.serviceType], () => {
+  fetchSpaTimes();
 }, { immediate: true });
 
 defineExpose({
@@ -263,6 +275,7 @@ defineExpose({
   weekdayFromDate,
   findServiceItem,
   findServiceGroup,
+  loadingTimes,
 });
 </script>
 
@@ -275,7 +288,6 @@ defineExpose({
         label="Select Type"
         placeholder="Select service type"
         :options="serviceTypes"
-        @update:model-value="form.date = ''"
       />
 
       <!-- Spa: Room Type -->
