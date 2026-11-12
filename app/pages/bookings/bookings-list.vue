@@ -63,20 +63,23 @@ const columns = computed(() => [
     accessorKey: "amount",
     header: "Total (NPR)",
   },
+  {
+    accessorKey: "status",
+    header: "Status",
+  },
   // { accessorKey: "status", header: "Status" },
   { accessorKey: "actions", header: "Actions" },
 ]);
 
 const hasActiveFilters = computed(() => {
   return (
-    filters.value.search
-    || filters.value.dateRange.start
-    || filters.value.dateRange.end
-    || filters.value.status !== ""
-    || filters.value.type !== ""
+    filters.value.search ||
+    filters.value.dateRange.start ||
+    filters.value.dateRange.end ||
+    filters.value.status !== "" ||
+    filters.value.type !== ""
   );
-},
-);
+});
 
 async function fetchBookings(): Promise<void> {
   try {
@@ -92,13 +95,11 @@ async function fetchBookings(): Promise<void> {
       is_read: true,
     };
     await bookingStore.getBookings(params);
-  }
-  catch (err: unknown) {
+  } catch (err: unknown) {
     showError({
       message: getApiErrorMessage(err, "Failed to get bookings"),
     });
-  }
-  finally {
+  } finally {
     loading.value = false;
   }
 }
@@ -112,13 +113,11 @@ async function fetchBookingsSummary(): Promise<void> {
     };
     const res = await bookingStore.fetchBookingsSummary(params);
     summary.value = res;
-  }
-  catch (err: unknown) {
+  } catch (err: unknown) {
     showError({
       message: getApiErrorMessage(err, "Failed to get bookings summary"),
     });
-  }
-  finally {
+  } finally {
     loadingSummary.value = false;
   }
 }
@@ -170,9 +169,7 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col gap-6">
     <base-page-header>
-      <template #title>
-        Bookings
-      </template>
+      <template #title> Bookings </template>
       <template #description>
         View bookings, their status, and booking details
       </template>
@@ -182,18 +179,18 @@ onMounted(async () => {
           v-if="can(PERMISSIONS_BOOKINGS.CREATE)"
           to="/bookings/create-booking"
         >
-          <base-button
-            :leading-icon="ICONS.PLUS"
-          >
-            Manual Booking
-          </base-button>
+          <base-button :leading-icon="ICONS.PLUS"> Manual Booking </base-button>
         </NuxtLink>
       </template>
     </base-page-header>
 
-    <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 page-content-height">
+    <div
+      class="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 page-content-height"
+    >
       <div class="flex flex-col sm:flex-row justify-between gap-4">
-        <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
+        <div
+          class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap"
+        >
           <base-input
             v-model="filters.search"
             name="search"
@@ -294,7 +291,10 @@ onMounted(async () => {
         </template>
 
         <template #itemName-cell="{ row }">
-          <ItemNameList :value="row.original.itemNames" class="text-sm text-secondary" />
+          <ItemNameList
+            :value="row.original.itemNames"
+            class="text-sm text-secondary"
+          />
         </template>
 
         <template #itemType-cell="{ row }">
@@ -325,7 +325,12 @@ onMounted(async () => {
         :total="bookings.meta.total"
         :items-per-page="pagination.pageSize"
         :disabled="loading"
-        @update:page="(v) => { pagination.page = v; fetchBookings(); }"
+        @update:page="
+          (v) => {
+            pagination.page = v;
+            fetchBookings();
+          }
+        "
       />
 
       <bookings-detail-modal
