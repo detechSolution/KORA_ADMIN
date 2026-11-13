@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import z from "zod";
 
 import type { CreateMembershipPlanPayload } from "~/types/membership";
@@ -59,7 +59,7 @@ const schema = z.object({
   minimumFreezeDays: z
     .number({ error: "Minimum freeze days must be a number" })
     .int("Minimum freeze days must be a whole number")
-    .min(1, "Minimum freeze days must be at least 1"),
+    .min(0, "Minimum freeze days cannot be negative"),
   spaBenefit: pct("Spa benefit"),
   classBenefit: pct("Class benefit"),
   eventBenefit: pct("Event benefit"),
@@ -70,8 +70,10 @@ const schema = z.object({
   workshopGuestBenefit: pct("Workshop guest benefit"),
   options: z.array(optionSchema).min(1, "At least one frequency option is required"),
 }).refine(
-  data => data.freezeDays === 0 || data.minimumFreezeDays <= data.freezeDays,
-  { message: "Minimum freeze days cannot exceed freeze days", path: ["minimumFreezeDays"] },
+  data => data.freezeDays === 0
+    ? data.minimumFreezeDays === 0
+    : data.minimumFreezeDays >= 1 && data.minimumFreezeDays <= data.freezeDays,
+  { message: "Minimum freeze days must be 0 when freeze days is 0, otherwise between 1 and freeze days", path: ["minimumFreezeDays"] },
 );
 
 type CreatePlanSchema = z.output<typeof schema>;
@@ -81,7 +83,7 @@ const state = reactive<CreatePlanSchema>({
   isPurchasable: true,
   maxVisitors: 0,
   freezeDays: 0,
-  minimumFreezeDays: 7,
+  minimumFreezeDays: 0,
   spaBenefit: 0,
   classBenefit: 0,
   eventBenefit: 0,
@@ -92,6 +94,16 @@ const state = reactive<CreatePlanSchema>({
   workshopGuestBenefit: 0,
   options: [{ frequency: "", customDays: null, price: 0, isVisible: true }],
 });
+
+watch(
+  () => state.freezeDays,
+  (freezeDays) => {
+    if (freezeDays === 0) {
+      state.minimumFreezeDays = 0;
+    }
+  },
+  { flush: "sync" },
+);
 
 function addOption() {
   state.options.push({ frequency: "", customDays: null, price: 0, isVisible: true });
@@ -216,6 +228,7 @@ async function handleCreatePlan() {
             <base-input
               v-model="state.minimumFreezeDays"
               name="minimumFreezeDays"
+              :disabled="state.freezeDays === 0"
               label="Minimum Freeze Days"
               placeholder="Enter minimum days per freeze request"
               type="number"

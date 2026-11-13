@@ -59,6 +59,10 @@ const schema = z.object({
       value => value === 0 || value >= 7,
       { message: "Freeze days must be 0 or at least 7" },
     ),
+  minimumFreezeDays: z
+    .number({ error: "Minimum freeze days must be a number" })
+    .int("Minimum freeze days must be a whole number")
+    .min(0, "Minimum freeze days cannot be negative"),
   maxVisitors: z.number({ error: "Max visitors must be a number" }).min(0, "Max visitors cannot be less than 0"),
   spaBenefit: pct("Spa benefit"),
   classBenefit: pct("Class benefit"),
@@ -71,13 +75,19 @@ const schema = z.object({
   description: z.string().min(1, "Description is required"),
   isPurchasable: z.boolean(),
   options: z.array(optionSchema).min(1, "At least one frequency option is required"),
-});
+}).refine(
+  data => data.freezeDays === 0
+    ? data.minimumFreezeDays === 0
+    : data.minimumFreezeDays >= 1 && data.minimumFreezeDays <= data.freezeDays,
+  { message: "Minimum freeze days must be 0 when freeze days is 0, otherwise between 1 and freeze days", path: ["minimumFreezeDays"] },
+);
 
 type EditPlanSchema = z.output<typeof schema>;
 
 const state = reactive<Partial<EditPlanSchema>>({
   name: "",
   freezeDays: 0,
+  minimumFreezeDays: 0,
   maxVisitors: 0,
   spaBenefit: 0,
   classBenefit: 0,
@@ -91,6 +101,16 @@ const state = reactive<Partial<EditPlanSchema>>({
   isPurchasable: true,
   options: [],
 });
+
+watch(
+  () => state.freezeDays,
+  (freezeDays) => {
+    if (freezeDays === 0) {
+      state.minimumFreezeDays = 0;
+    }
+  },
+  { flush: "sync" },
+);
 
 function addOption() {
   state.options!.push({
@@ -112,6 +132,7 @@ function populateForm(plan: MembershipPlan | null): void {
   state.description = plan?.description ?? "";
   state.isPurchasable = plan?.isPurchasable ?? true;
   state.freezeDays = plan?.freezeDays ?? 0;
+  state.minimumFreezeDays = state.freezeDays === 0 ? 0 : (plan?.minimumFreezeDays ?? 7);
   state.maxVisitors = plan?.maxVisitors ?? 0;
   state.spaBenefit = plan?.spaBenefit ?? 0;
   state.classBenefit = plan?.classBenefit ?? 0;
@@ -162,6 +183,7 @@ async function handleSubmit(): Promise<void> {
       isPurchasable: state.isPurchasable!,
       isFreezable: (state.freezeDays ?? 0) > 0,
       freezeDays: state.freezeDays!,
+      minimumFreezeDays: state.minimumFreezeDays!,
       maxVisitors: state.maxVisitors!,
       spaBenefit: state.spaBenefit!,
       classBenefit: state.classBenefit!,
@@ -234,6 +256,14 @@ watch(
             name="freezeDays"
             label="Freeze Days*"
             placeholder="Enter freeze days"
+            type="number"
+          />
+          <base-input
+            v-model="state.minimumFreezeDays"
+            name="minimumFreezeDays"
+            :disabled="state.freezeDays === 0"
+            label="Minimum Freeze Days"
+            placeholder="Enter minimum days per freeze request"
             type="number"
           />
           <base-input
