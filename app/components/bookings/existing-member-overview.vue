@@ -281,7 +281,13 @@ async function applyPromoCode(): Promise<void> {
     return;
   promoLoading.value = true;
   try {
-    const data = await bookingStore.validatePromoCode(form.value.promoCode);
+    const data = await bookingStore.validatePromoCode(form.value.promoCode) as unknown as {
+      code: string;
+      type: "fixed" | "percentage";
+      amount: number;
+      isValid: boolean;
+      message?: string;
+    };
     if (data?.isValid) {
       appliedPromo.value = {
         code: data.code,
@@ -293,11 +299,12 @@ async function applyPromoCode(): Promise<void> {
     }
     else {
       appliedPromo.value = null;
-      showError({ message: "Invalid promo code" });
+      showError({ message: data?.message ?? "Invalid promo code" });
     }
   }
   catch (error) {
     appliedPromo.value = null;
+    console.error("Failed to validate promo code:", error);
     showError({ message: getApiErrorMessage(error, "Invalid promo code") });
   }
   finally {

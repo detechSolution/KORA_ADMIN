@@ -56,6 +56,10 @@ const schema = z.object({
       value => value === 0 || value >= 7,
       { message: "Freeze days must be 0 or at least 7" },
     ),
+  minimumFreezeDays: z
+    .number({ error: "Minimum freeze days must be a number" })
+    .int("Minimum freeze days must be a whole number")
+    .min(1, "Minimum freeze days must be at least 1"),
   spaBenefit: pct("Spa benefit"),
   classBenefit: pct("Class benefit"),
   eventBenefit: pct("Event benefit"),
@@ -65,7 +69,10 @@ const schema = z.object({
   eventGuestBenefit: pct("Event guest benefit"),
   workshopGuestBenefit: pct("Workshop guest benefit"),
   options: z.array(optionSchema).min(1, "At least one frequency option is required"),
-});
+}).refine(
+  data => data.freezeDays === 0 || data.minimumFreezeDays <= data.freezeDays,
+  { message: "Minimum freeze days cannot exceed freeze days", path: ["minimumFreezeDays"] },
+);
 
 type CreatePlanSchema = z.output<typeof schema>;
 const state = reactive<CreatePlanSchema>({
@@ -74,6 +81,7 @@ const state = reactive<CreatePlanSchema>({
   isPurchasable: true,
   maxVisitors: 0,
   freezeDays: 0,
+  minimumFreezeDays: 7,
   spaBenefit: 0,
   classBenefit: 0,
   eventBenefit: 0,
@@ -111,6 +119,7 @@ async function handleCreatePlan() {
       isFreezable: state.freezeDays > 0,
       maxVisitors: state.maxVisitors,
       freezeDays: state.freezeDays,
+      minimumFreezeDays: state.minimumFreezeDays,
       spaBenefit: state.spaBenefit,
       classBenefit: state.classBenefit,
       eventBenefit: state.eventBenefit,
@@ -203,6 +212,15 @@ async function handleCreatePlan() {
                 class="w-full"
               />
             </div>
+
+            <base-input
+              v-model="state.minimumFreezeDays"
+              name="minimumFreezeDays"
+              label="Minimum Freeze Days"
+              placeholder="Enter minimum days per freeze request"
+              type="number"
+              class="w-full md:w-1/2"
+            />
 
             <USeparator />
 
