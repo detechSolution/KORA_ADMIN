@@ -24,6 +24,7 @@ export type MembershipPlan = {
   name: string;
   description: string;
   freezeDays: number;
+  minimumFreezeDays?: number;
   spaBenefit: number;
   classBenefit: number;
   eventBenefit: number;
@@ -46,6 +47,7 @@ export type CreateMembershipPlanPayload = {
   isFreezable: boolean;
   maxVisitors: number;
   freezeDays: number;
+  minimumFreezeDays?: number;
   spaBenefit: number;
   classBenefit: number;
   eventBenefit: number;
