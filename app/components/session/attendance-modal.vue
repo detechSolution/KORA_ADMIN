@@ -32,15 +32,35 @@ const loading = ref(false);
 const isSaving = ref(false);
 const attendanceStarted = ref(false);
 const currentTime = ref(Date.now());
+const attendanceLeadTimeMs = 30 * 60 * 1000;
 const attendanceGracePeriodMs = 150 * 60 * 1000;
 
-const isReadOnly = computed(() => {
+const isFuture = computed(() => {
+  const session = props.session;
+  if (!session?.sessionDate || !session?.startTime)
+    return false;
+
+  const startTime = getNepalTimestamp(session.sessionDate, session.startTime);
+  return !Number.isNaN(startTime) && currentTime.value < startTime - attendanceLeadTimeMs;
+});
+
+const isLocked = computed(() => {
   const session = props.session;
   if (!session?.sessionDate || !session?.endTime)
     return false;
 
   const endTime = getNepalTimestamp(session.sessionDate, session.endTime);
   return !Number.isNaN(endTime) && endTime + attendanceGracePeriodMs <= currentTime.value;
+});
+
+const isReadOnly = computed(() => isFuture.value || isLocked.value);
+
+const tooltipMessage = computed(() => {
+  if (isFuture.value)
+    return "Attendance can be marked from 30 minutes before the session starts.";
+  if (isLocked.value)
+    return "Attendance is view-only.";
+  return "";
 });
 
 async function fetchAttendance() {
@@ -60,8 +80,12 @@ async function fetchAttendance() {
 
 function toggleStatus(id: number, status: "attended" | "no_show") {
   currentTime.value = Date.now();
-  if (isReadOnly.value || !attendanceStarted.value)
+  if (isReadOnly.value || !attendanceStarted.value) {
+    if (isFuture.value) {
+      showError({ message: "Attendance can be marked from 30 minutes before the session starts." });
+    }
     return;
+  }
 
   const item = sessionAttendance.value.find(a => a.id === id);
   if (item) {
@@ -71,8 +95,12 @@ function toggleStatus(id: number, status: "attended" | "no_show") {
 
 async function handleSaveAttendance() {
   currentTime.value = Date.now();
-  if (isReadOnly.value || !attendanceStarted.value)
+  if (isReadOnly.value || !attendanceStarted.value) {
+    if (isFuture.value) {
+      showError({ message: "Attendance can be marked from 30 minutes before the session starts." });
+    }
     return;
+  }
 
   try {
     isSaving.value = true;
@@ -95,6 +123,10 @@ async function handleSaveAttendance() {
 
 function startAttendance(): void {
   currentTime.value = Date.now();
+  if (isFuture.value) {
+    showError({ message: "Attendance can be marked from 30 minutes before the session starts." });
+    return;
+  }
   if (!isReadOnly.value)
     attendanceStarted.value = true;
 }
@@ -140,7 +172,7 @@ watch(() => props.open, (newVal, _oldVal, onCleanup) => {
         </div>
 
         <!-- Stats Summary -->
-        <div v-if="attendanceStarted || isReadOnly" class="px-6 py-4 bg-[#F9F6F2]">
+        <div v-if="attendanceStarted || isLocked" class="px-6 py-4 bg-[#F9F6F2]">
           <div class="flex items-center gap-4">
             <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
               <UIcon :name="ICONS.USERS" class="w-5 h-5" />
@@ -162,6 +194,27 @@ watch(() => props.open, (newVal, _oldVal, onCleanup) => {
           </div>
         </div>
         <div
+          v-else-if="isFuture"
+          class="px-6 py-3 bg-[#F9F6F2]"
+        >
+          <UTooltip
+            :delay-duration="0"
+            arrow
+            :text="tooltipMessage"
+          >
+            <span class="inline-block cursor-not-allowed">
+              <base-button
+                variant="solid"
+                size="md"
+                class="bg-stone-900 opacity-50 pointer-events-none"
+                disabled
+              >
+                Start Attendance
+              </base-button>
+            </span>
+          </UTooltip>
+        </div>
+        <div
           v-else
           class="px-6 py-3 bg-[#F9F6F2]"
         >
@@ -179,7 +232,7 @@ watch(() => props.open, (newVal, _oldVal, onCleanup) => {
       <!-- Attendance List -->
       <div class="flex-1 px-6">
         <div
-          v-if="isReadOnly"
+          v-if="isLocked"
           class="mt-4 rounded-lg bg-[#F9F6F2] px-4 py-3 text-sm text-stone-600"
         >
           Attendance is view-only.
