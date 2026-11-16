@@ -27,6 +27,13 @@ const bookingTypeOptions = [
   { label: "Pass", value: "passes" },
 ];
 
+const bookingStatusOptions = [
+  { label: "Pending Payment", value: "pending_payment" },
+  { label: "Confirmed", value: "confirmed" },
+  { label: "Cancelled", value: "cancelled" },
+  { label: "Expired", value: "expired" },
+];
+
 const { error: showError } = useNotification();
 const analyticsStore = useAnalyticsStore();
 const bookingStore = useBookingStore();
@@ -254,6 +261,15 @@ onMounted(async () => {
             name="bookingType"
             label="Booking type"
             placeholder="Select booking type"
+            class="w-full sm:w-44 sm:flex-none"
+          />
+
+          <base-select
+            v-model="filters.status"
+            :options="bookingStatusOptions"
+            name="bookingStatus"
+            label="Booking status"
+            placeholder="Select booking status"
             class="w-full sm:w-44 sm:flex-none"
           />
 
