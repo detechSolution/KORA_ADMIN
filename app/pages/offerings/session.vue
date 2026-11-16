@@ -2,13 +2,16 @@
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
+import { getHttp } from "~/composables/use-api";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { SESSION_TYPE } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_SESSIONS } from "~/config/permissions";
 import { useSessionsStore } from "~/stores/sessions";
+import { buildQueryString } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
+import { downloadCsv } from "~/utils/report-csv";
 
 definePageMeta({
   auth: true,
@@ -19,8 +22,19 @@ definePageMeta({
 const router = useRouter();
 const route = useRoute();
 const { can } = usePermission();
-const loading = ref(false);
 const { success, error: showError } = useNotification();
+const loading = ref(false);
+const exporting = ref("");
+const appliedFilters = ref<Record<string, string | number | boolean | null | undefined>>({ status: "active" });
+async function exportSessions(kind: "sessions" | "attendance") {
+  exporting.value = kind;
+  try {
+    const file = await getHttp().get<{ filename: string; csv: string }>(`/api/v1/analytics/reports/${kind}/export?${buildQueryString(appliedFilters.value)}`);
+    downloadCsv(file);
+  }
+  catch (error: unknown) { showError({ message: getApiErrorMessage(error, "Failed to export sessions") }); }
+  finally { exporting.value = ""; }
+}
 const sessionsStore = useSessionsStore();
 const sessions = computed(() => sessionsStore.sessions);
 const { pagination } = usePagination(8);
@@ -48,6 +62,7 @@ const sessionTypeOptions = [
 ];
 
 const sessionStatusOption = [
+  { label: "All sessions", value: "all" },
   { label: "Active", value: "active" },
   { label: "Inactive", value: "inactive" },
 ];
@@ -59,12 +74,13 @@ async function loadSessions(): Promise<void> {
       page: pagination.value.page,
       limit: pagination.value.pageSize,
       q: state.value.search || undefined,
-      status: state.value.status === "" ? undefined : state.value.status,
+      status: state.value.status || "active",
       startDate: state.value.referenceDateRange.start || undefined,
       endDate: state.value.referenceDateRange.end || undefined,
       type: state.value.selectedSessionType || undefined,
     };
     await sessionsStore.getSessions(params);
+    appliedFilters.value = params;
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to load sessions") });
@@ -226,7 +242,7 @@ onMounted(() => {
           :options="sessionStatusOption"
         />
 
-        <div class="flex gap-2 w-full sm:w-auto">
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
           <base-button
             variant="outline"
             :loading="loading"
@@ -244,6 +260,22 @@ onMounted(() => {
           >
             Clear Filters
           </base-button>
+          <!-- <base-button
+            variant="outline"
+            :loading="exporting === 'sessions'"
+            :disabled="loading || !!exporting"
+            @click="exportSessions('sessions')"
+          >
+            Export bookings CSV
+          </base-button>
+          <base-button
+            variant="outline"
+            :loading="exporting === 'attendance'"
+            :disabled="loading || !!exporting"
+            @click="exportSessions('attendance')"
+          >
+            Export attendance CSV
+          </base-button> -->
         </div>
       </div>
     </div>

@@ -28,6 +28,7 @@ export const useFinanceStore = defineStore("finance", () => {
   });
   const loading = ref(false);
   const paymentSummary = ref<PaymentSummary | null>(null);
+  const cancellationSummary = ref<{ requested: number; approved: number; rejected: number } | null>(null);
   const cancellationDetails = ref<any | null>(null);
 
   const fetchPayments = async (params: Record<string, any>) => {
@@ -53,10 +54,10 @@ export const useFinanceStore = defineStore("finance", () => {
     }
   };
 
-  const fetchPaymentSummary = async (range: string) => {
+  const fetchPaymentSummary = async (params: string | Record<string, string | number | boolean | null | undefined>) => {
     loading.value = true;
     try {
-      const response = await http.get(`${API_ENDPOINTS.PAYMENTS.SUMMARY}?range=${range}`) as PaymentSummary;
+      const response = await http.get(`${API_ENDPOINTS.PAYMENTS.SUMMARY}?${buildQueryString(typeof params === "string" ? { range: params } : params)}`) as PaymentSummary;
       paymentSummary.value = response;
     }
     catch (error) {
@@ -89,6 +90,11 @@ export const useFinanceStore = defineStore("finance", () => {
     finally {
       loading.value = false;
     }
+  };
+
+  const fetchCancellationSummary = async (params: Record<string, any>) => {
+    const response = await http.get(`${API_ENDPOINTS.CANCELLATIONS.BASE}/summary?${buildQueryString(params)}`);
+    cancellationSummary.value = response as { requested: number; approved: number; rejected: number };
   };
 
   const refundPayment = async (id: number) => {
@@ -163,6 +169,8 @@ export const useFinanceStore = defineStore("finance", () => {
     loading,
     cancellations,
     fetchCancellations,
+    cancellationSummary,
+    fetchCancellationSummary,
     refundPayment,
     cancellationDetails,
     fetchCancellationDetails,

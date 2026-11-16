@@ -4,14 +4,16 @@ import { computed, onMounted, ref } from "vue";
 import type { Booking } from "~/types/booking";
 
 import ItemNameList from "~/components/base/item-name-list.vue";
+import { getHttp } from "~/composables/use-api";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_BOOKINGS } from "~/config/permissions";
 import { useAnalyticsStore } from "~/stores/analytics";
 import { useBookingStore } from "~/stores/booking";
-import { formatDate } from "~/utils/common";
+import { buildQueryString, formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
+import { downloadCsv } from "~/utils/report-csv";
 
 definePageMeta({
   auth: true,
@@ -33,6 +35,17 @@ const { pagination } = usePagination();
 const { can } = usePermission();
 const loading = ref(false);
 const loadingSummary = ref(false);
+const exporting = ref(false);
+const appliedFilters = ref<Record<string, string | number | boolean | null | undefined>>({});
+async function exportBookings() {
+  exporting.value = true;
+  try {
+    const file = await getHttp().get<{ filename: string; csv: string }>(`/api/v1/bookings/export?${buildQueryString(appliedFilters.value)}`);
+    downloadCsv(file);
+  }
+  catch (error: unknown) { showError({ message: getApiErrorMessage(error, "Failed to export bookings") }); }
+  finally { exporting.value = false; }
+}
 
 const isDetailModalOpen = ref(false);
 
@@ -73,11 +86,11 @@ const columns = computed(() => [
 
 const hasActiveFilters = computed(() => {
   return (
-    filters.value.search ||
-    filters.value.dateRange.start ||
-    filters.value.dateRange.end ||
-    filters.value.status !== "" ||
-    filters.value.type !== ""
+    filters.value.search
+    || filters.value.dateRange.start
+    || filters.value.dateRange.end
+    || filters.value.status !== ""
+    || filters.value.type !== ""
   );
 });
 
@@ -95,11 +108,14 @@ async function fetchBookings(): Promise<void> {
       is_read: true,
     };
     await bookingStore.getBookings(params);
-  } catch (err: unknown) {
+    appliedFilters.value = params;
+  }
+  catch (err: unknown) {
     showError({
       message: getApiErrorMessage(err, "Failed to get bookings"),
     });
-  } finally {
+  }
+  finally {
     loading.value = false;
   }
 }
@@ -108,16 +124,21 @@ async function fetchBookingsSummary(): Promise<void> {
   try {
     loadingSummary.value = true;
     const params = {
-      dateFrom: filters.value.dateRange.start || undefined,
-      dateTo: filters.value.dateRange.end || undefined,
+      bookedFrom: filters.value.dateRange.start || undefined,
+      bookedTo: filters.value.dateRange.end || undefined,
+      type: filters.value.type || undefined,
+      status: filters.value.status || undefined,
+      q: filters.value.search || undefined,
     };
     const res = await bookingStore.fetchBookingsSummary(params);
     summary.value = res;
-  } catch (err: unknown) {
+  }
+  catch (err: unknown) {
     showError({
       message: getApiErrorMessage(err, "Failed to get bookings summary"),
     });
-  } finally {
+  }
+  finally {
     loadingSummary.value = false;
   }
 }
@@ -126,8 +147,7 @@ function handleSearch(): void {
   pagination.value.page = 1;
   fetchBookings();
 
-  if (filters.value.dateRange.start || filters.value.dateRange.end)
-    fetchBookingsSummary();
+  fetchBookingsSummary();
 }
 
 function clearFilters(): void {
@@ -140,6 +160,7 @@ function clearFilters(): void {
 
   pagination.value.page = 1;
   fetchBookings();
+  fetchBookingsSummary();
 }
 
 function openViewModal(booking: any): void {
@@ -158,7 +179,7 @@ onMounted(async () => {
 
   await Promise.all([
     fetchBookings(),
-    // fetchBookingsSummary(),
+    fetchBookingsSummary(),
     analyticsStore.getAnalyticsStats(),
   ]);
 
@@ -169,7 +190,9 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col gap-6">
     <base-page-header>
-      <template #title> Bookings </template>
+      <template #title>
+        Bookings
+      </template>
       <template #description>
         View bookings, their status, and booking details
       </template>
@@ -179,23 +202,38 @@ onMounted(async () => {
           v-if="can(PERMISSIONS_BOOKINGS.CREATE)"
           to="/bookings/create-booking"
         >
-          <base-button :leading-icon="ICONS.PLUS"> Manual Booking </base-button>
+          <base-button :leading-icon="ICONS.PLUS">
+            Manual Booking
+          </base-button>
         </NuxtLink>
       </template>
     </base-page-header>
 
+    <dl class="grid grid-cols-2 lg:grid-cols-4 gap-4" aria-label="Booking totals" :aria-busy="loadingSummary">
+      <div v-for="item in [
+        { label: 'All bookings', value: summary?.allBookings ?? 0 },
+        { label: 'Sessions', value: summary?.sessions ?? 0 },
+        { label: 'Spa', value: summary?.spa ?? 0 },
+        { label: 'Passes', value: summary?.passes ?? 0 },
+      ]" :key="item.label" class="rounded-xl border border-border bg-white p-5">
+        <dt class="text-sm text-secondary-500">{{ item.label }}</dt>
+        <dd class="mt-2 text-2xl font-semibold text-secondary tabular-nums">{{ loadingSummary ? '—' : item.value }}</dd>
+      </div>
+    </dl>
+
     <div
       class="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4 page-content-height"
     >
-      <div class="flex flex-col sm:flex-row justify-between gap-4">
+      <div class="flex flex-col 2xl:flex-row 2xl:items-end gap-3">
         <div
-          class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap"
+          class="min-w-0 flex flex-1 flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3"
         >
           <base-input
             v-model="filters.search"
             name="search"
-            placeholder="Search"
-            class="w-full sm:w-auto sm:flex-1 md:w-64"
+            label="Search"
+            placeholder="Client, booking ID or service"
+            class="w-full sm:w-64 sm:flex-none"
             :leading-icon="ICONS.SEARCH"
             @keyup.enter="handleSearch"
           />
@@ -203,21 +241,23 @@ onMounted(async () => {
           <base-date-picker
             v-model="filters.dateRange"
             name="dateRange"
+            label="Date range"
             placeholder="Select date range"
             range
             :no-of-months="2"
-            class="w-full sm:w-auto sm:flex-1 md:w-64"
+            class="w-full sm:w-72 sm:flex-none"
           />
 
           <base-select
             v-model="filters.type"
             :options="bookingTypeOptions"
             name="bookingType"
+            label="Booking type"
             placeholder="Select booking type"
-            class="w-full sm:w-auto sm:flex-1 md:w-64"
+            class="w-full sm:w-44 sm:flex-none"
           />
 
-          <div class="flex gap-2 w-full sm:w-auto">
+          <div class="flex flex-wrap gap-2 w-full sm:w-auto">
             <base-button
               :loading="loading"
               variant="outline"
@@ -238,12 +278,16 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- <base-button
+        <base-button
           variant="outline"
+          class="w-full sm:w-auto self-start shrink-0 2xl:self-end"
           :leading-icon="ICONS.DOWNLOAD"
+          :loading="exporting"
+          :disabled="loading"
+          @click="exportBookings"
         >
-          Export
-        </base-button> -->
+          Export CSV
+        </base-button>
       </div>
       <base-table
         :data="bookingStore.bookings.data"

@@ -3,6 +3,7 @@ import { ref } from "vue";
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
+import { buildQueryString } from "~/utils/common";
 
 export const useAnalyticsStore = defineStore("analytics", () => {
   const http = getHttp();
@@ -28,9 +29,9 @@ export const useAnalyticsStore = defineStore("analytics", () => {
     }
   };
 
-  const getBookingsBySessions = async (): Promise<any> => {
+  const getBookingsBySessions = async (params: Record<string, string> = {}): Promise<any> => {
     try {
-      const res = await http.get(API_ENDPOINTS.ANALYTICS.GET_SESSIONS_TREND) as any;
+      const res = await http.get(`${API_ENDPOINTS.ANALYTICS.GET_SESSIONS_TREND}?${buildQueryString(params)}`) as any;
       return res;
     }
     catch (error: unknown) {
@@ -39,9 +40,9 @@ export const useAnalyticsStore = defineStore("analytics", () => {
     }
   };
 
-  const getRevenueTrend = async (): Promise<any> => {
+  const getRevenueTrend = async (params: Record<string, string> = {}): Promise<any> => {
     try {
-      const res = await http.get(API_ENDPOINTS.ANALYTICS.GET_REVENUE_TREND) as any;
+      const res = await http.get(`${API_ENDPOINTS.ANALYTICS.GET_REVENUE_TREND}?${buildQueryString(params)}`) as any;
       return res;
     }
     catch (error: unknown) {
