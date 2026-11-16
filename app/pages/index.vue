@@ -33,6 +33,17 @@ const bookingsBySessionsLoading = ref(false);
 const revenueTrendLoading = ref(false);
 const consistentMembersLoading = ref(false);
 
+const nepalToday = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kathmandu" }).format(new Date());
+function daysBefore(date: string, days: number) {
+  const value = new Date(`${date}T00:00:00+05:45`);
+  value.setDate(value.getDate() - days);
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kathmandu" }).format(value);
+}
+const defaultPeriod = () => ({ start: daysBefore(nepalToday, 6), end: nepalToday });
+const bookingsPeriod = ref(defaultPeriod());
+const revenuePeriod = ref(defaultPeriod());
+const bookingsPickerOpen = ref(false);
+const revenuePickerOpen = ref(false);
 const analyticsData = computed(() => analyticsStore.analyticsStats);
 const recentBookings = computed(() => bookingsStore.bookings.data as any[]);
 const todaySessions = computed(() => sessionStore.sessions.data);
@@ -92,7 +103,7 @@ async function getTodaySessions() {
 async function getBookingsBySessions() {
   try {
     bookingsBySessionsLoading.value = true;
-    const res = await analyticsStore.getBookingsBySessions();
+    const res = await analyticsStore.getBookingsBySessions({ from: bookingsPeriod.value.start || undefined, to: bookingsPeriod.value.end || undefined });
     bookingsBySessions.value = res;
   }
   catch (error: unknown) {
@@ -106,7 +117,7 @@ async function getBookingsBySessions() {
 async function getRevenueTrend() {
   try {
     revenueTrendLoading.value = true;
-    const res = await analyticsStore.getRevenueTrend();
+    const res = await analyticsStore.getRevenueTrend({ from: revenuePeriod.value.start || undefined, to: revenuePeriod.value.end || undefined });
     revenueTrend.value = res;
   }
   catch (error: unknown) {
@@ -194,7 +205,7 @@ const kpiData = computed(() => [
     link: { path: "/members/members-list" },
   },
   {
-    title: "Today's Revenue",
+    title: "Today's Net Revenue",
     icon: ICONS.CHART_LINE,
     value: `Rs ${analyticsData.value.todayRevenue}`,
     link: { path: "/financial/payments", query: { date: todayDate } },
@@ -413,24 +424,32 @@ const kpiData = computed(() => [
       </div>
     </div>
 
-    <div class="flex flex-col gap-6 md:flex-row justify-between">
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
       <!-- sessions chart -->
       <div class="bg-white rounded-xl shadow-sm flex-1 min-w-0">
         <div class="flex flex-col gap-1 p-6">
-          <div class="flex items-center gap-2">
-            <UIcon :name="ICONS.CALENDAR" class="h-4 w-4 text-primary-700" />
-            <h2 class="text-secondary font-semibold">
-              Bookings by Sessions
-            </h2>
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <UIcon :name="ICONS.CALENDAR" class="h-4 w-4 text-primary-700" />
+                <h2 class="text-secondary font-semibold">Bookings by Sessions</h2>
+              </div>
+              <p class="text-xs font-normal text-secondary-300 mt-0.5">Booking volume split by sessions</p>
+            </div>
+            <base-date-picker v-model="bookingsPeriod" name="bookingsPeriod" placeholder="Choose bookings date range" range icon-only :no-of-months="2" @update:model-value="getBookingsBySessions" />
           </div>
-          <p class="text-xs font-normal text-secondary-300 mt-0.5">
-            Booking volume split by sessions
-          </p>
         </div>
         <USeparator />
-        <dashboard-bar-chart :data="bookingsBySessions" />
+        <div
+          v-if="bookingsBySessionsLoading"
+          role="status"
+          class="h-72 flex items-center justify-center text-sm text-secondary-500"
+        >
+          Loading bookings...
+        </div>
+        <dashboard-bar-chart v-else :data="bookingsBySessions" />
         <USeparator />
-        <div v-if="bookingsBySessions?.series?.length" class="flex items-center justify-between p-6">
+        <div v-if="!bookingsBySessionsLoading && bookingsBySessions?.series?.length" class="flex flex-wrap gap-4 items-center justify-between p-6">
           <div class="flex items-center gap-4">
             <div
               v-for="(cat, key) in RevenueCategoriesMultple"
@@ -446,7 +465,7 @@ const kpiData = computed(() => [
           </div>
           <div class="text-right">
             <p class="text-xs text-muted-foreground">
-              7-Day Total
+              Period total
             </p>
             <p class="text-lg font-semibold text-secondary">
               {{ bookingsBySessions?.totalBookings }} Bookings
@@ -458,24 +477,36 @@ const kpiData = computed(() => [
       <!-- Revenue Trend -->
       <div class="bg-white rounded-xl shadow-sm flex-1 min-w-0">
         <div class="flex flex-col gap-1 p-6">
-          <div class="flex items-center gap-2">
-            <UIcon :name="ICONS.CALENDAR" class="h-4 w-4 text-primary-700" />
-            <h2 class="text-secondary font-semibold">
-              Revenue Trend
-            </h2>
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <UIcon :name="ICONS.CALENDAR" class="h-4 w-4 text-primary-700" />
+                <h2 class="text-secondary font-semibold">Revenue Trend</h2>
+              </div>
+              <p class="text-xs font-normal text-secondary-300 mt-0.5">Track peak earning days at a glance</p>
+            </div>
+            <base-date-picker v-model="revenuePeriod" name="revenuePeriod" placeholder="Choose revenue date range" range icon-only :no-of-months="2" @update:model-value="getRevenueTrend" />
           </div>
-          <p class="text-xs font-normal text-secondary-300 mt-0.5">
-            Track peak earning days at a glance
-          </p>
         </div>
         <USeparator />
-        <dashboard-area-chart :data="revenueTrend" show-title />
+        <div
+          v-if="revenueTrendLoading"
+          role="status"
+          class="h-72 flex items-center justify-center text-sm text-secondary-500"
+        >
+          Loading revenue...
+        </div>
+        <dashboard-area-chart
+          v-else
+          :data="revenueTrend"
+          show-title
+        />
         <USeparator />
 
-        <div v-if="revenueTrend" class="flex text-sm items-center justify-between p-6">
+        <div v-if="!revenueTrendLoading && revenueTrend" class="flex flex-wrap gap-4 text-sm items-center justify-between p-6">
           <div class="text-right">
             <p class="text-xs text-muted-foreground">
-              7-Day Total
+              Period total
             </p>
             <p class=" font-semibold text-secondary">
               Rs. {{ revenueTrend.totalRevenue }}
@@ -487,18 +518,6 @@ const kpiData = computed(() => [
             </p>
             <p class=" font-semibold text-secondary">
               {{ revenueTrend.peakDay?.label }} : Rs. {{ revenueTrend.peakDay?.amount }}
-            </p>
-          </div>
-          <div class="text-right">
-            <p class="text-xs text-muted-foreground">
-              Today vs Avg
-            </p>
-            <p
-              class="text-base font-semibold"
-              :class="revenueTrend.todayVsAveragePercent >= 0 ? 'text-green-600' : 'text-red-600'"
-            >
-              {{ revenueTrend.todayVsAveragePercent >= 0 ? '↑' : '↓' }}
-              {{ revenueTrend.todayVsAveragePercent }} %
             </p>
           </div>
         </div>

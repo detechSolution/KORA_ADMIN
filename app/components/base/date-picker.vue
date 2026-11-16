@@ -45,6 +45,7 @@ type Props = {
   minDate?: string;
   noOfMonths?: number;
   allowedWeekdays?: string[];
+  iconOnly?: boolean;
 };
 
 const props = withDefaults(defineProps<Props>(), {
@@ -63,6 +64,7 @@ const props = withDefaults(defineProps<Props>(), {
   minDate: undefined,
   noOfMonths: 2,
   allowedWeekdays: () => [],
+  iconOnly: false,
 });
 
 const emit = defineEmits<{
@@ -370,7 +372,21 @@ function isWeekendDisabled(date: DateValue) {
     :open="isPickerInteractive && popoverOpen"
     @update:open="handlePopoverUpdate"
   >
+    <UButton
+      v-if="iconOnly"
+      variant="ghost"
+      color="neutral"
+      size="sm"
+      :disabled="disabled || readonly"
+      :aria-label="placeholder"
+      :icon="ICONS.CALENDAR"
+    >
+      <template #trailing>
+        <UPopoverAnchor />
+      </template>
+    </UButton>
     <UFormField
+      v-else
       :label="label"
       :name="name"
       :required="required"

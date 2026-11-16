@@ -2,10 +2,13 @@
 import { computed, ref, watch } from "vue";
 
 import ItemNameList from "~/components/base/item-name-list.vue";
+import { getHttp } from "~/composables/use-api";
+import { API_ENDPOINTS } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
+import { downloadCsv } from "~/utils/report-csv";
 
 type Props = {
   open?: boolean;
@@ -54,20 +57,32 @@ const profileEditInfo = computed(() => {
 const membershipStore = useMembershipStore();
 const { error: showError } = useNotification();
 const loading = computed(() => membershipStore.loading);
+const historyExporting = ref(false);
+async function exportHistory() {
+  historyExporting.value = true;
+  try {
+    const file = await getHttp().get<{ filename: string; csv: string }>(`${API_ENDPOINTS.MEMBERS.GET_MEMBER_BOOKINGS(props.member.id)}/export`);
+    downloadCsv(file);
+  }
+  catch (error: unknown) { showError({ message: getApiErrorMessage(error, "Failed to export booking history") }); }
+  finally { historyExporting.value = false; }
+}
+async function loadHistoryPage(page: number) {
+  try {
+    await membershipStore.fetchMemberBookings(props.member.id, page);
+  }
+  catch (error: unknown) { showError({ message: getApiErrorMessage(error, "Failed to load booking history") }); }
+}
 const memberBookings = computed(() => membershipStore.memberBookings);
 const memberPayments = computed(() => membershipStore.memberPayments);
 
 async function fetchBookingsandPayments() {
   try {
-    loading.value = true;
     await membershipStore.fetchMemberBookings(props.member.id);
     await membershipStore.fetchMemberPayments(props.member.id);
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to load member details") });
-  }
-  finally {
-    loading.value = false;
   }
 }
 
@@ -278,7 +293,14 @@ watch(
         v-if="selectedTab === 'bookings'"
         class="flex flex-col gap-4"
       >
-        <div v-if="memberBookings.data.length" class="space-y-2">
+        <base-button
+          variant="outline"
+          :loading="historyExporting"
+          @click="exportHistory"
+        >
+          Export booking history CSV
+        </base-button>
+        <div v-if="memberBookings.data?.length" class="space-y-2">
           <div
             v-for="booking in memberBookings.data"
             :key="booking.id"
@@ -292,6 +314,7 @@ watch(
                 </base-badge>
                 <p class="font-medium text-sm text-secondary">
                   <ItemNameList :value="booking.itemName" />
+                  <span class="text-xs text-secondary-500">{{ booking.status === "expired" ? "Expired – not paid" : booking.status }} · {{ formatDate(booking.bookedFor || booking.bookedDate) }}</span>
                 </p>
               </div>
             </div>
@@ -302,6 +325,14 @@ watch(
             title="No bookings"
           />
         </div>
+        <base-pagination
+          v-if="memberBookings.meta"
+          :page="memberBookings.meta.page"
+          :total="memberBookings.meta.total"
+          :items-per-page="memberBookings.meta.limit"
+          :loading="loading"
+          @update:page="loadHistoryPage"
+        />
       </section>
 
       <section

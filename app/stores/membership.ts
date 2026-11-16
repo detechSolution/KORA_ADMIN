@@ -183,11 +183,11 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
-  const fetchMemberBookings = async (id: number) => {
+  const fetchMemberBookings = async (id: number, page = 1) => {
     loading.value = true;
     try {
       const response = await http.get(
-        API_ENDPOINTS.MEMBERS.GET_MEMBER_BOOKINGS(id),
+        `${API_ENDPOINTS.MEMBERS.GET_MEMBER_BOOKINGS(id)}?page=${page}&limit=10`,
       ) as ApiResponse<any[]>;
       memberBookings.value = response as any;
     }

@@ -17,4 +17,8 @@ export type PaymentSummary = {
   cashPayments: number;
   onlinePayments: number;
   refunded: number;
+  total: number;
+  grossCollected: number;
+  pendingRefunds: number;
+  currency: string;
 };

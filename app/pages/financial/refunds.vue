@@ -2,13 +2,16 @@
 import { computed, onMounted, ref, watch } from "vue";
 
 import ViewRefundDrawer from "~/components/refunds/view-refund.vue";
+import { getHttp } from "~/composables/use-api";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
+import { API_ENDPOINTS } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { useAnalyticsStore } from "~/stores/analytics";
 import { useFinanceStore } from "~/stores/finance";
-import { formatDate } from "~/utils/common";
+import { buildQueryString, formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
+import { downloadCsv } from "~/utils/report-csv";
 
 definePageMeta({
   auth: true,
@@ -47,6 +50,17 @@ const state = ref({
 const financeStore = useFinanceStore();
 const analyticsStore = useAnalyticsStore();
 const loading = ref(false);
+const exporting = ref(false);
+const appliedFilters = ref<Record<string, string | number | boolean | null | undefined>>({});
+async function exportRefunds() {
+  exporting.value = true;
+  try {
+    const file = await getHttp().get<{ filename: string; csv: string }>(`${API_ENDPOINTS.CANCELLATIONS.BASE}/export?${buildQueryString(appliedFilters.value)}`);
+    downloadCsv(file);
+  }
+  catch (error: unknown) { showError({ message: getApiErrorMessage(error, "Failed to export refunds") }); }
+  finally { exporting.value = false; }
+}
 const cancellations = computed(() => financeStore.cancellations);
 
 async function fetchCancellations() {
@@ -61,7 +75,11 @@ async function fetchCancellations() {
       refundTo: state.value.dateRange.end,
     };
 
-    await financeStore.fetchCancellations(params);
+    await Promise.all([
+      financeStore.fetchCancellations(params),
+      financeStore.fetchCancellationSummary({ dateFrom: params.refundFrom, dateTo: params.refundTo }),
+    ]);
+    appliedFilters.value = params;
   }
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to fetch payments") });
@@ -141,6 +159,17 @@ watch(
       </template>
     </base-page-header>
 
+    <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Refund totals" :aria-busy="loading">
+      <div v-for="item in [
+        { label: 'Pending refunds', value: financeStore.cancellationSummary?.requested ?? 0 },
+        { label: 'Approved refunds', value: financeStore.cancellationSummary?.approved ?? 0 },
+        { label: 'Rejected refunds', value: financeStore.cancellationSummary?.rejected ?? 0 },
+      ]" :key="item.label" class="rounded-xl border border-border bg-white p-5">
+        <dt class="text-sm text-secondary-500">{{ item.label }}</dt>
+        <dd class="mt-2 text-2xl font-semibold text-secondary tabular-nums">{{ item.value }}</dd>
+      </div>
+    </dl>
+
     <div class="bg-white rounded-xl p-6 flex flex-col gap-4">
       <div class="flex flex-col sm:flex-row justify-between gap-4">
         <div class="flex flex-col sm:flex-row gap-4 sm:gap-2 items-start sm:items-end flex-wrap">
@@ -188,12 +217,15 @@ watch(
           </div>
         </div>
 
-        <!-- <base-button
+        <base-button
           variant="outline"
           :leading-icon="ICONS.DOWNLOAD"
+          :loading="exporting"
+          :disabled="loading"
+          @click="exportRefunds"
         >
-          Export
-        </base-button> -->
+          Export CSV
+        </base-button>
       </div>
       <base-table
         :data="cancellations.data"
