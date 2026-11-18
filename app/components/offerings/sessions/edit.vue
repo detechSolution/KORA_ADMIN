@@ -9,6 +9,7 @@ import { useInstructorsStore } from "~/stores/instructors";
 import { useSessionsStore } from "~/stores/sessions";
 import { formatTimeValue, parseTimeValue } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
+import { sessionBannerImageSchema, sessionBannerVideoSchema } from "~/utils/session-media";
 
 const props = defineProps<Props>();
 const emit = defineEmits(["closeSessionDrawer", "updateSessionList"]);
@@ -64,28 +65,9 @@ const timeValueSchema = z.string().min(1, "Please select a valid time");
 const step1Schema = z.object({
   sessionName: z.string().trim().min(1, "Session name is required"),
   sessionType: sessionTypeSchema,
-  bannerImage: z.string().or(z.instanceof(File)),
-  bannerVideo: z.string().or(z.instanceof(File)).optional(),
+  bannerImage: sessionBannerImageSchema,
+  bannerVideo: sessionBannerVideoSchema,
   sessionDescription: z.string().refine(v => stripHtml(v).length > 0, { message: "Description is required" }),
-}).superRefine((data, ctx) => {
-  if (data.bannerImage instanceof File) {
-    if (!data.bannerImage.type.startsWith("image/")) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["bannerImage"], // Field name
-        message: "Banner image must be an image file",
-      });
-    }
-  }
-  if (data.bannerVideo instanceof File) {
-    if (!data.bannerVideo.type.startsWith("video/")) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["bannerVideo"], // Field name
-        message: "Banner video must be a video file",
-      });
-    }
-  }
 });
 
 const step2Schema = z.object({
@@ -213,12 +195,6 @@ async function handleUpdateSession(): Promise<void> {
 
   try {
     loading.value = true;
-    if (typeof form.bannerImage == "string") {
-      delete form.bannerImage;
-    }
-    if (typeof form.bannerVideo == "string") {
-      delete form.bannerVideo;
-    }
     await sessionsStore.updateSession(props.session.id, form);
     success({ message: "Session updated successfully" });
     emit("updateSessionList");
@@ -316,7 +292,7 @@ onMounted(() => {
           <base-file-upload
             v-model="form.bannerImage"
             accept="image"
-            label="Banner Image"
+            label="Banner Image (optional)"
             name="bannerImage"
             class-names="min-h-32"
           />
@@ -324,7 +300,7 @@ onMounted(() => {
           <base-file-upload
             v-model="form.bannerVideo"
             accept="video"
-            label="Banner Video"
+            label="Banner Video (optional)"
             name="bannerVideo"
             class-names="min-h-32"
           />
