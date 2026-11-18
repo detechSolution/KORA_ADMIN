@@ -4,6 +4,7 @@ import z from "zod";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
+import { PERMISSIONS_SESSIONS } from "~/config/permissions";
 import { useInstructorsStore } from "~/stores/instructors";
 import { useSessionsStore } from "~/stores/sessions";
 import { formatTimeValue, parseTimeValue } from "~/utils/common";
@@ -11,6 +12,7 @@ import { getApiErrorMessage } from "~/utils/error";
 
 const props = defineProps<Props>();
 const emit = defineEmits(["closeSessionDrawer", "updateSessionList"]);
+const { can } = usePermission();
 
 const { success, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
@@ -200,6 +202,8 @@ async function handleNext(): Promise<void> {
 }
 
 async function handleUpdateSession(): Promise<void> {
+  if (!can(PERMISSIONS_SESSIONS.UPDATE))
+    return;
   try {
     await formRef.value?.validate();
   }
@@ -258,6 +262,7 @@ onMounted(() => {
 
 <template>
   <base-drawer
+    v-if="can(PERMISSIONS_SESSIONS.UPDATE)"
     :open="open"
     :drawer-width="600"
     title="Edit session"

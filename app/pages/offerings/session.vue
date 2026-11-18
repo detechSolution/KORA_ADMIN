@@ -96,6 +96,8 @@ function handleSearch() {
 }
 
 function handleOpenEditSessionDrawer(id: number) {
+  if (!can(PERMISSIONS_SESSIONS.UPDATE))
+    return;
   isSessionEditDrawerOpen.value = true;
   const session = sessions.value.data.find((s: any) => s.id === id);
   selectedSession.value = session;
@@ -108,6 +110,8 @@ function handleOpenOverviewModal(id: number) {
 }
 
 function handleEditFromOverview(id: number) {
+  if (!can(PERMISSIONS_SESSIONS.UPDATE))
+    return;
   isSessionOverviewModalOpen.value = false;
   handleOpenEditSessionDrawer(id);
 }
@@ -333,7 +337,7 @@ onMounted(() => {
     />
 
     <OfferingsSessionsEdit
-      v-if="isSessionEditDrawerOpen"
+      v-if="isSessionEditDrawerOpen && can(PERMISSIONS_SESSIONS.UPDATE)"
       :open="isSessionEditDrawerOpen"
       :session="selectedSession"
       @close-session-drawer="isSessionEditDrawerOpen = false"
