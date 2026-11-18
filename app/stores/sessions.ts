@@ -4,6 +4,7 @@ import type { ApiResponse } from "~/types/api";
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
+import { appendSessionMedia } from "~/utils/session-media";
 
 export const useSessionsStore = defineStore("sessions", () => {
   const http = getHttp();
@@ -42,8 +43,8 @@ export const useSessionsStore = defineStore("sessions", () => {
 
   const createSession = async (payload: {
     sessionName: string;
-    bannerImage: File;
-    bannerVideo: File;
+    bannerImage?: File | string | null;
+    bannerVideo?: File | string | null;
     sessionDescription: string;
     sessionType: string;
     instructorId?: number | null;
@@ -70,16 +71,8 @@ export const useSessionsStore = defineStore("sessions", () => {
       formData.append("capacity", String(payload.capacity));
       formData.append("isFree", String(payload.isFreeSession));
       formData.append("price", String(payload.price));
-      formData.append("file", payload.bannerImage);
-      formData.append("video", payload.bannerVideo);
-      if (typeof payload.bannerImage === "string") {
-        formData.delete("file");
-        formData.append("fileUrl", payload.bannerImage);
-      }
-      if (typeof payload.bannerVideo === "string") {
-        formData.delete("video");
-        formData.append("videoUrl", payload.bannerVideo);
-      }
+      appendSessionMedia(formData, "file", payload.bannerImage);
+      appendSessionMedia(formData, "video", payload.bannerVideo);
 
       await http.post(API_ENDPOINTS.SESSION.CREATE, formData);
     }
@@ -106,12 +99,8 @@ export const useSessionsStore = defineStore("sessions", () => {
       if (payload.instructorId === null) {
         formData.delete("instructorId");
       }
-      if (payload.bannerImage instanceof File) {
-        formData.append("file", payload.bannerImage);
-      }
-      if (payload.bannerVideo instanceof File) {
-        formData.append("video", payload.bannerVideo);
-      }
+      appendSessionMedia(formData, "file", payload.bannerImage, true);
+      appendSessionMedia(formData, "video", payload.bannerVideo, true);
       await http.patch(API_ENDPOINTS.SESSION.UPDATE(id), formData);
     }
     catch (error: unknown) {

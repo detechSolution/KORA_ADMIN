@@ -9,6 +9,7 @@ import { ICONS } from "~/config/icons";
 import { useInstructorsStore } from "~/stores/instructors";
 import { useSessionsStore } from "~/stores/sessions";
 import { getApiErrorMessage } from "~/utils/error";
+import { sessionBannerImageSchema, sessionBannerVideoSchema } from "~/utils/session-media";
 
 definePageMeta({
   auth: true,
@@ -87,8 +88,8 @@ function formatTimeValue(value: Time | undefined): string {
 const step1Schema = z.object({
   sessionName: z.string().trim().min(1, "Session name is required"),
   sessionType: sessionTypeSchema,
-  bannerImage: z.union([z.string(), z.instanceof(File)], { error: "Please upload a banner image" }),
-  bannerVideo: z.union([z.string(), z.instanceof(File)], { error: "Please upload a banner video" }),
+  bannerImage: sessionBannerImageSchema,
+  bannerVideo: sessionBannerVideoSchema,
   sessionDescription: z.string().refine(v => stripHtml(v).length > 0, { message: "Description is required" }),
 });
 
@@ -404,7 +405,7 @@ onMounted(async () => {
                     <base-file-upload
                       v-model="form.bannerImage"
                       accept="image"
-                      label="Banner Image"
+                      label="Banner Image (optional)"
                       name="bannerImage"
                       class-names="min-h-32"
                     />
@@ -412,7 +413,7 @@ onMounted(async () => {
                     <base-file-upload
                       v-model="form.bannerVideo"
                       accept="video"
-                      label="Banner Video"
+                      label="Banner Video (optional)"
                       name="bannerVideo"
                       class-names="min-h-32"
                     />
