@@ -28,6 +28,7 @@ const state = ref({
   },
   status: null as string | null,
   method: "all",
+  paymentStatus: "paid",
 });
 
 const exporting = ref(false);
@@ -35,6 +36,7 @@ const fetching = ref(false);
 const loadError = ref("");
 const appliedFilters = ref<Record<string, string | number | boolean | null | undefined>>({});
 const methodOptions = [{ label: "All methods", value: "all" }, { label: "Cash", value: "cash" }, { label: "Online", value: "online" }];
+const paymentStatusOptions = [{ label: "All statuses", value: null }, { label: "Paid", value: "paid" }, { label: "Free", value: "free" }];
 const summaryItems = computed(() => {
   const s = financeStore.paymentSummary;
   return [
@@ -88,6 +90,7 @@ async function fetchPayments(): Promise<void> {
       paidTo: state.value.dateRange.end,
       status: state.value.status,
       method: state.value.method === "all" ? undefined : state.value.method,
+      paymentStatus: state.value.paymentStatus === "all" ? undefined : state.value.paymentStatus,
     };
 
     await Promise.all([financeStore.fetchPayments(params), financeStore.fetchPaymentSummary(params)]);
@@ -110,6 +113,7 @@ function clearFilters(): void {
   state.value.search = "";
   state.value.status = null;
   state.value.method = "all";
+  state.value.paymentStatus = "paid";
   state.value.dateRange = { start: null, end: null };
   handleSearchClick();
 }
@@ -219,6 +223,13 @@ onMounted(async () => {
             :options="methodOptions"
             class="w-full sm:w-40"
           />
+          <base-select
+            v-model="state.paymentStatus"
+            name="paymentStatus"
+            label="Payment status"
+            :options="paymentStatusOptions"
+            class="w-full sm:w-40"
+          />
           <div class="flex flex-wrap gap-2 w-full sm:w-auto">
             <base-button
               variant="outline"
@@ -230,7 +241,7 @@ onMounted(async () => {
               Search
             </base-button>
             <base-button
-              v-if="state.search || state.dateRange.start || state.dateRange.end || state.status || state.method !== 'all'"
+              v-if="state.search || state.dateRange.start || state.dateRange.end || state.status || state.method !== 'all' || state.paymentStatus !== 'paid'"
               variant="outline"
               class="flex-1 sm:flex-none"
               @click="clearFilters"
