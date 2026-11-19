@@ -264,15 +264,16 @@ onMounted(() => {
           >
             Clear Filters
           </base-button>
-          <!-- <base-button
+          <base-button
             variant="outline"
             :loading="exporting === 'sessions'"
             :disabled="loading || !!exporting"
             @click="exportSessions('sessions')"
           >
-            Export bookings CSV
+          <UIcon :name="ICONS.DOWNLOAD" class="w-5 h-5 mr-2" />
+            Export Bookings
           </base-button>
-          <base-button
+          <!-- <base-button
             variant="outline"
             :loading="exporting === 'attendance'"
             :disabled="loading || !!exporting"
