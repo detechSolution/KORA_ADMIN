@@ -27,7 +27,7 @@ const state = ref({
     end: null as string | null,
   },
   status: null as string | null,
-  method: "all",
+  method: "",
   paymentStatus: "paid",
 });
 
@@ -35,7 +35,7 @@ const exporting = ref(false);
 const fetching = ref(false);
 const loadError = ref("");
 const appliedFilters = ref<Record<string, string | number | boolean | null | undefined>>({});
-const methodOptions = [{ label: "All methods", value: "all" }, { label: "Cash", value: "cash" }, { label: "Online", value: "online" }];
+const methodOptions = [{ label: "Cash", value: "cash" }, { label: "Online", value: "online" }];
 const paymentStatusOptions = [{ label: "All statuses", value: null }, { label: "Paid", value: "paid" }, { label: "Free", value: "free" }];
 const summaryItems = computed(() => {
   const s = financeStore.paymentSummary;
@@ -199,7 +199,6 @@ onMounted(async () => {
           <base-input
             v-model="state.search"
             name="search"
-            label="Search"
             placeholder="Client name or Reference ID"
             class="w-full sm:w-64 sm:flex-none"
             :leading-icon="ICONS.SEARCH"
@@ -209,7 +208,6 @@ onMounted(async () => {
           <base-date-picker
             v-model="state.dateRange"
             name="dateRange"
-            label="Date range"
             placeholder="Select date range"
             range
             :no-of-months="2"
@@ -219,14 +217,13 @@ onMounted(async () => {
           <base-select
             v-model="state.method"
             name="method"
-            label="Payment method"
             :options="methodOptions"
+            placeholder="Select method"
             class="w-full sm:w-40"
           />
           <base-select
             v-model="state.paymentStatus"
             name="paymentStatus"
-            label="Payment status"
             :options="paymentStatusOptions"
             class="w-full sm:w-40"
           />

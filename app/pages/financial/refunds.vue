@@ -25,6 +25,12 @@ const options = [
   { label: "Rejected", value: "rejected" },
 ];
 
+const paidStatus = [
+  { label: "All", value: "all" },
+  { label: "Paid", value: "paid" },
+  { label: "Free", value: "free" },
+];
+
 const columns = [
   { header: "Client", accessorKey: "client" },
   { header: "Reference ID", accessorKey: "referenceCode" },
@@ -45,6 +51,7 @@ const state = ref({
     end: null,
   },
   status: null,
+  paymentStatus: "paid",
 });
 
 const financeStore = useFinanceStore();
@@ -73,11 +80,12 @@ async function fetchCancellations() {
       status: state.value.status,
       refundFrom: state.value.dateRange.start,
       refundTo: state.value.dateRange.end,
+      paymentStatus: state.value.paymentStatus,
     };
 
     await Promise.all([
       financeStore.fetchCancellations(params),
-      financeStore.fetchCancellationSummary({ dateFrom: params.refundFrom, dateTo: params.refundTo }),
+      financeStore.fetchCancellationSummary({ dateFrom: params.refundFrom, dateTo: params.refundTo, paymentStatus: params.paymentStatus, status: params.status }),
     ]);
     appliedFilters.value = params;
   }
@@ -111,12 +119,13 @@ function handleSearchClick() {
 function clearFilters() {
   state.value.search = "";
   state.value.status = null;
+  state.value.paymentStatus = "paid";
   state.value.dateRange = { start: null, end: null };
   handleSearchClick();
 }
 
 function hasActiveFilters(): boolean {
-  return !!(state.value.search || state.value.status || state.value.dateRange.start || state.value.dateRange.end);
+  return !!(state.value.search || state.value.status || state.value.dateRange.start || state.value.dateRange.end || state.value.paymentStatus !== "paid");
 }
 
 const route = useRoute();
@@ -126,6 +135,7 @@ onMounted(async () => {
   const search = route.query.search as string;
 
   state.value.search = search || "";
+  state.value.paymentStatus = "paid";
   await Promise.all([
     fetchCancellations(),
     analyticsStore.getAnalyticsStats(),
@@ -196,6 +206,13 @@ watch(
             placeholder="Select status"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
             :options="options"
+          />
+          <base-select
+            v-model="state.paymentStatus"
+            name="paymentStatus"
+            placeholder="Payment status"
+            class="w-full sm:w-auto sm:flex-1 md:w-64"
+            :options="paidStatus"
           />
           <div class="flex gap-2 w-full sm:w-auto">
             <base-button
