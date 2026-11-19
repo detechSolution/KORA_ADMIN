@@ -2,6 +2,8 @@
 import { reactive, ref } from "vue";
 import * as z from "zod";
 
+import { getHttp } from "~/composables/use-api";
+import { API_ENDPOINTS } from "~/config/constants";
 import { useAuthStore } from "~/stores/auth";
 import { getApiErrorMessage } from "~/utils/error";
 
@@ -10,7 +12,7 @@ definePageMeta({
 });
 
 const authStore = useAuthStore();
-const { error: showError } = useNotification();
+const { error: showError, success } = useNotification();
 const router = useRouter();
 const rememberMe = ref(false);
 
@@ -37,6 +39,62 @@ const state = reactive<Partial<Schema>>({
   email: "",
   password: "",
 });
+
+const passwordSetupToken = ref<string | null>(null);
+const isCompletingSetup = ref(false);
+const setupFormRef = ref<InstanceType<typeof UForm> | null>(null);
+const setupState = reactive({ newPassword: "", confirmPassword: "" });
+const setupSchema = z.object({
+  newPassword: z.string().min(8, "Use at least 8 characters").regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/, "Include uppercase, lowercase, a number and a special character"),
+  confirmPassword: z.string(),
+}).refine(value => value.newPassword === value.confirmPassword, {
+  path: ["confirmPassword"],
+  message: "Passwords do not match",
+});
+
+async function completePasswordSetup(): Promise<void> {
+  if (loading.value || !passwordSetupToken.value)
+    return;
+  loading.value = true;
+  try {
+    await setupFormRef.value?.validate();
+  }
+  catch {
+    loading.value = false;
+    return;
+  }
+  let passwordChanged = false;
+  try {
+    await getHttp().post(API_ENDPOINTS.AUTH.PASSWORD_SETUP, {
+      passwordSetupToken: passwordSetupToken.value,
+      newPassword: setupState.newPassword,
+    });
+    passwordChanged = true;
+    isCompletingSetup.value = true;
+    passwordSetupToken.value = null;
+    state.password = "";
+    clearApiError();
+    const result = await authStore.login({
+      email: state.email ?? "",
+      password: setupState.newPassword,
+      rememberMe: rememberMe.value,
+    });
+    if (result?.requiresPasswordChange)
+      throw new Error("Password setup is still required. Please sign in again.");
+    success({ message: "Password changed successfully" });
+    await router.replace({ name: "index" });
+  }
+  catch (error: unknown) {
+    isCompletingSetup.value = false;
+    const message = getApiErrorMessage(error, "Please try signing in again.");
+    showError({ message: passwordChanged ? `Your password was changed. ${message}` : message });
+  }
+  finally {
+    setupState.newPassword = "";
+    setupState.confirmPassword = "";
+    loading.value = isCompletingSetup.value;
+  }
+}
 
 function setApiError(error: string): void {
   apiError.value = error;
@@ -67,7 +125,12 @@ async function handleLogin(): Promise<void> {
       password: state.password,
       rememberMe: rememberMe.value,
     };
-    await authStore.login(payload as { email: string; password: string; rememberMe: boolean });
+    const result = await authStore.login(payload as { email: string; password: string; rememberMe: boolean });
+    if (result?.requiresPasswordChange) {
+      passwordSetupToken.value = result.passwordSetupToken;
+      state.password = "";
+      return;
+    }
     await router.replace({ name: "index" });
   }
   catch (error: unknown) {
@@ -155,13 +218,14 @@ async function handleLogin(): Promise<void> {
         class="relative z-10  flex-1 flex flex-col justify-center min-h-0 w-full max-w-125 mx-auto px-5 py-8 sm:px-8 sm:py-10 lg:py-12 pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto"
       >
         <h1 class="mt-0 lg:mt-4 text-[28px] font-bold text-foreground tracking-tight">
-          Welcome Back
+          {{ passwordSetupToken || isCompletingSetup ? 'Set a new password' : 'Welcome Back' }}
         </h1>
         <p class="mt-2 text-sm text-gray-500 leading-relaxed">
-          Sign in to access your account and continue your experience.
+          {{ passwordSetupToken || isCompletingSetup ? 'Choose your own password before accessing the Admin Panel. Your temporary password cannot be reused.' : 'Sign in to access your account and continue your experience.' }}
         </p>
 
         <UForm
+          v-if="!passwordSetupToken && !isCompletingSetup"
           ref="formRef"
           :state="state"
           :schema="schema"
@@ -204,6 +268,41 @@ async function handleLogin(): Promise<void> {
             @click="handleLogin"
           >
             Log in
+          </base-button>
+        </UForm>
+        <UForm
+          v-else
+          ref="setupFormRef"
+          :state="setupState"
+          :schema="setupSchema"
+          class="mt-8 w-full space-y-4"
+          @submit="completePasswordSetup"
+        >
+          <base-input
+            v-model="setupState.newPassword"
+            name="newPassword"
+            label="New password"
+            type="password"
+          />
+          <base-input
+            v-model="setupState.confirmPassword"
+            name="confirmPassword"
+            label="Confirm new password"
+            type="password"
+          />
+          <base-button
+            class="w-full"
+            :loading="loading"
+            @click="completePasswordSetup"
+          >
+            {{ isCompletingSetup ? 'Opening dashboard…' : 'Set new password' }}
+          </base-button>
+          <base-button
+            variant="outline"
+            :disabled="loading"
+            @click="passwordSetupToken = null"
+          >
+            Back to sign in
           </base-button>
         </UForm>
       </div>

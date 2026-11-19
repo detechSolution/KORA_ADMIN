@@ -23,7 +23,7 @@ const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const schema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  phoneNumber: z.coerce.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
+  phoneNumber: z.string().trim().refine(value => !value || /^[0-9+\-\s]{7,20}$/.test(value), "Phone number format is invalid."),
   email: z.string().min(1, "Email is required"),
   adminRoleId: z.string().min(1, "Admin role is required"),
   isActive: z.boolean(),
@@ -55,7 +55,7 @@ async function handleCreateRole() {
     clearApiError();
     const payload = {
       fullName: state.fullName,
-      phoneNumber: state.phoneNumber,
+      phoneNumber: state.phoneNumber?.trim() ?? "",
       email: state.email,
       adminRoleId: state.adminRoleId,
       isActive: state.isActive,
@@ -129,7 +129,7 @@ onMounted(() => {
                 <base-input
                   v-model="state.phoneNumber"
                   name="phoneNumber"
-                  label="Phone Number"
+                  label="Phone Number (Optional)"
                   placeholder="Enter phone number"
                   type="tel"
                   @keydown="preventInvalidNumberInput"
