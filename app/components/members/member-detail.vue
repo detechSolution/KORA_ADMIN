@@ -22,7 +22,13 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: "close"): void;
+  (e: "updated"): void;
 }>();
+
+function handleFreezeUpdated() {
+  emit("updated");
+  emit("close");
+}
 
 const selectedTab = ref("profile");
 
@@ -229,6 +235,7 @@ watch(
           </p>
         </div>
 
+        <members-manage-freezes :member="member" @updated="handleFreezeUpdated" />
         <USeparator />
 
         <!-- Additional Info Cards -->
