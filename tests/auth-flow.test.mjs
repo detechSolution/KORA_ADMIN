@@ -11,6 +11,23 @@ import { computed, reactive, ref } from "vue";
 const API_ENDPOINTS = { AUTH: { LOGIN: "/login", ME: "/me", REFRESH: "/refresh" } };
 const credentials = { email: "admin@example.test", password: "password", rememberMe: false };
 
+test("temporary-password admin login remains unauthenticated and returns the setup token", async () => {
+  const auth = loadAuth({
+    post: async () => ({ requiresPasswordChange: true, passwordSetupToken: "restricted-token" }),
+    get: () => assert.fail("Setup must not fetch dashboard profile data"),
+  });
+  const response = await auth.login(credentials);
+  assert.equal(response.requiresPasswordChange, true);
+  assert.equal(response.passwordSetupToken, "restricted-token");
+  assert.equal(auth.isAuthenticated, false);
+});
+
+test("a setup response without a setup token is rejected", async () => {
+  const auth = loadAuth({ post: async () => ({ requiresPasswordChange: true }) });
+  await assert.rejects(auth.login(credentials), /Password setup could not be started/);
+  assert.equal(auth.isAuthenticated, false);
+});
+
 function loadScript(path, context, expression) {
   const source = readFileSync(new URL(path, import.meta.url), "utf8")
     .replace(/^import\s[\s\S]*?;\s*/gm, "")

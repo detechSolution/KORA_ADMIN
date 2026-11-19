@@ -42,9 +42,9 @@ const stepOneSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   phoneNumber: z
     .string()
-    .regex(/^\d{10}$/, "Phone number must be exactly 10 digits")
-    .optional()
-    .or(z.literal("")),
+    .trim()
+    .refine(value => !value || /^[0-9+\-\s]{7,20}$/.test(value), "Phone number format is invalid.")
+    .optional(),
   email: z.string().email("Invalid email address"),
   identificationDocument: z.file({ error: "Identification document is required" }),
 });
@@ -145,7 +145,8 @@ async function handleCreatePlan() {
     const formData = new FormData();
 
     formData.append("fullName", state.fullName);
-    formData.append("phoneNumber", state.phoneNumber);
+    if (state.phoneNumber?.trim())
+      formData.append("phoneNumber", state.phoneNumber.trim());
     formData.append("email", state.email);
     formData.append("membershipPlanOptionId", state.membershipPlanOptionId.toString());
     formData.append("subscriptionStartDate", state.subscriptionStartDate);
@@ -155,7 +156,7 @@ async function handleCreatePlan() {
       formData.append("promoCode", appliedPromo.value.code);
 
     await membershipStore.createMember(formData);
-    success({ message: "Membership plan created successfully" });
+    success({ message: "Member created successfully" });
     router.push("/members/members-list");
   }
   catch (error: unknown) {

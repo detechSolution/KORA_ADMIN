@@ -183,14 +183,21 @@ export const useAuthStore = defineStore("auth", () => {
     await checkAuth(false);
   };
 
-  const login = async (payload: { email: string; password: string; rememberMe: boolean }): Promise<void> => {
+  const login = async (payload: { email: string; password: string; rememberMe: boolean }): Promise<{ requiresPasswordChange: true; passwordSetupToken: string } | void> => {
     try {
       unAuthorizedError.value = false;
       // Let any previous session check finish before storing the new session.
       if (authCheckPromise) {
         await authCheckPromise.catch(() => {});
       }
-      const { accessToken, refreshToken } = await http.post<{ accessToken?: string; refreshToken?: string }>(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password, rememberMe: payload.rememberMe });
+      const response = await http.post<{ accessToken?: string; refreshToken?: string; requiresPasswordChange?: boolean; passwordSetupToken?: string }>(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password, rememberMe: payload.rememberMe });
+      if (response.requiresPasswordChange) {
+        if (!response.passwordSetupToken)
+          throw new Error("Password setup could not be started. Please try again.");
+        logout();
+        return { requiresPasswordChange: true, passwordSetupToken: response.passwordSetupToken };
+      }
+      const { accessToken, refreshToken } = response;
       if (!accessToken || !refreshToken) {
         throw new Error("Invalid login response. Please try again.");
       }
