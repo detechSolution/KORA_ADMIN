@@ -392,6 +392,7 @@ onMounted(async () => {
       :open="isDetailModalOpen"
       :member="selectedMember"
       @close="closeDetailModal"
+      @updated="fetchMembers()"
     />
 
     <members-freeze-membership
