@@ -70,6 +70,21 @@ const columns = [
   { id: "method", header: "Method", accessorKey: "method" },
 ];
 
+function getRefundStatusLabel(payment: {
+  amount: number | string;
+  status?: string | null;
+  refundStatus?: string | null;
+  pendingRefund?: number | string | null;
+  refundDeduction?: number | string | null;
+}): string {
+  const amount = Number(payment.amount);
+  if (amount <= 0) return "—";
+  if (Number(payment.pendingRefund) > 0) return "Refund pending";
+  if (Number(payment.refundDeduction) > 0) return "Refunded";
+  if (payment.refundStatus === "rejected") return "Rejected";
+  return "—";
+}
+
 const payments = computed(() => financeStore.payments);
 const route = useRoute();
 const router = useRouter();
@@ -303,7 +318,7 @@ onMounted(async () => {
         </template>
 
         <template #refundStatus-cell="{ row }">
-          <span>{{ Number(row.original.pendingRefund) > 0 ? "Refund pending" : Number(row.original.refundDeduction) > 0 ? "Refunded" : row.original.refundStatus === "rejected" ? "Rejected" : "—" }}</span>
+          <span>{{ getRefundStatusLabel(row.original) }}</span>
         </template>
         <template #method-cell="{ row }">
           <base-badge :status="row?.original?.method" :show-icon="true">
