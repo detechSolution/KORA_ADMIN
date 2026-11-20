@@ -108,7 +108,7 @@ function createHttpClient(config: HttpClientConfig) {
         const refreshToken = storage.getRefreshToken();
         if (!refreshToken) {
           useAuthStore().setUnAuthorizedError(true);
-          useAuthStore().logout();
+          void useAuthStore().logout(false);
           throw error;
         }
 
@@ -154,7 +154,7 @@ function createHttpClient(config: HttpClientConfig) {
         catch (refreshError) {
           processQueue(refreshError as Error, null);
           useAuthStore().setUnAuthorizedError(true);
-          useAuthStore().logout();
+          void useAuthStore().logout(false);
           throw error;
         }
         finally {

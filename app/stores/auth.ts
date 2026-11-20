@@ -104,7 +104,10 @@ export const useAuthStore = defineStore("auth", () => {
     clearAuthData();
   };
 
-  const logout = (): void => {
+  const logout = async (revokeServerSession = true): Promise<void> => {
+    const logoutRequest = revokeServerSession && storage.getAccessToken()
+      ? http.post(API_ENDPOINTS.AUTH.LOGOUT, {}).catch(() => undefined)
+      : Promise.resolve();
     try {
       storage.removeTokens();
       clearData();
@@ -112,6 +115,7 @@ export const useAuthStore = defineStore("auth", () => {
     catch (error: unknown) {
       console.error(error, "Logout Error");
     }
+    await logoutRequest;
   };
 
   const performAuthCheck = async (force: boolean): Promise<void> => {
@@ -154,7 +158,7 @@ export const useAuthStore = defineStore("auth", () => {
     catch (error: unknown) {
       console.error(error, "Check Auth Error");
       clearAuthData();
-      logout();
+      void logout(false);
       throw error;
     }
     finally {
@@ -194,15 +198,15 @@ export const useAuthStore = defineStore("auth", () => {
       if (response.requiresPasswordChange) {
         if (!response.passwordSetupToken)
           throw new Error("Password setup could not be started. Please try again.");
-        logout();
+        void logout(false);
         return { requiresPasswordChange: true, passwordSetupToken: response.passwordSetupToken };
       }
       const { accessToken, refreshToken } = response;
       if (!accessToken || !refreshToken) {
         throw new Error("Invalid login response. Please try again.");
       }
-      if (!storage.setTokens(accessToken, refreshToken)) {
-        logout();
+      if (!storage.setTokens(accessToken, refreshToken, payload.rememberMe)) {
+        void logout(false);
         throw new Error("Unable to save your session. Please try again.");
       }
       await checkAuth(true);
