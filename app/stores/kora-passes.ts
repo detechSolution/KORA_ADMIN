@@ -2,6 +2,13 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 import type { ApiResponse } from "~/types/api";
+import type {
+  InvitationGuest,
+  InvitationResult,
+  InvitationUpdate,
+  KoraPass,
+  PassInvitee,
+} from "~/types/kora-passes";
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
@@ -11,7 +18,7 @@ export const useKoraPassesStore = defineStore("kora-passes", () => {
 
   // State
   const loading = ref(false);
-  const koraPasses = ref<ApiResponse<any>>({
+  const koraPasses = ref<ApiResponse<KoraPass[]>>({
     data: [],
     meta: {
       page: 1,
@@ -24,7 +31,9 @@ export const useKoraPassesStore = defineStore("kora-passes", () => {
   const getKoraPasses = async (): Promise<void> => {
     try {
       loading.value = true;
-      const res = await http.get(API_ENDPOINTS.KORA_PASSES.GET_LIST) as ApiResponse<any[]>;
+      const res = (await http.get(
+        API_ENDPOINTS.KORA_PASSES.GET_LIST,
+      )) as ApiResponse<KoraPass[]>;
       koraPasses.value = res;
     }
     catch (error: unknown) {
@@ -42,7 +51,7 @@ export const useKoraPassesStore = defineStore("kora-passes", () => {
       const payload = {
         name: form.name,
         description: form.description,
-        price: form.price,
+        ...(form.isInvitation ? {} : { price: form.price }),
         spaBenefit: form.spaBenefit,
         classBenefit: form.classBenefit,
         eventBenefit: form.eventBenefit,
@@ -78,15 +87,18 @@ export const useKoraPassesStore = defineStore("kora-passes", () => {
     }
   };
 
-  const invitePass = async (id: number, emails: string[], fromDate: string, toDate: string): Promise<void> => {
+  const invitePass = async (
+    id: number,
+    guests: InvitationGuest[],
+    fromDate: string,
+  ): Promise<InvitationResult> => {
     try {
       loading.value = true;
-      const payload = {
-        emails,
-        fromDate,
-        toDate,
-      };
-      await http.post(API_ENDPOINTS.KORA_PASSES.INVITE(id), payload);
+      const payload = { guests, fromDate };
+      return await http.post<InvitationResult>(
+        API_ENDPOINTS.KORA_PASSES.INVITE(id),
+        payload,
+      );
     }
     catch (error: unknown) {
       console.error(error, "Invite Kora Pass Error");
@@ -97,7 +109,40 @@ export const useKoraPassesStore = defineStore("kora-passes", () => {
     }
   };
 
+  const getInvitees = (
+    passId: number,
+    page: number,
+    limit = 20,
+    filters: {
+      q?: string;
+      inviteeStatus?: string;
+      dateFrom?: string;
+      dateTo?: string;
+    } = {},
+  ) => {
+    const query = new URLSearchParams({
+      passId: String(passId),
+      page: String(page),
+      limit: String(limit),
+    });
+    for (const [key, value] of Object.entries(filters)) {
+      if (value)
+        query.set(key, value);
+    }
+    return http.get<ApiResponse<PassInvitee[]>>(
+      `${API_ENDPOINTS.KORA_PASSES.INVITEES}?${query}`,
+    );
+  };
+
+  const updateInvitee = (id: number, payload: InvitationUpdate) =>
+    http.patch<PassInvitee & { sentEmail: boolean }>(
+      API_ENDPOINTS.KORA_PASSES.UPDATE_INVITEE(id),
+      payload,
+    );
+
   return {
+    getInvitees,
+    updateInvitee,
     loading,
     koraPasses,
     getKoraPasses,

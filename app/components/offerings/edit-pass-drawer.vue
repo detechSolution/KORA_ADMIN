@@ -89,7 +89,7 @@ async function handleUpdatePass() {
     const payload = {
       name: form.name,
       numberOfDays: form.validity,
-      price: form.price,
+      ...(props.pass.isInvitation ? {} : { price: form.price }),
       spaBenefit: form.spaBenefit,
       classBenefit: form.classBenefit,
       eventBenefit: form.eventBenefit,
@@ -149,6 +149,7 @@ async function handleUpdatePass() {
           </base-input>
 
           <base-input
+            v-if="!pass?.isInvitation"
             v-model.number="form.price"
             label="Pass Price*"
             name="price"
