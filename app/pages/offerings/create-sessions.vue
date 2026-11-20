@@ -30,6 +30,10 @@ const sessionTypeOptions = [
   { label: "Event", value: "event" },
   { label: "Workshop", value: "workshop" },
 ];
+const sessionLocationOptions = [
+  { label: "At KORA", value: "at_kora" },
+  { label: "External venue", value: "external" },
+] as const;
 
 const instructorOptions = computed(() =>
   instructorsStore.instructors.data
@@ -98,12 +102,21 @@ const step2Schema = z.object({
     z.coerce.number({ message: "Please select a valid instructor" }).int("Please select a valid instructor"),
     z.null(),
   ]).optional(),
-  venue: z.string().trim().min(1, "Please enter a venue"),
+  venue: z.string().trim(),
+  locationType: z.enum(["at_kora", "external"]),
   capacity: z.coerce.number({ message: "Please enter a capacity" }).int({ message: "Capacity must be a number" }).positive("Capacity must be at least 1"),
   date: z.array(z.string().min(1, "Please select a valid date")).min(1, "Please add at least one date"),
   startTime: timeValueSchema,
   endTime: timeValueSchema,
 }).superRefine((data, ctx) => {
+  if (data.locationType === "external" && data.venue.trim().length < 2) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["venue"],
+      message: "Please enter the external venue (at least 2 characters)",
+    });
+  }
+
   const startTime = parseTimeValue(data.startTime);
   const endTime = parseTimeValue(data.endTime);
 
@@ -160,6 +173,7 @@ const form = reactive<Partial<CombinedSchema>>({
   sessionType: "class",
   instructorId: undefined,
   venue: "",
+  locationType: "at_kora",
   capacity: 0,
   date: [],
   startTime: "",
@@ -236,6 +250,7 @@ function clearFormData(): void {
   form.bannerVideo = undefined;
   form.instructorId = undefined;
   form.venue = "";
+  form.locationType = "at_kora";
   form.capacity = 0;
   form.date = [];
   form.startTime = undefined;
@@ -298,6 +313,9 @@ onMounted(async () => {
     form.sessionDescription = s.description;
     form.instructorId = s.instructorId;
     form.venue = s.venue;
+    form.locationType = s.venue?.trim().toLowerCase() === "kora"
+      ? "at_kora"
+      : "external";
     form.capacity = s.capacity;
     // Date in list is usually a single string sessionDate, but create expects an array
     // form.date = s.sessionDate ? [s.sessionDate] : [];
@@ -445,7 +463,24 @@ onMounted(async () => {
                       :loading="instructorsStore.loading"
                       clearable
                     />
+                    <UFormField name="locationType" label="Venue Type">
+                      <div class="flex flex-wrap gap-2">
+                        <button
+                          v-for="option in sessionLocationOptions"
+                          :key="option.value"
+                          type="button"
+                          class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
+                          :class="form.locationType === option.value
+                            ? 'bg-primary-700 text-white shadow-sm'
+                            : 'border-primary-100 bg-white text-foreground hover:border-primary-400'"
+                          @click="form.locationType = option.value"
+                        >
+                          {{ option.label }}
+                        </button>
+                      </div>
+                    </UFormField>
                     <base-input
+                      v-if="form.locationType === 'external'"
                       v-model="form.venue"
                       name="venue"
                       label="Venue*"

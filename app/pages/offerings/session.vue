@@ -311,7 +311,7 @@ onMounted(() => {
         :trainer="session.instructor"
         :date="session.sessionDate"
         :time="`${session.startTime} - ${session.endTime}`"
-        :location="session.venue"
+        :location="session.venue?.trim().toLowerCase() === 'kora' ? 'At KORA' : session.venue"
         :price="`Rs. ${session.price}`"
         :capacity="session.capacity"
         :occupied="session.occupied"
