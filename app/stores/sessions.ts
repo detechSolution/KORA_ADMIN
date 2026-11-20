@@ -49,6 +49,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     sessionType: string;
     instructorId?: number | null;
     venue: string;
+    locationType: "at_kora" | "external";
     capacity: number;
     date: [];
     startTime: string;
@@ -64,7 +65,10 @@ export const useSessionsStore = defineStore("sessions", () => {
       if (payload.instructorId !== undefined && payload.instructorId !== null) {
         formData.append("instructorId", String(payload.instructorId));
       }
-      formData.append("venue", payload.venue);
+      formData.append(
+        "venue",
+        payload.locationType === "external" ? payload.venue : "Kora",
+      );
       formData.append("dates", payload.date.join(","));
       formData.append("startTime", payload.startTime);
       formData.append("endTime", payload.endTime);
@@ -89,7 +93,10 @@ export const useSessionsStore = defineStore("sessions", () => {
       formData.append("type", payload.sessionType);
       formData.append("description", payload.sessionDescription);
       formData.append("instructorId", String(payload.instructorId));
-      formData.append("venue", payload.venue);
+      formData.append(
+        "venue",
+        payload.locationType === "external" ? payload.venue : "Kora",
+      );
       formData.append("sessionDate", payload.date);
       formData.append("startTime", payload.startTime);
       formData.append("endTime", payload.endTime);

@@ -40,6 +40,10 @@ const instructorOptions = computed(() =>
       value: i.id,
     })),
 );
+const sessionLocationOptions = [
+  { label: "At KORA", value: "at_kora" },
+  { label: "External venue", value: "external" },
+] as const;
 
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
@@ -75,12 +79,21 @@ const step2Schema = z.object({
     z.coerce.number({ message: "Please select a valid instructor" }).int("Please select a valid instructor"),
     z.null(),
   ]).optional(),
-  venue: z.string().trim().min(1, "Venue is required"),
+  venue: z.string().trim(),
+  locationType: z.enum(["at_kora", "external"]),
   capacity: z.coerce.number({ message: "Capacity is required" }).int({ message: "Capacity must be a whole number" }).positive("Capacity must be a positive integer"),
   date: z.string().min(1, "Invalid date").min(1, "At least one session date is required"),
   startTime: timeValueSchema,
   endTime: timeValueSchema,
 }).superRefine((data, ctx) => {
+  if (data.locationType === "external" && data.venue.trim().length < 2) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["venue"],
+      message: "Please enter the external venue (at least 2 characters)",
+    });
+  }
+
   const startTime = parseTimeValue(data.startTime);
   const endTime = parseTimeValue(data.endTime);
 
@@ -140,6 +153,7 @@ const form = reactive<Partial<CombinedSchema>>({
   sessionType: "class",
   instructorId: undefined,
   venue: "",
+  locationType: "at_kora",
   capacity: 0,
   date: "",
   startTime: "",
@@ -222,6 +236,9 @@ watch(() => props.session, (newValue) => {
     form.sessionDescription = newValue.description;
     form.instructorId = newValue.instructorId;
     form.venue = newValue.venue;
+    form.locationType = newValue.venue?.trim().toLowerCase() === "kora"
+      ? "at_kora"
+      : "external";
     form.capacity = newValue.capacity;
     form.date = newValue.sessionDate || "";
     form.startTime = newValue.startTime;
@@ -329,7 +346,24 @@ onMounted(() => {
               :loading="instructorsStore.loading"
               clearable
             />
+            <UFormField name="locationType" label="Session location">
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="option in sessionLocationOptions"
+                  :key="option.value"
+                  type="button"
+                  class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
+                  :class="form.locationType === option.value
+                    ? 'bg-primary-700 text-white shadow-sm'
+                    : 'border-primary-100 bg-white text-foreground hover:border-primary-400'"
+                  @click="form.locationType = option.value"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
+            </UFormField>
             <base-input
+              v-if="form.locationType === 'external'"
               v-model="form.venue"
               name="venue"
               label="Venue"
