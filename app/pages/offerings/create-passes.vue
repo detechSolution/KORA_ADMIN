@@ -34,7 +34,7 @@ function stripHtml(input: string | undefined | null): string {
 const schema = z.object({
   name: z.string().trim().min(1, "Enter a pass name"),
   validity: z.coerce.number({ message: "Enter how many days this pass is valid for" }).int().positive("Validity must be at least 1 day"),
-  price: z.coerce.number({ message: "Enter a price" }).int().nonnegative("Price can't be negative"),
+  price: z.union([z.number(), z.string()]).optional(),
   spaBenefit: z.coerce.number({ message: "Enter the spa benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
   classBenefit: z.coerce.number({ message: "Enter the class benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
   eventBenefit: z.coerce.number({ message: "Enter the event benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
@@ -44,6 +44,10 @@ const schema = z.object({
   description: z.string().refine(v => stripHtml(v).length > 0, { message: "Add a description for this pass" }),
   status: z.boolean(),
   isInvitation: z.boolean(),
+}).superRefine((value, ctx) => {
+  if (!value.isInvitation && (value.price === undefined || value.price === null || value.price === "" || !z.coerce.number().int().nonnegative().safeParse(value.price).success)) {
+    ctx.addIssue({ code: "custom", path: ["price"], message: "Enter a valid non-negative price" });
+  }
 });
 
 type Schema = z.output<typeof schema>;
@@ -51,7 +55,7 @@ type Schema = z.output<typeof schema>;
 const form = reactive<Schema>({
   name: "",
   validity: undefined as any,
-  price: undefined as any,
+  price: undefined,
   spaBenefit: 0,
   classBenefit: 0,
   eventBenefit: 0,
@@ -240,7 +244,7 @@ async function handleCreatePass() {
               </template>
             </base-input>
 
-            <div class="md:col-span-2">
+            <div v-if="!form.isInvitation" class="md:col-span-2">
               <base-input
                 v-model.number="form.price"
                 type="number"
