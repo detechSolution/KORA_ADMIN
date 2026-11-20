@@ -37,7 +37,7 @@ const paymentMethods = [
   {
     value: "online",
     label: "Online Transfer",
-    description: "Fonepay / bank / card transfer",
+    description: "FonePay QR",
     icon: ICONS.WIFI,
   },
 ];
