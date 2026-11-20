@@ -14,7 +14,7 @@ const promoValidation = ref<"success" | "error" | "" | null>(null);
 
 const paymentMethods = [
   { value: "cash", label: "Cash", description: "Paid at counter", icon: ICONS.MONEY },
-  { value: "online", label: "Online Transfer", description: "Fonepay / bank / card transfer", icon: ICONS.WIFI },
+  { value: "online", label: "Online Transfer", description: "FonePay QR", icon: ICONS.WIFI },
 ];
 
 function findServiceItem(serviceId: number | undefined) {

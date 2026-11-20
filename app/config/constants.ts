@@ -51,6 +51,7 @@ export const API_ENDPOINTS = {
   },
   AUTH: {
     LOGIN: "/api/v1/auth/admin/login",
+    LOGOUT: "/api/v1/auth/logout",
     PASSWORD_SETUP: "/api/v1/auth/admin/password-setup",
     ME: "/api/v1/auth/me",
     REFRESH: "/api/v1/auth/admin/refresh",

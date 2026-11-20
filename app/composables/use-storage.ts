@@ -1,6 +1,5 @@
 /**
- * Composable for localStorage operations
- * Provides typed methods for storing and retrieving data from localStorage
+ * Token storage uses localStorage for remembered logins and sessionStorage otherwise.
  *
  * Note: Since ssr: false is configured, client checks are not needed.
  * Error handling is still included for localStorage quota errors and other edge cases.
@@ -82,40 +81,89 @@ export function clearStorage(): boolean {
  * Provides convenient methods for access and refresh tokens
  */
 export function useStorage() {
+  const getToken = (key: string): string | null => {
+    try {
+      return sessionStorage.getItem(key) ?? localStorage.getItem(key);
+    }
+    catch (error) {
+      console.error(`Error getting token "${key}":`, error);
+      return null;
+    }
+  };
+
+  const currentTokenStorage = (): Storage => {
+    try {
+      return sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+        || sessionStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
+        ? sessionStorage
+        : localStorage;
+    }
+    catch {
+      return localStorage;
+    }
+  };
+
+  const writeToken = (key: string, token: string, rememberMe?: boolean): boolean => {
+    const target = rememberMe === undefined
+      ? currentTokenStorage()
+      : rememberMe ? localStorage : sessionStorage;
+    try {
+      const other = target === localStorage ? sessionStorage : localStorage;
+      other.removeItem(key);
+      target.setItem(key, token);
+      return true;
+    }
+    catch (error) {
+      console.error(`Error setting token "${key}":`, error);
+      return false;
+    }
+  };
+
+  const removeToken = (key: string): boolean => {
+    try {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+      return true;
+    }
+    catch (error) {
+      console.error(`Error removing token "${key}":`, error);
+      return false;
+    }
+  };
   /**
    * Get the access token
    */
   const getAccessToken = (): string | null => {
-    return getStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
+    return getToken(STORAGE_KEYS.ACCESS_TOKEN);
   };
 
   /**
    * Get the refresh token
    */
   const getRefreshToken = (): string | null => {
-    return getStorageItem(STORAGE_KEYS.REFRESH_TOKEN);
+    return getToken(STORAGE_KEYS.REFRESH_TOKEN);
   };
 
   /**
    * Set the access token
    */
-  const setAccessToken = (token: string): boolean => {
-    return setStorageItem(STORAGE_KEYS.ACCESS_TOKEN, token);
+  const setAccessToken = (token: string, rememberMe?: boolean): boolean => {
+    return writeToken(STORAGE_KEYS.ACCESS_TOKEN, token, rememberMe);
   };
 
   /**
    * Set the refresh token
    */
-  const setRefreshToken = (token: string): boolean => {
-    return setStorageItem(STORAGE_KEYS.REFRESH_TOKEN, token);
+  const setRefreshToken = (token: string, rememberMe?: boolean): boolean => {
+    return writeToken(STORAGE_KEYS.REFRESH_TOKEN, token, rememberMe);
   };
 
   /**
    * Set both access and refresh tokens
    */
-  const setTokens = (accessToken: string, refreshToken: string): boolean => {
-    const accessSuccess = setAccessToken(accessToken);
-    const refreshSuccess = setRefreshToken(refreshToken);
+  const setTokens = (accessToken: string, refreshToken: string, rememberMe?: boolean): boolean => {
+    const accessSuccess = setAccessToken(accessToken, rememberMe);
+    const refreshSuccess = setRefreshToken(refreshToken, rememberMe);
     return accessSuccess && refreshSuccess;
   };
 
@@ -123,14 +171,14 @@ export function useStorage() {
    * Remove the access token
    */
   const removeAccessToken = (): boolean => {
-    return removeStorageItem(STORAGE_KEYS.ACCESS_TOKEN);
+    return removeToken(STORAGE_KEYS.ACCESS_TOKEN);
   };
 
   /**
    * Remove the refresh token
    */
   const removeRefreshToken = (): boolean => {
-    return removeStorageItem(STORAGE_KEYS.REFRESH_TOKEN);
+    return removeToken(STORAGE_KEYS.REFRESH_TOKEN);
   };
 
   /**

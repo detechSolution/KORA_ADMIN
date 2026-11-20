@@ -20,7 +20,7 @@ const unAuthorizedError = computed(() => authStore.unAuthorizedError);
 
 watch(unAuthorizedError, (unAuthorizedError) => {
   if (unAuthorizedError) {
-    authStore.logout();
+    void authStore.logout(false);
     showError({ message: "Your session has expired. Please login again." });
     router.push({ name: "login" });
   }
