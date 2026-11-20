@@ -226,7 +226,6 @@ async function confirmCancellation() {
     <template #title>
       Invitees: {{ pass?.name ?? "" }}
     </template>
-    // send thuis to end
     <template #close>
       <UButton
         color="neutral"
