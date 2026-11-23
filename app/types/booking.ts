@@ -86,6 +86,14 @@ export type Booking = {
   visitorCount: number;
   participantCount: number;
   participants: BookingParticipant[];
+  createdByStaffId?: number | null;
+  createdByStaff?: {
+    id: number;
+    fullName: string;
+    email: string;
+    phoneNumber: string | null;
+    role: string;
+  } | null;
   amount: number;
   clientName?: string;
   clientEmail?: string;

@@ -370,7 +370,6 @@ async function confirmCancellation() {
               v-if="
                 can(PERMISSIONS_KORA_PASSES.UPDATE)
                   && row.original.status === 'active'
-                  && row.original.startsOn > invitationToday()
               "
               size="sm"
               variant="outline"

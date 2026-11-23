@@ -176,6 +176,16 @@ watch(
             <span>{{ formatLocalTime(booking?.bookedDate) }}</span>
           </div>
         </div>
+        <div
+          v-if="bookingDetails?.createdByStaff"
+          class="flex min-w-0 flex-col gap-1 sm:col-start-1 sm:row-start-3"
+        >
+          <span class="text-xs text-secondary-400 mb-1">Created By</span>
+          <div class="font-medium text-secondary-900 flex flex-col gap-1">
+            <span>{{ bookingDetails.createdByStaff.fullName }}</span>
+            <span class="text-xs font-normal text-secondary-500">{{ bookingDetails.createdByStaff.email }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="flex flex-col gap-4">
@@ -195,7 +205,7 @@ watch(
                 {{ item?.title }}
               </h2>
               <div class="mt-1 flex flex-wrap items-center gap-x-1.5 text-xs text-secondary-500">
-                <span>{{ item.quantity }} booked</span>
+                <span>{{ item.quantity }} ticket</span>
                 <span aria-hidden="true">·</span>
                 <span>{{ item.quantityCancelled ?? 0 }} cancelled</span>
                 <span aria-hidden="true">·</span>
