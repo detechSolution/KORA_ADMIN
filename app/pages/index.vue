@@ -13,6 +13,7 @@ import { useAnalyticsStore } from "~/stores/analytics";
 import { useBookingStore } from "~/stores/booking";
 import { useSessionsStore } from "~/stores/sessions";
 import { bookingScheduleLabels, bookingServiceLabels, bookingTypeLabels } from "~/utils/booking-lines";
+import { getNepalDateString } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
@@ -33,11 +34,11 @@ const bookingsBySessionsLoading = ref(false);
 const revenueTrendLoading = ref(false);
 const consistentMembersLoading = ref(false);
 
-const nepalToday = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kathmandu" }).format(new Date());
+const nepalToday = getNepalDateString();
 function daysBefore(date: string, days: number) {
-  const value = new Date(`${date}T00:00:00+05:45`);
-  value.setDate(value.getDate() - days);
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kathmandu" }).format(value);
+  const value = new Date(`${date}T00:00:00Z`);
+  value.setUTCDate(value.getUTCDate() - days);
+  return value.toISOString().slice(0, 10);
 }
 const defaultPeriod = () => ({ start: daysBefore(nepalToday, 6), end: nepalToday });
 const bookingsPeriod = ref(defaultPeriod());
@@ -87,8 +88,8 @@ async function getTodaySessions() {
     const params = {
       page: 1,
       limit: 5,
-      startDate: new Date().toISOString().split("T")[0],
-      endDate: new Date().toISOString().split("T")[0],
+      startDate: getNepalDateString(),
+      endDate: getNepalDateString(),
     };
     await sessionStore.getSessions(params);
   }
@@ -183,8 +184,7 @@ const consistentMembersColumns = [
 ];
 
 // Computed KPI data from store
-const today = new Date();
-const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+const todayDate = getNepalDateString();
 const kpiData = computed(() => [
   {
     title: "Today's Appointments",

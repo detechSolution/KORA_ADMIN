@@ -8,6 +8,7 @@ import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 import { useFinanceStore } from "~/stores/finance";
 import { bookingDetailItems } from "~/utils/booking-lines";
+import { formatNepalTime } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 import CancelModal from "./cancel-modal.vue";
@@ -173,7 +174,7 @@ watch(
           <span class="text-xs text-secondary-400 mb-1">Booked Date</span>
           <div class="font-medium text-secondary-900 flex flex-col gap-1">
             <span>{{ formatDate(booking?.bookedDate) }}</span>
-            <span>{{ formatLocalTime(booking?.bookedDate) }}</span>
+            <span>{{ formatNepalTime(booking?.bookedDate) }}</span>
           </div>
         </div>
         <div
@@ -229,7 +230,7 @@ watch(
                   class="flex items-center gap-2"
                 >
                   <UIcon :name="ICONS.CLOCK" />
-                  <h2>{{ formatLocalTime(item?.scheduledAt) || "N/A" }}</h2>
+                  <h2>{{ formatNepalTime(item?.scheduledAt) || "N/A" }}</h2>
                 </div>
               </div>
             </div>

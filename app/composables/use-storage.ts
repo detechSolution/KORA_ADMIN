@@ -1,5 +1,6 @@
 /**
- * Token storage uses localStorage for remembered logins and sessionStorage otherwise.
+ * Auth tokens are kept in expiring cookies. Their lifetime follows the refresh
+ * session lifetime returned by the API (12 hours by default, 7 days remembered).
  *
  * Note: Since ssr: false is configured, client checks are not needed.
  * Error handling is still included for localStorage quota errors and other edge cases.
@@ -12,6 +13,41 @@ export const STORAGE_KEYS = {
   ACCESS_TOKEN: "accessToken",
   REFRESH_TOKEN: "refreshToken",
 } as const;
+
+const STANDARD_SESSION_SECONDS = 12 * 60 * 60;
+const REMEMBERED_SESSION_SECONDS = 7 * 24 * 60 * 60;
+
+function readCookie(key: string): string | null {
+  try {
+    const prefix = `${encodeURIComponent(key)}=`;
+    const value = document.cookie
+      .split(";")
+      .map(part => part.trim())
+      .find(part => part.startsWith(prefix));
+    return value ? decodeURIComponent(value.slice(prefix.length)) : null;
+  }
+  catch {
+    return null;
+  }
+}
+
+function writeCookie(key: string, value: string, maxAgeSeconds: number): boolean {
+  try {
+    const maxAge = Math.max(1, Math.floor(maxAgeSeconds));
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`;
+    return readCookie(key) === value;
+  }
+  catch (error) {
+    console.error(`Error setting auth cookie "${key}":`, error);
+    return false;
+  }
+}
+
+function deleteCookie(key: string): void {
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${encodeURIComponent(key)}=; Max-Age=0; Path=/; SameSite=Lax${secure}`;
+}
 
 /**
  * Get a value from localStorage
@@ -82,6 +118,11 @@ export function clearStorage(): boolean {
  */
 export function useStorage() {
   const getToken = (key: string): string | null => {
+    const cookieToken = readCookie(key);
+    if (cookieToken) return cookieToken;
+
+    // Read tokens from the previous storage scheme once, so active staff can
+    // continue through their next refresh and be migrated into expiring cookies.
     try {
       return sessionStorage.getItem(key) ?? localStorage.getItem(key);
     }
@@ -91,36 +132,21 @@ export function useStorage() {
     }
   };
 
-  const currentTokenStorage = (): Storage => {
+  const writeToken = (key: string, token: string, maxAgeSeconds: number): boolean => {
+    const saved = writeCookie(key, token, maxAgeSeconds);
     try {
-      return sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-        || sessionStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
-        ? sessionStorage
-        : localStorage;
-    }
-    catch {
-      return localStorage;
-    }
-  };
-
-  const writeToken = (key: string, token: string, rememberMe?: boolean): boolean => {
-    const target = rememberMe === undefined
-      ? currentTokenStorage()
-      : rememberMe ? localStorage : sessionStorage;
-    try {
-      const other = target === localStorage ? sessionStorage : localStorage;
-      other.removeItem(key);
-      target.setItem(key, token);
-      return true;
+      sessionStorage.removeItem(key);
+      localStorage.removeItem(key);
     }
     catch (error) {
-      console.error(`Error setting token "${key}":`, error);
-      return false;
+      console.warn(`Unable to remove legacy token "${key}" from browser storage:`, error);
     }
+    return saved;
   };
 
   const removeToken = (key: string): boolean => {
     try {
+      deleteCookie(key);
       localStorage.removeItem(key);
       sessionStorage.removeItem(key);
       return true;
@@ -147,23 +173,30 @@ export function useStorage() {
   /**
    * Set the access token
    */
-  const setAccessToken = (token: string, rememberMe?: boolean): boolean => {
-    return writeToken(STORAGE_KEYS.ACCESS_TOKEN, token, rememberMe);
+  const setAccessToken = (token: string, sessionLifetimeSeconds = STANDARD_SESSION_SECONDS): boolean => {
+    return writeToken(STORAGE_KEYS.ACCESS_TOKEN, token, sessionLifetimeSeconds);
   };
 
   /**
    * Set the refresh token
    */
-  const setRefreshToken = (token: string, rememberMe?: boolean): boolean => {
-    return writeToken(STORAGE_KEYS.REFRESH_TOKEN, token, rememberMe);
+  const setRefreshToken = (token: string, sessionLifetimeSeconds = STANDARD_SESSION_SECONDS): boolean => {
+    return writeToken(STORAGE_KEYS.REFRESH_TOKEN, token, sessionLifetimeSeconds);
   };
 
   /**
    * Set both access and refresh tokens
    */
-  const setTokens = (accessToken: string, refreshToken: string, rememberMe?: boolean): boolean => {
-    const accessSuccess = setAccessToken(accessToken, rememberMe);
-    const refreshSuccess = setRefreshToken(refreshToken, rememberMe);
+  const setTokens = (
+    accessToken: string,
+    refreshToken: string,
+    sessionLifetimeSeconds?: number,
+    rememberMe = false,
+  ): boolean => {
+    const lifetime = sessionLifetimeSeconds
+      ?? (rememberMe ? REMEMBERED_SESSION_SECONDS : STANDARD_SESSION_SECONDS);
+    const accessSuccess = setAccessToken(accessToken, lifetime);
+    const refreshSuccess = setRefreshToken(refreshToken, lifetime);
     return accessSuccess && refreshSuccess;
   };
 
