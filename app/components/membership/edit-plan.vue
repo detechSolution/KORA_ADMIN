@@ -68,6 +68,8 @@ const schema = z.object({
   classBenefit: pct("Class benefit"),
   eventBenefit: pct("Event benefit"),
   workshopBenefit: pct("Workshop benefit"),
+  physioBenefit: pct("Physio benefit"),
+  cafeBenefit: pct("Cafe benefit"),
   spaGuestBenefit: pct("Spa guest benefit"),
   classGuestBenefit: pct("Class guest benefit"),
   eventGuestBenefit: pct("Event guest benefit"),
@@ -93,6 +95,8 @@ const state = reactive<Partial<EditPlanSchema>>({
   classBenefit: 0,
   eventBenefit: 0,
   workshopBenefit: 0,
+  physioBenefit: 0,
+  cafeBenefit: 0,
   spaGuestBenefit: 0,
   classGuestBenefit: 0,
   eventGuestBenefit: 0,
@@ -138,6 +142,8 @@ function populateForm(plan: MembershipPlan | null): void {
   state.classBenefit = plan?.classBenefit ?? 0;
   state.eventBenefit = plan?.eventBenefit ?? 0;
   state.workshopBenefit = plan?.workshopBenefit ?? 0;
+  state.physioBenefit = plan?.physioBenefit ?? 0;
+  state.cafeBenefit = plan?.cafeBenefit ?? 0;
   state.spaGuestBenefit = plan?.spaGuestBenefit ?? 0;
   state.classGuestBenefit = plan?.classGuestBenefit ?? 0;
   state.eventGuestBenefit = plan?.eventGuestBenefit ?? 0;
@@ -189,6 +195,8 @@ async function handleSubmit(): Promise<void> {
       classBenefit: state.classBenefit!,
       eventBenefit: state.eventBenefit!,
       workshopBenefit: state.workshopBenefit!,
+      physioBenefit: state.physioBenefit!,
+      cafeBenefit: state.cafeBenefit!,
       spaGuestBenefit: state.spaGuestBenefit!,
       classGuestBenefit: state.classGuestBenefit!,
       eventGuestBenefit: state.eventGuestBenefit!,
@@ -320,6 +328,26 @@ watch(
               v-model="state.workshopBenefit"
               name="workshopBenefit"
               label="Workshop"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+          </div>
+          <div class="flex justify-between gap-4 w-full">
+            <base-input
+              v-model="state.physioBenefit"
+              name="physioBenefit"
+              label="Physio"
+              placeholder="0"
+              type="number"
+              class="w-full"
+              :trailing-icon="ICONS.PERCENT"
+            />
+            <base-input
+              v-model="state.cafeBenefit"
+              name="cafeBenefit"
+              label="Cafe"
               placeholder="0"
               type="number"
               class="w-full"

@@ -218,10 +218,10 @@ async function handleUpdatePass() {
           </base-input>
           <base-input
             v-model.number="form.salonBenefit"
-            label="Salon Benefit"
+            label="Physio Benefit"
             name="salonBenefit"
             type="number"
-            placeholder="Enter salon benefit percentage"
+            placeholder="Enter physio benefit percentage"
           >
             <template #trailing>
               <span class="text-sm text-stone-400 pr-2">%</span>

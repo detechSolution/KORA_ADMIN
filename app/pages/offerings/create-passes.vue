@@ -40,7 +40,7 @@ const schema = z.object({
   eventBenefit: z.coerce.number({ message: "Enter the event benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
   workshopBenefit: z.coerce.number({ message: "Enter the workshop benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
   cafeBenefit: z.coerce.number({ message: "Enter the cafe benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
-  salonBenefit: z.coerce.number({ message: "Enter the salon benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
+  salonBenefit: z.coerce.number({ message: "Enter the physio benefit percentage" }).min(0).max(100, "Benefit must be between 0% and 100%"),
   description: z.string().refine(v => stripHtml(v).length > 0, { message: "Add a description for this pass" }),
   status: z.boolean(),
   isInvitation: z.boolean(),
@@ -234,9 +234,9 @@ async function handleCreatePass() {
             <base-input
               v-model.number="form.salonBenefit"
               name="salonBenefit"
-              label="Salon Benefit"
+              label="Physio Benefit"
               type="number"
-              placeholder="Enter salon benefit percentage"
+              placeholder="Enter physio benefit percentage"
               class="w-full"
             >
               <template #trailing>
