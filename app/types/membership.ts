@@ -58,6 +58,8 @@ export type MembershipPlan = {
   classBenefit: number;
   eventBenefit: number;
   workshopBenefit: number;
+  physioBenefit: number;
+  cafeBenefit: number;
   spaGuestBenefit: number;
   classGuestBenefit: number;
   eventGuestBenefit: number;
@@ -81,6 +83,8 @@ export type CreateMembershipPlanPayload = {
   classBenefit: number;
   eventBenefit: number;
   workshopBenefit: number;
+  physioBenefit: number;
+  cafeBenefit: number;
   spaGuestBenefit: number;
   classGuestBenefit: number;
   eventGuestBenefit: number;

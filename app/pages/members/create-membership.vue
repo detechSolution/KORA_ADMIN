@@ -64,6 +64,8 @@ const schema = z.object({
   classBenefit: pct("Class benefit"),
   eventBenefit: pct("Event benefit"),
   workshopBenefit: pct("Workshop benefit"),
+  physioBenefit: pct("Physio benefit"),
+  cafeBenefit: pct("Cafe benefit"),
   spaGuestBenefit: pct("Spa guest benefit"),
   classGuestBenefit: pct("Class guest benefit"),
   eventGuestBenefit: pct("Event guest benefit"),
@@ -88,6 +90,8 @@ const state = reactive<CreatePlanSchema>({
   classBenefit: 0,
   eventBenefit: 0,
   workshopBenefit: 0,
+  physioBenefit: 0,
+  cafeBenefit: 0,
   spaGuestBenefit: 0,
   classGuestBenefit: 0,
   eventGuestBenefit: 0,
@@ -136,6 +140,8 @@ async function handleCreatePlan() {
       classBenefit: state.classBenefit,
       eventBenefit: state.eventBenefit,
       workshopBenefit: state.workshopBenefit,
+      physioBenefit: state.physioBenefit,
+      cafeBenefit: state.cafeBenefit,
       spaGuestBenefit: state.spaGuestBenefit,
       classGuestBenefit: state.classGuestBenefit,
       eventGuestBenefit: state.eventGuestBenefit,
@@ -280,6 +286,26 @@ async function handleCreatePlan() {
                 v-model="state.workshopBenefit"
                 name="workshopBenefit"
                 label="Workshop"
+                placeholder="0"
+                type="number"
+                class="w-full"
+                :trailing-icon="ICONS.PERCENT"
+              />
+            </div>
+            <div class="flex gap-4 w-full">
+              <base-input
+                v-model="state.physioBenefit"
+                name="physioBenefit"
+                label="Physio"
+                placeholder="0"
+                type="number"
+                class="w-full"
+                :trailing-icon="ICONS.PERCENT"
+              />
+              <base-input
+                v-model="state.cafeBenefit"
+                name="cafeBenefit"
+                label="Cafe"
                 placeholder="0"
                 type="number"
                 class="w-full"
