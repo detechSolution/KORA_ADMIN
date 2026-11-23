@@ -2,11 +2,10 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 import type { ApiResponse } from "~/types/api";
-import type { Booking, BookingItemGroup, CreateExistingMemberBookingPayload, CreateNewClientBookingPayload, PromoValidationResponse } from "~/types/booking";
+import type { Booking, BookingDetails, BookingItemGroup, CreateExistingMemberBookingPayload, CreateManualBookingPayload, CreateNewClientBookingPayload, PromoValidationResponse } from "~/types/booking";
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
-import { hasServiceNamePrefixCollision } from "~/utils/service-names";
 
 export const useBookingStore = defineStore("booking", () => {
   const http = getHttp();
@@ -28,22 +27,7 @@ export const useBookingStore = defineStore("booking", () => {
       const qs = buildQueryString(params);
       const response = await http.get(`${API_ENDPOINTS.BOOKINGS.BASE}?${qs}`) as ApiResponse<Booking[]>;
 
-      const data = await Promise.all(response.data.map(async (booking) => {
-        if (!hasServiceNamePrefixCollision(booking.itemNames))
-          return booking;
-
-        try {
-          const details = await http.get(API_ENDPOINTS.BOOKINGS.GET(booking.id)) as { items?: Array<{ title?: string }> };
-          const itemNames = details.items?.map(item => item.title).filter((title): title is string => !!title);
-
-          return itemNames?.length ? { ...booking, itemNames } : booking;
-        }
-        catch {
-          return booking;
-        }
-      }));
-
-      bookings.value = { ...response, data };
+      bookings.value = response;
     }
     catch (error: unknown) {
       console.error("Error fetching bookings:", error);
@@ -135,41 +119,51 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
-  const createExistingMemberBooking = async (payload: CreateExistingMemberBookingPayload): Promise<any> => {
+  const createManualBooking = async (payload: CreateManualBookingPayload): Promise<any> => {
     try {
       const res = await http.post(API_ENDPOINTS.BOOKINGS.MANUAL, payload);
       return res;
     }
     catch (error: unknown) {
-      console.error(error, "Create Existing Member Booking Error");
+      console.error(error, "Create Manual Booking Error");
       throw error;
     }
   };
 
-  const createNewClientBooking = async (payload: CreateNewClientBookingPayload): Promise<any> => {
-    try {
-      const res = await http.post(API_ENDPOINTS.BOOKINGS.CREATE_NEW_CLIENT, payload);
-      return res;
-    }
-    catch (error: unknown) {
-      console.error(error, "Create New Client Booking Error");
-      throw error;
-    }
+  const createExistingMemberBooking = (payload: CreateExistingMemberBookingPayload): Promise<any> =>
+    createManualBooking({
+      client: { kind: "existing", memberId: payload.selectedMemberId },
+      item: payload.item,
+      bookingDate: payload.bookingDate,
+      bookingTime: payload.bookingTime,
+      roomType: payload.roomType,
+      promoCode: payload.promoCode,
+      paymentMethod: payload.paymentMethod,
+    });
+
+  const createNewClientBooking = (payload: CreateNewClientBookingPayload): Promise<any> =>
+    createManualBooking({
+      client: {
+        kind: "new",
+        fullName: payload.fullName,
+        email: payload.email,
+        ...(payload.phoneNumber ? { phoneNumber: payload.phoneNumber } : {}),
+      },
+      item: payload.itemType,
+      bookingDate: payload.bookingDate,
+      bookingTime: payload.bookingTime,
+      roomType: payload.roomType,
+      promoCode: payload.promoCode,
+      paymentMethod: payload.paymentMethod,
+    });
+
+  const cancelBookingLine = async (bookingId: number, lineId: number, body: { quantity: number; requestId: string }): Promise<void> => {
+    await http.patch(`${API_ENDPOINTS.BOOKINGS.BASE}/${bookingId}/lines/${lineId}/request-cancellation`, body);
   };
 
-  const requestBookingCancellation = async (bookingId: number, itemId: number): Promise<void> => {
+  const fetchBookingById = async (bookingId: number): Promise<BookingDetails> => {
     try {
-      await http.patch(API_ENDPOINTS.BOOKINGS.REQUEST_CANCELLATION(bookingId, itemId));
-    }
-    catch (error: unknown) {
-      console.error(error, "Request Booking Cancellation Error");
-      throw error;
-    }
-  };
-
-  const fetchBookingById = async (bookingId: number): Promise<any> => {
-    try {
-      const res = await http.get(API_ENDPOINTS.BOOKINGS.GET(bookingId));
+      const res = await http.get<BookingDetails>(API_ENDPOINTS.BOOKINGS.GET(bookingId));
       return res;
     }
     catch (error: unknown) {
@@ -201,9 +195,10 @@ export const useBookingStore = defineStore("booking", () => {
     clearBookingData,
     validatePromoCode,
     fetchSpaTimeAvailability,
-    createNewClientBooking,
+    createManualBooking,
     createExistingMemberBooking,
-    requestBookingCancellation,
+    createNewClientBooking,
+    cancelBookingLine,
     fetchBookingById,
     fetchBookingsSummary,
   };

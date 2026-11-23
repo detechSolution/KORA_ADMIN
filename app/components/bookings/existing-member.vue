@@ -10,6 +10,7 @@ import { useNotification } from "~/composables/use-notification";
 import { SESSION_TYPE } from "~/config/constants";
 import { useBookingStore } from "~/stores/booking";
 import { useMembershipStore } from "~/stores/membership";
+import { availableBookingTickets } from "~/utils/booking-lines";
 import { getApiErrorMessage } from "~/utils/error";
 
 const steps: StepItem[] = [
@@ -53,9 +54,8 @@ const stepOneSchema = z.object({
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sessionQuantity"], message: "Please select a quantity" });
     }
     else {
-      const capacity = Number(selectedItem?.capacity);
-      const occupied = Number(selectedItem?.occupied ?? 0);
-      if (Number.isFinite(capacity) && data.sessionQuantity > Math.max(0, capacity - (Number.isFinite(occupied) ? occupied : 0)))
+      const available = availableBookingTickets(selectedItem);
+      if (data.sessionQuantity > Math.min(20, available))
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sessionQuantity"], message: "Quantity exceeds available spots" });
     }
   }
@@ -168,11 +168,12 @@ async function handleCreateBooking(): Promise<void> {
       selectedMemberId: state.selectedMemberId!,
       promoCode: overviewRef.value?.appliedPromo?.code || undefined,
       paymentMethod: state.paymentMethod,
-      item: Array.from({ length: quantity }, () => ({
+      item: [{
+        quantity,
         id: state.resolvedItemId!,
         name: state.resolvedItemName!,
         type: state.resolvedItemType!,
-      })),
+      }],
       bookingDate: state.date,
       bookingTime: state.time || undefined,
       roomType: state.serviceType === "spa" ? state.roomType : undefined,

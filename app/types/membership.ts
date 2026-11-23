@@ -1,3 +1,32 @@
+export type MemberGuestOptionType =
+  | "membership_plan_user"
+  | "pass_user"
+  | "member"
+  | "guest"
+  | "user"
+  | "system_user";
+
+export type MemberBookingOption = {
+  id: number;
+  memberId: number | null;
+  userId: number;
+  type: MemberGuestOptionType | string;
+  role: string;
+  label: string;
+  fullName: string;
+  email: string | null;
+  phoneNumber: string | null;
+  membershipPlanId: number | null;
+  membershipPlanName: string | null;
+  passId: number | null;
+  passName: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  membershipBenefits?: Record<string, number>;
+  guestBenefits?: Record<string, number>;
+  passBenefits?: Record<string, number>;
+};
+
 export type MembershipPlanOption = {
   id: number;
   createdAt?: string;

@@ -6,6 +6,22 @@ import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
 import { appendSessionMedia } from "~/utils/session-media";
 
+type AttendanceStatus = "attended" | "no_show" | "pending";
+
+type SessionAttendanceRecord = {
+  id: number;
+  name: string;
+  phone?: string | null;
+  expectedQuantity?: number;
+  bookingLineId?: number | null;
+  attendanceStatus: AttendanceStatus;
+};
+
+type SessionAttendanceResponse = {
+  data: SessionAttendanceRecord[];
+  summary?: { attendedCount: number; bookedCount: number };
+};
+
 export const useSessionsStore = defineStore("sessions", () => {
   const http = getHttp();
 
@@ -19,7 +35,7 @@ export const useSessionsStore = defineStore("sessions", () => {
       total: 0,
     },
   });
-  const sessionAttendance = ref<any>({
+  const sessionAttendance = ref<SessionAttendanceResponse>({
     data: [],
   });
   const memberOrPassUser = ref<any>({
@@ -65,10 +81,8 @@ export const useSessionsStore = defineStore("sessions", () => {
       if (payload.instructorId !== undefined && payload.instructorId !== null) {
         formData.append("instructorId", String(payload.instructorId));
       }
-      formData.append(
-        "venue",
-        payload.locationType === "external" ? payload.venue : "Kora",
-      );
+      formData.append("venue", payload.venue);
+      formData.append("venueType", payload.locationType);
       formData.append("dates", payload.date.join(","));
       formData.append("startTime", payload.startTime);
       formData.append("endTime", payload.endTime);
@@ -93,10 +107,8 @@ export const useSessionsStore = defineStore("sessions", () => {
       formData.append("type", payload.sessionType);
       formData.append("description", payload.sessionDescription);
       formData.append("instructorId", String(payload.instructorId));
-      formData.append(
-        "venue",
-        payload.locationType === "external" ? payload.venue : "Kora",
-      );
+      formData.append("venue", payload.venue);
+      formData.append("venueType", payload.locationType);
       formData.append("sessionDate", payload.date);
       formData.append("startTime", payload.startTime);
       formData.append("endTime", payload.endTime);
@@ -119,7 +131,7 @@ export const useSessionsStore = defineStore("sessions", () => {
   const getAttendance = async (sessionId: number): Promise<any> => {
     try {
       const endpoint = API_ENDPOINTS.SESSION.GET_ATTENDANCE_LIST(sessionId);
-      const response = await http.get(endpoint) as ApiResponse<any[]>;
+      const response = await http.get(endpoint) as SessionAttendanceResponse;
       sessionAttendance.value = response;
     }
     catch (error: unknown) {
@@ -128,7 +140,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     }
   };
 
-  const saveAttendance = async (sessionId: number, items: { id: number; attendanceStatus: string }[]): Promise<void> => {
+  const saveAttendance = async (sessionId: number, items: { id: number; attendanceStatus: AttendanceStatus }[]): Promise<void> => {
     try {
       await http.post(`${API_ENDPOINTS.SESSION.SAVE_ATTENDANCE(sessionId)}`, { items });
     }

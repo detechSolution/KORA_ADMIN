@@ -11,6 +11,13 @@ export type Payment = {
   paidAt: string;
   method: string;
   status: string;
+  member?: { user?: { fullName?: string; email?: string; avatar?: string } };
+  tiggInvoiceCode?: string | null;
+  creditNoteCodes?: string | null;
+  cancelledQuantity?: number;
+  refundStatus?: string | null;
+  pendingRefund?: number;
+  refundDeduction?: number;
 };
 
 export type PaymentSummary = {

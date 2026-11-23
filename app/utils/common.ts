@@ -118,7 +118,7 @@ export function formatTime(time: string) {
   if (!time)
     return "";
 
-  const [hours, minutes] = time.split(":").map(Number);
+  const [hours = 0, minutes = 0] = time.split(":").map(Number);
 
   if (
     Number.isNaN(hours)
@@ -137,14 +137,17 @@ export function formatTime(time: string) {
   return `${hour12}:${minutes.toString().padStart(2, "0")} ${period}`;
 }
 
-export function formatLocalTime(date: string) {
+export function formatLocalTime(date: string | number | null | undefined) {
+  if (date == null)
+    return "";
   const d = new Date(date);
 
   if (!date || Number.isNaN(d.getTime()))
     return "";
 
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "2-digit",
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kathmandu",
+    hour: "numeric",
     minute: "2-digit",
     hour12: true,
   }).format(d);
@@ -198,6 +201,7 @@ export function formatDate(date: string | number | null | undefined): string {
   if (!d)
     return "";
   const formatter = new Intl.DateTimeFormat(undefined, {
+    ...((typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) ? {} : { timeZone: "Asia/Kathmandu" }),
     year: "numeric",
     month: "long",
     day: "numeric",

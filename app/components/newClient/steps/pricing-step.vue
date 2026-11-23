@@ -48,7 +48,7 @@ function getServicePrice(serviceId: number | undefined): number {
 
   const group = findServiceGroup(serviceId);
   const isSpa = group?.type?.toLowerCase() === "spa";
-  const quantity = isSpa && form.value.roomType === "shared" ? 2 : 1;
+  const quantity = isSpa && form.value.roomType === "shared" ? 2 : group?.type === "session" ? Number(form.value.sessionQuantity ?? 1) : 1;
 
   if (isSpa) {
     const rawDurations = item?.duration;

@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from "vue";
 
 import type { Booking } from "~/types/booking";
 
-import ItemNameList from "~/components/base/item-name-list.vue";
 import { getHttp } from "~/composables/use-api";
 import { useNotification } from "~/composables/use-notification";
 import { usePagination } from "~/composables/use-pagination";
@@ -11,7 +10,8 @@ import { ICONS } from "~/config/icons";
 import { PERMISSIONS_BOOKINGS } from "~/config/permissions";
 import { useAnalyticsStore } from "~/stores/analytics";
 import { useBookingStore } from "~/stores/booking";
-import { buildQueryString, formatDate } from "~/utils/common";
+import { bookingCreatedDateLabel, bookingTypeLabels } from "~/utils/booking-lines";
+import { buildQueryString } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 import { downloadCsv } from "~/utils/report-csv";
 
@@ -30,6 +30,7 @@ const bookingTypeOptions = [
 const bookingStatusOptions = [
   { label: "Pending Payment", value: "pending_payment" },
   { label: "Confirmed", value: "confirmed" },
+  { label: "Partly Cancelled", value: "partly_cancelled" },
   { label: "Cancelled", value: "cancelled" },
   { label: "Expired", value: "expired" },
 ];
@@ -72,12 +73,15 @@ const filters = ref({
 const columns = computed(() => [
   { accessorKey: "bookingCode", header: "Booking ID" },
   { accessorKey: "client", header: "Client" },
-  { accessorKey: "itemName", header: "Session/Service" },
-  // { accessorKey: "itemType", header: "Type" },
   {
-    accessorKey: "bookedFor",
-    header: "Scheduled Date",
-    accessorFn: (row: Booking) => formatDate(row.bookedFor) || "N/A",
+    accessorKey: "itemType",
+    header: "Booking Type",
+    accessorFn: (row: Booking) => bookingTypeLabels(row).join(", ") || "N/A",
+  },
+  {
+    accessorKey: "bookedDate",
+    header: "Booked Date",
+    accessorFn: (row: Booking) => bookingCreatedDateLabel(row),
   },
   {
     accessorKey: "amount",
@@ -216,15 +220,27 @@ onMounted(async () => {
       </template>
     </base-page-header>
 
-    <dl class="grid grid-cols-2 lg:grid-cols-4 gap-4" aria-label="Booking totals" :aria-busy="loadingSummary">
-      <div v-for="item in [
-        { label: 'All bookings', value: summary?.allBookings ?? 0 },
-        { label: 'Sessions', value: summary?.sessions ?? 0 },
-        { label: 'Spa', value: summary?.spa ?? 0 },
-        { label: 'Passes', value: summary?.passes ?? 0 },
-      ]" :key="item.label" class="rounded-xl border border-border bg-white p-5">
-        <dt class="text-sm text-secondary-500">{{ item.label }}</dt>
-        <dd class="mt-2 text-2xl font-semibold text-secondary tabular-nums">{{ loadingSummary ? '—' : item.value }}</dd>
+    <dl
+      class="grid grid-cols-2 lg:grid-cols-4 gap-4"
+      aria-label="Booking totals"
+      :aria-busy="loadingSummary"
+    >
+      <div
+        v-for="item in [
+          { label: 'All bookings', value: summary?.allBookings ?? 0 },
+          { label: 'Sessions', value: summary?.sessions ?? 0 },
+          { label: 'Spa', value: summary?.spa ?? 0 },
+          { label: 'Passes', value: summary?.passes ?? 0 },
+        ]"
+        :key="item.label"
+        class="rounded-xl border border-border bg-white p-5"
+      >
+        <dt class="text-sm text-secondary-500">
+          {{ item.label }}
+        </dt>
+        <dd class="mt-2 text-2xl font-semibold text-secondary tabular-nums">
+          {{ loadingSummary ? '—' : item.value }}
+        </dd>
       </div>
     </dl>
 
@@ -248,7 +264,7 @@ onMounted(async () => {
           <base-date-picker
             v-model="filters.dateRange"
             name="dateRange"
-            label="Date range"
+            label="Booked date range"
             placeholder="Select date range"
             range
             :no-of-months="2"
@@ -350,17 +366,21 @@ onMounted(async () => {
           </div>
         </template>
 
-        <template #itemName-cell="{ row }">
-          <ItemNameList
-            :value="row.original.itemNames"
-            class="text-sm text-secondary"
-          />
+        <template #itemType-cell="{ row }">
+          <div class="flex flex-wrap gap-1.5">
+            <base-badge
+              v-for="type in bookingTypeLabels(row.original)"
+              :key="type"
+              :status="type.toLowerCase() === 'pass' ? 'passes' : type.toLowerCase()"
+            >
+              {{ type }}
+            </base-badge>
+            <span v-if="!row.original.lines?.length" class="text-sm text-secondary-400">N/A</span>
+          </div>
         </template>
 
-        <template #itemType-cell="{ row }">
-          <base-badge :status="row.original.itemType">
-            {{ row.original.itemType || "N/A" }}
-          </base-badge>
+        <template #bookedDate-cell="{ row }">
+          <span class="text-sm">{{ bookingCreatedDateLabel(row.original) }}</span>
         </template>
 
         <template #status-cell="{ row }">

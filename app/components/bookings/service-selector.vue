@@ -7,6 +7,7 @@ import type { ServiceState } from "~/types/booking";
 import { SESSION_TYPE } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
+import { availableBookingTickets } from "~/utils/booking-lines";
 
 const props = withDefaults(defineProps<{
   namePrefix?: string;
@@ -66,8 +67,8 @@ const serviceOptions = computed<SelectOption[]>(() => {
       badge: group.type === "session" && item.sessionType
         ? { label: String(item.sessionType).toLowerCase() }
         : undefined,
-      meta: group.type === "session" ? `${item.occupied}/${item.capacity}` : undefined,
-      metaColor: Number(item.occupied) >= Number(item.capacity) ? "error" : "success",
+      meta: group.type === "session" ? `${availableBookingTickets(item)} available` : undefined,
+      metaColor: availableBookingTickets(item) === 0 ? "error" : "success",
     })),
     ...(i < arr.length - 1 ? [{ type: "separator" } as SelectOption] : []),
   ]);
@@ -81,13 +82,7 @@ const showSessionQuantity = computed(() => {
   return form.value.serviceType === "session"
     && (sessionType === SESSION_TYPE.EVENT || sessionType === SESSION_TYPE.WORKSHOP);
 });
-const availableQuantity = computed(() => {
-  const capacity = Number(selectedItem.value?.capacity);
-  if (!Number.isFinite(capacity))
-    return undefined;
-  const occupied = Number(selectedItem.value?.occupied ?? 0);
-  return Math.max(0, Math.floor(capacity - (Number.isFinite(occupied) ? occupied : 0)));
-});
+const availableQuantity = computed(() => Math.min(20, availableBookingTickets(selectedItem.value)));
 
 const durationOptions = computed(() => {
   const item = findItem(form.value.serviceId);

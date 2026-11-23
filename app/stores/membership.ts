@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 import type { ApiResponse } from "~/types/api";
-import type { CreateMembershipPlanPayload, MembershipPlan, UpdateMembershipPlanPayload } from "~/types/membership";
+import type { CreateMembershipPlanPayload, MemberBookingOption, MembershipPlan, UpdateMembershipPlanPayload } from "~/types/membership";
 
 import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
@@ -31,7 +31,7 @@ export const useMembershipStore = defineStore("membership", () => {
     activeMembers: 0,
     activeGuests: 0,
   });
-  const membershipOptions = ref([]);
+  const membershipOptions = ref<MemberBookingOption[]>([]);
   const memberBookings = ref([]);
   const memberPayments = ref([]);
   const loading = ref(false);
@@ -140,15 +140,16 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
-  const getMembersOptions = async (params?: { q?: string }) => {
+  const getMembersOptions = async (params?: { q?: string }): Promise<MemberBookingOption[]> => {
     try {
       const qs = buildQueryString(params ?? {});
       const endpoint = qs
         ? `${API_ENDPOINTS.MEMBERS.OPTIONS}?${qs}`
         : API_ENDPOINTS.MEMBERS.OPTIONS;
 
-      const res = await http.get(endpoint) as any;
+      const res = await http.get(endpoint) as { data?: MemberBookingOption[] };
       membershipOptions.value = res.data ?? [];
+      return membershipOptions.value;
     }
     catch (error: unknown) {
       console.error(error, "Get Members Options Error");

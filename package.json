@@ -13,7 +13,9 @@
     "prepare": "husky",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "knip": "knip"
+    "knip": "knip",
+    "typecheck": "vue-tsc --noEmit --project .nuxt/tsconfig.app.json",
+    "test:booking-lines": "node --experimental-strip-types --test tests/booking-lines.test.ts tests/booking-cancellation.test.mjs tests/booking-pricing.test.mjs"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.9.0",
@@ -35,7 +37,8 @@
     "eslint-plugin-format": "^1.0.2",
     "husky": "^9.1.7",
     "knip": "^6.16.1",
-    "lint-staged": "^16.2.6"
+    "lint-staged": "^16.2.6",
+    "vue-tsc": "^3.3.14"
   },
   "lint-staged": {
     "*": "npm run lint"

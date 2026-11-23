@@ -6,6 +6,7 @@ import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
+import { bookingScheduleLabels, bookingServiceLabels } from "~/utils/booking-lines";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 import { downloadCsv } from "~/utils/report-csv";
@@ -320,8 +321,8 @@ watch(
                   {{ booking.bookingCode }}
                 </base-badge>
                 <p class="font-medium text-sm text-secondary">
-                  <ItemNameList :value="booking.itemName" />
-                  <span class="text-xs text-secondary-500">{{ booking.status === "expired" ? "Expired – not paid" : booking.status }} · {{ formatDate(booking.bookedFor || booking.bookedDate) }}</span>
+                  <ItemNameList :value="bookingServiceLabels(booking)" />
+                  <span class="text-xs text-secondary-500">{{ booking.status === "expired" ? "Expired – not paid" : booking.status }} · {{ bookingScheduleLabels(booking).join(", ") || formatDate(booking.bookedDate) }}</span>
                 </p>
               </div>
             </div>

@@ -43,6 +43,8 @@ const STATUS_MAP: Record<string, { color: BadgeColor; label: string; icon?: stri
   "processing": { color: "blue", label: "Processing" },
   "completed": { color: "success", label: "Completed" },
   "cancelled": { color: "red", label: "Cancelled" },
+  "no refund free": { color: "muted", label: "No refund (free)" },
+  "partly cancelled": { color: "amber", label: "Partly Cancelled" },
   "canceled": { color: "red", label: "Canceled" },
   "cancellation processing": { color: "amber", label: "Cancellation Processing" },
   "active": { color: "emerald", label: "Active" },
@@ -88,6 +90,8 @@ function getSlotText(): string | null {
     return null;
 
   const firstChild = slotContent[0];
+  if (!firstChild)
+    return null;
   if (typeof firstChild.children === "string") {
     return firstChild.children.trim();
   }

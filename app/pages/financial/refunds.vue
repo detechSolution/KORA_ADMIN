@@ -29,6 +29,8 @@ const columns = [
   { header: "Client", accessorKey: "client" },
   { header: "Reference ID", accessorKey: "referenceCode" },
   { header: "Session/Service", accessorKey: "bookingName" },
+  { header: "Quantity", accessorKey: "quantity" },
+  { header: "Credit note", accessorKey: "tiggCreditNoteCode" },
   { header: "Requested Date", accessorKey: "requestedDate", accessorFn: (row: any) => formatDate(row.requestedDate) || "N/A" },
   { header: "Refunded Date", accessorKey: "refundedDate", accessorFn: (row: any) => formatDate(row.refundedDate) || "N/A" },
   { header: "Amount", accessorKey: "amount" },
@@ -73,7 +75,6 @@ async function fetchCancellations() {
       status: state.value.status,
       refundFrom: state.value.dateRange.start,
       refundTo: state.value.dateRange.end,
-      paymentStatus: "paid",
     };
 
     await Promise.all([
@@ -160,14 +161,26 @@ watch(
       </template>
     </base-page-header>
 
-    <dl class="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Refund totals" :aria-busy="loading">
-      <div v-for="item in [
-        { label: 'Pending refunds', value: financeStore.cancellationSummary?.requested ?? 0 },
-        { label: 'Approved refunds', value: financeStore.cancellationSummary?.approved ?? 0 },
-        { label: 'Rejected refunds', value: financeStore.cancellationSummary?.rejected ?? 0 },
-      ]" :key="item.label" class="rounded-xl border border-border bg-white p-5">
-        <dt class="text-sm text-secondary-500">{{ item.label }}</dt>
-        <dd class="mt-2 text-2xl font-semibold text-secondary tabular-nums">{{ item.value }}</dd>
+    <dl
+      class="grid grid-cols-1 sm:grid-cols-3 gap-4"
+      aria-label="Refund totals"
+      :aria-busy="loading"
+    >
+      <div
+        v-for="item in [
+          { label: 'Pending refunds', value: financeStore.cancellationSummary?.requested ?? 0 },
+          { label: 'Approved refunds', value: financeStore.cancellationSummary?.approved ?? 0 },
+          { label: 'Rejected refunds', value: financeStore.cancellationSummary?.rejected ?? 0 },
+        ]"
+        :key="item.label"
+        class="rounded-xl border border-border bg-white p-5"
+      >
+        <dt class="text-sm text-secondary-500">
+          {{ item.label }}
+        </dt>
+        <dd class="mt-2 text-2xl font-semibold text-secondary tabular-nums">
+          {{ item.value }}
+        </dd>
       </div>
     </dl>
 
