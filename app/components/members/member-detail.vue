@@ -301,13 +301,13 @@ watch(
         v-if="selectedTab === 'bookings'"
         class="flex flex-col gap-4"
       >
-        <base-button
+        <!-- <base-button
           variant="outline"
           :loading="historyExporting"
           @click="exportHistory"
         >
           Export booking history CSV
-        </base-button>
+        </base-button> -->
         <div v-if="memberBookings.data?.length" class="space-y-2">
           <div
             v-for="booking in memberBookings.data"

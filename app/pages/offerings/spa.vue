@@ -63,6 +63,7 @@ onMounted(async () => {
 });
 
 const spadata = computed(() => {
+  console.log("spaStore.spaData", spaStore.spaData);
   return spaStore.spaData;
 });
 
@@ -351,13 +352,14 @@ function clearFilters(): void {
         <div
           class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
         >
+
           <service-card
             v-for="service in spaType.services"
             :id="service.id"
             :key="service.id"
             :name="service.name"
             :description="service.description ?? ''"
-            :prices="service.prices"
+            :prices="service.prices.sort((a, b) => a.duration - b.duration)"
             @edit="openEditDrawer"
             @delete="openDeleteModal(service)"
           />
