@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Form } from "@nuxt/ui";
+
 import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import z from "zod";
 
@@ -42,7 +44,7 @@ const emit = defineEmits<{
 const financeStore = useFinanceStore();
 const { error: showError, success: showSuccess } = useNotification();
 
-const formRef = ref<InstanceType<typeof UForm> | null>(null);
+const formRef = ref<Form<unknown> | null>(null);
 
 const state = reactive<FormState>({
   status: "",
@@ -55,12 +57,13 @@ const cancellationStatusOptions = [
   { label: "Rejected", value: "rejected" },
   { label: "Requested", value: "requested" },
   { label: "Approved", value: "approved" },
+  { label: "Refunded", value: "processed" },
 ];
 const loading = ref(false);
 const detailsLoading = ref(true);
 const cancellationDetails = computed(() => financeStore.cancellationDetails);
-const canUpdateRefund = computed(() => cancellationDetails.value?.refund?.status === "requested");
-const isTerminalRefund = computed(() => ["approved", "rejected"].includes(cancellationDetails.value?.refund?.status));
+const canUpdateRefund = computed(() => ["requested", "approved"].includes(cancellationDetails.value?.refund?.status));
+const isTerminalRefund = computed(() => ["processed", "rejected", "no_refund_free"].includes(cancellationDetails.value?.refund?.status));
 const showAdminActions = computed(() => canUpdateRefund.value || isTerminalRefund.value);
 const originalStatus = ref("");
 const contentScrollRef = ref<HTMLElement | null>(null);
@@ -104,8 +107,8 @@ const schema = z.object({
     });
   }
 });
-const showRefundAmount = computed(() => state.status === "approved");
-const showReceiptUpload = computed(() => state.status === "approved");
+const showRefundAmount = computed(() => ["approved", "processed"].includes(state.status));
+const showReceiptUpload = computed(() => ["approved", "processed"].includes(state.status));
 const showRefundNotes = computed(() => ["approved", "rejected"].includes(state.status));
 const receiptUrl = computed(() => {
   const url = cancellationDetails.value?.refund?.receiptUrl;
@@ -129,6 +132,9 @@ const customerInformation = computed<InformationItem[]>(() => {
     { label: "Client", value: customer?.name || "N/A" },
     { label: "Booking ID", value: item?.referenceCode || "N/A" },
     { label: "Service", value: item?.itemName || "N/A" },
+    { label: "Tickets cancelled", value: String(details?.quantity ?? "N/A") },
+    { label: "Requested amount", value: `NPR ${details?.requestedAmount ?? "N/A"}` },
+    { label: "Credit note", value: details?.refund?.tiggCreditNoteCode || "N/A" },
     { label: "Scheduled Date", value: formatDate(item?.scheduleDate) || "N/A" },
   ];
 });
@@ -180,7 +186,7 @@ async function handleUpdate(): Promise<void> {
   try {
     const formData = new FormData();
     formData.append("refundStatus", state.status);
-    const refundAmount = String(state.refundAmount ?? "").trim();
+    const refundAmount = state.status === "rejected" ? "0" : String(state.refundAmount ?? "").trim();
     if (refundAmount) {
       formData.append("refundAmount", String(Number(refundAmount)));
     }
@@ -218,7 +224,7 @@ watch(cancellationDetails, (details) => {
   if (details?.refund?.status) {
     state.status = details.refund.status;
     originalStatus.value = details.refund.status;
-    state.refundAmount = details.refund.amount != null ? String(details.refund.amount) : "";
+    state.refundAmount = String(details.refund.amount ?? details.requestedAmount ?? "");
     state.refundNotes = details.request?.refundNotes || "";
   }
 });

@@ -1,9 +1,11 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, unknown>">
+import type { TableColumn, TableRow } from "@nuxt/ui";
+
 import { computed } from "vue";
 
 type Props = {
-  columns: Array<Record<string, unknown>>;
-  data?: Array<Record<string, unknown>>;
+  columns: TableColumn<T>[];
+  data?: T[];
   loading?: boolean;
   skeletonRows?: number;
   emptyTitle?: string;
@@ -17,6 +19,14 @@ const props = withDefaults(defineProps<Props>(), {
   emptyTitle: "No data found",
   emptyDescription: "There's currently nothing available to display.",
 });
+
+const slots = defineSlots<{
+  [name: `${string}-cell`]: (props: { row: TableRow<T> }) => unknown;
+  "empty"?: () => unknown;
+  "empty-state"?: () => unknown;
+}>();
+
+const cellSlots = computed(() => Object.keys(slots).filter((name): name is `${string}-cell` => name.endsWith("-cell")));
 
 const skeletonColumnCount = computed(() => {
   const columnCount = props.columns?.length ?? 0;
@@ -70,8 +80,8 @@ const showSkeleton = computed(() => props.loading);
         th: 'bg-stone-50',
       }"
     >
-      <template v-for="(_, name) in $slots" #[name]="slotData">
-        <slot :name="name" v-bind="slotData || {}" />
+      <template v-for="name in cellSlots" #[name]="slotData">
+        <slot :name="name" :row="slotData.row" />
       </template>
       <template v-if="!$slots.empty" #empty>
         <slot name="empty-state">

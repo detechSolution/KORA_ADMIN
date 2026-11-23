@@ -34,6 +34,13 @@ const sessionLocationOptions = [
   { label: "At KORA", value: "at_kora" },
   { label: "External venue", value: "external" },
 ] as const;
+const koraVenueOptions = [
+  { label: "Movement space", value: "Movement space" },
+  { label: "Flow space", value: "Flow space" },
+  { label: "Strength space", value: "Strength space" },
+  { label: "Recovery space", value: "Recovery space" },
+  { label: "Courtyard", value: "Courtyard" },
+];
 
 const instructorOptions = computed(() =>
   instructorsStore.instructors.data
@@ -114,6 +121,13 @@ const step2Schema = z.object({
       code: z.ZodIssueCode.custom,
       path: ["venue"],
       message: "Please enter the external venue (at least 2 characters)",
+    });
+  }
+  if (data.locationType === "at_kora" && !koraVenueOptions.some(option => option.value === data.venue)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["venue"],
+      message: "Select a KORA training area",
     });
   }
 
@@ -241,6 +255,13 @@ function handleBack(): void {
   currentStep.value = Math.max(currentStep.value - 1, 0);
 }
 
+function setLocationType(value: "at_kora" | "external"): void {
+  if (form.locationType === value)
+    return;
+  form.locationType = value;
+  form.venue = "";
+}
+
 function clearFormData(): void {
   currentStep.value = 0;
   form.sessionName = "";
@@ -312,10 +333,13 @@ onMounted(async () => {
     form.sessionType = s.type;
     form.sessionDescription = s.description;
     form.instructorId = s.instructorId;
-    form.venue = s.venue;
-    form.locationType = s.venue?.trim().toLowerCase() === "kora"
+    form.locationType = s.venueType === "at_kora"
+      || (!s.venueType && s.venue?.trim().toLowerCase() === "kora")
       ? "at_kora"
       : "external";
+    form.venue = form.locationType === "at_kora"
+      ? (koraVenueOptions.some(option => option.value === s.venue) ? s.venue : "")
+      : (s.venue ?? "");
     form.capacity = s.capacity;
     // Date in list is usually a single string sessionDate, but create expects an array
     // form.date = s.sessionDate ? [s.sessionDate] : [];
@@ -464,21 +488,30 @@ onMounted(async () => {
                       clearable
                     />
                     <UFormField name="locationType" label="Venue Type">
-                      <div class="flex flex-wrap gap-2">
+                      <div class="inline-flex rounded-md border border-border bg-muted/40 p-0.5">
                         <button
                           v-for="option in sessionLocationOptions"
                           :key="option.value"
                           type="button"
-                          class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
+                          class="rounded px-2.5 py-1.5 text-xs font-medium transition-colors"
                           :class="form.locationType === option.value
-                            ? 'bg-primary-700 text-white shadow-sm'
-                            : 'border-primary-100 bg-white text-foreground hover:border-primary-400'"
-                          @click="form.locationType = option.value"
+                            ? 'bg-white text-primary-800 shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'"
+                          :aria-pressed="form.locationType === option.value"
+                          @click="setLocationType(option.value)"
                         >
                           {{ option.label }}
                         </button>
                       </div>
                     </UFormField>
+                    <base-select
+                      v-if="form.locationType === 'at_kora'"
+                      v-model="form.venue"
+                      name="venue"
+                      label="Training area*"
+                      placeholder="Select training area"
+                      :options="koraVenueOptions"
+                    />
                     <base-input
                       v-if="form.locationType === 'external'"
                       v-model="form.venue"

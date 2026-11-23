@@ -3,6 +3,7 @@ import { Time } from "@internationalized/date";
 import { computed, ref, watch } from "vue";
 
 import { useBookingStore } from "~/stores/booking";
+import { availableBookingTickets } from "~/utils/booking-lines";
 
 import { ICONS } from "../../../config/icons";
 
@@ -78,15 +79,20 @@ const serviceOptions = computed<SelectOption[]>(() =>
       label: item.name,
       value: item.id,
       description: item.sessionDate,
-      meta: group.type === "session" ? `${item.occupied}/${item.capacity}` : undefined,
+      meta: group.type === "session" ? `${availableBookingTickets(item)} available` : undefined,
       badge: { label: item.sessionType },
-      metaColor: item.occupied === item.capacity ? "error" : "success",
+      metaColor: availableBookingTickets(item) === 0 ? "error" : "success",
     })),
     ...(i < arr.length - 1 ? [{ type: "separator" } as SelectOption] : []),
   ]),
 );
 
 const selectedGroup = computed(() => findServiceGroup(form.value.serviceId));
+const allowsQuantity = computed(() => ["event", "workshop"].includes(String(findServiceItem(form.value.serviceId)?.sessionType)));
+const maxQuantity = computed(() => {
+  const item = findServiceItem(form.value.serviceId);
+  return Math.min(20, availableBookingTickets(item));
+});
 
 // Show duration only when the selected service belongs to a "spa" group
 const showDuration = computed(() =>
@@ -179,6 +185,7 @@ watch(() => form.value.serviceType, async (newType, oldType) => {
 watch([() => form.value.serviceId, selectedGroup], ([id], previous) => {
   if (previous?.length && id !== previous[0]) {
     form.value.durationId = null;
+    form.value.sessionQuantity = 1;
     form.value.time = "";
   }
   const group = selectedGroup.value;
@@ -331,6 +338,23 @@ defineExpose({
         :loading="bookingStore.loading"
         class="w-full"
       />
+
+      <UFormField
+        v-if="allowsQuantity"
+        label="Tickets"
+        name="sessionQuantity"
+      >
+        <UInput
+          v-model.number="form.sessionQuantity"
+          type="number"
+          :min="1"
+          :max="maxQuantity"
+          :step="1"
+        />
+        <p class="mt-1 text-xs text-secondary-500">
+          {{ maxQuantity }} tickets available
+        </p>
+      </UFormField>
 
       <!-- Spa: Duration + Date side by side -->
       <div

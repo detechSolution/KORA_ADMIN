@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
-import type { Booking } from "~/types/booking";
+import type { Booking, BookingDetails } from "~/types/booking";
 
 import { useNotification } from "~/composables/use-notification";
 import { ICONS } from "~/config/icons";
 import { useBookingStore } from "~/stores/booking";
 import { useFinanceStore } from "~/stores/finance";
+import { bookingDetailItems } from "~/utils/booking-lines";
 import { getApiErrorMessage } from "~/utils/error";
 
 import CancelModal from "./cancel-modal.vue";
@@ -28,29 +29,37 @@ const emit = defineEmits<{
 }>();
 
 const { error: showError, success } = useNotification();
-const bookingDetails = ref<any>(null);
+const bookingDetails = ref<BookingDetails | null>(null);
 const loading = ref(props.loading);
 const bookingStore = useBookingStore();
 const financeStore = useFinanceStore();
 const isCancelModalOpen = ref(false);
 const selectedBookingItemId = ref<number | null>(null);
 const isCancelling = ref(false);
+const cancellationRequestId = ref("");
+const displayItems = computed(() => bookingDetailItems(bookingDetails.value));
+const selectedItem = computed(() => displayItems.value.find(item => item.id === selectedBookingItemId.value));
 
 function openCancelModal(id: number) {
   selectedBookingItemId.value = id;
+  cancellationRequestId.value = crypto.randomUUID();
   isCancelModalOpen.value = true;
 }
 
-async function handleCancelBooking() {
+async function handleCancelBooking(quantity: number) {
   const bookingId = props.booking?.id;
   const itemId = selectedBookingItemId.value;
   if (bookingId == null || itemId == null || isCancelling.value)
     return;
+  if (!selectedItem.value) {
+    showError({ message: "This booking needs line reconciliation before it can be cancelled." });
+    return;
+  }
 
   try {
     isCancelling.value = true;
-    await bookingStore.requestBookingCancellation(bookingId, itemId);
-    success({ message: "Booking cancelled successfully" });
+    await bookingStore.cancelBookingLine(bookingId, itemId, { quantity, requestId: cancellationRequestId.value });
+    success({ message: `${quantity} ${quantity === 1 ? "ticket" : "tickets"} cancelled successfully` });
     isCancelModalOpen.value = false;
     selectedBookingItemId.value = null;
     await fetchBookingDetails();
@@ -67,9 +76,11 @@ async function handleCancelBooking() {
   }
 }
 
-async function handleInvoiceClick(id: string): void {
+async function handleInvoiceClick(id: number | null | undefined): Promise<void> {
+  if (id == null)
+    return;
   try {
-    const response = await financeStore.printInvoice(id);
+    const response = await financeStore.printInvoice(String(id));
     window.open(response?.printUrl, "_blank");
   }
   catch (error) {
@@ -127,7 +138,7 @@ watch(
             booking?.bookingCode
           }}</span>
         </div>
-        <div v-if="booking?.tiggInvoiceId !== null" class="flex min-w-0 flex-col gap-1 sm:col-start-2 sm:row-start-1">
+        <div v-if="bookingDetails?.tiggInvoiceId" class="flex min-w-0 flex-col gap-1 sm:col-start-2 sm:row-start-1">
           <span class="text-xs text-secondary-400 mb-1">Invoice Number</span>
           <div class="font-medium text-secondary-900 flex flex-col gap-1">
             <span
@@ -172,7 +183,7 @@ watch(
           BOOKINGS
         </h3>
 
-        <div v-for="item in bookingDetails?.items.sort((a, b) => b.id - a.id) ?? []" :key="item.id">
+        <div v-for="item in displayItems" :key="item.id">
           <div
             class="border border-border rounded-xl gap-2 md:gap-0 grid md:grid-cols-[2fr_2fr_1fr_auto] grid-cols-1 p-3"
           >
@@ -183,13 +194,20 @@ watch(
               <h2 class="text-sm font-semibold">
                 {{ item?.title }}
               </h2>
+              <div class="mt-1 flex flex-wrap items-center gap-x-1.5 text-xs text-secondary-500">
+                <span>{{ item.quantity }} booked</span>
+                <span aria-hidden="true">·</span>
+                <span>{{ item.quantityCancelled ?? 0 }} cancelled</span>
+                <span aria-hidden="true">·</span>
+                <span>{{ item.remainingQuantity }} remaining</span>
+              </div>
             </div>
             <div
               class="flex text-xs flex-col border-b md:border-r border-border md:border-b-0 p-2 col-span-1"
             >
               <span class="text-xs text-secondary-400 mb-1">
                 {{
-                  `Date ${item?.itemType !== "passes" ? " & Time" : ""}`
+                  `Date ${!['pass', 'passes'].includes(item.itemType) ? " & Time" : ""}`
                 }}</span>
               <div class="text-xs font-semibold">
                 <div class="flex items-center gap-2">
@@ -197,7 +215,7 @@ watch(
                   <h2>{{ formatDate(item?.scheduledAt) || "N/A" }}</h2>
                 </div>
                 <div
-                  v-if="item?.itemType !== 'passes'"
+                  v-if="!['pass', 'passes'].includes(item.itemType)"
                   class="flex items-center gap-2"
                 >
                   <UIcon :name="ICONS.CLOCK" />
@@ -222,12 +240,9 @@ watch(
                 :items="[
                   [
                     {
-                      label: 'Cancel Booking',
+                      label: 'Cancel Tickets',
                       class: 'cursor-pointer text-red-500',
-                      disabled: [
-                        'cancelled',
-                        'cancellation_processing',
-                      ].includes(item?.status ?? ''),
+                      disabled: item.remainingQuantity < 1 || ['expired', 'pending_payment'].includes(item.status),
                       onSelect: () => openCancelModal(item.id),
                     },
                   ],
@@ -251,6 +266,8 @@ watch(
     <CancelModal
       :open="isCancelModalOpen"
       :loading="isCancelling"
+      :max-quantity="selectedItem?.remainingQuantity ?? 1"
+      :service-title="selectedItem?.title"
       @close="
         isCancelModalOpen = false;
         selectedBookingItemId = null;

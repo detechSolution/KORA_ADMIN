@@ -7,6 +7,7 @@ import type { CreateNewClientBookingPayload } from "~/types/booking";
 import { findServiceGroup, findServiceItem } from "~/composables/services/use-booking";
 import { useNotification } from "~/composables/use-notification";
 import { useBookingStore } from "~/stores/booking";
+import { availableBookingTickets } from "~/utils/booking-lines";
 import { getApiErrorMessage } from "~/utils/error";
 
 /* ── State ──────────────────────────────────────────────── */
@@ -52,7 +53,15 @@ const step2Schema = z.object({
   date: z.string().min(1, "Date is required"),
   time: z.string().optional(),
   durationId: z.number().nullable().optional(),
+  sessionQuantity: z.number().int().min(1).max(20).optional(),
 }).superRefine((data, ctx) => {
+  if (data.serviceType === "session") {
+    const item = findServiceItem(data.serviceId);
+    if (["event", "workshop"].includes(String(item?.sessionType))
+      && (data.sessionQuantity ?? 1) > Math.min(20, availableBookingTickets(item))) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["sessionQuantity"], message: "Quantity exceeds available tickets" });
+    }
+  }
   if (data.serviceType === "spa") {
     if (!data.durationId || data.durationId <= 0) {
       ctx.addIssue({
@@ -101,6 +110,7 @@ const currentSchema = computed(() => {
 /* ── Form state ─────────────────────────────────────────── */
 
 const form = reactive<FormState>({
+  sessionQuantity: 1,
   fullName: "",
   phone: "",
   email: "",
@@ -266,6 +276,7 @@ async function handleCreateBooking(): Promise<void> {
     const payload: CreateNewClientBookingPayload = {
       itemType: {
         id: itemTypeId,
+        quantity: serviceGroup.type === "session" ? form.sessionQuantity ?? 1 : 1,
         name: serviceItem.name,
         type: serviceGroup.type,
       },

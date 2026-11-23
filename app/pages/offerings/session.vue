@@ -52,6 +52,7 @@ const state = ref({
   status: "active",
   referenceNumber: "",
   selectedSessionType: "",
+  selectedKoraArea: "",
   referenceDateRange: { start: null as string | null, end: null as string | null },
 });
 
@@ -59,6 +60,14 @@ const sessionTypeOptions = [
   { label: "Class", value: SESSION_TYPE.CLASS },
   { label: "Event", value: SESSION_TYPE.EVENT },
   { label: "Workshop", value: SESSION_TYPE.WORKSHOP },
+];
+
+const koraAreaOptions = [
+  { label: "Movement space", value: "Movement space" },
+  { label: "Flow space", value: "Flow space" },
+  { label: "Strength space", value: "Strength space" },
+  { label: "Recovery space", value: "Recovery space" },
+  { label: "Courtyard", value: "Courtyard" },
 ];
 
 const sessionStatusOption = [
@@ -78,6 +87,7 @@ async function loadSessions(): Promise<void> {
       startDate: state.value.referenceDateRange.start || undefined,
       endDate: state.value.referenceDateRange.end || undefined,
       type: state.value.selectedSessionType || undefined,
+      koraArea: state.value.selectedKoraArea || undefined,
     };
     await sessionsStore.getSessions(params);
     appliedFilters.value = params;
@@ -165,12 +175,13 @@ function clearFilters(): void {
   state.value.status = "active";
   state.value.referenceDateRange = { start: null, end: null };
   state.value.selectedSessionType = "";
+  state.value.selectedKoraArea = "";
   pagination.value.page = 1;
   loadSessions();
 }
 
 function hasActiveFilters(): boolean {
-  return !!(state.value.search || state.value.status !== "active" || state.value.referenceDateRange.start || state.value.referenceDateRange.end || state.value.selectedSessionType);
+  return !!(state.value.search || state.value.status !== "active" || state.value.referenceDateRange.start || state.value.referenceDateRange.end || state.value.selectedSessionType || state.value.selectedKoraArea);
 }
 
 function isSessionDeletable(sessionDate: string): boolean {
@@ -237,6 +248,13 @@ onMounted(() => {
           placeholder="Select session type"
           class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
           :options="sessionTypeOptions"
+        />
+        <base-select
+          v-model="state.selectedKoraArea"
+          name="selectedKoraArea"
+          placeholder="KORA training area"
+          class="w-full sm:w-auto sm:flex-1 sm:max-w-xs"
+          :options="koraAreaOptions"
         />
         <base-select
           v-model="state.status"
@@ -311,7 +329,7 @@ onMounted(() => {
         :trainer="session.instructor"
         :date="session.sessionDate"
         :time="`${session.startTime} - ${session.endTime}`"
-        :location="session.venue?.trim().toLowerCase() === 'kora' ? 'At KORA' : session.venue"
+        :location="session.venueType === 'at_kora' ? `At KORA · ${session.venue}` : session.venue?.trim().toLowerCase() === 'kora' ? 'At KORA' : session.venue"
         :price="`Rs. ${session.price}`"
         :capacity="session.capacity"
         :occupied="session.occupied"

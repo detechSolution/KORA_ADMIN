@@ -44,6 +44,13 @@ const sessionLocationOptions = [
   { label: "At KORA", value: "at_kora" },
   { label: "External venue", value: "external" },
 ] as const;
+const koraVenueOptions = [
+  { label: "Movement space", value: "Movement space" },
+  { label: "Flow space", value: "Flow space" },
+  { label: "Strength space", value: "Strength space" },
+  { label: "Recovery space", value: "Recovery space" },
+  { label: "Courtyard", value: "Courtyard" },
+];
 
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
@@ -91,6 +98,13 @@ const step2Schema = z.object({
       code: z.ZodIssueCode.custom,
       path: ["venue"],
       message: "Please enter the external venue (at least 2 characters)",
+    });
+  }
+  if (data.locationType === "at_kora" && !koraVenueOptions.some(option => option.value === data.venue)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["venue"],
+      message: "Select a KORA training area",
     });
   }
 
@@ -190,6 +204,13 @@ function handleBack(): void {
   currentStep.value = Math.max(currentStep.value - 1, 0);
 }
 
+function setLocationType(value: "at_kora" | "external"): void {
+  if (form.locationType === value)
+    return;
+  form.locationType = value;
+  form.venue = "";
+}
+
 async function handleNext(): Promise<void> {
   const isValid = await validateCurrentStep();
   if (!isValid)
@@ -235,10 +256,13 @@ watch(() => props.session, (newValue) => {
     form.bannerVideo = newValue.videoUrl;
     form.sessionDescription = newValue.description;
     form.instructorId = newValue.instructorId;
-    form.venue = newValue.venue;
-    form.locationType = newValue.venue?.trim().toLowerCase() === "kora"
+    form.locationType = newValue.venueType === "at_kora"
+      || (!newValue.venueType && newValue.venue?.trim().toLowerCase() === "kora")
       ? "at_kora"
       : "external";
+    form.venue = form.locationType === "at_kora"
+      ? (koraVenueOptions.some(option => option.value === newValue.venue) ? newValue.venue : "")
+      : (newValue.venue ?? "");
     form.capacity = newValue.capacity;
     form.date = newValue.sessionDate || "";
     form.startTime = newValue.startTime;
@@ -346,22 +370,31 @@ onMounted(() => {
               :loading="instructorsStore.loading"
               clearable
             />
-            <UFormField name="locationType" label="Session location">
-              <div class="flex flex-wrap gap-2">
+            <UFormField name="locationType" label="Venue type">
+              <div class="inline-flex rounded-md border border-border bg-muted/40 p-0.5">
                 <button
                   v-for="option in sessionLocationOptions"
                   :key="option.value"
                   type="button"
-                  class="rounded-lg border px-4 py-2 text-sm font-medium transition-colors"
+                  class="rounded px-2.5 py-1.5 text-xs font-medium transition-colors"
                   :class="form.locationType === option.value
-                    ? 'bg-primary-700 text-white shadow-sm'
-                    : 'border-primary-100 bg-white text-foreground hover:border-primary-400'"
-                  @click="form.locationType = option.value"
+                    ? 'bg-white text-primary-800 shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'"
+                  :aria-pressed="form.locationType === option.value"
+                  @click="setLocationType(option.value)"
                 >
                   {{ option.label }}
                 </button>
               </div>
             </UFormField>
+            <base-select
+              v-if="form.locationType === 'at_kora'"
+              v-model="form.venue"
+              name="venue"
+              label="Training area"
+              placeholder="Select training area"
+              :options="koraVenueOptions"
+            />
             <base-input
               v-if="form.locationType === 'external'"
               v-model="form.venue"

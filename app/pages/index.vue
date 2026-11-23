@@ -12,7 +12,7 @@ import { PERMISSIONS_BOOKINGS, PERMISSIONS_MEMBERS, PERMISSIONS_SESSIONS } from 
 import { useAnalyticsStore } from "~/stores/analytics";
 import { useBookingStore } from "~/stores/booking";
 import { useSessionsStore } from "~/stores/sessions";
-import { formatDate } from "~/utils/common";
+import { bookingScheduleLabels, bookingServiceLabels, bookingTypeLabels } from "~/utils/booking-lines";
 import { getApiErrorMessage } from "~/utils/error";
 
 definePageMeta({
@@ -170,7 +170,7 @@ const recentBookingsColumns = [
   {
     accessorKey: "bookedFor",
     header: "Scheduled Date",
-    accessorFn: (row: Booking) => formatDate(row.bookedFor) || "N/A",
+    accessorFn: (row: Booking) => bookingScheduleLabels(row).join(", ") || "N/A",
   },
   { accessorKey: "status", header: "Status" },
 ];
@@ -310,13 +310,13 @@ const kpiData = computed(() => [
           </template>
 
           <template #itemType-cell="{ row }">
-            <base-badge :status="row.original.itemType">
-              {{ row.original.itemType }}
+            <base-badge :status="bookingTypeLabels(row.original).join(',')">
+              {{ bookingTypeLabels(row.original).join(", ") || "N/A" }}
             </base-badge>
           </template>
 
           <template #itemName-cell="{ row }">
-            <ItemNameList :value="row.original.itemNames" class="text-sm text-secondary" />
+            <ItemNameList :value="bookingServiceLabels(row.original)" class="text-sm text-secondary" />
           </template>
 
           <template #status-cell="{ row }">

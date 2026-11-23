@@ -65,6 +65,8 @@ const columns = [
   { id: "amount", header: "Amount", accessorKey: "amount", accessorFn: (row: any) => `${row.currency} ${row.amount.toFixed(2)}` || "N/A" },
   { id: "paidAt", header: "Paid Date", accessorKey: "createdAt", accessorFn: (row: any) => formatDate(row.createdAt) || "N/A" },
   { id: "tiggInvoiceCode", header: "Invoice No", accessorKey: "tiggInvoiceCode" },
+  { header: "Credit notes", accessorKey: "creditNoteCodes" },
+  { header: "Cancelled tickets", accessorKey: "cancelledQuantity" },
   { id: "refundStatus", header: "Refund status", accessorKey: "refundStatus" },
   { id: "netAmount", header: "Net revenue", accessorKey: "netAmount", accessorFn: (row: { netAmount: number }) => `Rs. ${Number(row.netAmount).toFixed(2)}` },
   { id: "method", header: "Method", accessorKey: "method" },
@@ -78,10 +80,14 @@ function getRefundStatusLabel(payment: {
   refundDeduction?: number | string | null;
 }): string {
   const amount = Number(payment.amount);
-  if (amount <= 0) return "—";
-  if (Number(payment.pendingRefund) > 0) return "Refund pending";
-  if (Number(payment.refundDeduction) > 0) return "Refunded";
-  if (payment.refundStatus === "rejected") return "Rejected";
+  if (amount <= 0)
+    return "—";
+  if (Number(payment.pendingRefund) > 0)
+    return "Refund pending";
+  if (Number(payment.refundDeduction) > 0)
+    return "Refunded";
+  if (payment.refundStatus === "rejected")
+    return "Rejected";
   return "—";
 }
 

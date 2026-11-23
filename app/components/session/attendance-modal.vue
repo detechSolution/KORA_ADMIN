@@ -16,10 +16,7 @@ const emit = defineEmits(["close", "success"]);
 
 const { success: showSuccess, error: showError } = useNotification();
 const sessionsStore = useSessionsStore();
-const sessionAttendance = computed(() => {
-  const val = sessionsStore.sessionAttendance;
-  return Array.isArray(val) ? val : (val?.data || []);
-});
+const sessionAttendance = computed(() => sessionsStore.sessionAttendance.data);
 
 const sessionAttendanceSummary = computed(() =>
   sessionsStore.sessionAttendance?.summary ?? {
@@ -87,7 +84,7 @@ function toggleStatus(id: number, status: "attended" | "no_show") {
     return;
   }
 
-  const item = sessionAttendance.value.find(a => a.id === id);
+  const item = sessionAttendance.value.find(attendance => attendance.id === id);
   if (item) {
     item.attendanceStatus = item.attendanceStatus === status ? "pending" : status;
   }
@@ -104,7 +101,7 @@ async function handleSaveAttendance() {
 
   try {
     isSaving.value = true;
-    const payload = sessionAttendance.value.map((item: any) => ({
+    const payload = sessionAttendance.value.map(item => ({
       id: item.id,
       attendanceStatus: item.attendanceStatus,
     }));
@@ -259,18 +256,10 @@ watch(() => props.open, (newVal, _oldVal, onCleanup) => {
                 <div class="flex flex-col gap-0.5">
                   <div class="flex items-center gap-2">
                     <span class="text-base font-semibold text-secondary-800">{{ item.name }}</span>
-                    <UTooltip
-                      v-if="item.bookingCount > 1"
-                      :delay-duration="0"
-                      arrow
-                      :text="`${item.bookingCount - 1} Bookings`"
-                    >
-                      <span
-                        class="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-stone-300 bg-stone-50 px-1.5 text-xs font-medium leading-none text-stone-500"
-                      >
-                        +{{ item.bookingCount - 1 }}
-                      </span>
-                    </UTooltip>
+                    <span class="text-xs text-secondary-500">
+                      {{ item.expectedQuantity ?? 1 }} {{ item.expectedQuantity === 1 ? 'ticket' : 'tickets' }}
+                      <span v-if="item.bookingLineId"> ? Line {{ item.bookingLineId }}</span>
+                    </span>
                     <base-badge
                       v-if="item.attendanceStatus === 'attended'"
                       color="success"

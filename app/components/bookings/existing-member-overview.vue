@@ -193,7 +193,10 @@ function getMemberBenefitPercent(
 
 const memberName = computed(
   () =>
-    selectedMember.value?.fullName ?? selectedMember.value?.label ?? "Member",
+    form.value.clientName
+      ?? selectedMember.value?.fullName
+      ?? selectedMember.value?.label
+      ?? "Client",
 );
 
 type OverviewRow = {

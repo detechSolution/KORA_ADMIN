@@ -1,20 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
-
 import { ICONS } from "~/config/icons";
-
-const items = [
-  {
-    label: "Existing Member",
-    value: "existing",
-  },
-  {
-    label: "New Client",
-    value: "new",
-  },
-];
-
-const selectedTab = ref("existing");
 
 definePageMeta({
   auth: true,
@@ -45,34 +30,6 @@ definePageMeta({
       </template>
     </base-page-header>
 
-    <div class="rounded-xl flex flex-col md:flex-row gap-4 bg-white p-4 shadow-sm">
-      <div class="flex flex-1 flex-col bg-stone-50 gap-6 rounded-md border border-stone-200">
-        <div class="flex flex-col p-4 gap-1">
-          <h2 class="font-semibold">
-            Use Type
-          </h2>
-          <p class="text-sm text-secondary-500">
-            Is this user new or existing? Select accordingly.
-          </p>
-        </div>
-
-        <USeparator />
-
-        <div class="px-4">
-          <base-tabs
-            v-model="selectedTab"
-            :items="items"
-            variant="solid"
-            color="primary"
-            orientation="vertical"
-          />
-        </div>
-      </div>
-
-      <div class="flex-4 min-w-0">
-        <bookings-existing-member v-if="selectedTab === 'existing'" />
-        <new-client-manual-booking-new-client v-else />
-      </div>
-    </div>
+    <bookings-manual-booking />
   </div>
 </template>

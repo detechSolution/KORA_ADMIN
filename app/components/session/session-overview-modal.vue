@@ -118,7 +118,7 @@ function openPreview(type: "image" | "video", url: string) {
           <div class="flex items-center gap-2">
             <UIcon :name="ICONS.LOCATION" class="w-4 h-4 text-primary" />
             <span>
-              {{ session.venue?.trim().toLowerCase() === "kora" ? "At KORA" : session.venue }}
+              {{ session.venueType === "at_kora" ? `At KORA · ${session.venue}` : session.venue?.trim().toLowerCase() === "kora" ? "At KORA" : session.venue }}
             </span>
           </div>
           <div class="flex items-center gap-2">
