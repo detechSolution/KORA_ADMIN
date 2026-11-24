@@ -26,6 +26,7 @@ const analyticsStore = useAnalyticsStore();
 const sessionStore = useSessionsStore();
 
 const { can } = usePermission();
+const canViewMemberContacts = can(PERMISSIONS_MEMBERS.VIEW);
 const { error: showError } = useNotification();
 const bookingsLoading = ref(false);
 const analyticsLoading = ref(false);
@@ -59,7 +60,7 @@ async function getRecentBookings() {
       page: 1,
       limit: 5,
     };
-    await bookingsStore.getBookings(params);
+    await bookingsStore.getRecentDashboardBookings(params);
   }
   catch (error: unknown) {
     showError({ message: getApiErrorMessage(error, "Failed to load inquiries") });
@@ -302,7 +303,7 @@ const kpiData = computed(() => [
                     </span>
                   </UTooltip>
                 </div>
-                <span class="text-xs text-secondary-400">
+                <span v-if="canViewMemberContacts" class="text-xs text-secondary-400">
                   {{ row.original.participants?.[0]?.email || "N/A" }}
                 </span>
               </div>
