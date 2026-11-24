@@ -94,6 +94,7 @@ export const API_ENDPOINTS = {
   },
   BOOKINGS: {
     BASE: "/api/v1/bookings",
+    DASHBOARD_RECENT: "/api/v1/bookings/dashboard/recent",
     SUMMARY: "/api/v1/bookings/summary",
     GET_LIST: "/api/v1/bookings/getList",
     MANUAL: "/api/v1/bookings/manual",

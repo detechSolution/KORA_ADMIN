@@ -35,6 +35,20 @@ export const useBookingStore = defineStore("booking", () => {
     }
   };
 
+  const getRecentDashboardBookings = async (params: Record<string, any>): Promise<void> => {
+    try {
+      const qs = buildQueryString(params);
+      const response = await http.get(
+        `${API_ENDPOINTS.BOOKINGS.DASHBOARD_RECENT}?${qs}`,
+      ) as ApiResponse<Booking[]>;
+      bookings.value = response;
+    }
+    catch (error: unknown) {
+      console.error("Error fetching dashboard bookings:", error);
+      throw error;
+    }
+  };
+
   const getBookingOptions = async (): Promise<void> => {
     try {
       const response = await http.get(API_ENDPOINTS.BOOKINGS.OPTIONS) as any;
@@ -190,6 +204,7 @@ export const useBookingStore = defineStore("booking", () => {
     bookingOptions,
     bookingItemOptions,
     getBookings,
+    getRecentDashboardBookings,
     getBookingOptions,
     fetchBookingItemOptions,
     clearBookingData,
