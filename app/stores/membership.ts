@@ -71,11 +71,23 @@ export const useMembershipStore = defineStore("membership", () => {
     }
   };
 
-  const updatePlan = async (id: number, payload: UpdateMembershipPlanPayload) => {
+  const updatePlan = async (
+    id: number,
+    payload: UpdateMembershipPlanPayload,
+    force = false,
+  ) => {
     loading.value = true;
     try {
-      await http.patch(
-        API_ENDPOINTS.MEMBERSHIP.UPDATE_PLAN(id),
+      return await http.patch<{
+        confirmationRequired: boolean;
+        message?: string;
+        changeSummary?: {
+          affectedCurrentMembers: number;
+          benefitChangesApplyToCurrentMembers: boolean;
+          priceOrFrequencyChanged: boolean;
+        };
+      }>(
+        `${API_ENDPOINTS.MEMBERSHIP.UPDATE_PLAN(id)}${force ? "?force=true" : ""}`,
         payload,
       );
     }
