@@ -3,7 +3,7 @@ import { computed } from "vue";
 
 import { ICONS } from "~/config/icons";
 import { PERMISSIONS_SESSIONS } from "~/config/permissions";
-import { getNepalTimestamp } from "~/utils/common";
+import { formatNepalTime, getNepalTimestamp } from "~/utils/common";
 
 const props = defineProps<SessionCardProps>();
 
@@ -74,8 +74,8 @@ function handleEditClick() {
         <UIcon :name="ICONS.LOCATION" class="text-primary" /> {{ location }}
       </p>
       <p class="flex items-center gap-2">
-        <UIcon :name="ICONS.CLOCK" class="text-primary" /> {{ formatUtcTime(startsAt) }}
-        - {{ formatUtcTime(endsAt) }}
+        <UIcon :name="ICONS.CLOCK" class="text-primary" /> {{ formatNepalTime(startsAt) }}
+        - {{ formatNepalTime(endsAt) }}
       </p>
     </div>
 

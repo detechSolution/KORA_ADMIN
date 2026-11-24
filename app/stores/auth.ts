@@ -194,7 +194,7 @@ export const useAuthStore = defineStore("auth", () => {
       if (authCheckPromise) {
         await authCheckPromise.catch(() => {});
       }
-      const response = await http.post<{ accessToken?: string; refreshToken?: string; requiresPasswordChange?: boolean; passwordSetupToken?: string }>(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password, rememberMe: payload.rememberMe });
+      const response = await http.post<{ accessToken?: string; refreshToken?: string; refreshTokenExpiresIn?: number; requiresPasswordChange?: boolean; passwordSetupToken?: string }>(API_ENDPOINTS.AUTH.LOGIN, { email: payload.email, password: payload.password, rememberMe: payload.rememberMe });
       if (response.requiresPasswordChange) {
         if (!response.passwordSetupToken)
           throw new Error("Password setup could not be started. Please try again.");
@@ -205,7 +205,7 @@ export const useAuthStore = defineStore("auth", () => {
       if (!accessToken || !refreshToken) {
         throw new Error("Invalid login response. Please try again.");
       }
-      if (!storage.setTokens(accessToken, refreshToken, payload.rememberMe)) {
+      if (!storage.setTokens(accessToken, refreshToken, response.refreshTokenExpiresIn, payload.rememberMe)) {
         void logout(false);
         throw new Error("Unable to save your session. Please try again.");
       }

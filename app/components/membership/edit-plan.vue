@@ -25,6 +25,9 @@ const membershipStore = useMembershipStore();
 const { success, error: showError } = useNotification();
 
 const loading = ref(false);
+const confirmationOpen = ref(false);
+const confirmationMessage = ref("");
+const pendingPayload = ref<UpdateMembershipPlanPayload | null>(null);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const frequencyOptions = [
@@ -85,6 +88,63 @@ const schema = z.object({
 );
 
 type EditPlanSchema = z.output<typeof schema>;
+
+function getPlanChangeImpact(
+  payload: UpdateMembershipPlanPayload,
+  plan: MembershipPlan,
+) {
+  const benefitFields = [
+    "description",
+    "isFreezable",
+    "freezeDays",
+    "minimumFreezeDays",
+    "maxVisitors",
+    "spaBenefit",
+    "classBenefit",
+    "eventBenefit",
+    "workshopBenefit",
+    "physioBenefit",
+    "cafeBenefit",
+    "spaGuestBenefit",
+    "classGuestBenefit",
+    "eventGuestBenefit",
+    "workshopGuestBenefit",
+  ] as const;
+  const benefitsChanged = benefitFields.some((field) => {
+    const current = plan[field];
+    const requested = payload[field];
+    if (field === "description") {
+      return (current ?? "") !== (requested ?? "");
+    }
+    return requested !== undefined && requested !== current;
+  });
+
+  const currentOptions = plan.options ?? [];
+  const priceOrFrequencyChanged =
+    payload.options.length !== currentOptions.length
+    || payload.options.some((requested) => {
+      const current = currentOptions.find(option => option.frequency === requested.frequency);
+      return !current
+        || current.price !== requested.price
+        || (current.customDays ?? null) !== (requested.customDays ?? null);
+    });
+
+  return { benefitsChanged, priceOrFrequencyChanged };
+}
+
+function getConfirmationMessage(
+  memberCount: number,
+  impact: ReturnType<typeof getPlanChangeImpact>,
+) {
+  const effects: string[] = [];
+  if (impact.benefitsChanged) {
+    effects.push("the benefit changes will apply to current members");
+  }
+  if (impact.priceOrFrequencyChanged) {
+    effects.push("price and frequency changes apply to new buyers only");
+  }
+  return `This change affects ${memberCount} current member${memberCount === 1 ? "" : "s"}: ${effects.join("; ")}. Are you sure you want to continue?`;
+}
 
 const state = reactive<Partial<EditPlanSchema>>({
   name: "",
@@ -182,7 +242,6 @@ async function handleSubmit(): Promise<void> {
 
   try {
     loading.value = true;
-
     const payload: UpdateMembershipPlanPayload = {
       name: state.name!,
       description: state.description!,
@@ -209,10 +268,37 @@ async function handleSubmit(): Promise<void> {
       })),
     };
 
-    await membershipStore.updatePlan(Number(props.plan.id), payload);
-    success({ message: "Plan updated successfully" });
-    emit("updated");
-    closeDrawer();
+    const memberCount = props.plan.activeMembersCount ?? 0;
+    const impact = getPlanChangeImpact(payload, props.plan);
+    if (
+      memberCount > 0
+      && (impact.benefitsChanged || impact.priceOrFrequencyChanged)
+    ) {
+      pendingPayload.value = payload;
+      confirmationMessage.value = getConfirmationMessage(memberCount, impact);
+      confirmationOpen.value = true;
+      return;
+    }
+
+    const result = await membershipStore.updatePlan(
+      Number(props.plan.id),
+      payload,
+    );
+    if (result.confirmationRequired) {
+      pendingPayload.value = payload;
+      const previewImpact = {
+        benefitsChanged: result.changeSummary?.benefitChangesApplyToCurrentMembers ?? false,
+        priceOrFrequencyChanged: result.changeSummary?.priceOrFrequencyChanged ?? false,
+      };
+      confirmationMessage.value = getConfirmationMessage(
+        result.changeSummary?.affectedCurrentMembers ?? 0,
+        previewImpact,
+      );
+      confirmationOpen.value = true;
+      return;
+    }
+
+    finishUpdate();
   }
   catch (error: unknown) {
     showError({
@@ -222,6 +308,36 @@ async function handleSubmit(): Promise<void> {
   finally {
     loading.value = false;
   }
+}
+
+async function confirmUpdate(): Promise<void> {
+  if (!props.plan?.id || !pendingPayload.value) return;
+
+  try {
+    loading.value = true;
+    await membershipStore.updatePlan(
+      Number(props.plan.id),
+      pendingPayload.value,
+      true,
+    );
+    confirmationOpen.value = false;
+    pendingPayload.value = null;
+    finishUpdate();
+  }
+  catch (error: unknown) {
+    showError({
+      message: getApiErrorMessage(error, "Failed to update plan."),
+    });
+  }
+  finally {
+    loading.value = false;
+  }
+}
+
+function finishUpdate(): void {
+  success({ message: "Plan updated successfully" });
+  emit("updated");
+  closeDrawer();
 }
 
 watch(
@@ -518,4 +634,33 @@ watch(
       </div>
     </UForm>
   </base-drawer>
+
+  <base-modal
+    :open="confirmationOpen"
+    title="Confirm membership plan changes"
+    :description="confirmationMessage"
+    :modal-width="460"
+    dismissible
+    @close="confirmationOpen = false"
+  >
+    <div class="flex justify-end gap-2 p-6">
+      <base-button
+        variant="outline"
+        :disabled="loading"
+        @click="confirmationOpen = false"
+      >
+        No, go back
+      </base-button>
+      <UButton
+        color="primary"
+        variant="solid"
+        :loading="loading"
+        :disabled="loading"
+        class="cursor-pointer font-semibold"
+        @click="confirmUpdate"
+      >
+        Yes, continue
+      </UButton>
+    </div>
+  </base-modal>
 </template>

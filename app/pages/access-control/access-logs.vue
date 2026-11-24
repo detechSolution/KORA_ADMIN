@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from "vue";
 import { usePagination } from "~/composables/use-pagination";
 import { ICONS } from "~/config/icons";
 import { useAccessControlStore } from "~/stores/access-control";
+import { formatNepalTime } from "~/utils/common";
 
 definePageMeta({ auth: true, layout: "dashboard", permission: "access_logs.view" });
 
@@ -144,7 +145,7 @@ onMounted(fetchLogs);
         <template #entryDateTime-cell="{ row }">
           <div>
             <p class="text-sm text-secondary">
-              {{ formatLocalTime(row.original.entryDateTime) }}
+              {{ formatNepalTime(row.original.entryDateTime) }}
             </p>
             <p class="text-xs text-secondary-500">
               {{ formatDate(row.original.entryDateTime) }}

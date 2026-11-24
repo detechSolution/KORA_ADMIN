@@ -5,6 +5,7 @@ import { getHttp } from "~/composables/use-api";
 import { API_ENDPOINTS } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { ACCESS_CONTROL } from "~/config/permissions";
+import { formatNepalDateTime } from "~/utils/common";
 
 definePageMeta({ auth: true, layout: "dashboard", permission: ACCESS_CONTROL.PINS_MANAGE });
 
@@ -97,7 +98,7 @@ async function save() {
   }
 }
 function dateLabel(date: string) {
-  return new Date(date).toLocaleString();
+  return formatNepalDateTime(date);
 }
 onMounted(refresh);
 </script>

@@ -137,7 +137,7 @@ export function formatTime(time: string) {
   return `${hour12}:${minutes.toString().padStart(2, "0")} ${period}`;
 }
 
-export function formatLocalTime(date: string | number | null | undefined) {
+export function formatNepalTime(date: string | number | null | undefined) {
   if (date == null)
     return "";
   const d = new Date(date);
@@ -153,17 +153,34 @@ export function formatLocalTime(date: string | number | null | undefined) {
   }).format(d);
 }
 
-export function formatUtcTime(isoDate: string) {
-  const date = new Date(isoDate);
+export function formatNepalDateTime(value: string | number | null | undefined) {
+  const date = parseToLocalDate(value);
 
-  if (!isoDate || Number.isNaN(date.getTime()))
+  if (!date)
     return "";
 
-  const hours = date.getUTCHours();
-  const hour12 = hours % 12 || 12;
-  const period = hours >= 12 ? "PM" : "AM";
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kathmandu",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+}
 
-  return `${hour12}:${String(date.getUTCMinutes()).padStart(2, "0")} ${period}`;
+export function getNepalDateString(date: Date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kathmandu",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((entry) => entry.type === type)?.value ?? "";
+
+  return `${part("year")}-${part("month")}-${part("day")}`;
 }
 
 export function getNepalTimestamp(date: string, time: string): number {

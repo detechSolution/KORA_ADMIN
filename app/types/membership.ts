@@ -53,6 +53,7 @@ export type MembershipPlan = {
   name: string;
   description: string;
   freezeDays: number;
+  isFreezable?: boolean;
   minimumFreezeDays?: number;
   spaBenefit: number;
   classBenefit: number;
@@ -67,6 +68,7 @@ export type MembershipPlan = {
   maxVisitors: number;
 
   isPurchasable: boolean;
+  activeMembersCount?: number;
   options: MembershipPlanOption[];
 };
 

@@ -6,6 +6,7 @@ import type { Notification } from "~/stores/notification";
 
 import { ICONS } from "~/config/icons";
 import { useNotificationStore } from "~/stores/notification";
+import { getNepalDateString } from "~/utils/common";
 
 const emit = defineEmits<{
   close: [];
@@ -92,11 +93,14 @@ function getDateGroup(dateStr: string): string {
   if (!dateStr)
     return "Older";
 
-  const now = new Date();
   const date = new Date(dateStr);
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const notificationDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const diffDay = Math.floor((today.getTime() - notificationDay.getTime()) / 86400000);
+  if (Number.isNaN(date.getTime()))
+    return "Older";
+  const today = getNepalDateString();
+  const notificationDay = getNepalDateString(date);
+  const todayUtc = Date.parse(`${today}T00:00:00Z`);
+  const notificationUtc = Date.parse(`${notificationDay}T00:00:00Z`);
+  const diffDay = Math.floor((todayUtc - notificationUtc) / 86400000);
 
   if (diffDay <= 0)
     return "Today";
@@ -122,14 +126,25 @@ function formatTimeAgo(dateStr: string): string {
     return `${diffMin} min ago`;
   if (diffHr < 24)
     return `${diffHr} hr ago`;
-  return date.toLocaleDateString(undefined, { day: "2-digit", month: "short" });
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kathmandu",
+    day: "2-digit",
+    month: "short",
+  }).format(date);
 }
 
 function formatNotificationTime(dateStr: string): string {
   if (getDateGroup(dateStr) === "Today")
     return formatTimeAgo(dateStr);
 
-  return new Date(dateStr).toLocaleDateString(undefined, { day: "2-digit", month: "short" });
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime()))
+    return "";
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kathmandu",
+    day: "2-digit",
+    month: "short",
+  }).format(date);
 }
 
 async function handleMarkAsRead(id: number) {

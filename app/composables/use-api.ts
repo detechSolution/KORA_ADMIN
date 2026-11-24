@@ -138,12 +138,13 @@ function createHttpClient(config: HttpClientConfig) {
             throw new Error("Refresh token expired");
           }
 
-          const refreshData = await refreshResponse.json() as { accessToken?: string; refreshToken?: string; data?: { accessToken?: string; refreshToken?: string } };
+          const refreshData = await refreshResponse.json() as { accessToken?: string; refreshToken?: string; refreshTokenExpiresIn?: number; data?: { accessToken?: string; refreshToken?: string; refreshTokenExpiresIn?: number } };
           const newAccessToken = refreshData.accessToken || refreshData.data?.accessToken;
           const newRefreshToken = refreshData.refreshToken || refreshData.data?.refreshToken;
+          const refreshTokenExpiresIn = refreshData.refreshTokenExpiresIn ?? refreshData.data?.refreshTokenExpiresIn;
 
           if (newAccessToken && newRefreshToken) {
-            storage.setTokens(newAccessToken, newRefreshToken);
+            storage.setTokens(newAccessToken, newRefreshToken, refreshTokenExpiresIn);
             processQueue(null, newAccessToken);
             return await request<T>(endpoint, options);
           }
