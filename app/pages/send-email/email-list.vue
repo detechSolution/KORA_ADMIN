@@ -125,7 +125,7 @@ onMounted(() => {
             variant="solid"
             :leading-icon="ICONS.PLUS"
           >
-            Create Mail
+            Send email
           </base-button>
         </Nuxt-Link>
       </template>

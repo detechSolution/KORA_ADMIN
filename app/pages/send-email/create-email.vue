@@ -19,6 +19,7 @@ const { error: showError, success } = useNotification();
 const router = useRouter();
 
 const loading = ref(false);
+const confirmationOpen = ref(false);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
 
 const schema = z.object({
@@ -47,6 +48,11 @@ async function handleCreateMail() {
   catch {
     return;
   }
+  confirmationOpen.value = true;
+}
+
+async function confirmSendMail() {
+  confirmationOpen.value = false;
   try {
     loading.value = true;
     await mailStore.createMail({
@@ -55,7 +61,7 @@ async function handleCreateMail() {
       htmlContent: state.htmlContent ?? "",
       recipientEmails: state.recipientEmails ?? [],
     });
-    success({ message: "Mail created successfully" });
+    success({ message: "Email sent successfully" });
     router.push("/send-email/email-list");
   }
   catch (error: unknown) {
@@ -71,7 +77,7 @@ async function handleCreateMail() {
   <div class="flex flex-col gap-6">
     <base-page-header>
       <template #title>
-        Create Mail
+        Send email
       </template>
       <template #description>
         Create a new mail and send it to members or guests
@@ -143,11 +149,23 @@ async function handleCreateMail() {
               :loading="loading"
               @click="handleCreateMail"
             >
-              Create Mail
+              Send email
             </base-button>
           </div>
         </div>
       </UForm>
     </div>
+
+    <base-modal
+      :open="confirmationOpen"
+      title="Confirm email"
+      :description="`Send '${state.subject?.trim() || 'Untitled'}' to ${new Set((state.recipientEmails ?? []).map(email => email.trim().toLowerCase()).filter(Boolean)).size} recipients?`"
+      @close="confirmationOpen = false"
+    >
+      <div class="flex justify-end gap-3 p-6">
+        <base-button variant="outline" @click="confirmationOpen = false">Cancel</base-button>
+        <base-button :loading="loading" @click="confirmSendMail">Send</base-button>
+      </div>
+    </base-modal>
   </div>
 </template>
