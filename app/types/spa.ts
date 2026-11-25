@@ -48,6 +48,8 @@ export type CreateSpaCategoryPayload = {
   name: string;
 };
 
+export type UpdateSpaCategoryPayload = Partial<CreateSpaCategoryPayload>;
+
 export type SpaResponse = Spa | {
   spa?: Spa;
   subTypes?: SpaSubType[];
