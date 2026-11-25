@@ -104,10 +104,13 @@ function hasSubscriptionStarted(startDate?: string | null): boolean {
 
 async function fetchMembers(): Promise<void> {
   try {
+    const search = state.value.search.trim();
     const params = {
-      page: pagination.value.page,
-      limit: pagination.value.pageSize,
-      q: state.value.search,
+      ...(search ? {} : {
+        page: pagination.value.page,
+        limit: pagination.value.pageSize,
+      }),
+      q: search,
       status: state.value.status,
       joinedFrom: state.value.dateRange.start,
       type: state.value.type,
@@ -119,6 +122,11 @@ async function fetchMembers(): Promise<void> {
   catch (error) {
     showError({ message: getApiErrorMessage(error, "Failed to fetch members") });
   }
+}
+
+function handleSearch(): void {
+  pagination.value.page = 1;
+  fetchMembers();
 }
 
 // function openEditDrawer(member: any): void {
@@ -228,7 +236,7 @@ onMounted(async () => {
             placeholder="Search"
             class="w-full sm:w-auto sm:flex-1 md:w-64"
             :leading-icon="ICONS.SEARCH"
-            @keyup.enter="fetchMembers"
+            @keyup.enter="handleSearch"
           />
 
           <base-date-picker
@@ -258,7 +266,7 @@ onMounted(async () => {
               variant="outline"
               class="flex-1 sm:flex-none"
               :leading-icon="ICONS.SEARCH"
-              @click="fetchMembers"
+              @click="handleSearch"
             >
               Search
             </base-button>
