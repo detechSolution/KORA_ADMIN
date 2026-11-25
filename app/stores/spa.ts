@@ -12,6 +12,7 @@ import type {
   SpaSubType,
   SpaSubTypeResponse,
   UpdateSpaPayload,
+  UpdateSpaCategoryPayload,
   UpdateSpaSubTypePayload,
 } from "~/types/spa";
 
@@ -114,6 +115,20 @@ export const useSpaStore = defineStore("spa", () => {
     }
     catch (error: unknown) {
       console.error(error, "Delete Spa Category Error");
+      throw error;
+    }
+    finally {
+      loading.value = false;
+    }
+  };
+
+  const updateSpaCategory = async (id: number, payload: UpdateSpaCategoryPayload): Promise<void> => {
+    loading.value = true;
+    try {
+      await http.patch(API_ENDPOINTS.SPA.UPDATE_CATEGORY(id), payload);
+    }
+    catch (error: unknown) {
+      console.error(error, "Update Spa Category Error");
       throw error;
     }
     finally {
@@ -227,5 +242,6 @@ export const useSpaStore = defineStore("spa", () => {
     updateSpaSubType,
     deleteSpaSubType,
     deleteSpaCategory,
+    updateSpaCategory,
   };
 });

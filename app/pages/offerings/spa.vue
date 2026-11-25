@@ -30,8 +30,10 @@ const isEditDrawerOpen = ref(false);
 const isSettingsDrawerOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const isDeleteCategoryModalOpen = ref(false);
+const isEditCategoryModalOpen = ref(false);
 const selectedServiceId = ref<number | null>(null);
 const selectedCategoryId = ref<number | null>(null);
+const selectedCategory = computed(() => spadata.value.find(category => category.id === selectedCategoryId.value) ?? null);
 const selectedService = ref<SpaSubType | null>(null);
 const router = useRouter();
 const { can } = usePermission();
@@ -122,6 +124,16 @@ function openDeleteCategoryModal(categoryId: number): void {
   isDeleteCategoryModalOpen.value = true;
 }
 
+function openEditCategoryModal(categoryId: number): void {
+  selectedCategoryId.value = categoryId;
+  isEditCategoryModalOpen.value = true;
+}
+
+function closeEditCategoryModal(): void {
+  isEditCategoryModalOpen.value = false;
+  selectedCategoryId.value = null;
+}
+
 function closeDeleteModal(): void {
   selectedService.value = null;
   isDeleteModalOpen.value = false;
@@ -139,6 +151,11 @@ async function handleServiceUpdated(): Promise<void> {
 
 async function handleSpaUpdated(): Promise<void> {
   closeSettingsDrawer();
+  await fetchSpaData();
+}
+
+async function handleCategoryUpdated(): Promise<void> {
+  closeEditCategoryModal();
   await fetchSpaData();
 }
 
@@ -339,14 +356,24 @@ function clearFilters(): void {
             Category: {{ spaType.name }}
           </p>
 
-          <button
-            v-if="can(PERMISSIONS_SPA.DELETE)"
-            type="button"
-            class="w-fit h-fit cursor-pointer text-red-500 flex items-center gap-1 text-xs"
-            @click="openDeleteCategoryModal(spaType.id)"
-          >
-            Delete Category <UIcon :name="ICONS.TRASH_2" class=" h-3 w-3" />
-          </button>
+          <div class="flex items-center gap-4">
+            <button
+              v-if="can(PERMISSIONS_SPA.UPDATE)"
+              type="button"
+              class="w-fit h-fit cursor-pointer text-secondary-500 flex items-center gap-1 text-xs"
+              @click="openEditCategoryModal(spaType.id)"
+            >
+              Edit Category <UIcon :name="ICONS.PEN_LINE" class="h-3 w-3" />
+            </button>
+            <button
+              v-if="can(PERMISSIONS_SPA.DELETE)"
+              type="button"
+              class="w-fit h-fit cursor-pointer text-red-500 flex items-center gap-1 text-xs"
+              @click="openDeleteCategoryModal(spaType.id)"
+            >
+              Delete Category <UIcon :name="ICONS.TRASH_2" class="h-3 w-3" />
+            </button>
+          </div>
         </div>
 
         <div
@@ -394,6 +421,13 @@ function clearFilters(): void {
       :loading="deleting"
       @close="closeDeleteCategoryModal"
       @confirm="handleCategoryDelete(selectedCategoryId)"
+    />
+
+    <OfferingsSpaCategoryEditModal
+      :open="isEditCategoryModalOpen"
+      :category="selectedCategory"
+      @close="closeEditCategoryModal"
+      @updated="handleCategoryUpdated"
     />
   </div>
 </template>
