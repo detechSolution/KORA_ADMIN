@@ -89,15 +89,14 @@ app/
 
 ## Deployment
 
-The project deploys via GitHub Actions to Namecheap (FTP) when:
+Static SPA on Cloudflare Workers. `wrangler.jsonc` publishes `.output/public/` as worker `kora-admin`.
 
-- Push to `main`
-- Commit message includes `prod-build`
+Build command: `npm run generate`
 
-Required secrets: `FTP_HOST`, `FTP_USERNAME`, `FTP_PASSWORD`, `FTP_PORT`
-Required vars: `NUXT_PUBLIC_API_BASE_URL`, `NUXT_PUBLIC_API_TIMEOUT`
+Set these at build time so they are baked into the client bundle:
 
-Build output: `.output/public/` (static, `generate`)
+- `NUXT_PUBLIC_API_BASE_URL`
+- `NUXT_PUBLIC_API_TIMEOUT`
 
 ## License
 
