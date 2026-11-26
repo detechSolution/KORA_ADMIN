@@ -288,7 +288,7 @@ onMounted(() => {
             :disabled="loading || !!exporting"
             @click="exportSessions('sessions')"
           >
-          <UIcon :name="ICONS.DOWNLOAD" class="w-5 h-5 mr-2" />
+            <UIcon :name="ICONS.DOWNLOAD" class="w-5 h-5 mr-2" />
             Export Bookings
           </base-button>
           <!-- <base-button

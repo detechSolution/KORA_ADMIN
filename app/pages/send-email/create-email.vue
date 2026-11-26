@@ -163,8 +163,12 @@ async function confirmSendMail() {
       @close="confirmationOpen = false"
     >
       <div class="flex justify-end gap-3 p-6">
-        <base-button variant="outline" @click="confirmationOpen = false">Cancel</base-button>
-        <base-button :loading="loading" @click="confirmSendMail">Send</base-button>
+        <base-button variant="outline" @click="confirmationOpen = false">
+          Cancel
+        </base-button>
+        <base-button :loading="loading" @click="confirmSendMail">
+          Send
+        </base-button>
       </div>
     </base-modal>
   </div>

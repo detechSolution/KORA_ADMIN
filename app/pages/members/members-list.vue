@@ -106,10 +106,12 @@ async function fetchMembers(): Promise<void> {
   try {
     const search = state.value.search.trim();
     const params = {
-      ...(search ? {} : {
-        page: pagination.value.page,
-        limit: pagination.value.pageSize,
-      }),
+      ...(search
+        ? {}
+        : {
+            page: pagination.value.page,
+            limit: pagination.value.pageSize,
+          }),
       q: search,
       status: state.value.status,
       joinedFrom: state.value.dateRange.start,

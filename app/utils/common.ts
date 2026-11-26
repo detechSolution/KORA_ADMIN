@@ -178,7 +178,7 @@ export function getNepalDateString(date: Date = new Date()): string {
     day: "2-digit",
   }).formatToParts(date);
   const part = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((entry) => entry.type === type)?.value ?? "";
+    parts.find(entry => entry.type === type)?.value ?? "";
 
   return `${part("year")}-${part("month")}-${part("day")}`;
 }

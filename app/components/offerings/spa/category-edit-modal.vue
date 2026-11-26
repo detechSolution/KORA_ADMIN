@@ -38,7 +38,8 @@ async function handleUpdate(): Promise<void> {
     return;
   }
 
-  if (!props.category) return;
+  if (!props.category)
+    return;
 
   try {
     loading.value = true;
@@ -80,10 +81,18 @@ async function handleUpdate(): Promise<void> {
       />
 
       <div class="flex justify-end gap-2">
-        <base-button variant="outline" :disabled="loading" @click="emit('close')">
+        <base-button
+          variant="outline"
+          :disabled="loading"
+          @click="emit('close')"
+        >
           Cancel
         </base-button>
-        <base-button :loading="loading" :disabled="loading" @click="handleUpdate">
+        <base-button
+          :loading="loading"
+          :disabled="loading"
+          @click="handleUpdate"
+        >
           Save Changes
         </base-button>
       </div>

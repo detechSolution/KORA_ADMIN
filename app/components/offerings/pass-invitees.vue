@@ -10,7 +10,7 @@ import { ICONS } from "~/config/icons";
 import { PERMISSIONS_KORA_PASSES } from "~/config/permissions";
 import { useKoraPassesStore } from "~/stores/kora-passes";
 import { getApiErrorMessage } from "~/utils/error";
-import { invitationToday, inviteeStatus } from "~/utils/pass-invitations";
+import { inviteeStatus } from "~/utils/pass-invitations";
 
 const props = defineProps<{ open: boolean; pass: KoraPass | null }>();
 const emit = defineEmits<{ close: [] }>();
@@ -296,7 +296,11 @@ async function confirmCancellation() {
           <span>{{ total }} invitees</span>
         </div>
 
-        <p v-if="loading" role="status" class="sr-only">
+        <p
+          v-if="loading"
+          role="status"
+          class="sr-only"
+        >
           Loading invitees...
         </p>
         <div

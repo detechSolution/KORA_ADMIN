@@ -30,16 +30,19 @@ const activityEvents: Array<keyof WindowEventMap> = [
   "touchstart",
 ];
 
-const clearIdleTimers = () => {
-  if (idleWarningTimer) clearTimeout(idleWarningTimer);
-  if (idleLogoutTimer) clearTimeout(idleLogoutTimer);
+function clearIdleTimers() {
+  if (idleWarningTimer)
+    clearTimeout(idleWarningTimer);
+  if (idleLogoutTimer)
+    clearTimeout(idleLogoutTimer);
   idleWarningTimer = undefined;
   idleLogoutTimer = undefined;
-};
+}
 
-const scheduleIdleTimeout = () => {
+function scheduleIdleTimeout() {
   clearIdleTimers();
-  if (!authStore.isAuthenticated) return;
+  if (!authStore.isAuthenticated)
+    return;
 
   idleWarningTimer = setTimeout(() => {
     idleWarningOpen.value = true;
@@ -51,15 +54,16 @@ const scheduleIdleTimeout = () => {
       void router.push({ name: "login" });
     });
   }, IDLE_TIMEOUT_MS);
-};
+}
 
-const recordActivity = () => {
-  if (!authStore.isAuthenticated) return;
+function recordActivity() {
+  if (!authStore.isAuthenticated)
+    return;
   idleWarningOpen.value = false;
   scheduleIdleTimeout();
-};
+}
 
-const staySignedIn = async () => {
+async function staySignedIn() {
   try {
     await authStore.checkAuth(true);
     recordActivity();
@@ -67,7 +71,7 @@ const staySignedIn = async () => {
   catch {
     // Auth check handles expired/revoked sessions and the existing route guard.
   }
-};
+}
 
 watch(unAuthorizedError, (unAuthorizedError) => {
   if (unAuthorizedError) {
@@ -106,7 +110,12 @@ onBeforeUnmount(() => {
       </template>
       <template #footer>
         <div class="flex justify-end">
-          <UButton color="primary" @pointerdown.stop @keydown.stop @click="staySignedIn">
+          <UButton
+            color="primary"
+            @pointerdown.stop
+            @keydown.stop
+            @click="staySignedIn"
+          >
             Stay signed in
           </UButton>
         </div>
