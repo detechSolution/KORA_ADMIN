@@ -33,13 +33,6 @@ export default defineNuxtConfig({
       apiTimeout: process.env.NUXT_PUBLIC_API_TIMEOUT || "",
     },
   },
-  // SPA (`ssr: false` + `nuxt generate`) has no worker entry. On Workers CI,
-  // Nitro would still emit a deploy config whose `main` is `index.mjs`.
-  nitro: {
-    cloudflare: {
-      deployConfig: false,
-    },
-  },
   eslint: {
     config: {
       standalone: false,
