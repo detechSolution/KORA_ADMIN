@@ -304,7 +304,7 @@ async function handleCreateSession(): Promise<void> {
     router.push("/offerings/session");
   }
   catch (err) {
-    showError({ message: getApiErrorMessage(err, "Failed to create community") });
+    showError({ message: getApiErrorMessage(err, "Failed to create session") });
   }
   finally {
     loading.value = false;

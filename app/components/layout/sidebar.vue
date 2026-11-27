@@ -179,14 +179,7 @@ const rawItems: NavItemWithPermission[] = [{
     { label: "Payments", to: "/financial/payments", icon: ICONS.CREDIT_CARD, permission: PERMISSIONS_PAYMENTS.VIEW },
     { label: "Refunds", to: "/financial/refunds", icon: ICONS.REFRESH_CW, permission: PERMISSIONS_REFUNDS.MANAGE },
   ],
-},
-//  {
-//   label: "Access Logs",
-//   icon: ICONS.DOOR_LOCK,
-//   to: "/access-log",
-//   defaultOpen: true,
-// },
-{
+}, {
   label: "Access Control",
   icon: ICONS.DOOR_LOCK,
   defaultOpen: false,
@@ -253,13 +246,13 @@ onMounted(() => {
         <img
           v-if="collapsed"
           src="/logo/black_icon_logo.svg"
-          alt="Baha Connect"
+          alt="Kora"
           class="w-28 h-28 transition-all duration-100 ease"
         >
         <img
           v-else
           src="/logo/kora_black_logo.svg"
-          alt="Baha Connect"
+          alt="Kora"
           class="w-28 h-28 transition-all duration-100 ease"
         >
       </div>

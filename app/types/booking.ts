@@ -1,6 +1,6 @@
-export type ManualBookingClient =
-  | { kind: "existing"; memberId: number }
-  | { kind: "new"; fullName: string; email: string; phoneNumber?: string };
+export type ManualBookingClient
+  = | { kind: "existing"; memberId: number }
+    | { kind: "new"; fullName: string; email: string; phoneNumber?: string };
 
 export type CreateManualBookingPayload = {
   client: ManualBookingClient;

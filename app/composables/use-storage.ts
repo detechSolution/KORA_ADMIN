@@ -119,7 +119,8 @@ export function clearStorage(): boolean {
 export function useStorage() {
   const getToken = (key: string): string | null => {
     const cookieToken = readCookie(key);
-    if (cookieToken) return cookieToken;
+    if (cookieToken)
+      return cookieToken;
 
     // Read tokens from the previous storage scheme once, so active staff can
     // continue through their next refresh and be migrated into expiring cookies.

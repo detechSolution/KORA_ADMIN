@@ -44,8 +44,6 @@ function daysBefore(date: string, days: number) {
 const defaultPeriod = () => ({ start: daysBefore(nepalToday, 6), end: nepalToday });
 const bookingsPeriod = ref(defaultPeriod());
 const revenuePeriod = ref(defaultPeriod());
-const bookingsPickerOpen = ref(false);
-const revenuePickerOpen = ref(false);
 const analyticsData = computed(() => analyticsStore.analyticsStats);
 const recentBookings = computed(() => bookingsStore.bookings.data as any[]);
 const todaySessions = computed(() => sessionStore.sessions.data);
@@ -433,11 +431,23 @@ const kpiData = computed(() => [
             <div>
               <div class="flex items-center gap-2">
                 <UIcon :name="ICONS.CALENDAR" class="h-4 w-4 text-primary-700" />
-                <h2 class="text-secondary font-semibold">Bookings by Sessions</h2>
+                <h2 class="text-secondary font-semibold">
+                  Bookings by Sessions
+                </h2>
               </div>
-              <p class="text-xs font-normal text-secondary-300 mt-0.5">Booking volume split by sessions</p>
+              <p class="text-xs font-normal text-secondary-300 mt-0.5">
+                Booking volume split by sessions
+              </p>
             </div>
-            <base-date-picker v-model="bookingsPeriod" name="bookingsPeriod" placeholder="Choose bookings date range" range icon-only :no-of-months="2" @update:model-value="getBookingsBySessions" />
+            <base-date-picker
+              v-model="bookingsPeriod"
+              name="bookingsPeriod"
+              placeholder="Choose bookings date range"
+              range
+              icon-only
+              :no-of-months="2"
+              @update:model-value="getBookingsBySessions"
+            />
           </div>
         </div>
         <USeparator />
@@ -482,11 +492,23 @@ const kpiData = computed(() => [
             <div>
               <div class="flex items-center gap-2">
                 <UIcon :name="ICONS.CALENDAR" class="h-4 w-4 text-primary-700" />
-                <h2 class="text-secondary font-semibold">Revenue Trend</h2>
+                <h2 class="text-secondary font-semibold">
+                  Revenue Trend
+                </h2>
               </div>
-              <p class="text-xs font-normal text-secondary-300 mt-0.5">Track peak earning days at a glance</p>
+              <p class="text-xs font-normal text-secondary-300 mt-0.5">
+                Track peak earning days at a glance
+              </p>
             </div>
-            <base-date-picker v-model="revenuePeriod" name="revenuePeriod" placeholder="Choose revenue date range" range icon-only :no-of-months="2" @update:model-value="getRevenueTrend" />
+            <base-date-picker
+              v-model="revenuePeriod"
+              name="revenuePeriod"
+              placeholder="Choose revenue date range"
+              range
+              icon-only
+              :no-of-months="2"
+              @update:model-value="getRevenueTrend"
+            />
           </div>
         </div>
         <USeparator />

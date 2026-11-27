@@ -62,7 +62,7 @@ const summary = ref<any>(null);
 
 const filters = ref({
   search: "",
-  status: "",
+  status: "confirmed",
   type: "",
   dateRange: {
     start: null as string | null,

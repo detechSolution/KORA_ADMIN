@@ -1,10 +1,10 @@
-export type MemberGuestOptionType =
-  | "membership_plan_user"
-  | "pass_user"
-  | "member"
-  | "guest"
-  | "user"
-  | "system_user";
+export type MemberGuestOptionType
+  = | "membership_plan_user"
+    | "pass_user"
+    | "member"
+    | "guest"
+    | "user"
+    | "system_user";
 
 export type MemberBookingOption = {
   id: number;

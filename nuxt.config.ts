@@ -4,7 +4,7 @@ export default defineNuxtConfig({
     head: {
       title: "Kora | Admin",
       meta: [
-        { name: "description", content: "System" },
+        { name: "description", content: "Kora admin dashboard" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         { name: "robots", content: "noindex, nofollow" },
       ],
@@ -31,13 +31,6 @@ export default defineNuxtConfig({
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || "",
       apiTimeout: process.env.NUXT_PUBLIC_API_TIMEOUT || "",
-    },
-  },
-  // SPA (`ssr: false` + `nuxt generate`) has no worker entry. On Workers CI,
-  // Nitro would still emit a deploy config whose `main` is `index.mjs`.
-  nitro: {
-    cloudflare: {
-      deployConfig: false,
     },
   },
   eslint: {

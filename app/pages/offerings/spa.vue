@@ -33,6 +33,7 @@ const isDeleteCategoryModalOpen = ref(false);
 const isEditCategoryModalOpen = ref(false);
 const selectedServiceId = ref<number | null>(null);
 const selectedCategoryId = ref<number | null>(null);
+const spadata = computed(() => spaStore.spaData);
 const selectedCategory = computed(() => spadata.value.find(category => category.id === selectedCategoryId.value) ?? null);
 const selectedService = ref<SpaSubType | null>(null);
 const router = useRouter();
@@ -62,11 +63,6 @@ async function fetchSpaData(): Promise<void> {
 
 onMounted(async () => {
   await fetchSpaData();
-});
-
-const spadata = computed(() => {
-  console.log("spaStore.spaData", spaStore.spaData);
-  return spaStore.spaData;
 });
 
 const spaInfo = computed(() => spaStore.spaInfo);
@@ -379,7 +375,6 @@ function clearFilters(): void {
         <div
           class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
         >
-
           <service-card
             v-for="service in spaType.services"
             :id="service.id"
