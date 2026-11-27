@@ -2,14 +2,11 @@
 import { computed, ref, watch } from "vue";
 
 import ItemNameList from "~/components/base/item-name-list.vue";
-import { getHttp } from "~/composables/use-api";
-import { API_ENDPOINTS } from "~/config/constants";
 import { ICONS } from "~/config/icons";
 import { useMembershipStore } from "~/stores/membership";
 import { bookingScheduleLabels, bookingServiceLabels } from "~/utils/booking-lines";
 import { formatDate } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
-import { downloadCsv } from "~/utils/report-csv";
 
 type Props = {
   open?: boolean;
@@ -64,16 +61,6 @@ const profileEditInfo = computed(() => {
 const membershipStore = useMembershipStore();
 const { error: showError } = useNotification();
 const loading = computed(() => membershipStore.loading);
-const historyExporting = ref(false);
-async function exportHistory() {
-  historyExporting.value = true;
-  try {
-    const file = await getHttp().get<{ filename: string; csv: string }>(`${API_ENDPOINTS.MEMBERS.GET_MEMBER_BOOKINGS(props.member.id)}/export`);
-    downloadCsv(file);
-  }
-  catch (error: unknown) { showError({ message: getApiErrorMessage(error, "Failed to export booking history") }); }
-  finally { historyExporting.value = false; }
-}
 async function loadHistoryPage(page: number) {
   try {
     await membershipStore.fetchMemberBookings(props.member.id, page);
@@ -301,13 +288,6 @@ watch(
         v-if="selectedTab === 'bookings'"
         class="flex flex-col gap-4"
       >
-        <!-- <base-button
-          variant="outline"
-          :loading="historyExporting"
-          @click="exportHistory"
-        >
-          Export booking history CSV
-        </base-button> -->
         <div v-if="memberBookings.data?.length" class="space-y-2">
           <div
             v-for="booking in memberBookings.data"

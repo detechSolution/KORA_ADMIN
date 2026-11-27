@@ -11,8 +11,8 @@ import type {
   SpaResponse,
   SpaSubType,
   SpaSubTypeResponse,
-  UpdateSpaPayload,
   UpdateSpaCategoryPayload,
+  UpdateSpaPayload,
   UpdateSpaSubTypePayload,
 } from "~/types/spa";
 

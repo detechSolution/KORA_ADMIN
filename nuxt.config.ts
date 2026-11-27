@@ -4,7 +4,7 @@ export default defineNuxtConfig({
     head: {
       title: "Kora | Admin",
       meta: [
-        { name: "description", content: "System" },
+        { name: "description", content: "Kora admin dashboard" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         { name: "robots", content: "noindex, nofollow" },
       ],

@@ -180,7 +180,7 @@ async function handleLogin(): Promise<void> {
         <div class="flex items-center gap-2.5">
           <img
             src="/logo/kora_white_logo.svg"
-            alt="Baha Connect"
+            alt="Kora"
             class="h-16 w-32 shrink-0 object-contain"
           >
         </div>
@@ -209,7 +209,7 @@ async function handleLogin(): Promise<void> {
       <div class="lg:hidden relative z-10 flex items-center gap-2.5 px-5 h-[var(--size-navbar-auth)] min-h-[4rem] shrink-0">
         <img
           src="/logo/kora_black_logo.svg"
-          alt="Baha Connect"
+          alt="Kora"
           class="h-16 w-32 shrink-0 object-contain"
         >
       </div>

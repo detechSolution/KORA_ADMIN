@@ -3,8 +3,8 @@ import { useDebounceFn } from "@vueuse/core";
 import { computed, reactive, ref, watch } from "vue";
 import z from "zod";
 
-import type { MemberBookingOption } from "~/types/membership";
 import type { CreateManualBookingPayload } from "~/types/booking";
+import type { MemberBookingOption } from "~/types/membership";
 import type { StepItem } from "~/types/stepper";
 
 import { useNotification } from "~/composables/use-notification";
@@ -75,66 +75,73 @@ const bookingSchema = z
     time: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.clientKind === "existing" && !data.selectedMemberId)
+    if (data.clientKind === "existing" && !data.selectedMemberId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["selectedMemberId"],
         message: "Select a client",
       });
+    }
     if (data.clientKind === "new") {
-      if (!data.fullName?.trim() || data.fullName.trim().length < 2)
+      if (!data.fullName?.trim() || data.fullName.trim().length < 2) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["fullName"],
           message: "Enter the client's full name",
         });
+      }
       if (
-        !data.email?.trim() ||
-        !z.string().email().safeParse(data.email.trim()).success
-      )
+        !data.email?.trim()
+        || !z.string().email().safeParse(data.email.trim()).success
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["email"],
           message: "Enter a valid email address",
         });
+      }
     }
     if (data.serviceType === "session") {
       const item = bookingStore.bookingItemOptions
-        .flatMap((group) => group.items)
-        .find((option) => option.id === data.serviceId);
+        .flatMap(group => group.items)
+        .find(option => option.id === data.serviceId);
       const sessionType = String(item?.sessionType ?? "").toLowerCase();
       if (
-        sessionType === SESSION_TYPE.EVENT ||
-        sessionType === SESSION_TYPE.WORKSHOP
+        sessionType === SESSION_TYPE.EVENT
+        || sessionType === SESSION_TYPE.WORKSHOP
       ) {
         const available = availableBookingTickets(item);
-        if (!data.sessionQuantity)
+        if (!data.sessionQuantity) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["sessionQuantity"],
             message: "Select a quantity",
           });
-        else if (data.sessionQuantity > Math.min(20, available))
+        }
+        else if (data.sessionQuantity > Math.min(20, available)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["sessionQuantity"],
             message: "Quantity exceeds available spots",
           });
+        }
       }
     }
     if (data.serviceType === "spa") {
-      if (!data.durationId)
+      if (!data.durationId) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["durationId"],
           message: "Select a spa duration",
         });
-      if (!data.time)
+      }
+      if (!data.time) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["time"],
           message: "Select an available spa time",
         });
+      }
     }
   });
 
@@ -160,15 +167,20 @@ const searchClients = useDebounceFn(async (term: string) => {
     const matches = await membershipStore.getMembersOptions({
       q: query,
     });
-    if (requestId === searchRequestId) clientResults.value = matches;
-  } catch (error) {
     if (requestId === searchRequestId)
+      clientResults.value = matches;
+  }
+  catch (error) {
+    if (requestId === searchRequestId) {
       searchError.value = getApiErrorMessage(
         error,
         "Could not search clients. Try again.",
       );
-  } finally {
-    if (requestId === searchRequestId) searching.value = false;
+    }
+  }
+  finally {
+    if (requestId === searchRequestId)
+      searching.value = false;
   }
 }, 300);
 watch(searchTerm, (term) => {
@@ -180,7 +192,7 @@ watch(searchTerm, (term) => {
 });
 
 const selectedClient = computed(() =>
-  clientResults.value.find((item) => item.memberId === state.selectedMemberId),
+  clientResults.value.find(item => item.memberId === state.selectedMemberId),
 );
 const needsNewClient = computed(() => state.clientKind === "new");
 
@@ -206,11 +218,12 @@ function startNewClient(): void {
   state.clientName = "";
   const query = searchTerm.value.trim();
   const emailQuery = query.includes("@");
-  const phoneQuery =
-    !emailQuery &&
-    /^[+\d\s().-]+$/.test(query) &&
-    query.replace(/\D/g, "").length >= 7;
-  if (!emailQuery && !phoneQuery && !state.fullName) state.fullName = query;
+  const phoneQuery
+    = !emailQuery
+      && /^[+\d\s().-]+$/.test(query)
+      && query.replace(/\D/g, "").length >= 7;
+  if (!emailQuery && !phoneQuery && !state.fullName)
+    state.fullName = query;
   if (emailQuery && !state.email && z.string().email().safeParse(query).success)
     state.email = query;
   if (phoneQuery && !state.phoneNumber && /^[0-9+\-\s]{7,20}$/.test(query))
@@ -237,7 +250,8 @@ async function handleNext(): Promise<void> {
       state.clientName = state.fullName;
     }
     currentStep.value = 1;
-  } catch {
+  }
+  catch {
     // The form renders field-level validation messages.
   }
 }
@@ -258,7 +272,8 @@ function clientTypeLabel(type: string): string {
 }
 
 function formatDate(value: string | null): string {
-  if (!value) return "";
+  if (!value)
+    return "";
   return new Date(`${value.slice(0, 10)}T00:00:00`).toLocaleDateString();
 }
 
@@ -307,11 +322,13 @@ async function createBooking(): Promise<void> {
     await bookingStore.createManualBooking(payload);
     success({ message: "Booking created successfully!" });
     await router.push("/bookings/bookings-list");
-  } catch (error) {
+  }
+  catch (error) {
     showError({
       message: getApiErrorMessage(error, "Failed to create booking"),
     });
-  } finally {
+  }
+  finally {
     loading.value = false;
   }
 }
@@ -349,30 +366,32 @@ async function createBooking(): Promise<void> {
               class="flex items-center justify-between gap-4 rounded-lg border border-stone-200 bg-stone-50 p-4"
             >
               <div class="min-w-0">
-                <p class="font-semibold">{{ state.clientName }}</p>
+                <p class="font-semibold">
+                  {{ state.clientName }}
+                </p>
                 <p class="text-sm text-stone-500">
                   {{ state.phoneNumber
-                  }}<span v-if="state.phoneNumber && state.email"> </span
-                  >{{ state.email }}
+                  }}<span v-if="state.phoneNumber && state.email" />{{ state.email }}
                 </p>
                 <p
                   v-if="
-                    selectedClient?.membershipPlanName ||
-                    selectedClient?.passName
+                    selectedClient?.membershipPlanName
+                      || selectedClient?.passName
                   "
                   class="text-xs text-stone-500 mt-1"
                 >
                   {{
-                    selectedClient?.membershipPlanName ||
-                    selectedClient?.passName
+                    selectedClient?.membershipPlanName
+                      || selectedClient?.passName
                   }}
                   <span v-if="selectedClient?.endDate">
-                    active until {{ formatDate(selectedClient.endDate) }}</span
-                  >
+                    active until {{ formatDate(selectedClient.endDate) }}</span>
                 </p>
-                <base-badge v-if="selectedClient" class="mt-2">{{
-                  clientTypeLabel(selectedClient.type)
-                }}</base-badge>
+                <base-badge v-if="selectedClient" class="mt-2">
+                  {{
+                    clientTypeLabel(selectedClient.type)
+                  }}
+                </base-badge>
               </div>
               <button
                 type="button"
@@ -387,7 +406,9 @@ async function createBooking(): Promise<void> {
                 class="space-y-4 rounded-lg border border-stone-200 bg-stone-50/60 p-4"
               >
                 <div class="flex items-center justify-between gap-3">
-                  <h3 class="font-semibold">Add as new client</h3>
+                  <h3 class="font-semibold">
+                    Add as new client
+                  </h3>
                   <button
                     type="button"
                     class="text-sm underline"
@@ -460,14 +481,11 @@ async function createBooking(): Promise<void> {
                   @click="chooseClient(client)"
                 >
                   <span class="min-w-0">
-                    <span class="flex flex-wrap items-center gap-2 font-medium"
-                      >{{ client.fullName }}
+                    <span class="flex flex-wrap items-center gap-2 font-medium">{{ client.fullName }}
                       <base-badge>{{
                         clientTypeLabel(client.type)
-                      }}</base-badge></span
-                    >
-                    <span class="block text-xs text-stone-500"
-                      >{{ client.phoneNumber || "No phone" }} |
+                      }}</base-badge></span>
+                    <span class="block text-xs text-stone-500">{{ client.phoneNumber || "No phone" }} |
                       {{ client.email || "No email"
                       }}<template
                         v-if="client.membershipPlanName || client.passName"
@@ -475,16 +493,12 @@ async function createBooking(): Promise<void> {
                         |
                         {{
                           client.membershipPlanName || client.passName
-                        }}</template
-                      ><template v-if="client.endDate">
-                        | until {{ formatDate(client.endDate) }}</template
-                      ></span
-                    >
+                        }}</template><template v-if="client.endDate">
+                        | until {{ formatDate(client.endDate) }}</template></span>
                   </span>
                   <span
                     class="shrink-0 rounded-md bg-stone-900 px-3 py-2 text-sm text-white"
-                    >Select</span
-                  >
+                  >Select</span>
                 </button>
               </div>
               <div
@@ -500,9 +514,12 @@ async function createBooking(): Promise<void> {
                     guest accounts.
                   </p>
                 </div>
-                <base-button variant="outline" @click="startNewClient"
-                  >Add as new client</base-button
+                <base-button
+                  variant="outline"
+                  @click="startNewClient"
                 >
+                  Add as new client
+                </base-button>
               </div>
             </template>
           </section>
@@ -513,9 +530,12 @@ async function createBooking(): Promise<void> {
             <BookingsServiceSelector v-model="state" />
           </section>
           <div class="flex justify-end">
-            <base-button :disabled="!state.clientKind" @click="handleNext"
-              >Next</base-button
+            <base-button
+              :disabled="!state.clientKind"
+              @click="handleNext"
             >
+              Next
+            </base-button>
           </div>
         </div>
 
@@ -525,12 +545,18 @@ async function createBooking(): Promise<void> {
         >
           <BookingsExistingMemberOverview ref="overviewRef" v-model="state" />
           <div class="flex justify-between items-center">
-            <base-button variant="outline" @click="handleBack"
-              >Back</base-button
+            <base-button
+              variant="outline"
+              @click="handleBack"
             >
-            <base-button :loading="loading" @click="createBooking"
-              >Create Booking</base-button
+              Back
+            </base-button>
+            <base-button
+              :loading="loading"
+              @click="createBooking"
             >
+              Create Booking
+            </base-button>
           </div>
         </div>
       </UForm>

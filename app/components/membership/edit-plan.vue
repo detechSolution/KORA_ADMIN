@@ -120,14 +120,14 @@ function getPlanChangeImpact(
   });
 
   const currentOptions = plan.options ?? [];
-  const priceOrFrequencyChanged =
-    payload.options.length !== currentOptions.length
-    || payload.options.some((requested) => {
-      const current = currentOptions.find(option => option.frequency === requested.frequency);
-      return !current
-        || current.price !== requested.price
-        || (current.customDays ?? null) !== (requested.customDays ?? null);
-    });
+  const priceOrFrequencyChanged
+    = payload.options.length !== currentOptions.length
+      || payload.options.some((requested) => {
+        const current = currentOptions.find(option => option.frequency === requested.frequency);
+        return !current
+          || current.price !== requested.price
+          || (current.customDays ?? null) !== (requested.customDays ?? null);
+      });
 
   return { benefitsChanged, priceOrFrequencyChanged };
 }
@@ -311,7 +311,8 @@ async function handleSubmit(): Promise<void> {
 }
 
 async function confirmUpdate(): Promise<void> {
-  if (!props.plan?.id || !pendingPayload.value) return;
+  if (!props.plan?.id || !pendingPayload.value)
+    return;
 
   try {
     loading.value = true;

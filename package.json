@@ -1,5 +1,5 @@
 {
-  "name": "baha-system-web",
+  "name": "kora-admin",
   "type": "module",
   "version": "0.0.51",
   "private": true,
@@ -22,7 +22,6 @@
     "@nuxt/ui": "^4.4.0",
     "@pinia/nuxt": "^0.11.3",
     "eslint": "^9.38.0",
-    "lucide-react": "^1.7.0",
     "nuxt": "^4.2.0",
     "nuxt-charts": "^2.1.4",
     "pinia": "^3.0.4",
