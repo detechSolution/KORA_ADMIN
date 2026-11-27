@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<{
 
 const form = defineModel<ServiceState>({ required: true });
 const bookingStore = useBookingStore();
+const todayDate = new Date().toLocaleDateString("en-CA");
 
 const serviceTypes = [
   { label: "Session", value: "session" },
@@ -359,6 +360,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
         placeholder="Select date"
         :no-of-months="1"
         :allowed-weekdays="spaAvailableDays"
+        :min-date="todayDate"
       />
     </div>
 
@@ -375,6 +377,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
         :no-of-months="1"
         :disabled="form.serviceType === 'session'"
         :readonly="form.serviceType === 'session'"
+        :min-date="todayDate"
       />
       <UFormField
         :name="n('time')"
@@ -398,6 +401,7 @@ watch([() => form.value.date, () => form.value.durationId, () => form.value.serv
       label="Date"
       placeholder="Select date"
       :no-of-months="1"
+      :min-date="todayDate"
     />
 
     <base-input-number

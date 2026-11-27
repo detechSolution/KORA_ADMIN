@@ -9,6 +9,7 @@ import { ICONS } from "../../../config/icons";
 
 const form = defineModel<any>({ required: true });
 const bookingStore = useBookingStore();
+const todayDate = new Date().toLocaleDateString("en-CA");
 
 const serviceTypes = [
   { label: "Session", value: "session" },
@@ -376,6 +377,7 @@ defineExpose({
           placeholder="Select date"
           :no-of-months="1"
           :allowed-weekdays="spaAvailableDays"
+          :min-date="todayDate"
         />
       </div>
 
@@ -391,6 +393,7 @@ defineExpose({
           placeholder="Select date"
           :no-of-months="1"
           :disabled="form.serviceType === 'session'"
+          :min-date="todayDate"
         />
         <UFormField
           name="time"
@@ -414,6 +417,7 @@ defineExpose({
         label="Date"
         placeholder="Select date"
         :no-of-months="1"
+        :min-date="todayDate"
       />
 
       <!-- Spa: time slots -->
