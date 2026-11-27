@@ -159,7 +159,7 @@ async function handleCreatePromoCode() {
                   v-model="state.code"
                   name="code"
                   label="Code Name"
-                  placeholder="Enter admin name"
+                  placeholder="Enter code name eg. KORA10"
                 />
               </div>
               <div class="w-full">
@@ -167,7 +167,6 @@ async function handleCreatePromoCode() {
                   v-model="state.discountType"
                   name="discountType"
                   label="Discount Type"
-                  placeholder="Enter admin name"
                   :options="discountTypeOptions"
                 />
               </div>
