@@ -26,7 +26,9 @@ const schema = z.object({
   subject: z.string().min(1, "Mail subject is required"),
   title: z.string().min(1, "Mail title is required"),
   htmlContent: z.string().min(1, "Mail htmlContent is required"),
-  recipientEmails: z.array(z.string().email("Invalid email address")).min(1, "At least one recipient is required"),
+  recipientEmails: z
+    .array(z.string().email("Invalid email address"))
+    .min(1, "At least one recipient is required"),
 });
 
 type MailSchema = z.output<typeof schema>;
@@ -37,15 +39,18 @@ const state = reactive<Partial<MailSchema>>({
   subject: "",
   title: "",
   htmlContent: "",
-  get recipientEmails() { return recipientEmails.value; },
-  set recipientEmails(v) { recipientEmails.value = v; },
+  get recipientEmails() {
+    return recipientEmails.value;
+  },
+  set recipientEmails(v) {
+    recipientEmails.value = v;
+  },
 });
 
 async function handleCreateMail() {
   try {
     await formRef.value?.validate();
-  }
-  catch {
+  } catch {
     return;
   }
   confirmationOpen.value = true;
@@ -63,11 +68,14 @@ async function confirmSendMail() {
     });
     success({ message: "Email sent successfully" });
     router.push("/send-email/email-list");
-  }
-  catch (error: unknown) {
-    showError({ message: getApiErrorMessage(error, "Something went wrong. Please try again.") });
-  }
-  finally {
+  } catch (error: unknown) {
+    showError({
+      message: getApiErrorMessage(
+        error,
+        "Something went wrong. Please try again."
+      ),
+    });
+  } finally {
     loading.value = false;
   }
 }
@@ -76,19 +84,14 @@ async function confirmSendMail() {
 <template>
   <div class="flex flex-col gap-6">
     <base-page-header>
-      <template #title>
-        Send email
-      </template>
+      <template #title> Send email </template>
       <template #description>
         Create a new mail and send it to members or guests
       </template>
 
       <template #actions>
         <NuxtLink to="/send-email/email-list">
-          <base-button
-            variant="outline"
-            :leading-icon="ICONS.ARROW_LEFT"
-          >
+          <base-button variant="outline" :leading-icon="ICONS.ARROW_LEFT">
             Back to list
           </base-button>
         </NuxtLink>
@@ -159,7 +162,21 @@ async function confirmSendMail() {
     <base-modal
       :open="confirmationOpen"
       title="Confirm email"
-      :description="`Send '${state.subject?.trim() || 'Untitled'}' to ${new Set((state.recipientEmails ?? []).map(email => email.trim().toLowerCase()).filter(Boolean)).size} recipients?`"
+      :description="`Send '${state.subject?.trim() || 'Untitled'}' to ${
+        new Set(
+          (state.recipientEmails ?? [])
+            .map((email) => email.trim().toLowerCase())
+            .filter(Boolean)
+        ).size
+      } recipient${
+        new Set(
+          (state.recipientEmails ?? [])
+            .map((email) => email.trim().toLowerCase())
+            .filter(Boolean)
+        ).size === 1
+          ? ''
+          : 's'
+      }?`"
       @close="confirmationOpen = false"
     >
       <div class="flex justify-end gap-3 p-6">
