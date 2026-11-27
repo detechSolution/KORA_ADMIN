@@ -24,7 +24,7 @@ const emit = defineEmits<{
 
 const paymentMethods = [
   { value: "cash", label: "Cash", description: "Paid at counter", icon: ICONS.MONEY },
-  { value: "online", label: "Online Transfer", description: "Card/Online Transfer", icon: ICONS.WIFI },
+  { value: "online", label: "Online Transfer", description: "Online Transfer", icon: ICONS.WIFI },
 ];
 
 const steps = [
@@ -34,6 +34,7 @@ const steps = [
 const bookingStore = useBookingStore();
 const membershipStore = useMembershipStore();
 const { success, error: showError } = useNotification();
+const todayDate = new Date().toLocaleDateString("en-CA");
 
 const currentStep = ref(0);
 const loading = ref(false);
@@ -264,6 +265,7 @@ watch(
               name="subscriptionStartDate"
               label="Start Date"
               placeholder="Select start date"
+              :min-date="todayDate"
             />
           </div>
         </section>

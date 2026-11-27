@@ -23,10 +23,11 @@ const steps: StepItem[] = [
 ];
 const paymentMethods = [
   { value: "cash", label: "Cash", description: "Paid at counter", icon: ICONS.MONEY },
-  { value: "online", label: "Online Transfer", description: "Card/Online Transfer", icon: ICONS.WIFI },
+  { value: "online", label: "Online Transfer", description: "Online Transfer", icon: ICONS.WIFI },
 ];
 
 const currentStep = ref(0);
+const todayDate = new Date().toLocaleDateString("en-CA");
 const bookingStore = useBookingStore();
 const membershipStore = useMembershipStore();
 const { error: showError, success } = useNotification();
@@ -369,6 +370,7 @@ onMounted(() => {
                       name="subscriptionStartDate"
                       label="Start Date"
                       placeholder="Select start date"
+                      :min-date="todayDate"
                     />
                   </div>
                 </div>
