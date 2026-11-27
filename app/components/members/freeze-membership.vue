@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import z from "zod";
 
+import type { ApiResponse } from "~/types/api";
+import type { Booking } from "~/types/booking";
 import type { Member } from "~/types/membership";
 
+import { getHttp } from "~/composables/use-api";
 import { useNotification } from "~/composables/use-notification";
+import { API_ENDPOINTS } from "~/config/constants";
 import { useMembershipStore } from "~/stores/membership";
+import { buildQueryString } from "~/utils/common";
 import { getApiErrorMessage } from "~/utils/error";
 
 type Props = {
@@ -24,7 +29,11 @@ const membershipStore = useMembershipStore();
 const { success, error: showError } = useNotification();
 
 const loading = ref(false);
+const checkingBookings = ref(false);
+const overlappingBookings = ref<Booking[]>([]);
+const bookingCheckError = ref(false);
 const formRef = ref<InstanceType<typeof UForm> | null>(null);
+let bookingCheckSequence = 0;
 
 const today = new Date();
 const todayDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
@@ -89,7 +98,60 @@ const state = reactive<Partial<FreezeSchema>>({
   reason: "",
 });
 
+watch(
+  () => [state.dateRange.start, state.dateRange.end] as const,
+  async ([start, end]) => {
+    const sequence = ++bookingCheckSequence;
+    overlappingBookings.value = [];
+    bookingCheckError.value = false;
+
+    if (!start || !end) {
+      checkingBookings.value = false;
+      return;
+    }
+
+    checkingBookings.value = true;
+    try {
+      const query = buildQueryString({
+        page: 1,
+        limit: 100,
+        q: props.member.user?.email || undefined,
+        bookedFrom: start,
+        bookedTo: end,
+      });
+      const response = await getHttp().get<ApiResponse<Booking[]>>(`${API_ENDPOINTS.BOOKINGS.BASE}?${query}`);
+      if (sequence !== bookingCheckSequence)
+        return;
+
+      const email = props.member.user?.email?.toLowerCase();
+      overlappingBookings.value = response.data.filter((booking) => {
+        const belongsToMember = booking.clientEmail?.toLowerCase() === email
+          || booking.participants?.some(participant => participant.email?.toLowerCase() === email);
+        const hasActiveLineInRange = booking.lines?.some((line) => {
+          if (!line.startsAt || line.status === "cancelled" || line.remainingQuantity <= 0)
+            return false;
+          const bookingDate = line.startsAt.slice(0, 10);
+          return bookingDate >= start && bookingDate <= end;
+        });
+        return belongsToMember && hasActiveLineInRange;
+      });
+    }
+    catch {
+      if (sequence === bookingCheckSequence)
+        bookingCheckError.value = true;
+    }
+    finally {
+      if (sequence === bookingCheckSequence)
+        checkingBookings.value = false;
+    }
+  },
+);
+
 function resetForm(): void {
+  bookingCheckSequence++;
+  checkingBookings.value = false;
+  overlappingBookings.value = [];
+  bookingCheckError.value = false;
   state.dateRange = { start: "", end: "" };
   state.reason = "";
 }
@@ -159,6 +221,16 @@ function handleClose(): void {
           :min-date="todayDate"
           label="Freeze Start and End Date*"
         />
+
+        <div v-if="checkingBookings" class="rounded-md border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-secondary-600" role="status">
+          Checking for bookings during these dates…
+        </div>
+        <div v-else-if="overlappingBookings.length" class="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="alert">
+          This member has {{ overlappingBookings.length }} booking{{ overlappingBookings.length === 1 ? "" : "s" }} during the selected freeze dates. Please review them before freezing the membership.
+        </div>
+        <div v-else-if="bookingCheckError" class="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+          Could not check bookings for these dates. Please try selecting the dates again.
+        </div>
 
         <!-- Reason -->
         <base-input
