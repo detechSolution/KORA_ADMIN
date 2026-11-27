@@ -258,7 +258,7 @@ watch(() => props.open, (newVal, _oldVal, onCleanup) => {
                     <span class="text-base font-semibold text-secondary-800">{{ item.name }}</span>
                     <span class="text-xs text-secondary-500">
                       {{ item.expectedQuantity ?? 1 }} {{ item.expectedQuantity === 1 ? 'ticket' : 'tickets' }}
-                      <span v-if="item.bookingLineId"> ? Line {{ item.bookingLineId }}</span>
+                      <span v-if="item.bookingLineId"> <span aria-hidden="true">·</span> Line {{ item.bookingLineId }}</span>
                     </span>
                     <base-badge
                       v-if="item.attendanceStatus === 'attended'"
