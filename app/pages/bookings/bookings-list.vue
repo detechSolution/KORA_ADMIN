@@ -100,7 +100,7 @@ const hasActiveFilters = computed(() => {
     filters.value.search
     || filters.value.dateRange.start
     || filters.value.dateRange.end
-    || filters.value.status !== ""
+    || filters.value.status !== "confirmed"
     || filters.value.type !== ""
   );
 });
@@ -165,7 +165,7 @@ function clearFilters(): void {
   filters.value = {
     search: "",
     type: "",
-    status: "",
+    status: "confirmed",
     dateRange: { start: null, end: null },
   };
 
